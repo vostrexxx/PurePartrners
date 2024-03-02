@@ -55,53 +55,59 @@
     padding: 10px;
     border: none;
     border-radius: 5px;
-    background-color: #007bff;
     color: #fff;
     font-size: 16px;
     cursor: pointer;
   }
-  
-  .submit-containers button:hover {
-    background-color: #0056b3;
-  }
-  
-  .forgotPassword {
-    text-align: center;
-    margin-top: 10px;
-  }
-  
-  .forgotPassword span {
-    color: #007bff;
+  .submit-containers button {
+    width: 48%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
     cursor: pointer;
   }
   
-  .forgotPassword span:hover {
-    text-decoration: underline;
-  }
-  
   .submit-container-signup {
-    background-color: #007bff; 
+    background-color: #ccc; /* Серый цвет для кнопки Регистрация */
     color: #fff;
   }
   
   .submit-container-login {
-    background-color: #ccc;
+    background-color: #ccc; /* Серый цвет для кнопки Вход */
     color: #fff;
   }
   
   .submit-container-signup.active {
-    background-color: #007bff;
+    background-color: #007bff; /* Голубой цвет для активной кнопки Регистрация */
   }
   
   .submit-container-login.active {
-    background-color: #ccc;
+    background-color: #007bff; /* Голубой цвет для активной кнопки Вход */
   }
   
   .submit-container-signup:hover:not(.active) {
-    background-color: #0056b3;
+    background-color: #999; /* Темно-серый цвет при наведении на кнопку Регистрация */
   }
   
   .submit-container-login:hover:not(.active) {
-    background-color: #999;
+    background-color: #999; /* Темно-серый цвет при наведении на кнопку Вход */
+  }
+  
+  .forgotPassword {
+    text-align: left;
+    margin-top: 10px;
+  }
+  
+  .forgotPasswordText {
+    color: #555; /* Темно-серый цвет */
+    font-size: 14px; /* Размер шрифта */
+    cursor: pointer;
+    transition: color 0.3s ease; /* Плавное изменение цвета */
+  }
+  
+  .forgotPasswordText:hover {
+    color: #007bff; /* Голубой цвет при наведении */
+    text-decoration: underline;
   }
   
