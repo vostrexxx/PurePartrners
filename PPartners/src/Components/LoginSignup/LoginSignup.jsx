@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import "./LoginSignup.css";
 
-import name_icon from "../../assets/name_icon.png";
+import name_icon from "../../assets/name_icon1.png";
 import password_icon from "../../assets/password_icon.png";
-import phone_icon from "../../assets/phone_icon.png";
+import phone_icon from "../../assets/phone_icon1.png";
 
 function InputField({ imageSrc, inputType, placeholder, isActive }) {
   return (
