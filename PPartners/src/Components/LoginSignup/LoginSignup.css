@@ -80,28 +80,28 @@
   }
   
   .submit-container-signup {
-    background-color: #007bff; /* Синий цвет для кнопки Регистрация */
+    background-color: #007bff; 
     color: #fff;
   }
   
   .submit-container-login {
-    background-color: #ccc; /* Серый цвет для кнопки Вход */
+    background-color: #ccc;
     color: #fff;
   }
   
   .submit-container-signup.active {
-    background-color: #007bff; /* Синий цвет для активной кнопки Регистрация */
+    background-color: #007bff;
   }
   
   .submit-container-login.active {
-    background-color: #ccc; /* Серый цвет для активной кнопки Вход */
+    background-color: #ccc;
   }
   
   .submit-container-signup:hover:not(.active) {
-    background-color: #0056b3; /* Темно-синий цвет при наведении на кнопку Регистрация */
+    background-color: #0056b3;
   }
   
   .submit-container-login:hover:not(.active) {
-    background-color: #999; /* Темно-серый цвет при наведении на кнопку Вход */
+    background-color: #999;
   }
   
