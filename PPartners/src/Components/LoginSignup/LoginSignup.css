@@ -1,0 +1,107 @@
+.container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+  }
+  
+  .header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .text {
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  .underline {
+    width: 50px;
+    height: 3px;
+    background-color: #007bff;
+    margin: 0 auto;
+  }
+  
+  .input {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+  }
+  
+  .input-field {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+  }
+  
+  .submit-containers {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  .submit-containers button {
+    width: 48%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .submit-containers button:hover {
+    background-color: #0056b3;
+  }
+  
+  .forgotPassword {
+    text-align: center;
+    margin-top: 10px;
+  }
+  
+  .forgotPassword span {
+    color: #007bff;
+    cursor: pointer;
+  }
+  
+  .forgotPassword span:hover {
+    text-decoration: underline;
+  }
+  
+  .submit-container-signup {
+    background-color: #007bff; /* Синий цвет для кнопки Регистрация */
+    color: #fff;
+  }
+  
+  .submit-container-login {
+    background-color: #ccc; /* Серый цвет для кнопки Вход */
+    color: #fff;
+  }
+  
+  .submit-container-signup.active {
+    background-color: #007bff; /* Синий цвет для активной кнопки Регистрация */
+  }
+  
+  .submit-container-login.active {
+    background-color: #ccc; /* Серый цвет для активной кнопки Вход */
+  }
+  
+  .submit-container-signup:hover:not(.active) {
+    background-color: #0056b3; /* Темно-синий цвет при наведении на кнопку Регистрация */
+  }
+  
+  .submit-container-login:hover:not(.active) {
+    background-color: #999; /* Темно-серый цвет при наведении на кнопку Вход */
+  }
+  
