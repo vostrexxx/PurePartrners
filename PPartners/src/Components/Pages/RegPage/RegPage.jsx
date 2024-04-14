@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import name_icon from "../../../assets/name_icon1.png";
 import password_icon from "../../../assets/password_icon.png";
 import phone_icon from "../../../assets/phone_icon1.png";
-// import phone_icon from "../../../assets/email_icon.jpg";
+import email_icon from "../../../assets/email_icon.jpg";
 
 function InputField({ imageSrc, inputType, placeholder, isActive }) {
   return (
@@ -64,10 +64,10 @@ export default function RegistrationPage() {
       "password",
       document.querySelector('input[name="password"]').value
     );
-    // formData.append(
-    //   "email",
-    //   document.querySelector('input[name="email"]').value
-    // );
+    formData.append(
+      "email",
+      document.querySelector('input[name="email"]').value
+    );
 
     try {
       const response = await fetch("Oleg", {
@@ -91,13 +91,13 @@ export default function RegistrationPage() {
         <div className="underline"></div>
       </div>
 
-      {/* <InputField
+      <InputField
         imageSrc={email_icon}
         inputType="email"
         placeholder="Введите адрес электронной почты"
         isActive={activeFields.email}
         name="email"
-      /> */}
+      />
 
       <InputField
         imageSrc={name_icon}
