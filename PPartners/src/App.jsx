@@ -8,9 +8,9 @@ function App() {
   return (
     <>
       {/* <LoginSignup/> */}
-      {/* <RegistrationPage /> */}
+      <RegistrationPage />
       {/* <LoginPage/> */}
-      <ForgotPasswordPage/>
+      {/* <ForgotPasswordPage/> */}
       {/* <ResetPasswordPage/> */}
     </>
   );

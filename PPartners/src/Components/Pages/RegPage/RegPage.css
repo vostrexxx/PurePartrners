@@ -1,0 +1,50 @@
+/* styles.css */
+.container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  h1 {
+    text-align: center;
+  }
+  
+  form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  label {
+    margin-bottom: 5px;
+  }
+  
+  input {
+    padding: 8px;
+    margin-bottom: 10px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+  }
+  
+  button {
+    padding: 10px;
+    background-color: #00bfff; /* Голубой цвет */
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    /* Добавляем тень, чтобы кнопка выделялась на фоне */
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  button:hover {
+    background-color: #009acd; /* Изменяем цвет при наведении */
+  }
+  
+  
+  .error-message {
+    color: red;
+    margin-top: 5px;
+  }
+  
