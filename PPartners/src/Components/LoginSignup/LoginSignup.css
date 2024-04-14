@@ -1,12 +1,14 @@
 .container {
-    max-width: 400px;
-    margin: 0 auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #f9f9f9;
-  }
-  
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  display: flex; /* Добавлено */
+  flex-direction: column; /* Добавлено */
+  align-items: center; /* Добавлено */
+}
   .header {
     text-align: center;
     margin-bottom: 20px;
@@ -45,28 +47,21 @@
   }
   
   .submit-containers {
-    display: flex;
-    justify-content: space-between;
     margin-top: 20px;
+    width: 100%; /* Добавлено */
+    display: flex;
+    justify-content: center; /* Изменено */
   }
   
-  .submit-containers button {
-    width: 48%;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    color: #fff;
-    font-size: 16px;
-    cursor: pointer;
-  }
-  .submit-containers button {
-    width: 48%;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-  }
+.submit-containers button {
+  width: 48%;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
   
   .submit-container-signup {
     background-color: #ccc; /* Серый цвет для кнопки Регистрация */

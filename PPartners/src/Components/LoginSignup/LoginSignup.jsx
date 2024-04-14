@@ -7,9 +7,13 @@ import phone_icon from "../../assets/phone_icon1.png";
 
 function InputField({ imageSrc, inputType, placeholder, isActive }) {
   return (
-    <div className={`input ${isActive ? 'active' : ''}`}>
+    <div className={`input ${isActive ? "active" : ""}`}>
       <img src={imageSrc} alt="" className="icon" />
-      <input type={inputType} placeholder={placeholder} className="input-field" />
+      <input
+        type={inputType}
+        placeholder={placeholder}
+        className="input-field"
+      />
     </div>
   );
 }
@@ -18,13 +22,17 @@ function SubmitContainers({ onRegister, onLogin, isRegistering }) {
   return (
     <div className="submit-containers">
       <button
-        className={`submit-container-signup ${isRegistering ? 'active' : 'inactive-signup'}`}
+        className={`submit-container-signup ${
+          isRegistering ? "active" : "inactive-signup"
+        }`}
         onClick={onRegister}
       >
         Регистрация
       </button>
       <button
-        className={`submit-container-login ${!isRegistering ? 'active' : 'inactive-login'}`}
+        className={`submit-container-login ${
+          !isRegistering ? "active" : "inactive-login"
+        }`}
         onClick={onLogin}
       >
         Вход
@@ -52,7 +60,7 @@ export default function LoginSignup() {
     name: false,
     phone: false,
     password1: false,
-    password2: false
+    password2: false,
   });
 
   const handleRegister = () => {
@@ -66,7 +74,7 @@ export default function LoginSignup() {
   return (
     <div className="container">
       <div className="header">
-        <div className="text">{isRegistering ? 'Регистрация' : 'Вход'}</div>
+        <div className="text">{isRegistering ? "Регистрация" : "Вход"}</div>
         <div className="underline"></div>
       </div>
 
@@ -117,10 +125,10 @@ export default function LoginSignup() {
       )}
 
       <ForgotPassword />
-      <SubmitContainers 
-        onRegister={handleRegister} 
-        onLogin={handleLogin} 
-        isRegistering={isRegistering} 
+      <SubmitContainers
+        onRegister={handleRegister}
+        onLogin={handleLogin}
+        isRegistering={isRegistering}
       />
     </div>
   );
