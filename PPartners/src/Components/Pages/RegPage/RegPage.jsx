@@ -17,21 +17,21 @@ export default function RegistrationPage() {
     const { email, password } = formData;
 
     try {
-      // const response = await fetch("http://localhost:8887/auth/register", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({ email, password }),
-      // });
-      // response.ok
-      if (true) {
+      const response = await fetch("http://localhost:8887/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
         const data = await response.json();
-        const token = "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJ2YUBtYWlsLnJ1IiwiaWF0IjoxNzE1NjA1NjM3LCJleHAiOjE3MTU2OTIwMzd9.JH3Afc6C_U0RhDcwrxa_HkLfJbEoc6BbtpqI6YvCyV8E2IitzPck1iDeTfIs65AJ";
+        const token = data.token;
         setToken(token);
 
         const helloResponse = await fetch("http://localhost:8887/hello/hello", {
-          method: "POST",
+          method: "GET",
           headers: {
             "Authorization": `Bearer ${token}`
           }
