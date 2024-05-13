@@ -1,12 +1,10 @@
 import React, { useState } from "react";
-// import "./LoginSignup.css";
-
 import name_icon from "../../../assets/name_icon1.png";
 import password_icon from "../../../assets/password_icon.png";
 import phone_icon from "../../../assets/phone_icon1.png";
 import email_icon from "../../../assets/email_icon.jpg";
 
-function InputField({ imageSrc, inputType, placeholder, isActive }) {
+function InputField({ imageSrc, inputType, placeholder, isActive, value, onChange }) {
   return (
     <div className={`input ${isActive ? "active" : ""}`}>
       <img src={imageSrc} alt="" className="icon" />
@@ -14,6 +12,8 @@ function InputField({ imageSrc, inputType, placeholder, isActive }) {
         type={inputType}
         placeholder={placeholder}
         className="input-field"
+        value={value}
+        onChange={onChange}
       />
     </div>
   );
@@ -29,36 +29,50 @@ function SubmitContainers({ onRegister }) {
   );
 }
 
-function ForgotPassword() {
-  const handleForgotPasswordClick = () => {
-    // Ваша логика для обработки клика на "Забыли пароль?"
-    console.log("Забыли пароль? кликнули");
-  };
+// function ForgotPassword() {
+//   const handleForgotPasswordClick = () => {
+//     console.log("Забыли пароль? кликнули");
+//   };
 
-  return (
-    <div className="forgotPassword" onClick={handleForgotPasswordClick}>
-      <span className="forgotPasswordText">Забыли пароль?</span>
-    </div>
-  );
-}
+//   return (
+//     <div className="forgotPassword" onClick={handleForgotPasswordClick}>
+//       <span className="forgotPasswordText">Забыли пароль?</span>
+//     </div>
+//   );
+// }
 
 export default function RegistrationPage() {
   const [activeFields, setActiveFields] = useState({
-    name: false,
-    phone: false,
-    password1: false,
-    password2: false,
+    email: false,
+    fullName: false,
+    phoneNumber: false,
+    password: false,
+    confirmPassword: false,
   });
 
+  const [formData, setFormData] = useState({
+    email: "",
+    fullName: "",
+    phoneNumber: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
   const handleRegister = async () => {
-    const formData = new FormData();
-    formData.append("email", document.querySelector('input[name="email"]').value);
-    formData.append("password", document.querySelector('input[name="password"]').value);
+    const { email, password } = formData;
   
     try {
       const response = await fetch("http://localhost:8887/auth/register", {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
       });
   
       if (response.ok) {
@@ -98,35 +112,45 @@ export default function RegistrationPage() {
         placeholder="Введите адрес электронной почты"
         isActive={activeFields.email}
         name="email"
+        value={formData.email}
+        onChange={handleInputChange}
       />
 
       <InputField
         imageSrc={name_icon}
         inputType="text"
         placeholder="Введите ФИО"
-        isActive={activeFields.name}
+        isActive={activeFields.fullName}
         name="fullName"
+        value={formData.fullName}
+        onChange={handleInputChange}
       />
       <InputField
         imageSrc={phone_icon}
         inputType="tel"
         placeholder="Введите номер телефона"
-        isActive={activeFields.phone}
+        isActive={activeFields.phoneNumber}
         name="phoneNumber"
+        value={formData.phoneNumber}
+        onChange={handleInputChange}
       />
       <InputField
         imageSrc={password_icon}
         inputType="password"
         placeholder="Введите пароль"
-        isActive={activeFields.password1}
+        isActive={activeFields.password}
         name="password"
+        value={formData.password}
+        onChange={handleInputChange}
       />
       <InputField
         imageSrc={password_icon}
         inputType="password"
         placeholder="Повторите пароль"
-        isActive={activeFields.password2}
+        isActive={activeFields.confirmPassword}
         name="confirmPassword"
+        value={formData.confirmPassword}
+        onChange={handleInputChange}
       />
 
       <SubmitContainers onRegister={handleRegister} />
