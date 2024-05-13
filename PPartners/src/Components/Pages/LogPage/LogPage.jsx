@@ -1,18 +1,19 @@
 import React, { useState } from "react";
 // import "./LoginSignup.css";
 
-import name_icon from "../../../assets/name_icon1.png";
+import email_icon from "../../../assets/email_icon.jpg";
 import password_icon from "../../../assets/password_icon.png";
-import phone_icon from "../../../assets/phone_icon1.png";
 
-function InputField({ imageSrc, inputType, placeholder, isActive }) {
+function InputField({ imageSrc, inputType, placeholder, onChange, name }) {
   return (
-    <div className={`input ${isActive ? "active" : ""}`}>
+    <div className="input">
       <img src={imageSrc} alt="" className="icon" />
       <input
         type={inputType}
         placeholder={placeholder}
         className="input-field"
+        onChange={onChange}
+        name={name} // добавляем атрибут name
       />
     </div>
   );
@@ -30,7 +31,6 @@ function SubmitContainers({ onLogin }) {
 
 function ForgotPassword() {
   const handleForgotPasswordClick = () => {
-    // Ваша логика для обработки клика на "Забыли пароль?"
     console.log("Забыли пароль? кликнули");
   };
 
@@ -42,14 +42,50 @@ function ForgotPassword() {
 }
 
 export default function LoginPage() {
-  const [activeFields, setActiveFields] = useState({
-    phone: false,
-    password: false,
+  const [loginData, setLoginData] = useState({
+    email: "",
+    password: "",
   });
 
-  const handleLogin = () => {
-    console.log("Вход");
-    // Добавьте здесь логику для обработки входа
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setLoginData({
+      ...loginData,
+      [name]: value,
+    });
+  };
+
+  const handleLogin = async () => {
+    if (loginData.email && loginData.password) {
+      try {
+        const response = await fetch(
+          "http://localhost:8080/api/v1/auth/login",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(loginData),
+          }
+        );
+
+        if (response.ok) {
+          const user = await response.json();
+          alert(`Вы вошли в систему как ${user.email}`);
+        } else {
+          alert(
+            "Ошибка аутентификации. Пожалуйста, проверьте правильность введенной почты и пароля."
+          );
+        }
+      } catch (error) {
+        console.error("Ошибка при отправке запроса:", error);
+        alert(
+          "Произошла ошибка при отправке запроса. Пожалуйста, попробуйте позже."
+        );
+      }
+    } else {
+      console.log("Пожалуйста, введите почту и пароль");
+    }
   };
 
   return (
@@ -60,16 +96,18 @@ export default function LoginPage() {
       </div>
 
       <InputField
-        imageSrc={phone_icon}
-        inputType="tel"
-        placeholder="Введите номер телефона"
-        isActive={activeFields.phone}
+        imageSrc={email_icon}
+        inputType="email"
+        placeholder="Введите адрес электронной почты"
+        onChange={handleInputChange}
+        name="email" // добавляем атрибут name
       />
       <InputField
         imageSrc={password_icon}
         inputType="password"
         placeholder="Введите пароль"
-        isActive={activeFields.password}
+        onChange={handleInputChange}
+        name="password" // добавляем атрибут name
       />
 
       <ForgotPassword />
