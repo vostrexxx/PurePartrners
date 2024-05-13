@@ -17,7 +17,7 @@ export default function RegistrationPage() {
     const { email, password } = formData;
 
     try {
-      const response = await fetch("/auth/register", { // Обращаемся к пути /auth/register
+      const response = await fetch("http://localhost:8887/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -30,7 +30,7 @@ export default function RegistrationPage() {
         const token = data.token;
         setToken(token);
 
-        const helloResponse = await fetch("/hello/hello", { // Обращаемся к пути /hello/hello
+        const helloResponse = await fetch("http://localhost:8887/hello/hello", {
           method: "POST",
           headers: {
             "Authorization": `Bearer ${token}`
