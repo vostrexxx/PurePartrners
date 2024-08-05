@@ -21,7 +21,7 @@ const IdentificationPage = () => {
         if (isValid) {
             try {
                 const response = await fetch('http://localhost:8887/auth/checkTelephone/telephone', {
-                    method: 'POST',
+                    method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
                     },
