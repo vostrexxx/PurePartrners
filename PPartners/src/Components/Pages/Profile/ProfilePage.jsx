@@ -5,12 +5,13 @@ const getAuthToken = () => localStorage.getItem('authToken');
 
 const MainPage = () => {
     const [profileData, setProfileData] = useState({
-        firstName: '',
-        lastName: '',
-        middleName: '',
+        name: '',
+        surname: '',
+        patronymic: '',
         email: '',
+        phoneNumber: '',
         birthDate: '',
-        passportConfirmed: false,
+        isPassportConfirmed: false,
     });
     const [token, setToken] = useState('');
     const [isEditable, setIsEditable] = useState(false);
@@ -91,7 +92,7 @@ const MainPage = () => {
     };
 
     if (!isDataLoaded) {
-        return <div>Ждёмссс...</div>; // Пока данные загружаются, показываем загрузку
+        return <div>Ждём-ссс...</div>; // Пока данные загружаются, показываем загрузку
     }
 
     return (
@@ -101,9 +102,9 @@ const MainPage = () => {
                 <label>Имя:</label>
                 <input
                     type="text"
-                    name="firstName"
+                    name="name"
                     placeholder="Введите имя"
-                    value={profileData.firstName}
+                    value={profileData.name}
                     onChange={handleInputChange}
                     disabled={!isEditable} // Поля редактируемы только в режиме редактирования
                 />
@@ -112,9 +113,9 @@ const MainPage = () => {
                 <label>Фамилия:</label>
                 <input
                     type="text"
-                    name="lastName"
+                    name="surame"
                     placeholder="Введите фамилию"
-                    value={profileData.lastName}
+                    value={profileData.surname}
                     onChange={handleInputChange}
                     disabled={!isEditable}
                 />
@@ -123,9 +124,9 @@ const MainPage = () => {
                 <label>Отчество:</label>
                 <input
                     type="text"
-                    name="middleName"
+                    name="patronymic"
                     placeholder="Введите отчество"
-                    value={profileData.middleName}
+                    value={profileData.patronymic}
                     onChange={handleInputChange}
                     disabled={!isEditable}
                 />
@@ -135,8 +136,18 @@ const MainPage = () => {
                 <input
                     type="email"
                     name="email"
-                    placeholder="Введите емэил"
+                    placeholder="Введите почту"
                     value={profileData.email}
+                    onChange={handleInputChange}
+                    disabled={!isEditable}
+                />
+            </div>
+            <div>
+                <label>Номер телефона:</label>
+                <input
+                    type="text"
+                    name="phoneNumber"
+                    value={profileData.phoneNumber}
                     onChange={handleInputChange}
                     disabled={!isEditable}
                 />
@@ -155,8 +166,8 @@ const MainPage = () => {
                 <label>Паспорт подтвержден:</label>
                 <input
                     type="checkbox"
-                    name="passportConfirmed"
-                    checked={profileData.passportConfirmed}
+                    name="isPassportConfirmed"
+                    checked={profileData.isPassportConfirmed}
                     onChange={handleCheckboxChange}
                     disabled={!isEditable}
                 />
