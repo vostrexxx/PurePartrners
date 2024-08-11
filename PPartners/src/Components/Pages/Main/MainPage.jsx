@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 
 const MainPage = () => {
     const [activeSection, setActiveSection] = useState('profile');
-
+    
+    
 
     const Profile = () => (
         <div>
-            <h2>Профиль</h2>
+            <h2>Личные данные</h2>
             <div>
                 <label>Имя:</label>
                 <input type="text" placeholder="Введите имя" />

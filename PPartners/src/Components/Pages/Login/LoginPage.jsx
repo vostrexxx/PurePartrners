@@ -15,10 +15,15 @@ const LoginPage = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ phoneNumber, password, rememberMe }),
+                body: JSON.stringify({ phoneNumber, password }),
             });
-
+    
             if (response.ok) {
+                const data = await response.json();
+                const token = data.token; // Сервер возвращает токен в поле `token`
+                
+                localStorage.setItem('authToken', token);
+                
                 navigate('/main');
             } else {
                 console.error('Ошибка входа');
@@ -27,7 +32,6 @@ const LoginPage = () => {
             console.error('Произошла ошибка:', error);
         }
 
-        // Заглушка для тестирования:
         // const simulateResponse = () => 1;
         // if (simulateResponse() === 1) {
         //     navigate('/main');
