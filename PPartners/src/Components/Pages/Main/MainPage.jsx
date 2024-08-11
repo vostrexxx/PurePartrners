@@ -6,8 +6,9 @@ export const getAuthToken = () => {
 const MainPage = () => {
     const [activeSection, setActiveSection] = useState('profile');
     
-    console.log(getAuthToken);
-
+    const token = getAuthToken();
+    console.log(token);
+    
     const Profile = () => (
         <div>
             <h2>Личные данные</h2>
