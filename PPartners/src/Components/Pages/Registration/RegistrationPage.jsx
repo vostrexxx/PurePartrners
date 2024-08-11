@@ -1,18 +1,39 @@
 import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const RegistrationPage = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const [phoneNumber, setPhoneNumber] = useState(location.state?.phoneNumber || '');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
-    const handleRegister = () => {
+    const handleRegister = async () => {
         if (password !== confirmPassword) {
             alert('Пароли не совпадают');
             return;
         }
-        // логика обработки регистрации пользователя
+
+        try {
+            const response = await fetch('http://localhost:8887/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ phoneNumber, password }),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                navigate('/login', { state: { phoneNumber } });
+            } else {
+                alert('Ошибка регистрации. Попробуйте снова.');
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            alert('Ошибка при отправке запроса. Попробуйте снова.');
+        }
     };
 
     return (

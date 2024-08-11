@@ -20,7 +20,7 @@ const IdentificationPage = () => {
     const handleSubmit = async () => {
         if (isValid) {
             try {
-                const response = await fetch('http://localhost:8887/auth/checkTelephone', {
+                const response = await fetch('http://localhost:8887/auth/checkTelephone/telephone', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
