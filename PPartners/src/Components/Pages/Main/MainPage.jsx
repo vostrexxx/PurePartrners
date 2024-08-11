@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+export const getAuthToken = () => {
+    return localStorage.getItem('authToken');
+};
 
 const MainPage = () => {
     const [activeSection, setActiveSection] = useState('profile');
     
-    
+    console.log(getAuthToken);
 
     const Profile = () => (
         <div>
