@@ -1,181 +1,81 @@
-import React, { useState } from 'react';
-export const getAuthToken = () => {
-    return localStorage.getItem('authToken');
-};
+import React from 'react';
+import { useNavigate } from 'react-router-dom'; // Импортируем useNavigate
+import { Switch, styled } from '@mui/material';
+
+const CustomSwitch = styled(Switch)(({ theme }) => ({
+    '& .MuiSwitch-switchBase.Mui-checked': {
+        color: '#FF7101', // Цвет переключателя в состоянии включения
+        '&:hover': {
+            backgroundColor: 'rgba(255, 113, 1, 0.08)', // Цвет фона при наведении
+        },
+    },
+    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+        backgroundColor: '#FF7101', // Цвет трека в состоянии включения
+    },
+    '& .MuiSwitch-track': {
+        backgroundColor: '#242582', // Цвет трека в состоянии выключения
+    },
+}));
 
 const MainPage = () => {
-    const [activeSection, setActiveSection] = useState('profile');
-    const [profileData, setProfileData] = useState({
-        firstName: '',
-        lastName: '',
-        middleName: '',
-        email: '',
-        birthDate: '',
-        passportConfirmed: false,
-    });
+    const navigate = useNavigate(); // Создаем экземпляр useNavigate
+    const [switchState, setSwitchState] = React.useState(false);
 
-    const token = getAuthToken();
-    console.log(token);
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setProfileData((prevData) => ({
-            ...prevData,
-            [name]: value,
-        }));
+    const handleSwitchChange = (event) => {
+        setSwitchState(event.target.checked);
     };
 
-    const handleCheckboxChange = (e) => {
-        const { name, checked } = e.target;
-        setProfileData((prevData) => ({
-            ...prevData,
-            [name]: checked,
-        }));
-    };
-
-    const handleSubmitProfile = async () => {
-        try {
-            const response = await fetch('http://localhost:8887/profile/getData', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify(profileData),
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                alert('Профиль успешно обновлен!');
-            } else {
-                alert('Ошибка при обновлении профиля.');
-            }
-        } catch (error) {
-            console.error('Ошибка при отправке запроса:', error);
-            alert('Произошла ошибка. Попробуйте снова.');
-        }
-    };
-
-    const Profile = () => (
-        <div>
-            <h2>Личные данные</h2>
-            <div>
-                <label>Имя:</label>
-                <input
-                    type="text"
-                    name="firstName"
-                    placeholder="Введите имя"
-                    value={profileData.firstName}
-                    onChange={handleInputChange}
-                />
-            </div>
-            <div>
-                <label>Фамилия:</label>
-                <input
-                    type="text"
-                    name="lastName"
-                    placeholder="Введите фамилию"
-                    value={profileData.lastName}
-                    onChange={handleInputChange}
-                />
-            </div>
-            <div>
-                <label>Отчество:</label>
-                <input
-                    type="text"
-                    name="middleName"
-                    placeholder="Введите отчество"
-                    value={profileData.middleName}
-                    onChange={handleInputChange}
-                />
-            </div>
-            <div>
-                <label>Емэил:</label>
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Введите емэил"
-                    value={profileData.email}
-                    onChange={handleInputChange}
-                />
-            </div>
-            <div>
-                <label>Дата рождения:</label>
-                <input
-                    type="date"
-                    name="birthDate"
-                    value={profileData.birthDate}
-                    onChange={handleInputChange}
-                />
-            </div>
-            <div>
-                <label>Паспорт подтвержден:</label>
-                <input
-                    type="checkbox"
-                    name="passportConfirmed"
-                    checked={profileData.passportConfirmed}
-                    onChange={handleCheckboxChange}
-                />
-            </div>
-            <button onClick={handleSubmitProfile}>Сохранить изменения</button>
-        </div>
-    );
-
-    const PassportVerification = () => (
-        <div>
-            <h2>Подтверждение паспорта</h2>
-            <div>
-                <label>Загрузить фото паспорта:</label>
-                <input type="file" />
-            </div>
-        </div>
-    );
-
-    const ProfileActions = () => (
-        <div>
-            <h2>Действия с профилем</h2>
-            <button onClick={() => alert('Выход из профиля')}>Выйти из профиля</button>
-            <button onClick={() => alert('Профиль удален')}>Удалить профиль</button>
-        </div>
-    );
-
-    const ProfileManagement = () => (
-        <div>
-            <h2>Работа с профилями</h2>
-            {/* Здесь закидываем функционал для управления профилями */}
-        </div>
-    );
-
-    const renderSection = () => {
-        switch (activeSection) {
-            case 'profile':
-                return <Profile />;
-            case 'passport':
-                return <PassportVerification />;
-            case 'actions':
-                return <ProfileActions />;
-            case 'management':
-                return <ProfileManagement />;
-            default:
-                return <Profile />;
-        }
+    const handleProfileClick = () => {
+        navigate('/profile'); // Перенаправляем на страницу профиля
     };
 
     return (
         <div>
-            <h1>Главная страница</h1>
-            <nav>
-                <button onClick={() => setActiveSection('profile')}>Профиль</button>
-                <button onClick={() => setActiveSection('passport')}>Подтверждение паспорта</button>
-                <button onClick={() => setActiveSection('actions')}>Действия с профилем</button>
-                <button onClick={() => setActiveSection('management')}>Работа с профилями</button>
-            </nav>
-            <div>
-                {renderSection()}
+            <div style={styles.topBar}>
+                <div style={styles.topBarContent}>
+                    <button style={styles.lkButton} onClick={handleProfileClick}>ЛК</button>
+                    <CustomSwitch
+                        checked={switchState}
+                        onChange={handleSwitchChange}
+                    />
+                </div>
+            </div>
+            <div style={styles.mainContent}>
+                {/* Add your main content here */}
             </div>
         </div>
     );
+};
+
+const styles = {
+    topBar: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '50px',
+        width: '100%',
+        padding: '0 20px',
+        backgroundColor: '#f8f8f8',
+        borderBottom: '1px solid #ddd',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        zIndex: 1000,
+    },
+    topBarContent: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        width: '100%',
+        maxWidth: '1200px',
+    },
+    lkButton: {
+        fontSize: '16px',
+        cursor: 'pointer',
+    },
+    mainContent: {
+        padding: '70px 20px 20px',
+    },
 };
 
 export default MainPage;

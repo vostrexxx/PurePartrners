@@ -17,45 +17,18 @@ const IdentificationPage = () => {
         setIsValid(isValidPhone);
     };
 
-    const handleSubmit = async () => {
-        if (isValid) {
-            try {
-                const response = await fetch('http://localhost:8887/auth/checkPhoneNumber', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ phoneNumber }),
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    navigate('/login', { state: { phoneNumber } });
-                } else {
-                    navigate('/register', { state: { phoneNumber } });
-                }
-            } catch (error) {
-                console.error('Ошибка:', error);
-            }
-        } else {
-            alert("Неверный формат номера телефона. Введите в формате: +79164331768");
-        }
-    };
-
     // const handleSubmit = async () => {
     //     if (isValid) {
     //         try {
-    //             // заглушка для POST запроса))
-    //             const mockResponse = await new Promise((resolve) => {
-    //                 setTimeout(() => {
-    //                     resolve({
-    //                         json: () => Promise.resolve({ success: 1 }),
-    //                     });
-    //                 }, 1000);
+    //             const response = await fetch('http://localhost:8887/auth/checkPhoneNumber', {
+    //                 method: 'POST',
+    //                 headers: {
+    //                     'Content-Type': 'application/json',
+    //                 },
+    //                 body: JSON.stringify({ phoneNumber }),
     //             });
-    //             const data = await mockResponse.json();
-    //             console.log(data.success)
+
+    //             const data = await response.json();
 
     //             if (data.success) {
     //                 navigate('/login', { state: { phoneNumber } });
@@ -69,6 +42,33 @@ const IdentificationPage = () => {
     //         alert("Неверный формат номера телефона. Введите в формате: +79164331768");
     //     }
     // };
+
+    const handleSubmit = async () => {
+        if (isValid) {
+            try {
+                // заглушка для POST запроса))
+                const mockResponse = await new Promise((resolve) => {
+                    setTimeout(() => {
+                        resolve({
+                            json: () => Promise.resolve({ success: 1 }),
+                        });
+                    }, 1000);
+                });
+                const data = await mockResponse.json();
+                console.log(data.success)
+
+                if (data.success) {
+                    navigate('/login', { state: { phoneNumber } });
+                } else {
+                    navigate('/register', { state: { phoneNumber } });
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+            }
+        } else {
+            alert("Неверный формат номера телефона. Введите в формате: +79164331768");
+        }
+    };
 
 
     return (
