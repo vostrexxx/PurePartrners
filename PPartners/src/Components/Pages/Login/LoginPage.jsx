@@ -1,14 +1,41 @@
 import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const [phoneNumber, setPhoneNumber] = useState(location.state?.phoneNumber || '');
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
 
-    const handleLogin = () => {
-        // логика обработки входа пользователя
+    const handleLogin = async () => {
+        // try {
+        //     const response = await fetch('/api/login', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //         },
+        //         body: JSON.stringify({ phoneNumber, password, rememberMe }),
+        //     });
+
+        //     if (response.ok) {
+        //         navigate('/main');
+        //     } else {
+        //         console.error('Ошибка входа');
+        //     }
+        // } catch (error) {
+        //     console.error('Произошла ошибка:', error);
+        // }
+
+        // Заглушка для тестирования:
+        
+        const simulateResponse = () => 1;
+        if (simulateResponse() === 1) {
+            navigate('/main');
+        } else {
+            console.error('Ошибка входа');
+        }
+        
     };
 
     return (
