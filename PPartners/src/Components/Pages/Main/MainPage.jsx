@@ -5,48 +5,122 @@ export const getAuthToken = () => {
 
 const MainPage = () => {
     const [activeSection, setActiveSection] = useState('profile');
-    
+    const [profileData, setProfileData] = useState({
+        firstName: '',
+        lastName: '',
+        middleName: '',
+        email: '',
+        birthDate: '',
+        passportConfirmed: false,
+    });
+
     const token = getAuthToken();
     console.log(token);
-    
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setProfileData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+    };
+
+    const handleCheckboxChange = (e) => {
+        const { name, checked } = e.target;
+        setProfileData((prevData) => ({
+            ...prevData,
+            [name]: checked,
+        }));
+    };
+
+    const handleSubmitProfile = async () => {
+        try {
+            const response = await fetch('http://localhost:8887/profile/getData', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify(profileData),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert('Профиль успешно обновлен!');
+            } else {
+                alert('Ошибка при обновлении профиля.');
+            }
+        } catch (error) {
+            console.error('Ошибка при отправке запроса:', error);
+            alert('Произошла ошибка. Попробуйте снова.');
+        }
+    };
+
     const Profile = () => (
         <div>
             <h2>Личные данные</h2>
             <div>
                 <label>Имя:</label>
-                <input type="text" placeholder="Введите имя" />
+                <input
+                    type="text"
+                    name="firstName"
+                    placeholder="Введите имя"
+                    value={profileData.firstName}
+                    onChange={handleInputChange}
+                />
             </div>
             <div>
                 <label>Фамилия:</label>
-                <input type="text" placeholder="Введите фамилию" />
+                <input
+                    type="text"
+                    name="lastName"
+                    placeholder="Введите фамилию"
+                    value={profileData.lastName}
+                    onChange={handleInputChange}
+                />
             </div>
             <div>
                 <label>Отчество:</label>
-                <input type="text" placeholder="Введите отчество" />
-            </div>
-            <div>
-                <label>Номер телефона:</label>
-                <input type="text" placeholder="+79164331768" disabled />
+                <input
+                    type="text"
+                    name="middleName"
+                    placeholder="Введите отчество"
+                    value={profileData.middleName}
+                    onChange={handleInputChange}
+                />
             </div>
             <div>
                 <label>Емэил:</label>
-                <input type="email" placeholder="Введите емэил" />
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="Введите емэил"
+                    value={profileData.email}
+                    onChange={handleInputChange}
+                />
             </div>
             <div>
                 <label>Дата рождения:</label>
-                <input type="date" />
+                <input
+                    type="date"
+                    name="birthDate"
+                    value={profileData.birthDate}
+                    onChange={handleInputChange}
+                />
             </div>
             <div>
                 <label>Паспорт подтвержден:</label>
-                <input type="checkbox" />
+                <input
+                    type="checkbox"
+                    name="passportConfirmed"
+                    checked={profileData.passportConfirmed}
+                    onChange={handleCheckboxChange}
+                />
             </div>
-            <div>
-                <label>Дата регистрации:</label>
-                <input type="text" disabled />
-            </div>
+            <button onClick={handleSubmitProfile}>Сохранить изменения</button>
         </div>
     );
-    
 
     const PassportVerification = () => (
         <div>
@@ -69,7 +143,7 @@ const MainPage = () => {
     const ProfileManagement = () => (
         <div>
             <h2>Работа с профилями</h2>
-            {/* Здесь можно добавить функционал для управления профилями */}
+            {/* Здесь закидываем функционал для управления профилями */}
         </div>
     );
 
