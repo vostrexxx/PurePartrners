@@ -9,35 +9,35 @@ const LoginPage = () => {
     const [rememberMe, setRememberMe] = useState(false);
 
     const handleLogin = async () => {
-        // try {
-        //     const response = await fetch('http://localhost:8887/auth/login', {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //         },
-        //         body: JSON.stringify({ phoneNumber, password }),
-        //     });
+        try {
+            const response = await fetch('http://localhost:8887/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ phoneNumber, password }),
+            });
     
-        //     if (response.ok) {
-        //         const data = await response.json();
-        //         const token = data.token; // Сервер возвращает токен в поле `token`
+            if (response.ok) {
+                const data = await response.json();
+                const token = data.token; // Сервер возвращает токен в поле `token`
                 
-        //         localStorage.setItem('authToken', token);
+                localStorage.setItem('authToken', token);
                 
-        //         navigate('/main');
-        //     } else {
-        //         console.error('Ошибка входа');
-        //     }
-        // } catch (error) {
-        //     console.error('Произошла ошибка:', error);
-        // }
-
-        const simulateResponse = () => 1;
-        if (simulateResponse() === 1) {
-            navigate('/main');
-        } else {
-            console.error('Ошибка входа');
+                navigate('/main');
+            } else {
+                console.error('Ошибка входа');
+            }
+        } catch (error) {
+            console.error('Произошла ошибка:', error);
         }
+
+        // const simulateResponse = () => 1;
+        // if (simulateResponse() === 1) {
+        //     navigate('/main');
+        // } else {
+        //     console.error('Ошибка входа');
+        // }
         
     };
 
