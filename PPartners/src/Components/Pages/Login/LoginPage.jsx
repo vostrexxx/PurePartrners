@@ -9,32 +9,31 @@ const LoginPage = () => {
     const [rememberMe, setRememberMe] = useState(false);
 
     const handleLogin = async () => {
-        // try {
-        //     const response = await fetch('/api/login', {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //         },
-        //         body: JSON.stringify({ phoneNumber, password, rememberMe }),
-        //     });
+        try {
+            const response = await fetch('http://localhost:8887/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ phoneNumber, password, rememberMe }),
+            });
 
-        //     if (response.ok) {
-        //         navigate('/main');
-        //     } else {
-        //         console.error('Ошибка входа');
-        //     }
-        // } catch (error) {
-        //     console.error('Произошла ошибка:', error);
-        // }
+            if (response.ok) {
+                navigate('/main');
+            } else {
+                console.error('Ошибка входа');
+            }
+        } catch (error) {
+            console.error('Произошла ошибка:', error);
+        }
 
         // Заглушка для тестирования:
-        
-        const simulateResponse = () => 1;
-        if (simulateResponse() === 1) {
-            navigate('/main');
-        } else {
-            console.error('Ошибка входа');
-        }
+        // const simulateResponse = () => 1;
+        // if (simulateResponse() === 1) {
+        //     navigate('/main');
+        // } else {
+        //     console.error('Ошибка входа');
+        // }
         
     };
 
