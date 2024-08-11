@@ -10,7 +10,7 @@ const MainPage = () => {
         patronymic: '',
         email: '',
         phoneNumber: '',
-        birthDate: '',
+        birthdate: '',
         isPassportConfirmed: false,
     });
     const [token, setToken] = useState('');
@@ -21,22 +21,23 @@ const MainPage = () => {
     // Получаем токен и загружаем данные профиля при монтировании компонента
     useEffect(() => {
         const authToken = getAuthToken();
-        setToken(authToken);
-
         if (authToken) {
-            // Выполняем GET запрос для загрузки данных профиля
-            fetch('http://localhost:8887/profile/getData', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`,
-                },
-            })
+            setToken(authToken);
+            
+            // Выполняем GET запрос для загрузки данных профиля только если данные еще не загружены
+            if (!isDataLoaded) {
+                fetch('http://localhost:8887/profile/getData', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`,
+                    },
+                })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success === 1) {
                         setProfileData(data.profile);
-                        setIsEditable(false); // поля изначально не редактируемы
+                        setIsEditable(false); // Поля изначально не редактируемы
                     } else {
                         setIsUserRegistered(false); // Если профиль не найден, отмечаем, что пользователь не зарегистрирован
                     }
@@ -46,11 +47,12 @@ const MainPage = () => {
                     console.error('Ошибка при загрузке данных:', error);
                     setIsDataLoaded(true); // Устанавливаем флаг, чтобы показать ошибку или форму регистрации
                 });
+            }
         } else {
             setIsUserRegistered(false); // Если токена нет, показываем форму регистрации
             setIsDataLoaded(true); // Данные не нужны, так как это форма регистрации
         }
-    }, []);
+    }, [isDataLoaded]); // Зависимость от isDataLoaded, чтобы избежать повторных запросов
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
