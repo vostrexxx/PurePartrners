@@ -74,7 +74,7 @@ const MainPage = () => {
 
     const handleSubmitProfile = async () => {
         try {
-            const response = await fetch('http://localhost:8887/profile/update', {
+            const response = await fetch('http://localhost:8887/profile/save', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
