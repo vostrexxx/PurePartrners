@@ -167,7 +167,7 @@ const MainPage = () => {
                         onChange={handleInputChange}
                     />
                 </div>
-                <button onClick={handleSubmitProfile}>Зарегистрироваться</button>
+                <button onClick={handleSubmitProfile}>Сохранить</button>
             </div>
         );
     }

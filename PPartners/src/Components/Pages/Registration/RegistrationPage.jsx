@@ -14,31 +14,47 @@ const RegistrationPage = () => {
             return;
         }
 
+        // try {
+        //     const response = await fetch('http://localhost:8887/auth/register', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //         },
+        //         body: JSON.stringify({ phoneNumber, password }),
+        //     });
+
+        //     const data = await response.json();
+
+        //     if (data.success) {
+        //         navigate('/login', { state: { phoneNumber } });
+        //     } else {
+        //         alert('Ошибка регистрации. Попробуйте снова.');
+        //     }
+        // } catch (error) {
+        //     console.error('Ошибка:', error);
+        //     alert('Ошибка при отправке запроса. Попробуйте снова.');
+        // }
+
         try {
-            const response = await fetch('http://localhost:8887/auth/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ phoneNumber, password }),
+            const mockResponse = await new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve({
+                        json: () => Promise.resolve({ success: 1 }),
+                    });
+                }, 1000);
             });
-
-            const data = await response.json();
-
+            const data = await mockResponse.json();
             if (data.success) {
                 navigate('/login', { state: { phoneNumber } });
-            } else {
-                alert('Ошибка регистрации. Попробуйте снова.');
             }
         } catch (error) {
             console.error('Ошибка:', error);
-            alert('Ошибка при отправке запроса. Попробуйте снова.');
         }
     };
 
     return (
         <div>
-            <label>Введите номер телефона:</label>
+            <label>Ваш номер телефона:</label>
             <input
                 type="text"
                 value={phoneNumber}
