@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: auth-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/users_credentials
+    username: partners
+    password: partners
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        format_sql: true
+
+jwt:
+  key: 0a12891953eda0e5aa6dbc4ae5160769c552f43946cd32302107e5febe35b931
+  expirationTime: 86400000
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+
+server:
+  port: 8080
