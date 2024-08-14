@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 const RegistrationPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const [phoneNumber, setPhoneNumber] = useState(location.state?.phoneNumber || '');
+    const [phoneNumber, setPhoneNumber] = useState(localStorage.getItem('phoneNumber'));
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
