@@ -10,7 +10,7 @@ const PhoneNumberEnteringPage = () => {
   
         const simulateResponse = () => 1;
         if (simulateResponse() === 1) {
-            navigate('/PhoneEnter');
+            navigate('/phone-enter');
         } else {
             console.error('Ошибка входа');
         }
@@ -20,7 +20,7 @@ const PhoneNumberEnteringPage = () => {
     const PasscodeEnter = async () => {
         const simulateResponse = () => 1;
         if (simulateResponse() === 1) {
-            navigate('/PasswordReset');
+            navigate('/password-reset');
         } else {
             console.error('Ошибка входа');
         }

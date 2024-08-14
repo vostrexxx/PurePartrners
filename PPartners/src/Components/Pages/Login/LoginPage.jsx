@@ -12,7 +12,7 @@ const LoginPage = () => {
   
         const simulateResponse = () => 1;
         if (simulateResponse() === 1) {
-            navigate('/');
+            navigate('/identification');
         } else {
             console.error('Ошибка входа');
         }
@@ -54,7 +54,7 @@ const LoginPage = () => {
 
         const simulateResponse = () => 1;
         if (simulateResponse() === 1) {
-            navigate('/PhoneEnter');
+            navigate('/phone-enter');
         } else {
             console.error('Ошибка входа');
         }

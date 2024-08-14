@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import NonAuthMainPage from './Components/Pages/Main/NonAuthMainPage';
 import IdentificationPage from './Components/Pages/Identification/IdentificationPage';
 import LoginPage from './Components/Pages/Login/LoginPage';
 import PhoneNumberEnteringPage from './Components/Pages/PasswordReset/PhoneNumberEnterPage';
@@ -13,14 +14,15 @@ const App = () => {
     return (
         <Router>
             <Routes>
-                <Route path="/" element={<IdentificationPage />} />
+                <Route path="/" element={<NonAuthMainPage />} />
+                <Route path="/identification" element={<IdentificationPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegistrationPage />} />
                 <Route path="/main" element={<MainPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/PhoneEnter" element={<PhoneNumberEnteringPage />} />
-                <Route path="/PasscodeEnter" element={<EnterCodePage />} />
-                <Route path="/PasswordReset" element={<PasswordResetPage />} />
+                <Route path="/personal-information" element={<ProfilePage />} />
+                <Route path="/phone-enter" element={<PhoneNumberEnteringPage />} />
+                <Route path="/passcode-enter" element={<EnterCodePage />} />
+                <Route path="/password-reset" element={<PasswordResetPage />} />
             </Routes>
         </Router>
     );

@@ -1,47 +1,39 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom'; // Импортируем useNavigate
-import { Switch, styled } from '@mui/material';
-
-const CustomSwitch = styled(Switch)(({ theme }) => ({
-    '& .MuiSwitch-switchBase.Mui-checked': {
-        color: '#FF7101', // Цвет переключателя в состоянии включения
-        '&:hover': {
-            backgroundColor: 'rgba(255, 113, 1, 0.08)', // Цвет фона при наведении
-        },
-    },
-    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-        backgroundColor: '#FF7101', // Цвет трека в состоянии включения
-    },
-    '& .MuiSwitch-track': {
-        backgroundColor: '#242582', // Цвет трека в состоянии выключения
-    },
-}));
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FaUserCircle } from 'react-icons/fa';
 
 const MainPage = () => {
-    const navigate = useNavigate(); // Создаем экземпляр useNavigate
-    const [switchState, setSwitchState] = React.useState(false);
-
-    const handleSwitchChange = (event) => {
-        setSwitchState(event.target.checked);
-    };
+    const navigate = useNavigate();
+    const [dropdownOpen, setDropdownOpen] = useState(false);
 
     const handleProfileClick = () => {
-        navigate('/profile'); // Перенаправляем на страницу профиля
+        navigate('/profile');
+    };
+
+    const toggleDropdown = () => {
+        setDropdownOpen(!dropdownOpen);
     };
 
     return (
         <div>
             <div style={styles.topBar}>
                 <div style={styles.topBarContent}>
-                    <button style={styles.lkButton} onClick={handleProfileClick}>ЛК</button>
-                    <CustomSwitch
-                        checked={switchState}
-                        onChange={handleSwitchChange}
-                    />
+                    <div style={styles.profileContainer}>
+                        <FaUserCircle size={30} style={styles.profileIcon} onClick={toggleDropdown} />
+                        {dropdownOpen && (
+                            <div style={styles.dropdownMenu}>
+                                <ul style={styles.dropdownList}>
+                                    <li style={styles.dropdownItem} onClick={() => navigate('/personal-information')}>Личные данные</li>
+                                    <li style={styles.dropdownItem} onClick={() => navigate('/profiles')}>Работа с профилями</li>
+                                    <li style={styles.dropdownItem} onClick={() => navigate('/account-actions')}>Действия с аккаунтом</li>
+                                </ul>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
             <div style={styles.mainContent}>
-                {/* Add your main content here */}
+                {/* Основное содержание страницы */}
             </div>
         </div>
     );
@@ -52,7 +44,7 @@ const styles = {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        height: '50px',
+        height: '5%',
         width: '100%',
         padding: '0 20px',
         backgroundColor: '#f8f8f8',
@@ -72,6 +64,42 @@ const styles = {
     lkButton: {
         fontSize: '16px',
         cursor: 'pointer',
+    },
+    profileContainer: {
+        position: 'relative',
+        display: 'flex',
+        alignItems: 'center',
+    },
+    profileIcon: {
+        cursor: 'pointer',
+        color: '#333',
+    },
+    dropdownMenu: {
+        position: 'absolute',
+        top: '35px',
+        right: 0,
+        backgroundColor: 'white',
+        border: '1px solid #ccc',
+        boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.1)',
+        borderRadius: '4px',
+        zIndex: 1000,
+        minWidth: '150px', // Минимальная ширина меню
+        visibility: 'visible', // Обеспечивает видимость меню
+        opacity: 1, // Делаем меню полностью видимым
+        transition: 'opacity 0.3s ease', // Плавный переход
+    },
+    dropdownList: {
+        listStyle: 'none',
+        padding: '0',
+        margin: '0',
+    },
+    dropdownItem: {
+        padding: '10px 20px',
+        cursor: 'pointer',
+        backgroundColor: 'black',
+    },
+    dropdownItemHover: {
+        backgroundColor: '#f0f0f0',
     },
     mainContent: {
         padding: '70px 20px 20px',

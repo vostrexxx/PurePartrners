@@ -107,7 +107,7 @@ const MainPage = () => {
     if (!isUserRegistered) {
         return (
             <div>
-                <h1>Регистрация</h1>
+                <h1>Личные данные</h1>
                 <div>
                     <label>Имя:</label>
                     <input
@@ -171,91 +171,6 @@ const MainPage = () => {
             </div>
         );
     }
-
-    return (
-        <div>
-            <h1>Личные данные</h1>
-            <div>
-                <label>Имя:</label>
-                <input
-                    type="text"
-                    name="name"
-                    placeholder="Введите имя"
-                    value={profileData.name}
-                    onChange={handleInputChange}
-                    disabled={!isEditable} // Поля редактируемы только в режиме редактирования
-                />
-            </div>
-            <div>
-                <label>Фамилия:</label>
-                <input
-                    type="text"
-                    name="surname"
-                    placeholder="Введите фамилию"
-                    value={profileData.surname}
-                    onChange={handleInputChange}
-                    disabled={!isEditable}
-                />
-            </div>
-            <div>
-                <label>Отчество:</label>
-                <input
-                    type="text"
-                    name="patronymic"
-                    placeholder="Введите отчество"
-                    value={profileData.patronymic}
-                    onChange={handleInputChange}
-                    disabled={!isEditable}
-                />
-            </div>
-            <div>
-                <label>Почта:</label>
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Введите почту"
-                    value={profileData.email}
-                    onChange={handleInputChange}
-                    disabled={!isEditable}
-                />
-            </div>
-            <div>
-                <label>Номер телефона:</label>
-                <input
-                    type="text"
-                    name="phoneNumber"
-                    value={profileData.phoneNumber}
-                    onChange={handleInputChange}
-                    disabled={!isEditable}
-                />
-            </div>
-            <div>
-                <label>Дата рождения:</label>
-                <input
-                    type="date"
-                    name="birthDate"
-                    value={profileData.birthDate}
-                    onChange={handleInputChange}
-                    disabled={!isEditable}
-                />
-            </div>
-            <div>
-                <label>Паспорт подтвержден:</label>
-                <input
-                    type="checkbox"
-                    name="isPassportConfirmed"
-                    checked={profileData.isPassportConfirmed}
-                    onChange={handleCheckboxChange}
-                    disabled={!isEditable}
-                />
-            </div>
-            {isEditable ? (
-                <button onClick={handleSubmitProfile}>Сохранить изменения</button>
-            ) : (
-                <button onClick={handleEdit}>Изменить данные</button>
-            )}
-        </div>
-    );
 };
 
 export default MainPage;

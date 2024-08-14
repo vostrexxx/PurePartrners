@@ -10,7 +10,7 @@ const PhoneNumberEnteringPage = () => {
 
         const simulateResponse = () => 1;
         if (simulateResponse() === 1) {
-            navigate('/PasscodeEnter');
+            navigate('/passcode-enter');
         } else {
             console.error('Ошибка входа');
         }

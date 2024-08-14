@@ -46,7 +46,7 @@ const IdentificationPage = () => {
                 const mockResponse = await new Promise((resolve) => {
                     setTimeout(() => {
                         resolve({
-                            json: () => Promise.resolve({ success: 1 }),
+                            json: () => Promise.resolve({ success: 0 }),
                         });
                     }, 1000);
                 });
