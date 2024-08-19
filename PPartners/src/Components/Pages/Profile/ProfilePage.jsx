@@ -26,7 +26,7 @@ const MainPage = () => {
             
             // Выполняем GET запрос для загрузки данных профиля только если данные еще не загружены
             if (!isDataLoaded) {
-                fetch('http://localhost:8887/profile/getData', {
+                fetch('http://localhost:8887/profile', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -76,7 +76,7 @@ const MainPage = () => {
 
     const handleSubmitProfile = async () => {
         try {
-            const response = await fetch('http://localhost:8887/profile/save', {
+            const response = await fetch('http://localhost:8887/profile', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
