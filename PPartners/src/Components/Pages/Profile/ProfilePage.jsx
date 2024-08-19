@@ -18,13 +18,11 @@ const MainPage = () => {
     const [isDataLoaded, setIsDataLoaded] = useState(false);
     const [isUserRegistered, setIsUserRegistered] = useState(true); // Флаг для проверки, зарегистрирован ли пользователь
 
-    // Получаем токен и загружаем данные профиля при монтировании компонента
     useEffect(() => {
         const authToken = getAuthToken();
         if (authToken) {
             setToken(authToken);
             
-            // Выполняем GET запрос для загрузки данных профиля только если данные еще не загружены
             if (!isDataLoaded) {
                 fetch('http://localhost:8887/profile', {
                     method: 'GET',
@@ -37,22 +35,23 @@ const MainPage = () => {
                 .then(data => {
                     if (data.success === 1) {
                         setProfileData(data.profile);
-                        setIsEditable(false); // Поля изначально не редактируемы
+                        setIsEditable(false);
                     } else {
-                        setIsUserRegistered(false); // Если профиль не найден, отмечаем, что пользователь не зарегистрирован
+                        setIsUserRegistered(false);
                     }
-                    setIsDataLoaded(true); // Устанавливаем флаг, что данные загружены
+                    setIsDataLoaded(true);
                 })
                 .catch(error => {
                     console.error('Ошибка при загрузке данных:', error);
-                    setIsDataLoaded(true); // Устанавливаем флаг, чтобы показать ошибку или форму регистрации
+                    setIsDataLoaded(true);
                 });
             }
         } else {
-            setIsUserRegistered(false); // Если токена нет, показываем форму регистрации
-            setIsDataLoaded(true); // Данные не нужны, так как это форма регистрации
+            setIsUserRegistered(false);
+            setIsDataLoaded(true);
         }
-    }, [isDataLoaded]); // Зависимость от isDataLoaded, чтобы избежать повторных запросов
+    }, []); // Пустой массив зависимостей
+    
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -162,7 +161,7 @@ const MainPage = () => {
                     <label>Дата рождения:</label>
                     <input
                         type="date"
-                        name="birthDay"
+                        name="birthday"
                         value={profileData.birthday}
                         onChange={handleInputChange}
                     />
