@@ -10,7 +10,7 @@ const MainPage = () => {
         patronymic: '',
         email: '',
         phoneNumber: '',
-        birthDay: '',
+        birthday: '',
         isPassportConfirmed: false,
     });
     const [token, setToken] = useState('');
@@ -163,7 +163,7 @@ const MainPage = () => {
                     <input
                         type="date"
                         name="birthDay"
-                        value={profileData.birthDay}
+                        value={profileData.birthday}
                         onChange={handleInputChange}
                     />
                 </div>
