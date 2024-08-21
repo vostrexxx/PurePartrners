@@ -8,7 +8,7 @@ const PhoneNumberEnteringPage = () => {
 
     const handleEnterPhoneNumber = async () => {
         try {
-            const response = await fetch('HolyG', {
+            const response = await fetch('http://localhost:8887/change/newCode', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -18,7 +18,7 @@ const PhoneNumberEnteringPage = () => {
 
             if (response.ok) {
                 // Симулируем ответ, если нужно
-                const simulateResponse = () => 1;
+                // const simulateResponse = () => 1;
                 if (simulateResponse() === 1) {
                     navigate('/passcode-enter');
                 } else {
