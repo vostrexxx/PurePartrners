@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 // Функция для получения токена
 const getAuthToken = () => localStorage.getItem('authToken');
 
-const MainPage = () => {
+const ProfilePage = () => {
     const [profileData, setProfileData] = useState({
         name: '',
         surname: '',
@@ -176,4 +176,4 @@ const MainPage = () => {
     );
 };
 
-export default MainPage;
+export default ProfilePage;

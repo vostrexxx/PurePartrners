@@ -5,6 +5,7 @@ const PhoneNumberEnteringPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const [passcode, setPasscode] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState(localStorage.getItem('phoneNumber') || '');
 
     const ChangePhoneNumber = async () => {
   
@@ -18,6 +19,29 @@ const PhoneNumberEnteringPage = () => {
     };
 
     const PasscodeEnter = async () => {
+        try {
+            const response = await fetch('http://localhost:8887/change/code', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ phoneNumber, passcode }),
+            });
+
+            if (response.ok) {
+                // Симулируем ответ, если нужно
+                // const simulateResponse = () => 1;
+                if (simulateResponse() === 1) {
+                    navigate('/passcode-enter');
+                } else {
+                    console.error('Ошибка входа');
+                }
+            } else {
+                console.error('Ошибка при отправке номера телефона');
+            }
+        } catch (error) {
+            console.error('Произошла ошибка:', error);
+        }
         const simulateResponse = () => 1;
         if (simulateResponse() === 1) {
             navigate('/password-reset');
