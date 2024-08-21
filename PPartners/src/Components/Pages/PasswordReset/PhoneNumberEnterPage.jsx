@@ -18,7 +18,7 @@ const PhoneNumberEnteringPage = () => {
 
             if (response.ok) {
                 // Симулируем ответ, если нужно
-                // const simulateResponse = () => 1;
+                const simulateResponse = () => 1;
                 if (simulateResponse() === 1) {
                     navigate('/passcode-enter');
                 } else {
