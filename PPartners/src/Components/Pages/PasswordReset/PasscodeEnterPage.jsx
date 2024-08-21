@@ -29,13 +29,15 @@ const PhoneNumberEnteringPage = () => {
             });
 
             if (response.ok) {
+                navigate('/passcode-enter');
+
                 // Симулируем ответ, если нужно
                 // const simulateResponse = () => 1;
-                if (simulateResponse() === 1) {
-                    navigate('/passcode-enter');
-                } else {
-                    console.error('Ошибка входа');
-                }
+                // if (simulateResponse() === 1) {
+                //     navigate('/passcode-enter');
+                // } else {
+                //     console.error('Ошибка входа');
+                // }
             } else {
                 console.error('Ошибка при отправке номера телефона');
             }
