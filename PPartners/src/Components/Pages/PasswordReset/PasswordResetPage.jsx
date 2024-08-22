@@ -4,13 +4,13 @@ import { useLocation, useNavigate } from 'react-router-dom';
 const PasswordResetPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const [password, setPassword] = useState('');
+    const [newPassword, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [phoneNumber] = useState(localStorage.getItem('phoneNumber') || '');
 
     
     const handlePasswordReset = async () => {
-        if (password !== confirmPassword) {
+        if (newPassword !== confirmPassword) {
             alert('Пароли не совпадают');
             return;
         }
@@ -20,7 +20,7 @@ const PasswordResetPage = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ phoneNumber, password }),
+                body: JSON.stringify({ phoneNumber, password: newPassword }),
             });
 
             if (response.ok) {
@@ -52,7 +52,7 @@ const PasswordResetPage = () => {
             <label>Введите новый пароль:</label>
             <input
                 type="password"
-                value={password}
+                value={newPassword}
                 onChange={(e) => setPassword(e.target.value)}
             />
             <label>Подтвердите пароль:</label>
