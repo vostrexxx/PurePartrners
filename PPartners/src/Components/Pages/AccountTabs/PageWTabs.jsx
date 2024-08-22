@@ -13,11 +13,11 @@ const PageWithTabs = () => {
 
   return (
     <div>
-      <h1>Работа с аккаунтом</h1>
+      <h2>Личный кабинет</h2>
       <div className="tabs">
         <button onClick={() => handleTabClick(0)}>Личные данные</button>
-        <button onClick={() => handleTabClick(1)}>Профили</button>
-        <button onClick={() => handleTabClick(2)}>Действия с аккаунтом</button>
+        {/* <button onClick={() => handleTabClick(1)}>ь</button> */}
+        <button onClick={() => handleTabClick(2)}>Мои анкеты</button>
         <button onClick={() => handleTabClick(3)}>Подтверждение документов</button>
       </div>
 
