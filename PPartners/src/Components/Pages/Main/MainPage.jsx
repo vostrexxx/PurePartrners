@@ -23,9 +23,9 @@ const MainPage = () => {
                         {dropdownOpen && (
                             <div style={styles.dropdownMenu}>
                                 <ul style={styles.dropdownList}>
-                                    <li style={styles.dropdownItem} onClick={() => navigate('/personal-information')}>Личные данные</li>
-                                    <li style={styles.dropdownItem} onClick={() => navigate('/profiles')}>Работа с профилями</li>
-                                    <li style={styles.dropdownItem} onClick={() => navigate('/account-actions')}>Действия с аккаунтом</li>
+                                    <li style={styles.dropdownItem} onClick={() => navigate('/account-actions')}>Работа с аккаунтом</li>
+                                    {/* <li style={styles.dropdownItem} onClick={() => navigate('/profiles')}>Работа с профилями</li>
+                                    <li style={styles.dropdownItem} onClick={() => navigate('/account-actions')}>Действия с аккаунтом</li> */}
                                 </ul>
                             </div>
                         )}
