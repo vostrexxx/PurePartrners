@@ -74,7 +74,7 @@ const IdentificationPage = () => {
                 type="text"
                 value={phoneNumber}
                 onChange={handleInputChange}
-                placeholder="+71234567890"
+                placeholder="+1234567890"
             />
             {!isValid && (
                 <p style={{ color: 'red', marginTop: '5px' }}>

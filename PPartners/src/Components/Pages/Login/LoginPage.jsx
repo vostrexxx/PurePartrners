@@ -68,7 +68,7 @@ const LoginPage = () => {
                 type="text"
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="+71234567890"
+                placeholder="+1234567890"
                 disabled
             />
             <label>Введите пароль:</label>
