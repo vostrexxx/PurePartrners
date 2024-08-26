@@ -17,6 +17,28 @@ const ProfilePage = () => {
     const [isEditable, setIsEditable] = useState(false);
     const [isDataLoaded, setIsDataLoaded] = useState(false);
     const [isUserRegistered, setIsUserRegistered] = useState(true);
+    const [selectedImage, setSelectedImage] = useState(null);
+
+    const handleImageChange = (event) => {
+        if (event.target.files && event.target.files.length > 0) {
+            const file = event.target.files[0];
+            const imageURL = URL.createObjectURL(file);
+            setSelectedImage(imageURL);
+            setFormData((prevData) => ({
+                ...prevData,
+                photo: imageURL, // Сохраняем URL изображения в formData
+            }));
+        }
+    };
+
+    const handleRemoveImage = () => {
+        setSelectedImage(null);
+        setFormData((prevData) => ({
+            ...prevData,
+            photo: '',
+        }));
+    };
+
 
     useEffect(() => {
         const authToken = getAuthToken();
@@ -102,7 +124,26 @@ const ProfilePage = () => {
 
     return (
         <div>
-            <h1>Личные данные</h1>
+            <h2>Паспортные данные</h2>
+             <div>
+                {selectedImage ? (
+                    <div>
+                        <img
+                            src={selectedImage}
+                            alt="Uploaded"
+                            style={{ width: "300px", marginTop: "20px" }}
+                        />
+                        <button onClick={handleRemoveImage} style={{ display: "block", marginTop: "10px" }}>
+                            Удалить фотографию
+                        </button>
+                    </div>
+                ) : (
+                    <div>
+                        <input type="file" accept="image/*" onChange={handleImageChange} />
+                    </div>
+                )}
+            </div>
+            <h2>Личные данные</h2>
             <div>
                 <label>Имя:</label>
                 <input
