@@ -33,11 +33,12 @@ const FormPage = () => {
         workExp: '', // Опыт в сфере строительства РЕД
         // regDate: '', // Дата регистрации РЕД
         selfInfo: '', // Информация о себе РЕД
+        prices: '' // Расценки на услуги
     });
     
     const [isEditable, setIsEditable] = useState(false);
     const [isDataLoaded, setIsDataLoaded] = useState(false);
-  
+    const [isVisible, setVisible] = useState(false)
 
     useEffect(() => {
         // Имитация загрузки данных
@@ -64,6 +65,7 @@ const FormPage = () => {
                                     workExp: '6 лет',
                                     // regDate: 'На сервисе с 02.2024 (80 дней)',
                                     selfInfo: 'Работаю с 2013 года...',
+                                    prices: 'Расценки на услуги'
                                 },
                             }),
                         100
@@ -119,69 +121,11 @@ const FormPage = () => {
         <div>
 
             <h1>Анкета</h1>
-            {/* <FormField // Пока просто текстовое поле, потом продумать, как лучше это реализовать
-                type="text"
-                label="Категория работ"
-                name="categoriesOfWork"
-                placeholder="Категория работ"
-                value={formData.categoriesOfWork}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-            />
-            <FormField
-                type="text"
-                label="ИФ"
-                name="NameSurname"
-                placeholder="Ваше имя и фамилия"
-                value={formData.name + " " + formData.surname}
-                onChange={handleInputChange}
-                disabled={true}
-            />
-            <FormField // Сменить тип данных под фото
-                type="text"
-                label="Фото"
-                name="photo"
-                placeholder="Ваша фотография"
-                value={formData.photo}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-            /> */}
-            {/* <FormField // Пока текстовое, потом надо будет продумать блоки с отзывами (кто написал + дата отзыва + сам отзыв)
-                type="text" 
-                label="Отзывы"
-                name="reviews"
-                placeholder="Ваши отзывы"
-                value={formData.reviews}
-                onChange={handleInputChange}
-                disabled={true}
-            />
-            <FormField
-                type="text"
-                label="Завершенные проекты"
-                name="completedProjects"
-                placeholder="Ваши законченные проекты"
-                value={formData.completedProjects}
-                onChange={handleInputChange}
-                disabled={true}
-            />
-            <FormField
-                type="text"
-                label="Оценка на сервисе"
-                name="rating"
-                placeholder="Ваша оценка на сервисе"
-                value={formData.rating}
-                onChange={handleInputChange}
-                disabled={true}
-            /> */}
-            <FormField
-                type="text"
-                label="Есть ли команда?"
-                name="hasTeam"
-                placeholder="Да/Нет"
-                value={formData.hasTeam}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-            />
+            <label>
+                Есть ли у вас команда?
+                <input type="checkbox" value={formData.hasTeam} />
+            </label>    
+
             <FormField
                 type="text"
                 label="Информация по команде"
@@ -190,7 +134,9 @@ const FormPage = () => {
                 value={formData.team}
                 onChange={handleInputChange}
                 disabled={!isEditable}
+                hidden={true}
             />
+            
             <FormField
                 type="text"
                 label="Есть ли образование?"
@@ -236,15 +182,6 @@ const FormPage = () => {
                 onChange={handleInputChange}
                 disabled={!isEditable}
             />
-            {/* <FormField
-                type="text"
-                label="Ваша дата регистрации"
-                name="regDate"
-                placeholder="21 01 2009"
-                value={formData.regDate}
-                onChange={handleInputChange}
-                disabled={true}
-            /> */}
             <FormField
                 type="text"
                 label="Ваша информация о себе"

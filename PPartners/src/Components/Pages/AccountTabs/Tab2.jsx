@@ -1,117 +1,96 @@
 import React, { useState, useEffect } from 'react';
 
-
-
-
-// Функция для получения токена
-const getAuthToken = () => localStorage.getItem('authToken');
-function formField(type, label, name, placeholder) {
-                return <div>
-                <label>{label}</label>
-                <input
-                    type={type}
-                    name={name}
-                    placeholder={placeholder}
-                    // value={FormData.?} // Значение поля заполняется данными из состояния
-                    onChange={handleInputChange}
-                    disabled={!isEditable}
-                />
-            </div>
-}
+// Компонент для отображения поля формы
+const FormField = ({ type, label, name, placeholder, value, onChange, disabled, hidden }) => {
+    if (hidden) return null; // Если поле скрыто, ничего не рендерим
+    return (
+        <div>
+            <label>{label}</label>
+            <input
+                type={type}
+                name={name}
+                placeholder={placeholder}
+                value={value}
+                onChange={onChange}
+                disabled={disabled}
+            />
+        </div>
+    );
+};
 
 const FormPage = () => {
-    const [FormData, setFormData] = useState({
-        categoriesOfWork: '',
-        name: '',
-        surname: '',
-        photo: '', // Фото Спеца
-        reviews: '', // Отзывы
-        completedProjects: '', // Законченные проекты с фото
-        rating: '', // Оценка
-        hasTeam: '', // Есть ли команда
-        team: '', // Описание команды
-        hasEdu: '', // Есть ли образование
-        eduEst: '', // Образовательное учреждение
-        eduDates: '', // Даты начала и окончания образования
-        workExp: '', // Опыт работы (не только на сервисе?)
-        regDate: '', // Дата регистрации для того, чтобы отображать, с какого числа на сервисе и сколько там времени. Пример: На сервисе с 02.2024 (80 дней)
-        selfInfo: '', // Спец рассказывает о себе
-    
-        // isPassportConfirmed: false,
+    const [formData, setFormData] = useState({
+        categoriesOfWork: '', // Категория работ, РЕД
+        hasTeam: '', // Редактируемая информация, значение поля true/false, если есть команда, то выводим информацию из переменной team, иначе ничего РЕД
+        team: '', // Информация по команде РЕД 
+        hasEdu: '', // Образование, булевое поле, если true, то выводим поля с eduEst & eduDates, РЕД
+        eduEst: '', // Учебное заведение РЕД
+        eduDateStart: '', // Дата начала образования РЕД
+        eduDateEnd: '', // Дата окончания образования РЕД
+        workExp: '', // Опыт в сфере строительства РЕД
+        selfInfo: '', // Информация о себе РЕД
+        prices: '' // Расценки на услуги
     });
-    const [token, setToken] = useState('');
+
     const [isEditable, setIsEditable] = useState(false);
     const [isDataLoaded, setIsDataLoaded] = useState(false);
-    const [isUserRegistered, setIsUserRegistered] = useState(true);
 
     useEffect(() => {
-        const authToken = getAuthToken();
-        if (authToken) {
-            setToken(authToken);
-            
-            fetch('http://localhost:8887/profile', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`,
-                },
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success === 1) {
-                    setFormData(data.profile); // Заполняем форму данными профиля
-                    setIsEditable(false); // Поля изначально не редактируемы
-                } else {
-                    setIsUserRegistered(false); // Если профиль не найден, показываем форму регистрации
-                }
-                setIsDataLoaded(true); // Данные загружены
-            })
-            .catch(error => {
+        // Имитация загрузки данных
+        const fetchData = async () => {
+            try {
+                const data = await new Promise((resolve) =>
+                    setTimeout(
+                        () =>
+                            resolve({
+                                profile: {
+                                    categoriesOfWork: 'Строительство дома',
+                                    hasTeam: 'Да',
+                                    team: 'Команда строителей',
+                                    hasEdu: 'Да',
+                                    eduEst: 'РГСУ',
+                                    eduDateStart: '2009',
+                                    eduDateEnd: '2013',
+                                    workExp: '6 лет',
+                                    selfInfo: 'Работаю с 2013 года...',
+                                    prices: 'Построить дом - 3000к рублей'
+                                },
+                            }),
+                        1000
+                    )
+                );
+
+                setFormData(data.profile);
+                setIsDataLoaded(true);
+            } catch (error) {
                 console.error('Ошибка при загрузке данных:', error);
-                setIsDataLoaded(true); // Устанавливаем флаг, чтобы показать ошибку или форму регистрации
-            });
-        } else {
-            setIsUserRegistered(false); // Если токена нет, показываем форму регистрации
-            setIsDataLoaded(true); // Данные не нужны, так как это форма регистрации
-        }
-    }, []); // Пустой массив зависимостей, чтобы запрос выполнялся один раз при монтировании компонента
+            }
+        };
+
+        fetchData();
+    }, []);
 
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prevData => ({
+        const { name, value, type, checked } = e.target;
+        setFormData((prevData) => ({
             ...prevData,
-            [name]: value
-        }));
-    };
-
-    const handleCheckboxChange = (e) => {
-        const { name, checked } = e.target;
-        setFormData(prevData => ({
-            ...prevData,
-            [name]: checked
+            [name]: type === 'checkbox' ? (checked ? 'Да' : 'Нет') : value,
         }));
     };
 
     const handleEdit = () => {
-        setIsEditable(true); // Позволяем редактировать поля
+        setIsEditable(true);
     };
 
-    const handleSubmitProfile = async () => {
+    const handleSubmitProfile = async (e) => {
+        e.preventDefault();
         try {
-            const response = await fetch('http://localhost:8887/profile', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify(FormData),
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
+            // Пример отправки данных на сервер
+            const response = await new Promise((resolve) =>
+                setTimeout(() => resolve({ success: true }), 1000)
+            );
+            if (response.success) {
                 alert('Профиль успешно обновлен!');
-                setFormData(data.profile); // Обновляем данные профиля
                 setIsEditable(false); // Поля снова становятся не редактируемыми
             } else {
                 alert('Ошибка при обновлении профиля.');
@@ -128,18 +107,113 @@ const FormPage = () => {
 
     return (
         <div>
-            <h1>Личные данные</h1>
-            <formField type = "text" />
+            <h1>Анкета</h1>
+            <FormField
+                type="text"
+                label="Категория работ"
+                name="categoriesOfWork"
+                placeholder="Ваши категории работы"
+                value={formData.categoriesOfWork}
+                onChange={handleInputChange}
+                disabled={!isEditable}
+                // hidden={formData.hasTeam !== 'Да'}
+            />
+
             <div>
-                <label>Дата рождения:</label>
+                <label>
+                Есть ли у вас команда?
                 <input
-                    type="date"
-                    name="birthday"
-                    value={FormData.birthday} // Значение поля заполняется данными из состояния
+                    type="checkbox"
+                    name="hasTeam"
+                    checked={formData.hasTeam === 'Да'}
                     onChange={handleInputChange}
                     disabled={!isEditable}
                 />
+                </label>
             </div>
+
+            <FormField
+                type="text"
+                label="Информация по команде"
+                name="team"
+                placeholder="Информация о вашей команде"
+                value={formData.team}
+                onChange={handleInputChange}
+                disabled={!isEditable}
+                hidden={formData.hasTeam !== 'Да'}
+            />
+
+            <div>
+                <label>
+                    Есть ли образование?
+                    <input
+                        type="checkbox"
+                        name="hasEdu"
+                        checked={formData.hasEdu === 'Да'}
+                        onChange={handleInputChange}
+                        disabled={!isEditable}
+                    />
+                </label>
+            </div>
+            <FormField
+                type="text"
+                label="Ваше учебное заведение"
+                name="eduEst"
+                placeholder="РТУ МЕМРэА"
+                value={formData.eduEst}
+                onChange={handleInputChange}
+                disabled={!isEditable}
+                hidden={formData.hasEdu !== 'Да'}
+            />
+            <FormField
+                type="text"
+                label="Дата начала обучения"
+                name="eduDateStart"
+                placeholder="2009"
+                value={formData.eduDateStart}
+                onChange={handleInputChange}
+                disabled={!isEditable}
+                hidden={formData.hasEdu !== 'Да'}
+
+            />
+            <FormField
+                type="text"
+                label="Дата окончания обучения"
+                name="eduDateEnd"
+                placeholder="2013"
+                value={formData.eduDateEnd}
+                onChange={handleInputChange}
+                disabled={!isEditable}
+                hidden={formData.hasEdu !== 'Да'}
+
+            />
+            <FormField
+                type="text"
+                label="Ваш рабочий опыт"
+                name="workExp"
+                placeholder="14 лет"
+                value={formData.workExp}
+                onChange={handleInputChange}
+                disabled={!isEditable}
+            />
+            <FormField
+                type="text"
+                label="Ваша информация о себе"
+                name="selfInfo"
+                placeholder="Я такой-то такой-то"
+                value={formData.selfInfo}
+                onChange={handleInputChange}
+                disabled={!isEditable}
+            />
+            <FormField
+                type="text"
+                label="Ваши расценки на услуги"
+                name="prices"
+                placeholder="Выши расценки"
+                value={formData.prices}
+                onChange={handleInputChange}
+                disabled={!isEditable}
+            />
             <button onClick={handleEdit}>Редактировать</button>
             {isEditable && (
                 <button onClick={handleSubmitProfile}>Сохранить</button>

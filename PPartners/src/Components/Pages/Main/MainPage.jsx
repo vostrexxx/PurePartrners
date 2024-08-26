@@ -6,9 +6,9 @@ const MainPage = () => {
     const navigate = useNavigate();
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
-    const handleProfileClick = () => {
-        navigate('/profile');
-    };
+    // const handleProfileClick = () => {
+    //     navigate('/profile');
+    // };
 
     const toggleDropdown = () => {
         setDropdownOpen(!dropdownOpen);

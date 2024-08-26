@@ -10,7 +10,7 @@ import RegistrationPage from './Components/Pages/Registration/RegistrationPage';
 import MainPage from './Components/Pages/Main/MainPage';
 import ProfilePage from './Components/Pages/Profile/ProfilePage';
 import PageWTabs from './Components/Pages/AccountTabs/PageWTabs';
-import Photo from './Components/Pages/AccountTabs/Photo';
+// import Photo from './Components/Pages/AccountTabs/Photo';
 
 const App = () => {
     return (
@@ -27,7 +27,7 @@ const App = () => {
                 <Route path="/password-reset" element={<PasswordResetPage />} />
                 <Route path="/account-actions" element={<PageWTabs />} />
 
-                <Route path="/photo" element={<Photo />} />
+                {/* <Route path="/photo" element={<Photo />} /> */}
 
             </Routes>
         </Router>
