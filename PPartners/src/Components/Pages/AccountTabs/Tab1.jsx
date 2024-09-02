@@ -25,8 +25,8 @@ const ProfilePage = () => {
         const authToken = getAuthToken();
         if (authToken) {
             setToken(authToken);
-            
-            // Выполняем два параллельных запроса: один для персональных данных, другой для фото
+    
+            // Выполните два запроса одновременно
             Promise.all([
                 fetch('http://localhost:8887/profile', {
                     method: 'GET',
@@ -40,27 +40,27 @@ const ProfilePage = () => {
                     headers: {
                         'Authorization': `Bearer ${authToken}`,
                     },
-                }),
+                })
             ])
-            .then(([profileResponse, photoResponse]) => 
-                Promise.all([
+            .then(([profileResponse, photoResponse]) => {
+                // Обработайте JSON ответ для профиля
+                return Promise.all([
                     profileResponse.json(),
-                    photoResponse.json()
-                ])
-            )
-            .then(([profileData, photoData]) => {
+                    photoResponse.blob() // Получите изображение как blob
+                ]);
+            })
+            .then(([profileData, photoBlob]) => {
                 if (profileData.success === 1) {
                     setProfileData(profileData.profile); // Заполняем форму данными профиля
                     setIsEditable(false); // Поля изначально не редактируемы
                 } else {
                     setIsUserRegistered(false); // Если профиль не найден, показываем форму регистрации
                 }
-
-                if (photoData.success === 1 && photoData.photo) {
-                    setSelectedImage(photoData.photo); // Устанавливаем URL фото
-                    setIsImageLoaded(true); // Фото загружено
-                }
-
+    
+                // Создайте URL для изображения и установите его в состояние
+                const photoURL = URL.createObjectURL(photoBlob);
+                setSelectedImage(photoURL);
+    
                 setIsDataLoaded(true); // Данные загружены
             })
             .catch(error => {
@@ -71,7 +71,8 @@ const ProfilePage = () => {
             setIsUserRegistered(false); // Если токена нет, показываем форму регистрации
             setIsDataLoaded(true); // Данные не нужны, так как это форма регистрации
         }
-    }, []); // Пустой массив зависимостей, чтобы запрос выполнялся один раз при монтировании компонента
+    }, []);
+    
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
