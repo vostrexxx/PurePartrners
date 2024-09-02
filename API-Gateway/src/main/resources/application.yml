@@ -33,6 +33,16 @@ spring:
           filters:
             - AuthenticationFilter
 
+        - id: change-credentials
+          uri: lb://change-credentials
+          predicates:
+            - Path=/change/**
+          filters:
+            - name: CacheRequestBody
+              args:
+                bodyClass: java.util.LinkedHashMap
+            - ResetCredentialsFilter
+
 server:
   port: 8887
 

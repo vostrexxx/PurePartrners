@@ -5,9 +5,12 @@ import com.partners.authserver.dto.*;
 import com.partners.authserver.exception.CantSaveUserException;
 import com.partners.authserver.exception.PhoneNumberTakenException;
 import com.partners.authserver.exception.InvalidTokenException;
+import com.partners.authserver.exception.TelephoneNotFoundException;
 import com.partners.authserver.model.Role;
 import com.partners.authserver.model.UserAuthInfo;
 import com.partners.authserver.repository.UserAuthInfoRepository;
+import jakarta.transaction.Transactional;
+import jakarta.ws.rs.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,7 +21,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.math.BigInteger;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -93,6 +96,25 @@ public class UserAuthInfoService{
 
     public CheckPhoneNumberResponse checkPhoneNumberPresence(String phoneNumber){
         Boolean isTelephonePresent = userAuthInfoRepository.existsByPhoneNumber(phoneNumber);
-        return new CheckPhoneNumberResponse(isTelephonePresent);
+        int response = isTelephonePresent ? 1 : 0;
+        return new CheckPhoneNumberResponse(response);
+    }
+
+    public IdFromTelephoneResponse getIdByPhoneNumber(String phoneNumber) throws TelephoneNotFoundException {
+        Optional<UserAuthInfo> userAuthInfo = userAuthInfoRepository.findByPhoneNumber(phoneNumber);
+        if (userAuthInfo.isEmpty())
+            throw new TelephoneNotFoundException("PhoneNumber not found", HttpStatus.BAD_REQUEST);
+        return new IdFromTelephoneResponse(HttpStatus.OK, userAuthInfo.get().getId());
+    }
+
+    @Transactional
+    public ResetPasswordResponse resetPassword(ResetPasswordRequest newPassword){
+        String phoneNumber = newPassword.getPhoneNumber();
+        String password = newPassword.getNewPassword();
+        String encodedPassword = passwordEncoder.encode(password);
+        int affectedRows = userAuthInfoRepository.setPasswordByPhoneNumber(encodedPassword, phoneNumber);
+        if (affectedRows < 1)
+            throw new BadRequestException("Can't reset password");
+        return new ResetPasswordResponse(1);
     }
 }

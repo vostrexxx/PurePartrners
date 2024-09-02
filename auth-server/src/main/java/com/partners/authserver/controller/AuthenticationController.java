@@ -4,6 +4,7 @@ import com.partners.authserver.dto.*;
 import com.partners.authserver.exception.CantSaveUserException;
 import com.partners.authserver.exception.InvalidTokenException;
 import com.partners.authserver.exception.PhoneNumberTakenException;
+import com.partners.authserver.exception.TelephoneNotFoundException;
 import com.partners.authserver.service.UserAuthInfoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -42,5 +43,17 @@ public class AuthenticationController {
     public ResponseEntity<CheckPhoneNumberResponse> checkPhoneNumber(@RequestBody CheckPhoneNumber phoneNumber){
         CheckPhoneNumberResponse response = userAuthInfoService.checkPhoneNumberPresence(phoneNumber.getPhoneNumber());
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{phoneNumber}")
+    public ResponseEntity<IdFromTelephoneResponse> getIdByTelephone(@PathVariable("phoneNumber") String phoneNumber) throws TelephoneNotFoundException {
+        IdFromTelephoneResponse userId = userAuthInfoService.getIdByPhoneNumber(phoneNumber);
+        return ResponseEntity.ok(userId);
+    }
+
+    @PostMapping("/password")
+    public ResponseEntity<ResetPasswordResponse> resetPassword(@RequestBody ResetPasswordRequest newPassword){
+        ResetPasswordResponse resetPasswordResponse = userAuthInfoService.resetPassword(newPassword);
+        return ResponseEntity.ok(resetPasswordResponse);
     }
 }
