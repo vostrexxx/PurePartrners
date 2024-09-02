@@ -18,14 +18,13 @@ const ProfilePage = () => {
     const [isDataLoaded, setIsDataLoaded] = useState(false);
     const [isUserRegistered, setIsUserRegistered] = useState(true);
     const [selectedImage, setSelectedImage] = useState(null);
-    const [isImageLoaded, setIsImageLoaded] = useState(false); // Новый флаг для загрузки фото
     const [imageFile, setImageFile] = useState(null); // Хранение файла изображения
 
     useEffect(() => {
         const authToken = getAuthToken();
         if (authToken) {
             setToken(authToken);
-    
+
             // Выполните два запроса одновременно
             Promise.all([
                 fetch('http://localhost:8887/profile', {
@@ -56,11 +55,11 @@ const ProfilePage = () => {
                 } else {
                     setIsUserRegistered(false); // Если профиль не найден, показываем форму регистрации
                 }
-    
+
                 // Создайте URL для изображения и установите его в состояние
                 const photoURL = URL.createObjectURL(photoBlob);
                 setSelectedImage(photoURL);
-    
+
                 setIsDataLoaded(true); // Данные загружены
             })
             .catch(error => {
@@ -72,7 +71,6 @@ const ProfilePage = () => {
             setIsDataLoaded(true); // Данные не нужны, так как это форма регистрации
         }
     }, []);
-    
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -96,14 +94,12 @@ const ProfilePage = () => {
             setImageFile(file); // Сохраняем файл изображения
             const imageURL = URL.createObjectURL(file);
             setSelectedImage(imageURL); // Отображаем изображение
-            setIsImageLoaded(false); // Очищаем флаг, пока не загрузим новое фото
         }
     };
 
     const handleRemoveImage = () => {
         setSelectedImage(null);
-        setImageFile(null);
-        setIsImageLoaded(false); // Фото больше не загружено
+        setImageFile(null); // Очищаем выбранное изображение
     };
 
     const handleEdit = () => {
@@ -144,9 +140,10 @@ const ProfilePage = () => {
 
         const formData = new FormData();
         formData.append('photo', imageFile); // Добавляем файл в FormData
+    
 
         try {
-            const response = await fetch('http://localhost:8887/', {
+            const response = await fetch('http://localhost:8887/profile/image', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -158,7 +155,9 @@ const ProfilePage = () => {
 
             if (data.success) {
                 alert('Фото успешно загружено!');
-                setIsImageLoaded(true); // Устанавливаем флаг, что фото загружено
+                // Обновляем изображение
+                const photoURL = URL.createObjectURL(imageFile);
+                setSelectedImage(photoURL);
             } else {
                 alert('Ошибка при загрузке фото.');
             }
@@ -175,7 +174,7 @@ const ProfilePage = () => {
     return (
         <div>
             <h2>Паспортные данные</h2>
-             <div>
+            <div>
                 {selectedImage ? (
                     <div>
                         <img
@@ -191,7 +190,7 @@ const ProfilePage = () => {
                     <div>
                         <input type="file" accept="image/*" onChange={handleImageChange} />
                         <button onClick={handleSubmitPhoto} style={{ display: "block", marginTop: "10px" }}>
-                            Сохранить фотографию
+                            Загрузить фотографию
                         </button>
                     </div>
                 )}
@@ -203,7 +202,7 @@ const ProfilePage = () => {
                     type="text"
                     name="name"
                     placeholder="Введите имя"
-                    value={profileData.name} // Значение поля заполняется данными из состояния
+                    value={profileData.name}
                     onChange={handleInputChange}
                     disabled={!isEditable}
                 />
@@ -214,7 +213,7 @@ const ProfilePage = () => {
                     type="text"
                     name="surname"
                     placeholder="Введите фамилию"
-                    value={profileData.surname} // Значение поля заполняется данными из состояния
+                    value={profileData.surname}
                     onChange={handleInputChange}
                     disabled={!isEditable}
                 />
@@ -225,7 +224,7 @@ const ProfilePage = () => {
                     type="text"
                     name="patronymic"
                     placeholder="Введите отчество"
-                    value={profileData.patronymic} // Значение поля заполняется данными из состояния
+                    value={profileData.patronymic}
                     onChange={handleInputChange}
                     disabled={!isEditable}
                 />
@@ -236,7 +235,7 @@ const ProfilePage = () => {
                     type="email"
                     name="email"
                     placeholder="Введите почту"
-                    value={profileData.email} // Значение поля заполняется данными из состояния
+                    value={profileData.email}
                     onChange={handleInputChange}
                     disabled={!isEditable}
                 />
@@ -247,7 +246,7 @@ const ProfilePage = () => {
                     type="text"
                     name="phoneNumber"
                     placeholder="Введите номер телефона"
-                    value={profileData.phoneNumber} // Значение поля заполняется данными из состояния
+                    value={profileData.phoneNumber}
                     onChange={handleInputChange}
                     disabled={!isEditable}
                 />
@@ -257,14 +256,14 @@ const ProfilePage = () => {
                 <input
                     type="date"
                     name="birthday"
-                    value={profileData.birthday} // Значение поля заполняется данными из состояния
+                    value={profileData.birthday}
                     onChange={handleInputChange}
                     disabled={!isEditable}
                 />
             </div>
             <button onClick={handleEdit}>Редактировать</button>
             {isEditable && (
-                <button onClick={handleSubmitProfile}>Сохранить</button>
+                <button onClick={handleSubmitProfile}>Сохранить данные</button>
             )}
         </div>
     );
