@@ -1,0 +1,12 @@
+{
+  "auth": {
+    "checkPhoneNumber": [
+      {
+        "success": true
+      },
+      {
+        "success": false
+      }
+    ]
+  }
+}

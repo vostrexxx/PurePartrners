@@ -18,48 +18,49 @@ const ProfilePage = () => {
     const [isDataLoaded, setIsDataLoaded] = useState(false);
     const [isUserRegistered, setIsUserRegistered] = useState(true);
     const [selectedImage, setSelectedImage] = useState(null);
-
-    const handleImageChange = (event) => {
-        if (event.target.files && event.target.files.length > 0) {
-            const file = event.target.files[0];
-            const imageURL = URL.createObjectURL(file);
-            setSelectedImage(imageURL);
-            setFormData((prevData) => ({
-                ...prevData,
-                photo: imageURL, // Сохраняем URL изображения в formData
-            }));
-        }
-    };
-
-    const handleRemoveImage = () => {
-        setSelectedImage(null);
-        setFormData((prevData) => ({
-            ...prevData,
-            photo: '',
-        }));
-    };
-
+    const [isImageLoaded, setIsImageLoaded] = useState(false); // Новый флаг для загрузки фото
+    const [imageFile, setImageFile] = useState(null); // Хранение файла изображения
 
     useEffect(() => {
         const authToken = getAuthToken();
         if (authToken) {
             setToken(authToken);
             
-            fetch('http://localhost:8887/profile', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`,
-                },
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success === 1) {
-                    setProfileData(data.profile); // Заполняем форму данными профиля
+            // Выполняем два параллельных запроса: один для персональных данных, другой для фото
+            Promise.all([
+                fetch('http://localhost:8887/profile', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`,
+                    },
+                }),
+                fetch('http://localhost:8887/profile/image', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                    },
+                }),
+            ])
+            .then(([profileResponse, photoResponse]) => 
+                Promise.all([
+                    profileResponse.json(),
+                    photoResponse.json()
+                ])
+            )
+            .then(([profileData, photoData]) => {
+                if (profileData.success === 1) {
+                    setProfileData(profileData.profile); // Заполняем форму данными профиля
                     setIsEditable(false); // Поля изначально не редактируемы
                 } else {
                     setIsUserRegistered(false); // Если профиль не найден, показываем форму регистрации
                 }
+
+                if (photoData.success === 1 && photoData.photo) {
+                    setSelectedImage(photoData.photo); // Устанавливаем URL фото
+                    setIsImageLoaded(true); // Фото загружено
+                }
+
                 setIsDataLoaded(true); // Данные загружены
             })
             .catch(error => {
@@ -118,6 +119,38 @@ const ProfilePage = () => {
         }
     };
 
+    const handleSubmitPhoto = async () => {
+        if (!imageFile) {
+            alert('Пожалуйста, выберите файл.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('photo', imageFile); // Добавляем файл в FormData
+
+        try {
+            const response = await fetch('http://localhost:8887/upload-photo', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: formData, // Отправляем FormData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert('Фото успешно загружено!');
+                setIsImageLoaded(true); // Устанавливаем флаг, что фото загружено
+            } else {
+                alert('Ошибка при загрузке фото.');
+            }
+        } catch (error) {
+            console.error('Ошибка при загрузке фото:', error);
+            alert('Произошла ошибка. Попробуйте снова.');
+        }
+    };
+
     if (!isDataLoaded) {
         return <div>Ждём-ссс...</div>; // Пока данные загружаются, показываем загрузку
     }
@@ -126,7 +159,7 @@ const ProfilePage = () => {
         <div>
             <h2>Паспортные данные</h2>
              <div>
-                {selectedImage ? (
+                {isImageLoaded ? (
                     <div>
                         <img
                             src={selectedImage}
@@ -140,6 +173,9 @@ const ProfilePage = () => {
                 ) : (
                     <div>
                         <input type="file" accept="image/*" onChange={handleImageChange} />
+                        <button onClick={handleSubmitPhoto} style={{ display: "block", marginTop: "10px" }}>
+                            Сохранить фотографию
+                        </button>
                     </div>
                 )}
             </div>
