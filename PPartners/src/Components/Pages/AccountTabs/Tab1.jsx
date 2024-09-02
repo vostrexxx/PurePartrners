@@ -35,7 +35,7 @@ const ProfilePage = () => {
                         'Authorization': `Bearer ${authToken}`,
                     },
                 }),
-                fetch('http://localhost:8887/photo', {
+                fetch('http://localhost:8887/profile/image', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${authToken}`,
@@ -145,7 +145,7 @@ const ProfilePage = () => {
         formData.append('photo', imageFile); // Добавляем файл в FormData
 
         try {
-            const response = await fetch('http://localhost:8887/upload-photo', {
+            const response = await fetch('http://localhost:8887/', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
