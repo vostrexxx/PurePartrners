@@ -35,7 +35,7 @@ const ProfilePage = () => {
                         'Authorization': `Bearer ${authToken}`,
                     },
                 }),
-                fetch('http://localhost:8887/profile/image', {
+                fetch('http://localhost:8887/photo', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${authToken}`,
@@ -87,6 +87,22 @@ const ProfilePage = () => {
             ...prevData,
             [name]: checked
         }));
+    };
+
+    const handleImageChange = (event) => {
+        if (event.target.files && event.target.files.length > 0) {
+            const file = event.target.files[0];
+            setImageFile(file); // Сохраняем файл изображения
+            const imageURL = URL.createObjectURL(file);
+            setSelectedImage(imageURL); // Отображаем изображение
+            setIsImageLoaded(false); // Очищаем флаг, пока не загрузим новое фото
+        }
+    };
+
+    const handleRemoveImage = () => {
+        setSelectedImage(null);
+        setImageFile(null);
+        setIsImageLoaded(false); // Фото больше не загружено
     };
 
     const handleEdit = () => {
@@ -159,7 +175,7 @@ const ProfilePage = () => {
         <div>
             <h2>Паспортные данные</h2>
              <div>
-                {isImageLoaded ? (
+                {selectedImage ? (
                     <div>
                         <img
                             src={selectedImage}
