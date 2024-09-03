@@ -140,7 +140,6 @@ const ProfilePage = () => {
 
         const formData = new FormData();
         formData.append('photo', imageFile); // Добавляем файл в FormData
-    
 
         try {
             const response = await fetch('http://localhost:8887/profile/image', {
@@ -183,15 +182,17 @@ const ProfilePage = () => {
                             style={{ width: "300px", marginTop: "20px" }}
                         />
                         <button onClick={handleRemoveImage} style={{ display: "block", marginTop: "10px" }}>
-                            Удалить фотографию
+                            Удалить
                         </button>
+                        {imageFile && (
+                            <button onClick={handleSubmitPhoto} style={{ display: "block", marginTop: "10px" }}>
+                                Сохранить
+                            </button>
+                        )}
                     </div>
                 ) : (
                     <div>
                         <input type="file" accept="image/*" onChange={handleImageChange} />
-                        <button onClick={handleSubmitPhoto} style={{ display: "block", marginTop: "10px" }}>
-                            Загрузить фотографию
-                        </button>
                     </div>
                 )}
             </div>
