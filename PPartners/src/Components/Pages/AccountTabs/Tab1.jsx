@@ -139,7 +139,7 @@ const ProfilePage = () => {
         }
 
         const formData = new FormData();
-        formData.append('photo', imageFile); // Добавляем файл в FormData
+        formData.append('image', imageFile); // Добавляем файл в FormData
 
         try {
             const response = await fetch('http://localhost:8887/profile/image', {
