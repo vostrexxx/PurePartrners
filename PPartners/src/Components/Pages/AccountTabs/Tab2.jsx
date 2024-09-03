@@ -107,7 +107,7 @@ const FormPage = () => {
 
     return (
         <div>
-            <h1>Анкета</h1>
+            <h2>Данные для анкеты</h2>
             <FormField
                 type="text"
                 label="Категория работ"
