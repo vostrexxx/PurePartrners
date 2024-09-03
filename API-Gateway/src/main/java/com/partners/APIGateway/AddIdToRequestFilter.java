@@ -4,30 +4,27 @@ import jakarta.ws.rs.BadRequestException;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.LinkedHashMap;
 
 @Component
-public class ResetCredentialsFilter extends AbstractGatewayFilterFactory<ResetCredentialsFilter.Config> {
+public class AddIdToRequestFilter extends AbstractGatewayFilterFactory<AddIdToRequestFilter.Config> {
 
     private final RouteValidator routeValidator;
     private final WebClient.Builder webClient;
 
 
-    public ResetCredentialsFilter(RouteValidator routeValidator, WebClient.Builder webClient) {
+    public AddIdToRequestFilter(RouteValidator routeValidator, WebClient.Builder webClient) {
         super(Config.class);
         this.routeValidator = routeValidator;
         this.webClient = webClient;
     }
 
     @Override
-    public GatewayFilter apply(ResetCredentialsFilter.Config config) {
+    public GatewayFilter apply(AddIdToRequestFilter.Config config) {
         return ((exchange, chain) -> {
             LinkedHashMap<String, Object> body = exchange.getAttribute(ServerWebExchangeUtils.CACHED_REQUEST_BODY_ATTR);
             String phoneNumber;

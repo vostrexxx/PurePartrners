@@ -41,7 +41,7 @@ spring:
             - name: CacheRequestBody
               args:
                 bodyClass: java.util.LinkedHashMap
-            - ResetCredentialsFilter
+            - AddIdToRequestFilter
 
 server:
   port: 8887
