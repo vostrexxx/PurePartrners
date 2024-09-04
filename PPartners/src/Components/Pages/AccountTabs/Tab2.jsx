@@ -45,8 +45,7 @@ const FormPage = () => {
             }
 
             try {
-                const response = await fetch('http://localhost:8887/contractor',
-                    {
+                const response = await fetch('http://localhost:8887/contractor', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -59,7 +58,24 @@ const FormPage = () => {
                 }
 
                 const data = await response.json();
-                setFormData(data.profile);
+
+                if (data.success === 0) {
+                    console.log('Ответ success: 0, устанавливаем значения по умолчанию');
+                    setFormData({
+                        categoriesOfWork: '',
+                        hasTeam: '',
+                        team: '',
+                        hasEdu: '',
+                        eduEst: '',
+                        eduDateStart: '',
+                        eduDateEnd: '',
+                        workExp: '',
+                        selfInfo: '',
+                        prices: ''
+                    });
+                } else {
+                    setFormData(data.profile);
+                }
             } catch (error) {
                 console.error('Ошибка при загрузке данных:', error);
             } finally {
@@ -237,3 +253,4 @@ const getAuthToken = () => {
 };
 
 export default FormPage;
+
