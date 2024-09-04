@@ -45,8 +45,11 @@ const FormPage = () => {
             }
 
             try {
-                const response = await fetch('http://localhost:8887/contractor', {
+                const response = await fetch('http://localhost:8887/contractor',
+                    {
+                    method: 'GET',
                     headers: {
+                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${authToken}`
                     }
                 });
