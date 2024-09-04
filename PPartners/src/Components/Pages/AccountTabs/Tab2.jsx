@@ -90,7 +90,7 @@ const FormPage = () => {
         const { name, value, type, checked } = e.target;
         setFormData((prevData) => ({
             ...prevData,
-            [name]: type === 'checkbox' ? (checked ? 'Да' : 'Нет') : value,
+            [name]: type === 'checkbox' ? (checked ? 'true' : 'false') : value,
         }));
     };
 
@@ -151,7 +151,7 @@ const FormPage = () => {
                     <input
                         type="checkbox"
                         name="hasTeam"
-                        checked={formData.hasTeam === 'Да'}
+                        checked={formData.hasTeam === 'true'}
                         onChange={handleInputChange}
                         disabled={!isEditable}
                     />
@@ -166,7 +166,7 @@ const FormPage = () => {
                 value={formData.team}
                 onChange={handleInputChange}
                 disabled={!isEditable}
-                hidden={formData.hasTeam !== 'Да'}
+                hidden={formData.hasTeam !== 'true'}
             />
 
             <div>
@@ -175,7 +175,7 @@ const FormPage = () => {
                     <input
                         type="checkbox"
                         name="hasEdu"
-                        checked={formData.hasEdu === 'Да'}
+                        checked={formData.hasEdu === 'true'}
                         onChange={handleInputChange}
                         disabled={!isEditable}
                     />
@@ -189,7 +189,7 @@ const FormPage = () => {
                 value={formData.eduEst}
                 onChange={handleInputChange}
                 disabled={!isEditable}
-                hidden={formData.hasEdu !== 'Да'}
+                hidden={formData.hasEdu !== 'true'}
             />
             <FormField
                 type="text"
@@ -199,7 +199,7 @@ const FormPage = () => {
                 value={formData.eduDateStart}
                 onChange={handleInputChange}
                 disabled={!isEditable}
-                hidden={formData.hasEdu !== 'Да'}
+                hidden={formData.hasEdu !== 'true'}
             />
             <FormField
                 type="text"
@@ -209,7 +209,7 @@ const FormPage = () => {
                 value={formData.eduDateEnd}
                 onChange={handleInputChange}
                 disabled={!isEditable}
-                hidden={formData.hasEdu !== 'Да'}
+                hidden={formData.hasEdu !== 'true'}
             />
             <FormField
                 type="text"
