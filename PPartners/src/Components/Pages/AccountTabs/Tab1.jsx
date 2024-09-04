@@ -20,33 +20,6 @@ const ProfilePage = () => {
     const [selectedImage, setSelectedImage] = useState(null);
     const [imageFile, setImageFile] = useState(null); // Хранение файла изображения
 
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         try {
-    //             const response = await fetch('http://localhost:8887/contractor', {
-    //                 method: 'GET',
-    //                 headers: {
-    //                     'Content-Type': 'application/json',
-    //                     'Authorization': `Bearer ${authToken}`
-    //                 }
-    //             });
-    //             if (response.ok) {
-    //                 const data = await response.json();
-    //                 setFormData(data.profile);
-    //                 setIsDataLoaded(true);
-    //             } else {
-    //                 console.error('Ошибка при загрузке данных:', response.statusText);
-    //             }
-    //         } catch (error) {
-    //             console.error('Ошибка при загрузке данных:', error);
-    //         }
-    //     };
-
-    //     fetchData();
-    // }, []);
-
-
-
     useEffect(() => {
         const authToken = getAuthToken();
         if (authToken) {

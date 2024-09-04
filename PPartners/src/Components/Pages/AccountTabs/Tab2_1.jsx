@@ -1,108 +1,128 @@
 import React, { useState, useEffect } from 'react';
-//  На второй странице отображаются только те поля, которые должен заполнить Спец именно по Анкете
-// Компонент для отображения поля формы
-const FormField = ({ type, label, name, placeholder, value, onChange, disabled }) => (
-    <div>
-        <label>{label}</label>
-        <input
-            type={type}
-            name={name}
-            placeholder={placeholder}
-            value={value}
-            onChange={onChange}
-            disabled={disabled}
-        />
-    </div>
-);
 
-const FormPage = () => {
-    const [formData, setFormData] = useState({
-        categoriesOfWork: '', // Категория работ, РЕД
-        // name: '', // Имя берём с ПИ 
-        // surname: '', // Фам берём с ПИ
-        // photo: '', // Фото берём с ПИ
-        // reviews: '', // Отзывы берём с ОС
-        // completedProjects: '', // Выполненые объекты берём с ОС
-        // rating: '', // Оценку берём с ОС
-        hasTeam: '', // Редактируемая информация, значение поля true/false, если есть команда, то выводим информацию из переменной team, иначе ничего РЕД
-        team: '', // Информация по команде РЕД 
-        hasEdu: '', // Образование, булевое поле, если true, то выводим поля с eduEst & eduDates, РЕД
-        eduEst: '', // Учебное заведение РЕД
-        eduDateStart: '', // Дата начала образования РЕД
-        eduDateEnd: '', // Дата окончания образования РЕД
-        workExp: '', // Опыт в сфере строительства РЕД
-        // regDate: '', // Дата регистрации РЕД
-        selfInfo: '', // Информация о себе РЕД
-        prices: '' // Расценки на услуги
+// Функция для получения токена
+const getAuthToken = () => localStorage.getItem('authToken');
+
+const ContractorFormPage = () => {
+    const [profileData, setProfileData] = useState({
+        name: '',
+        surname: '',
+        patronymic: '',
+        email: '',
+        phoneNumber: '',
+        birthday: '',
+        isPassportConfirmed: false,
     });
-    
+    const [token, setToken] = useState('');
     const [isEditable, setIsEditable] = useState(false);
     const [isDataLoaded, setIsDataLoaded] = useState(false);
-    const [isVisible, setVisible] = useState(false)
+    const [isUserRegistered, setIsUserRegistered] = useState(true);
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [imageFile, setImageFile] = useState(null); // Хранение файла изображения
+
 
     useEffect(() => {
-        // Имитация загрузки данных
-        const fetchData = async () => {
-            try {
-                const data = await new Promise((resolve) =>
-                    setTimeout(
-                        () =>
-                            resolve({
-                                profile: {
-                                    categoriesOfWork: 'Строительство дома',
-                                    // name: 'Никита',
-                                    // surname: 'Востриков',
-                                    // photo: '',
-                                    // reviews: 'Азизбек пунктуален, работу выполняет на совесть...',
-                                    // completedProjects: 'Построен дом',
-                                    // rating: '5.0',
-                                    hasTeam: 'Да',
-                                    team: 'Команда строителей',
-                                    hasEdu: 'Да',
-                                    eduEst: 'РГСУ',
-                                    eduDateStart: '2009',
-                                    eduDateEnd: '2013',
-                                    workExp: '6 лет',
-                                    // regDate: 'На сервисе с 02.2024 (80 дней)',
-                                    selfInfo: 'Работаю с 2013 года...',
-                                    prices: 'Расценки на услуги'
-                                },
-                            }),
-                        100
-                    )
-                );
+        const authToken = getAuthToken();
+        if (authToken) {
+            setToken(authToken);
 
-                setFormData(data.profile);
-               
-                setIsDataLoaded(true);
-            } catch (error) {
+            // Выполните два запроса одновременно
+            Promise.all([
+                fetch('http://localhost:8887/profile', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`,
+                    },
+                }),
+                fetch('http://localhost:8887/profile/image', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                    },
+                })
+            ])
+            .then(([profileResponse, photoResponse]) => {
+                // Обработайте JSON ответ для профиля
+                return Promise.all([
+                    profileResponse.json(),
+                    photoResponse.blob() // Получите изображение как blob
+                ]);
+            })
+            .then(([profileData, photoBlob]) => {
+                if (profileData.success === 1) {
+                    setProfileData(profileData.profile); // Заполняем форму данными профиля
+                    setIsEditable(false); // Поля изначально не редактируемы
+                } else {
+                    setIsUserRegistered(false); // Если профиль не найден, показываем форму регистрации
+                }
+
+                // Создайте URL для изображения и установите его в состояние
+                const photoURL = URL.createObjectURL(photoBlob);
+                setSelectedImage(photoURL);
+
+                setIsDataLoaded(true); // Данные загружены
+            })
+            .catch(error => {
                 console.error('Ошибка при загрузке данных:', error);
-            }
-        };
-
-        fetchData();
+                setIsDataLoaded(true); // Устанавливаем флаг, чтобы показать ошибку или форму регистрации
+            });
+        } else {
+            setIsUserRegistered(false); // Если токена нет, показываем форму регистрации
+            setIsDataLoaded(true); // Данные не нужны, так как это форма регистрации
+        }
     }, []);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData((prevData) => ({
+        setProfileData(prevData => ({
             ...prevData,
-            [name]: value,
+            [name]: value
         }));
     };
 
-    const handleEdit = () => {
-        setIsEditable(true);
+    const handleCheckboxChange = (e) => {
+        const { name, checked } = e.target;
+        setProfileData(prevData => ({
+            ...prevData,
+            [name]: checked
+        }));
     };
 
-    const handleSubmitProfile = async (e) => {
-        e.preventDefault();
+    const handleImageChange = (event) => {
+        if (event.target.files && event.target.files.length > 0) {
+            const file = event.target.files[0];
+            setImageFile(file); // Сохраняем файл изображения
+            const imageURL = URL.createObjectURL(file);
+            setSelectedImage(imageURL); // Отображаем изображение
+        }
+    };
+
+    const handleRemoveImage = () => {
+        setSelectedImage(null);
+        setImageFile(null); // Очищаем выбранное изображение
+    };
+
+    const handleEdit = () => {
+        setIsEditable(true); // Позволяем редактировать поля
+    };
+
+    const handleSubmitProfile = async () => {
         try {
-            // Пример отправки данных на сервер
-            const response = await new Promise((resolve) =>
-                setTimeout(() => resolve({ success: true }), 1000)
-            );if (response.success) {
+            const response = await fetch('http://localhost:8887/profile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify(profileData),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
                 alert('Профиль успешно обновлен!');
+                setProfileData(data.profile); // Обновляем данные профиля
                 setIsEditable(false); // Поля снова становятся не редактируемыми
             } else {
                 alert('Ошибка при обновлении профиля.');
@@ -113,90 +133,142 @@ const FormPage = () => {
         }
     };
 
+    const handleSubmitPhoto = async () => {
+        if (!imageFile) {
+            alert('Пожалуйста, выберите файл.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('', imageFile); // Добавляем файл в FormData
+
+        try {
+            const response = await fetch('http://localhost:8887/profile/image', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: formData, // Отправляем FormData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert('Фото успешно загружено!');
+                // Обновляем изображение
+                const photoURL = URL.createObjectURL(imageFile);
+                setSelectedImage(photoURL);
+            } else {
+                alert('Ошибка при загрузке фото.');
+            }
+        } catch (error) {
+            console.error('Ошибка при загрузке фото:', error);
+            alert('Произошла ошибка. Попробуйте снова.');
+        }
+    };
+
     if (!isDataLoaded) {
         return <div>Ждём-ссс...</div>; // Пока данные загружаются, показываем загрузку
     }
 
     return (
         <div>
-
-            <h1>Анкета</h1>
-            <label>
-                Есть ли у вас команда?
-                <input type="checkbox" value={formData.hasTeam} />
-            </label>    
-
-            <FormField
-                type="text"
-                label="Информация по команде"
-                name="team"
-                placeholder="Информация о вашей команде"
-                value={formData.team}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-                hidden={true}
-            />
-            
-            <FormField
-                type="text"
-                label="Есть ли образование?"
-                name="hasEdu"
-                placeholder="Да/Нет"
-                value={formData.hasEdu}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-            />
-            <FormField
-                type="text"
-                label="Ваше учебное заведение"
-                name="eduEst"
-                placeholder="РТУ МЕМРА"
-                value={formData.eduEst}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-            />
-            <FormField
-                type="text"
-                label="Даты начала обучения"
-                name="eduEst"
-                placeholder="2009"
-                value={formData.eduDateStart}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-            />
-            <FormField
-                type="text"
-                label="Даты окончания обучения"
-                name="eduEst"
-                placeholder="2013"
-                value={formData.eduDateEnd}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-            />
-            <FormField
-                type="text"
-                label="Ваш рабочий опыт"
-                name="workExp"
-                placeholder="14 лет"
-                value={formData.workExp}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-            />
-            <FormField
-                type="text"
-                label="Ваша информация о себе"
-                name="selfInfo"
-                placeholder="Я такой-то такой-то"
-                value={formData.selfInfo}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-            />
+            <h2>Паспортные данные</h2>
+            <div>
+                {selectedImage ? (
+                    <div>
+                        <img
+                            src={selectedImage}
+                            alt="Uploaded"
+                            style={{ width: "300px", marginTop: "20px" }}
+                        />
+                        <button onClick={handleRemoveImage} style={{ display: "block", marginTop: "10px" }}>
+                            Удалить
+                        </button>
+                        {imageFile && (
+                            <button onClick={handleSubmitPhoto} style={{ display: "block", marginTop: "10px" }}>
+                                Сохранить
+                            </button>
+                        )}
+                    </div>
+                ) : (
+                    <div>
+                        <input type="file" accept="image/*" onChange={handleImageChange} />
+                    </div>
+                )}
+            </div>
+            <h2>Личные данные</h2>
+            <div>
+                <label>Имя:</label>
+                <input
+                    type="text"
+                    name="name"
+                    placeholder="Введите имя"
+                    value={profileData.name}
+                    onChange={handleInputChange}
+                    disabled={!isEditable}
+                />
+            </div>
+            <div>
+                <label>Фамилия:</label>
+                <input
+                    type="text"
+                    name="surname"
+                    placeholder="Введите фамилию"
+                    value={profileData.surname}
+                    onChange={handleInputChange}
+                    disabled={!isEditable}
+                />
+            </div>
+            <div>
+                <label>Отчество:</label>
+                <input
+                    type="text"
+                    name="patronymic"
+                    placeholder="Введите отчество"
+                    value={profileData.patronymic}
+                    onChange={handleInputChange}
+                    disabled={!isEditable}
+                />
+            </div>
+            <div>
+                <label>Почта:</label>
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="Введите почту"
+                    value={profileData.email}
+                    onChange={handleInputChange}
+                    disabled={!isEditable}
+                />
+            </div>
+            <div>
+                <label>Номер телефона:</label>
+                <input
+                    type="text"
+                    name="phoneNumber"
+                    placeholder="Введите номер телефона"
+                    value={profileData.phoneNumber}
+                    onChange={handleInputChange}
+                    disabled={!isEditable}
+                />
+            </div>
+            <div>
+                <label>Дата рождения:</label>
+                <input
+                    type="date"
+                    name="birthday"
+                    value={profileData.birthday}
+                    onChange={handleInputChange}
+                    disabled={!isEditable}
+                />
+            </div>
             <button onClick={handleEdit}>Редактировать</button>
             {isEditable && (
-                <button onClick={handleSubmitProfile}>Сохранить</button>
+                <button onClick={handleSubmitProfile}>Сохранить данные</button>
             )}
         </div>
     );
 };
 
-export default FormPage;
+export default ContractorFormPage;
