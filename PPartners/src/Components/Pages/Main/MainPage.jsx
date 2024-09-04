@@ -83,8 +83,8 @@ const styles = {
         boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.1)',
         borderRadius: '4px',
         zIndex: 1000,
-        minWidth: '150px', // Минимальная ширина меню
-        visibility: 'visible', // Обеспечивает видимость меню
+        minWidth: '150px', 
+        visibility: 'visible', 
         opacity: 1, // Делаем меню полностью видимым
         transition: 'opacity 0.3s ease', // Плавный переход
     },

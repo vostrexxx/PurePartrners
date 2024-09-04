@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+const getAuthToken = () => localStorage.getItem('authToken');
 
 // Компонент для отображения поля формы
 const FormField = ({ type, label, name, placeholder, value, onChange, disabled, hidden }) => {
@@ -20,48 +21,38 @@ const FormField = ({ type, label, name, placeholder, value, onChange, disabled, 
 
 const FormPage = () => {
     const [formData, setFormData] = useState({
-        categoriesOfWork: '', // Категория работ, РЕД
-        hasTeam: '', // Редактируемая информация, значение поля true/false, если есть команда, то выводим информацию из переменной team, иначе ничего РЕД
-        team: '', // Информация по команде РЕД 
-        hasEdu: '', // Образование, булевое поле, если true, то выводим поля с eduEst & eduDates, РЕД
-        eduEst: '', // Учебное заведение РЕД
-        eduDateStart: '', // Дата начала образования РЕД
-        eduDateEnd: '', // Дата окончания образования РЕД
-        workExp: '', // Опыт в сфере строительства РЕД
-        selfInfo: '', // Информация о себе РЕД
-        prices: '' // Расценки на услуги
+        categoriesOfWork: '',
+        hasTeam: '',
+        team: '',
+        hasEdu: '',
+        eduEst: '',
+        eduDateStart: '',
+        eduDateEnd: '',
+        workExp: '',
+        selfInfo: '',
+        prices: ''
     });
 
     const [isEditable, setIsEditable] = useState(false);
     const [isDataLoaded, setIsDataLoaded] = useState(false);
 
     useEffect(() => {
-        // Имитация загрузки данных
         const fetchData = async () => {
             try {
-                const data = await new Promise((resolve) =>
-                    setTimeout(
-                        () =>
-                            resolve({
-                                profile: {
-                                    categoriesOfWork: 'Строительство дома',
-                                    hasTeam: 'Да',
-                                    team: 'Команда строителей',
-                                    hasEdu: 'Да',
-                                    eduEst: 'РГСУ',
-                                    eduDateStart: '2009',
-                                    eduDateEnd: '2013',
-                                    workExp: '6 лет',
-                                    selfInfo: 'Работаю с 2013 года...',
-                                    prices: 'Построить дом - 3000к рублей'
-                                },
-                            }),
-                        1000
-                    )
-                );
-
-                setFormData(data.profile);
-                setIsDataLoaded(true);
+                const response = await fetch('http://localhost:8887/contractor', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setFormData(data.profile);
+                    setIsDataLoaded(true);
+                } else {
+                    console.error('Ошибка при загрузке данных:', response.statusText);
+                }
             } catch (error) {
                 console.error('Ошибка при загрузке данных:', error);
             }
@@ -85,13 +76,18 @@ const FormPage = () => {
     const handleSubmitProfile = async (e) => {
         e.preventDefault();
         try {
-            // Пример отправки данных на сервер
-            const response = await new Promise((resolve) =>
-                setTimeout(() => resolve({ success: true }), 1000)
-            );
-            if (response.success) {
+            const response = await fetch('http://localhost:8887/contractor', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`,
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
                 alert('Профиль успешно обновлен!');
-                setIsEditable(false); // Поля снова становятся не редактируемыми
+                setIsEditable(false);
             } else {
                 alert('Ошибка при обновлении профиля.');
             }
@@ -116,19 +112,18 @@ const FormPage = () => {
                 value={formData.categoriesOfWork}
                 onChange={handleInputChange}
                 disabled={!isEditable}
-                // hidden={formData.hasTeam !== 'Да'}
             />
 
             <div>
                 <label>
-                Есть ли у вас команда?
-                <input
-                    type="checkbox"
-                    name="hasTeam"
-                    checked={formData.hasTeam === 'Да'}
-                    onChange={handleInputChange}
-                    disabled={!isEditable}
-                />
+                    Есть ли у вас команда?
+                    <input
+                        type="checkbox"
+                        name="hasTeam"
+                        checked={formData.hasTeam === 'Да'}
+                        onChange={handleInputChange}
+                        disabled={!isEditable}
+                    />
                 </label>
             </div>
 
@@ -174,7 +169,6 @@ const FormPage = () => {
                 onChange={handleInputChange}
                 disabled={!isEditable}
                 hidden={formData.hasEdu !== 'Да'}
-
             />
             <FormField
                 type="text"
@@ -185,7 +179,6 @@ const FormPage = () => {
                 onChange={handleInputChange}
                 disabled={!isEditable}
                 hidden={formData.hasEdu !== 'Да'}
-
             />
             <FormField
                 type="text"
@@ -209,7 +202,7 @@ const FormPage = () => {
                 type="text"
                 label="Ваши расценки на услуги"
                 name="prices"
-                placeholder="Выши расценки"
+                placeholder="Ваши расценки"
                 value={formData.prices}
                 onChange={handleInputChange}
                 disabled={!isEditable}
