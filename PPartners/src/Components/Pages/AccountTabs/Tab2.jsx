@@ -21,9 +21,9 @@ const FormField = ({ type, label, name, placeholder, value, onChange, disabled, 
 const FormPage = () => {
     const [formData, setFormData] = useState({
         categoriesOfWork: '',
-        hasTeam: '',
+        hasTeam: false,  // Начальное значение — булево
         team: '',
-        hasEdu: '',
+        hasEdu: false,   // Начальное значение — булево
         eduEst: '',
         eduDateStart: '',
         eduDateEnd: '',
@@ -43,7 +43,7 @@ const FormPage = () => {
                 setIsDataLoaded(true);
                 return;
             }
-    
+
             try {
                 const response = await fetch('http://localhost:8887/contractor', {
                     method: 'GET',
@@ -52,20 +52,20 @@ const FormPage = () => {
                         'Authorization': `Bearer ${authToken}`
                     }
                 });
-    
+
                 if (!response.ok) {
                     throw new Error('Ошибка сети');
                 }
-    
+
                 const data = await response.json();
-    
+
                 if (data.success === 0) {
                     console.log('Ответ success: 0, устанавливаем значения по умолчанию');
                     setFormData({
                         categoriesOfWork: '',
-                        hasTeam: '',
+                        hasTeam: false,  // Булевое значение
                         team: '',
-                        hasEdu: '',
+                        hasEdu: false,   // Булевое значение
                         eduEst: '',
                         eduDateStart: '',
                         eduDateEnd: '',
@@ -74,7 +74,7 @@ const FormPage = () => {
                         prices: ''
                     });
                 } else {
-                    setFormData(data.contractor);
+                    setFormData(data.contractor);  // Записываем данные как они приходят
                 }
             } catch (error) {
                 console.error('Ошибка при загрузке данных:', error);
@@ -82,16 +82,15 @@ const FormPage = () => {
                 setIsDataLoaded(true);
             }
         };
-    
+
         fetchData();
     }, []);
-    
 
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData((prevData) => ({
             ...prevData,
-            [name]: type === 'checkbox' ? (checked ? 'true' : 'false') : value,
+            [name]: type === 'checkbox' ? checked : value,  // Для чекбоксов используем булевые значения
         }));
     };
 
@@ -101,30 +100,23 @@ const FormPage = () => {
 
     const handleSubmitProfile = async (e) => {
         e.preventDefault();
-    
-        // Убедимся, что значения чекбоксов имеют true/false, а не пустую строку
-        const preparedFormData = {
-            ...formData,
-            hasTeam: formData.hasTeam === 'true' ? 'true' : 'false',
-            hasEdu: formData.hasEdu === 'true' ? 'true' : 'false',
-        };
-    
+
         try {
             const authToken = getAuthToken();
             if (!authToken) {
                 alert('Токен не найден');
                 return;
             }
-    
+
             const response = await fetch('http://localhost:8887/contractor', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${authToken}`
                 },
-                body: JSON.stringify(preparedFormData)  // Используем подготовленные данные
+                body: JSON.stringify(formData)  // Отправляем данные в том виде, как они есть
             });
-    
+
             if (response.ok) {
                 alert('Профиль успешно обновлен!');
                 setIsEditable(false);
@@ -136,7 +128,6 @@ const FormPage = () => {
             alert('Произошла ошибка. Попробуйте снова.');
         }
     };
-    
 
     if (!isDataLoaded) {
         return <div>Ждём-ссс...</div>;
@@ -161,7 +152,7 @@ const FormPage = () => {
                     <input
                         type="checkbox"
                         name="hasTeam"
-                        checked={formData.hasTeam === 'true'}
+                        checked={formData.hasTeam}  // Булевое значение
                         onChange={handleInputChange}
                         disabled={!isEditable}
                     />
@@ -176,7 +167,7 @@ const FormPage = () => {
                 value={formData.team}
                 onChange={handleInputChange}
                 disabled={!isEditable}
-                hidden={formData.hasTeam !== 'true'}
+                hidden={!formData.hasTeam}  // Булево значение
             />
 
             <div>
@@ -185,7 +176,7 @@ const FormPage = () => {
                     <input
                         type="checkbox"
                         name="hasEdu"
-                        checked={formData.hasEdu === 'true'}
+                        checked={formData.hasEdu}  // Булевое значение
                         onChange={handleInputChange}
                         disabled={!isEditable}
                     />
@@ -199,7 +190,7 @@ const FormPage = () => {
                 value={formData.eduEst}
                 onChange={handleInputChange}
                 disabled={!isEditable}
-                hidden={formData.hasEdu !== 'true'}
+                hidden={!formData.hasEdu}  // Булево значение
             />
             <FormField
                 type="text"
@@ -209,7 +200,7 @@ const FormPage = () => {
                 value={formData.eduDateStart}
                 onChange={handleInputChange}
                 disabled={!isEditable}
-                hidden={formData.hasEdu !== 'true'}
+                hidden={!formData.hasEdu}  // Булево значение
             />
             <FormField
                 type="text"
@@ -219,7 +210,7 @@ const FormPage = () => {
                 value={formData.eduDateEnd}
                 onChange={handleInputChange}
                 disabled={!isEditable}
-                hidden={formData.hasEdu !== 'true'}
+                hidden={!formData.hasEdu}  // Булево значение
             />
             <FormField
                 type="text"
@@ -258,9 +249,7 @@ const FormPage = () => {
 
 // Функция для получения токена (пример)
 const getAuthToken = () => {
-    // Здесь должна быть логика получения токена, например из localStorage
     return localStorage.getItem('authToken');
 };
 
 export default FormPage;
-
