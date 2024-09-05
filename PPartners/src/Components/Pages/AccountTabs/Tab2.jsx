@@ -74,7 +74,7 @@ const FormPage = () => {
                         prices: ''
                     });
                 } else {
-                    setFormData(data.profile);
+                    setFormData(data);
                 }
             } catch (error) {
                 console.error('Ошибка при загрузке данных:', error);
