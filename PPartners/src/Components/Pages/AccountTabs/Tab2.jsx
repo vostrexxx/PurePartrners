@@ -43,7 +43,7 @@ const FormPage = () => {
                 setIsDataLoaded(true);
                 return;
             }
-
+    
             try {
                 const response = await fetch('http://localhost:8887/contractor', {
                     method: 'GET',
@@ -52,13 +52,13 @@ const FormPage = () => {
                         'Authorization': `Bearer ${authToken}`
                     }
                 });
-
+    
                 if (!response.ok) {
                     throw new Error('Ошибка сети');
                 }
-
+    
                 const data = await response.json();
-
+    
                 if (data.success === 0) {
                     console.log('Ответ success: 0, устанавливаем значения по умолчанию');
                     setFormData({
@@ -74,7 +74,7 @@ const FormPage = () => {
                         prices: ''
                     });
                 } else {
-                    setFormData(data);
+                    setFormData(data.contractor);
                 }
             } catch (error) {
                 console.error('Ошибка при загрузке данных:', error);
@@ -82,9 +82,10 @@ const FormPage = () => {
                 setIsDataLoaded(true);
             }
         };
-
+    
         fetchData();
     }, []);
+    
 
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
