@@ -113,7 +113,7 @@ const FormPage = () => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${authToken}`
                 },
-                body: JSON.stringify({ profile: formData })
+                body: JSON.stringify({  formData })
             });
 
             if (response.ok) {
