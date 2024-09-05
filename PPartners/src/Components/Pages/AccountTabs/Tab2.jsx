@@ -100,22 +100,30 @@ const FormPage = () => {
 
     const handleSubmitProfile = async (e) => {
         e.preventDefault();
+    
+        // Убедимся, что значения чекбоксов имеют true/false, а не пустую строку
+        const preparedFormData = {
+            ...formData,
+            hasTeam: formData.hasTeam === 'true' ? 'true' : 'false',
+            hasEdu: formData.hasEdu === 'true' ? 'true' : 'false',
+        };
+    
         try {
             const authToken = getAuthToken();
             if (!authToken) {
                 alert('Токен не найден');
                 return;
             }
-
+    
             const response = await fetch('http://localhost:8887/contractor', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${authToken}`
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(preparedFormData)  // Используем подготовленные данные
             });
-
+    
             if (response.ok) {
                 alert('Профиль успешно обновлен!');
                 setIsEditable(false);
@@ -127,6 +135,7 @@ const FormPage = () => {
             alert('Произошла ошибка. Попробуйте снова.');
         }
     };
+    
 
     if (!isDataLoaded) {
         return <div>Ждём-ссс...</div>;
