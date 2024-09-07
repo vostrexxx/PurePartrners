@@ -43,6 +43,13 @@ spring:
                 bodyClass: java.util.LinkedHashMap
             - AddIdToRequestFilter
 
+        - id: contractor-info
+          uri: lb://contractor-info
+          predicates:
+            - Path=/contractor/**
+          filters:
+            - AuthenticationFilter
+
 server:
   port: 8887
 

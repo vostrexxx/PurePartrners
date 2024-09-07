@@ -12,7 +12,7 @@
 	<artifactId>contractor-info</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>contractor-info</name>
-	<description>Microservice for contrctor info</description>
+	<description>Microservice for contractor info</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -58,6 +58,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.core</groupId>
+			<artifactId>jersey-common</artifactId>
+			<version>3.1.2</version>
 		</dependency>
 	</dependencies>
 	<dependencyManagement>

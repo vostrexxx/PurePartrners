@@ -8,48 +8,46 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "contractor")
 @Builder
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class Contractor {
     @Id
     private Long id;
 
-    @Column(name = "categories_of_work")
+//    @Column(name = "categories_of_work")
     private String categoriesOfWork;
 
-    @Column(name = "has_team")
+//    @Column(name = "has_team")
     private Boolean hasTeam;
 
-    @Nullable
     private String team;
 
-    @Column(name = "has_edu")
-    @Nullable
+//    @Column(name = "has_edu")
     private Boolean hasEdu;
 
-    @Column(name = "edu_est")
+//    @Column(name = "edu_est")
     @Nullable
     private String eduEst;
 
-    @Column(name = "edu_date_start")
+//    @Column(name = "edu_date_start")
     @Nullable
     private String eduDateStart;
 
-    @Column(name = "edu_date_end")
+//    @Column(name = "edu_date_end")
     @Nullable
     private String eduDateEnd;
 
 //    @Column(name = "work_exp")
     private String workExp;
 
-    @Column(name = "self_info")
-    @Nullable
+//    @Column(name = "self_info")
     private String selfInfo;
 
-    @Nullable
     private String prices;
 }
