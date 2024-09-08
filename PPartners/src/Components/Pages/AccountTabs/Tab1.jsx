@@ -172,7 +172,7 @@ const ProfilePage = () => {
 
     return (
         <div>
-            <h2>Паспортные данные</h2>
+            <h2>Фото выполненных проектов</h2>
             <div>
                 {selectedImage ? (
                     <div>

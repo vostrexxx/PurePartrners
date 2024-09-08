@@ -34,8 +34,12 @@ const FormPage = () => {
 
     const [isEditable, setIsEditable] = useState(false);
     const [isDataLoaded, setIsDataLoaded] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [imageFile, setImageFile] = useState(null); // Хранение файла изображения
+    const [error, setError] = useState(null);
 
     useEffect(() => {
+        let isMounted = true;
         const fetchData = async () => {
             const authToken = getAuthToken();
             if (!authToken) {
@@ -45,27 +49,35 @@ const FormPage = () => {
             }
 
             try {
-                const response = await fetch('http://localhost:8887/contractor', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`
-                    }
-                });
+                const [contractorResponse, imageResponse] = await Promise.all([
+                    fetch('http://localhost:8887/contractor', {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`
+                        }
+                    }),
+                    fetch('http://localhost:8887/contractor/image', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`,
+                        }
+                    })
+                ]);
 
-                if (!response.ok) {
-                    throw new Error('Ошибка сети');
+                if (!contractorResponse.ok) {
+                    throw new Error('Ошибка сети при загрузке данных о подрядчике');
                 }
 
-                const data = await response.json();
+                const contractorData = await contractorResponse.json();
 
-                if (data.success === 0) {
+                if (contractorData.success === 0) {
                     console.log('Ответ success: 0, устанавливаем значения по умолчанию');
                     setFormData({
                         categoriesOfWork: '',
-                        hasTeam: false,  // Булевое значение
+                        hasTeam: false,
                         team: '',
-                        hasEdu: false,   // Булевое значение
+                        hasEdu: false,
                         eduEst: '',
                         eduDateStart: '',
                         eduDateEnd: '',
@@ -74,17 +86,47 @@ const FormPage = () => {
                         prices: ''
                     });
                 } else {
-                    setFormData(data.contractor);  // Записываем данные как они приходят
+                    setFormData(contractorData.contractor);
                 }
+
+                if (!imageResponse.ok) {
+                    throw new Error('Ошибка сети при загрузке изображения');
+                }
+                const imageBlob = await imageResponse.blob();
+                if (isMounted) {
+                    setSelectedImage(URL.createObjectURL(imageBlob));
+                }
+
             } catch (error) {
                 console.error('Ошибка при загрузке данных:', error);
+                if (isMounted) setError('Ошибка загрузки данных. Попробуйте позже.');
             } finally {
-                setIsDataLoaded(true);
+                if (isMounted) setIsDataLoaded(true);
             }
         };
 
         fetchData();
+
+        return () => {
+            isMounted = false; // Очищаем состояние при размонтировании
+        };
     }, []);
+
+    const handleImageChange = (event) => {
+        if (event.target.files && event.target.files.length > 0) {
+            const file = event.target.files[0];
+            setImageFile(file); // Сохраняем файл изображения
+            const imageURL = URL.createObjectURL(file);
+            setSelectedImage(imageURL); // Отображаем изображение
+        }
+    };
+
+    const handleRemoveImage = () => {
+        if (window.confirm("Вы уверены, что хотите удалить изображение?")) {
+            setSelectedImage(null);
+            setImageFile(null); // Очищаем выбранное изображение
+        }
+    };
 
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -114,14 +156,16 @@ const FormPage = () => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${authToken}`
                 },
-                body: JSON.stringify(formData)  // Отправляем данные в том виде, как они есть
+                body: JSON.stringify(formData)
             });
 
             if (response.ok) {
                 alert('Профиль успешно обновлен!');
                 setIsEditable(false);
             } else {
-                alert('Ошибка при обновлении профиля.');
+                const errorMsg = await response.text();
+                console.error('Ошибка:', errorMsg);
+                alert(`Ошибка при обновлении профиля: ${errorMsg}`);
             }
         } catch (error) {
             console.error('Ошибка при отправке запроса:', error);
@@ -129,12 +173,80 @@ const FormPage = () => {
         }
     };
 
+    const handleSubmitPhoto = async () => {
+        if (!imageFile) {
+            alert('Пожалуйста, выберите файл.');
+            return;
+        }
+
+        const imageFormData = new FormData();
+        imageFormData.append('image', imageFile);
+
+        try {
+            const authToken = getAuthToken();
+            if (!authToken) {
+                alert('Токен не найден');
+                return;
+            }
+
+            const response = await fetch('http://localhost:8887/profile/image', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`,
+                },
+                body: imageFormData,
+            });
+
+            const data = await response.json();
+
+            if (data && data.success) {
+                alert('Фото успешно загружено!');
+                const photoURL = URL.createObjectURL(imageFile);
+                setSelectedImage(photoURL);
+            } else {
+                alert('Ошибка при загрузке фото.');
+            }
+        } catch (error) {
+            console.error('Ошибка при загрузке фото:', error);
+            alert('Произошла ошибка. Попробуйте снова.');
+        }
+    };
+
     if (!isDataLoaded) {
-        return <div>Ждём-ссс...</div>;
+        return <div>Загрузка...</div>;
+    }
+
+    if (error) {
+        return <div>{error}</div>;
     }
 
     return (
         <div>
+            <h2>Паспортные данные</h2>
+            <div>
+                {selectedImage ? (
+                    <div>
+                        <img
+                            src={selectedImage}
+                            alt="Uploaded"
+                            style={{ width: "300px", marginTop: "20px" }}
+                        />
+                        <button onClick={handleRemoveImage} style={{ display: "block", marginTop: "10px" }}>
+                            Удалить
+                        </button>
+                        {imageFile && (
+                            <button onClick={handleSubmitPhoto} style={{ display: "block", marginTop: "10px" }}>
+                                Сохранить
+                            </button>
+                        )}
+                    </div>
+                ) : (
+                    <div>
+                        <input type="file" accept="image/*" onChange={handleImageChange} />
+                    </div>
+                )}
+            </div>
+
             <h1>Анкета</h1>
             <FormField
                 type="text"
@@ -152,7 +264,7 @@ const FormPage = () => {
                     <input
                         type="checkbox"
                         name="hasTeam"
-                        checked={formData.hasTeam}  // Булевое значение
+                        checked={formData.hasTeam}
                         onChange={handleInputChange}
                         disabled={!isEditable}
                     />
@@ -167,7 +279,7 @@ const FormPage = () => {
                 value={formData.team}
                 onChange={handleInputChange}
                 disabled={!isEditable}
-                hidden={!formData.hasTeam}  // Булево значение
+                hidden={!formData.hasTeam}
             />
 
             <div>
@@ -176,7 +288,7 @@ const FormPage = () => {
                     <input
                         type="checkbox"
                         name="hasEdu"
-                        checked={formData.hasEdu}  // Булевое значение
+                        checked={formData.hasEdu}
                         onChange={handleInputChange}
                         disabled={!isEditable}
                     />
@@ -190,7 +302,7 @@ const FormPage = () => {
                 value={formData.eduEst}
                 onChange={handleInputChange}
                 disabled={!isEditable}
-                hidden={!formData.hasEdu}  // Булево значение
+                hidden={!formData.hasEdu}
             />
             <FormField
                 type="text"
@@ -200,54 +312,58 @@ const FormPage = () => {
                 value={formData.eduDateStart}
                 onChange={handleInputChange}
                 disabled={!isEditable}
-                hidden={!formData.hasEdu}  // Булево значение
+                hidden={!formData.hasEdu}
             />
             <FormField
                 type="text"
                 label="Дата окончания обучения"
                 name="eduDateEnd"
-                placeholder="2013"
+                placeholder="2023"
                 value={formData.eduDateEnd}
                 onChange={handleInputChange}
                 disabled={!isEditable}
-                hidden={!formData.hasEdu}  // Булево значение
+                hidden={!formData.hasEdu}
             />
+
             <FormField
                 type="text"
-                label="Ваш рабочий опыт"
+                label="Опыт работы"
                 name="workExp"
-                placeholder="14 лет"
+                placeholder="Ваш опыт"
                 value={formData.workExp}
                 onChange={handleInputChange}
                 disabled={!isEditable}
             />
+
             <FormField
                 type="text"
-                label="Ваша информация о себе"
+                label="Дополнительная информация"
                 name="selfInfo"
-                placeholder="Я такой-то такой-то"
+                placeholder="О себе"
                 value={formData.selfInfo}
                 onChange={handleInputChange}
                 disabled={!isEditable}
             />
+
             <FormField
                 type="text"
-                label="Ваши расценки на услуги"
+                label="Стоимость услуг"
                 name="prices"
-                placeholder="Ваши расценки"
+                placeholder="1000"
                 value={formData.prices}
                 onChange={handleInputChange}
                 disabled={!isEditable}
             />
-            <button onClick={handleEdit}>Редактировать</button>
-            {isEditable && (
-                <button onClick={handleSubmitProfile}>Сохранить</button>
+
+            {isEditable ? (
+                <button onClick={handleSubmitProfile}>Сохранить изменения</button>
+            ) : (
+                <button onClick={handleEdit}>Редактировать</button>
             )}
         </div>
     );
 };
 
-// Функция для получения токена (пример)
 const getAuthToken = () => {
     return localStorage.getItem('authToken');
 };
