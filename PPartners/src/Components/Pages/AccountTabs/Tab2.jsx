@@ -189,7 +189,7 @@ const FormPage = () => {
                 return;
             }
 
-            const response = await fetch('http://localhost:8887/profile/image', {
+            const response = await fetch('http://localhost:8887/contractor/image', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${authToken}`,
