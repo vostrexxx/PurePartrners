@@ -1,9 +1,7 @@
-package com.partners.APIGateway;
+package com.partners.APIGateway.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.math.BigInteger;
 
 @Data
 @AllArgsConstructor

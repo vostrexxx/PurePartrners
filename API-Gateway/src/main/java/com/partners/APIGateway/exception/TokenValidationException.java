@@ -1,4 +1,4 @@
-package com.partners.APIGateway;
+package com.partners.APIGateway.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

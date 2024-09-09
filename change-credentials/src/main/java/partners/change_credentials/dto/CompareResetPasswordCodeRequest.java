@@ -1,4 +1,4 @@
-package partners.change_credentials;
+package partners.change_credentials.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

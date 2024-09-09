@@ -1,4 +1,4 @@
-package partners.contractorInfo;
+package partners.contractorInfo.model;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;

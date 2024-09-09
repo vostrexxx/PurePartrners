@@ -1,5 +1,8 @@
-package com.partners.APIGateway;
+package com.partners.APIGateway.filters;
 
+import com.partners.APIGateway.dto.AuthServiceResponse;
+import com.partners.APIGateway.config.RouteValidator;
+import com.partners.APIGateway.exception.TokenValidationException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -16,10 +19,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
 
 @Component
 public class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> {

@@ -1,5 +1,7 @@
-package com.partners.APIGateway;
+package com.partners.APIGateway.filters;
 
+import com.partners.APIGateway.dto.AuthServiceResponse;
+import com.partners.APIGateway.config.RouteValidator;
 import jakarta.ws.rs.BadRequestException;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;

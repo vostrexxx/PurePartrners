@@ -1,4 +1,4 @@
-package com.partners.APIGateway;
+package com.partners.APIGateway.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

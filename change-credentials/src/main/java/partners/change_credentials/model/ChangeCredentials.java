@@ -1,4 +1,4 @@
-package partners.change_credentials;
+package partners.change_credentials.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

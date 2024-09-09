@@ -1,4 +1,4 @@
-package com.partners.APIGateway;
+package com.partners.APIGateway.config;
 
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;

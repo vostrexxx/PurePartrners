@@ -1,11 +1,14 @@
-package partners.contractorInfo;
+package partners.contractorInfo.controller;
 
-import jakarta.ws.rs.HeaderParam;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import partners.contractorInfo.dto.ContractorInfo;
+import partners.contractorInfo.dto.GetContractorInfoResponse;
+import partners.contractorInfo.dto.OperationStatusResponse;
+import partners.contractorInfo.service.ContractorService;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -19,8 +22,8 @@ public class ContractorController {
     private final ContractorService contractorService;
 
     @PostMapping("")
-    public ResponseEntity<SaveContractorInfoResponse> createContractorInfo(@RequestHeader Long userId, @RequestBody ContractorInfo profile){
-        SaveContractorInfoResponse response = contractorService.saveContractorInfo(userId, profile);
+    public ResponseEntity<OperationStatusResponse> createContractorInfo(@RequestHeader Long userId, @RequestBody ContractorInfo profile){
+        OperationStatusResponse response = contractorService.saveContractorInfo(userId, profile);
         return ResponseEntity.ok(response);
     }
 
@@ -37,8 +40,8 @@ public class ContractorController {
     }
 
     @PostMapping("/image")
-    public ResponseEntity<SaveCompletedImageResponse> saveCompletedImage(@RequestHeader Long userId, @RequestBody MultipartFile image) throws IOException {
-        SaveCompletedImageResponse response = contractorService.saveCompletedImage(userId, image);
+    public ResponseEntity<OperationStatusResponse> saveCompletedImage(@RequestHeader Long userId, @RequestBody MultipartFile image) throws IOException {
+        OperationStatusResponse response = contractorService.saveCompletedImage(userId, image);
         return ResponseEntity.ok(response);
     }
 

@@ -33,7 +33,7 @@ public class UserAuthInfoService{
     private final AuthenticationManager authenticationManager;
     private final UserDetailService userDetailService;
 
-    public RegistrationResponse register(RegistrationInfo registrationInfo) throws
+    public OperationStatusResponse register(RegistrationInfo registrationInfo) throws
             PhoneNumberTakenException,
             CantSaveUserException {
         UserAuthInfo userAuthInfo = UserAuthInfo.builder()
@@ -48,7 +48,7 @@ public class UserAuthInfoService{
             throw new CantSaveUserException(Constants.userSaveError, HttpStatus.INTERNAL_SERVER_ERROR);
 
 //        String jwtToken = jwtService.generateToken(savedUser);
-        return new RegistrationResponse(true);
+        return new OperationStatusResponse(true);
     }
 
     public AuthenticationResponse login(LoginInfo loginInfo){
@@ -94,10 +94,10 @@ public class UserAuthInfoService{
             throw new InvalidTokenException("No phoneNumber in token", HttpStatus.FORBIDDEN);
     }
 
-    public CheckPhoneNumberResponse checkPhoneNumberPresence(String phoneNumber){
+    public OperationStatusResponse checkPhoneNumberPresence(String phoneNumber){
         Boolean isTelephonePresent = userAuthInfoRepository.existsByPhoneNumber(phoneNumber);
         int response = isTelephonePresent ? 1 : 0;
-        return new CheckPhoneNumberResponse(response);
+        return new OperationStatusResponse(response);
     }
 
     public IdFromTelephoneResponse getIdByPhoneNumber(String phoneNumber) throws TelephoneNotFoundException {
@@ -108,13 +108,13 @@ public class UserAuthInfoService{
     }
 
     @Transactional
-    public ResetPasswordResponse resetPassword(ResetPasswordRequest newPassword){
+    public OperationStatusResponse resetPassword(ResetPasswordRequest newPassword){
         String phoneNumber = newPassword.getPhoneNumber();
         String password = newPassword.getNewPassword();
         String encodedPassword = passwordEncoder.encode(password);
         int affectedRows = userAuthInfoRepository.setPasswordByPhoneNumber(encodedPassword, phoneNumber);
         if (affectedRows < 1)
             throw new BadRequestException("Can't reset password");
-        return new ResetPasswordResponse(1);
+        return new OperationStatusResponse(1);
     }
 }

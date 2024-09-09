@@ -1,4 +1,4 @@
-package partners.contractorInfo;
+package partners.contractorInfo.service;
 
 import jakarta.ws.rs.BadRequestException;
 import lombok.AllArgsConstructor;
@@ -6,6 +6,11 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import partners.contractorInfo.dto.GetContractorInfoResponse;
+import partners.contractorInfo.dto.OperationStatusResponse;
+import partners.contractorInfo.dto.ContractorInfo;
+import partners.contractorInfo.model.Contractor;
+import partners.contractorInfo.repository.ContractorRepository;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +24,7 @@ public class ContractorService {
 
     private final ContractorRepository contractorRepository;
 
-    public SaveContractorInfoResponse saveContractorInfo(Long userId, ContractorInfo contractorInfo){
+    public OperationStatusResponse saveContractorInfo(Long userId, ContractorInfo contractorInfo){
         Contractor contractor = Contractor.builder()
                 .id(userId)
                 .categoriesOfWork(contractorInfo.getCategoriesOfWork())
@@ -37,7 +42,7 @@ public class ContractorService {
         Contractor savedContractor = contractorRepository.save(contractor);
         if (savedContractor.getId() == null)
             throw new BadRequestException("Can't save contractor");
-        return new SaveContractorInfoResponse(1);
+        return new OperationStatusResponse(1);
     }
 
     public GetContractorInfoResponse getContractorInfo(Long userId){
@@ -71,14 +76,14 @@ public class ContractorService {
             throw new BadRequestException("No image found");
     }
 
-    public SaveCompletedImageResponse saveCompletedImage(Long userId, MultipartFile image) throws IOException {
+    public OperationStatusResponse saveCompletedImage(Long userId, MultipartFile image) throws IOException {
         String imagePath = "src/main/resources/images/" + userId + ".jpg";
         File userImage = new File(imagePath);
         image.transferTo(userImage.toPath());
         File checkFile = new File(imagePath);
         if (checkFile.isFile())
-            return new SaveCompletedImageResponse(1);
-        return new SaveCompletedImageResponse(0);
+            return new OperationStatusResponse(1);
+        return new OperationStatusResponse(0);
     }
 
 }

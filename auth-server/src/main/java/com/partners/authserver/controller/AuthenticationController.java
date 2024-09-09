@@ -6,6 +6,7 @@ import com.partners.authserver.exception.InvalidTokenException;
 import com.partners.authserver.exception.PhoneNumberTakenException;
 import com.partners.authserver.exception.TelephoneNotFoundException;
 import com.partners.authserver.service.UserAuthInfoService;
+import jdk.dynalink.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,10 +20,10 @@ public class AuthenticationController {
     private final UserAuthInfoService userAuthInfoService;
 
     @PostMapping("/register")
-    public ResponseEntity<RegistrationResponse> userRegistration(@RequestBody RegistrationInfo registrationInfo) throws
+    public ResponseEntity<OperationStatusResponse> userRegistration(@RequestBody RegistrationInfo registrationInfo) throws
             PhoneNumberTakenException,
             CantSaveUserException {
-        RegistrationResponse response = userAuthInfoService.register(registrationInfo);
+        OperationStatusResponse response = userAuthInfoService.register(registrationInfo);
         return ResponseEntity.ok(response);
     }
 
@@ -40,8 +41,8 @@ public class AuthenticationController {
     }
 
     @PostMapping("/checkPhoneNumber")
-    public ResponseEntity<CheckPhoneNumberResponse> checkPhoneNumber(@RequestBody CheckPhoneNumber phoneNumber){
-        CheckPhoneNumberResponse response = userAuthInfoService.checkPhoneNumberPresence(phoneNumber.getPhoneNumber());
+    public ResponseEntity<OperationStatusResponse> checkPhoneNumber(@RequestBody CheckPhoneNumber phoneNumber){
+        OperationStatusResponse response = userAuthInfoService.checkPhoneNumberPresence(phoneNumber.getPhoneNumber());
         return ResponseEntity.ok(response);
     }
 
@@ -52,8 +53,8 @@ public class AuthenticationController {
     }
 
     @PostMapping("/password")
-    public ResponseEntity<ResetPasswordResponse> resetPassword(@RequestBody ResetPasswordRequest newPassword){
-        ResetPasswordResponse resetPasswordResponse = userAuthInfoService.resetPassword(newPassword);
-        return ResponseEntity.ok(resetPasswordResponse);
+    public ResponseEntity<OperationStatusResponse> resetPassword(@RequestBody ResetPasswordRequest newPassword){
+        OperationStatusResponse response = userAuthInfoService.resetPassword(newPassword);
+        return ResponseEntity.ok(response);
     }
 }
