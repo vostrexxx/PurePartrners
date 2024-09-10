@@ -17,6 +17,7 @@ const FormField = ({ type, label, name, placeholder, value, onChange, disabled, 
         </div>
     );
 };
+let url = localStorage.getItem('url')
 
 const FormPage = () => {
     const [formData, setFormData] = useState({
@@ -50,14 +51,14 @@ const FormPage = () => {
 
             try {
                 const [contractorResponse, imageResponse] = await Promise.all([
-                    fetch('http://localhost:8887/contractor', {
+                    fetch(url + '/contractor', {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${authToken}`
                         }
                     }),
-                    fetch('http://localhost:8887/contractor/image', {
+                    fetch(url + '/contractor/image', {
                         method: 'GET',
                         headers: {
                             'Authorization': `Bearer ${authToken}`,
@@ -150,7 +151,7 @@ const FormPage = () => {
                 return;
             }
 
-            const response = await fetch('http://localhost:8887/contractor', {
+            const response = await fetch(url + '/contractor', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -189,7 +190,7 @@ const FormPage = () => {
                 return;
             }
 
-            const response = await fetch('http://localhost:8887/contractor/image', {
+            const response = await fetch(url + '/contractor/image', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${authToken}`,

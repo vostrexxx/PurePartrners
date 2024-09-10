@@ -8,6 +8,9 @@ const LoginPage = () => {
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
 
+    let url = localStorage.getItem('url')
+
+
     const ChangePhoneNumber = async () => {
   
         const simulateResponse = () => 1;
@@ -20,7 +23,7 @@ const LoginPage = () => {
     };
     const handleLogin = async () => {
         try {
-            const response = await fetch('http://localhost:8887/auth/login', {
+            const response = await fetch(url + '/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

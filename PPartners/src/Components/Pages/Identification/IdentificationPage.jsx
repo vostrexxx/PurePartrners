@@ -6,6 +6,11 @@ const IdentificationPage = () => {
     const [isValid, setIsValid] = useState(true);
     const navigate = useNavigate();
     localStorage.setItem('phoneNumber', phoneNumber);
+
+    localStorage.setItem('url', 'http://192.168.0.13:8887');
+    // const [url, setUrl] = useState(localStorage.getItem('url'));
+    let url = localStorage.getItem('url')
+
     const handleInputChange = (e) => {
         const value = e.target.value;
         setPhoneNumber(value);
@@ -16,7 +21,7 @@ const IdentificationPage = () => {
     const handleSubmit = async () => {
         if (isValid) {
             try {
-                const response = await fetch('http://localhost:8887/auth/checkPhoneNumber', {
+                const response = await fetch(url + '/auth/checkPhoneNumber', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

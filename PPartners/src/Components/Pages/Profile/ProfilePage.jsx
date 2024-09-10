@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+let url = localStorage.getItem('url')
 
 // Функция для получения токена
 const getAuthToken = () => localStorage.getItem('authToken');
@@ -23,7 +24,7 @@ const ProfilePage = () => {
         if (authToken) {
             setToken(authToken);
             
-            fetch('http://localhost:8887/profile', {
+            fetch(url + '/profile', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -72,7 +73,7 @@ const ProfilePage = () => {
 
     const handleSubmitProfile = async () => {
         try {
-            const response = await fetch('http://localhost:8887/profile', {
+            const response = await fetch(url + '/profile', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

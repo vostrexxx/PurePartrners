@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 // Функция для получения токена
 const getAuthToken = () => localStorage.getItem('authToken');
-
+let url = localStorage.getItem('url')
 const ProfilePage = () => {
     const [profileData, setProfileData] = useState({
         name: '',
@@ -24,17 +24,15 @@ const ProfilePage = () => {
         const authToken = getAuthToken();
         if (authToken) {
             setToken(authToken);
-
-            // Выполните два запроса одновременно
             Promise.all([
-                fetch('http://localhost:8887/profile', {
+                fetch(url + '/profile', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${authToken}`,
                     },
                 }),
-                fetch('http://localhost:8887/profile/image', {
+                fetch(url + '/profile/image', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${authToken}`,
@@ -108,7 +106,7 @@ const ProfilePage = () => {
 
     const handleSubmitProfile = async () => {
         try {
-            const response = await fetch('http://localhost:8887/profile', {
+            const response = await fetch(url + '/profile', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -142,7 +140,7 @@ const ProfilePage = () => {
         formData.append('', imageFile); // Добавляем файл в FormData
 
         try {
-            const response = await fetch('http://localhost:8887/profile/image', {
+            const response = await fetch(url + '/profile/image', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

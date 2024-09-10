@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+let url = localStorage.getItem('url')
 
 const PasswordResetPage = () => {
     const location = useLocation();
@@ -15,7 +16,7 @@ const PasswordResetPage = () => {
             return;
         }
         try {
-            const response = await fetch('http://localhost:8887/auth/password', {
+            const response = await fetch(url + '/auth/password', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+let url = localStorage.getItem('url')
 
 const RegistrationPage = () => {
     const location = useLocation();
@@ -15,7 +16,7 @@ const RegistrationPage = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:8887/auth/register', {
+            const response = await fetch(url + '/auth/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -34,22 +35,6 @@ const RegistrationPage = () => {
             console.error('Ошибка:', error);
             alert('Ошибка при отправке запроса. Попробуйте снова.');
         }
-
-        // try {
-        //     const mockResponse = await new Promise((resolve) => {
-        //         setTimeout(() => {
-        //             resolve({
-        //                 json: () => Promise.resolve({ success: 1 }),
-        //             });
-        //         }, 1000);
-        //     });
-        //     const data = await mockResponse.json();
-        //     if (data.success) {
-        //         navigate('/login', { state: { phoneNumber } });
-        //     }
-        // } catch (error) {
-        //     console.error('Ошибка:', error);
-        // }
     };
 
     return (

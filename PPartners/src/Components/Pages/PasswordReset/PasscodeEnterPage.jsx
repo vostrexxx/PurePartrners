@@ -1,5 +1,6 @@
 import React, { useState} from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+let url = localStorage.getItem('url')
 
 const PhoneNumberEnteringPage = () => {
     const location = useLocation();
@@ -20,7 +21,7 @@ const PhoneNumberEnteringPage = () => {
 
     const PasscodeEnter = async () => {
         try {
-            const response = await fetch('http://localhost:8887/change/code', {
+            const response = await fetch(url + '/change/code', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
