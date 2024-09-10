@@ -1,6 +1,7 @@
 package com.partners.authserver.dto;
 
-import jdk.jfr.DataAmount;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 @Data
 @AllArgsConstructor

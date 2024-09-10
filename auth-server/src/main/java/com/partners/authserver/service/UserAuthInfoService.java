@@ -48,7 +48,7 @@ public class UserAuthInfoService{
             throw new CantSaveUserException(Constants.userSaveError, HttpStatus.INTERNAL_SERVER_ERROR);
 
 //        String jwtToken = jwtService.generateToken(savedUser);
-        return new OperationStatusResponse(true);
+        return new OperationStatusResponse(1);
     }
 
     public AuthenticationResponse login(LoginInfo loginInfo){

@@ -23,6 +23,7 @@ import java.util.List;
 public class UserAuthInfo implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(columnDefinition = "serial")
     private Long id;
 
 

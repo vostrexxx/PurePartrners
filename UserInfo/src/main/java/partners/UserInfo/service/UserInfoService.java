@@ -43,7 +43,7 @@ public class UserInfoService {
         UserInfo savedPersonalData = userInfoRepository.save(userInfo);
         if (savedPersonalData.getId() == null)
             throw new CantSavePersonalDataException(Constants.cantSavePersonalData, HttpStatus.INTERNAL_SERVER_ERROR);
-        return new OperationStatusResponse(true);
+        return new OperationStatusResponse(1);
     }
 
     public PersonalDataResponse getPersonalData(Long userId) throws UserNotFoundException {
