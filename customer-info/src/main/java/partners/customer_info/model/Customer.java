@@ -1,5 +1,6 @@
 package partners.customer_info.model;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -21,6 +22,8 @@ public class Customer {
     private String workCategories;
     private String metro;
     private String house;
+    private Boolean hasOther;
+    @Nullable
     private String other;
     private String objectName;
     private String startDate;
