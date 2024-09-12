@@ -50,6 +50,13 @@ spring:
           filters:
             - AuthenticationFilter
 
+        - id: customer-info
+          uri: lb://customer-info
+          predicates:
+            - Path=/customer/**
+          filters:
+            - AuthenticationFilter
+
 server:
   port: 8887
 
