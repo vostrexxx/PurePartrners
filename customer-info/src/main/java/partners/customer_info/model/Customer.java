@@ -28,5 +28,6 @@ public class Customer {
     private String objectName;
     private String startDate;
     private String finishDate;
+    @Nullable
     private String comments;
 }
