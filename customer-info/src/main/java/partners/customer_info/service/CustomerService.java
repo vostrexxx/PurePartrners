@@ -85,4 +85,11 @@ public class CustomerService {
             return new OperationStatusResponse(1);
         return new OperationStatusResponse(0);
     }
+
+    public OperationStatusResponse deleteCustomerImage(Long userId) {
+        File fileToDelete = new File("src/main/resources/images/" + userId + ".jpg");
+        if (fileToDelete.delete())
+            return new OperationStatusResponse(1);
+        return new OperationStatusResponse(0);
+    }
 }

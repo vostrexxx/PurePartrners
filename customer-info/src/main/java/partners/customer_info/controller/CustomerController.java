@@ -44,4 +44,10 @@ public class CustomerController {
         OperationStatusResponse response = service.saveCustomerImage(userId, image);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/image/delete")
+    public ResponseEntity<OperationStatusResponse> deleteCustomerImage(@RequestHeader Long userId){
+        OperationStatusResponse response = service.deleteCustomerImage(userId);
+        return ResponseEntity.ok(response);
+    }
 }
