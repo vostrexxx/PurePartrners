@@ -1,13 +1,18 @@
 package partners.customer_info.controller;
 
 import lombok.AllArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import partners.customer_info.dto.GetCustomerInfoResponse;
 import partners.customer_info.dto.OperationStatusResponse;
+import partners.customer_info.exception.ImageNotFoundException;
 import partners.customer_info.model.Customer;
 import partners.customer_info.model.CustomerInfo;
 import partners.customer_info.service.CustomerService;
+
+import java.io.IOException;
 
 @RestController
 @AllArgsConstructor
@@ -25,6 +30,18 @@ public class CustomerController {
     @PostMapping("")
     public ResponseEntity<OperationStatusResponse> saveCustomerInfo(@RequestHeader Long userId, @RequestBody CustomerInfo customerInfo){
         OperationStatusResponse response = service.saveCustomerInfo(userId, customerInfo);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/image")
+    public ResponseEntity<Resource> getCustomerImage(@RequestHeader Long userId) throws IOException, ImageNotFoundException {
+        Resource image = service.getCustomerImage(userId);
+        return ResponseEntity.ok(image);
+    }
+
+    @PostMapping("/image")
+    public ResponseEntity<OperationStatusResponse> saveCustomerImage(@RequestHeader Long userId, @RequestBody MultipartFile image) throws IOException {
+        OperationStatusResponse response = service.saveCustomerImage(userId, image);
         return ResponseEntity.ok(response);
     }
 }
