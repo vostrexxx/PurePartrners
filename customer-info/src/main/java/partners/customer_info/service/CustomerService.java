@@ -47,10 +47,12 @@ public class CustomerService {
 
     public OperationStatusResponse saveCustomerInfo(Long userId, CustomerInfo customerInfo){
         Customer customer = Customer.builder()
+                .id(userId)
                 .totalCost(customerInfo.getTotalCost())
                 .workCategories(customerInfo.getWorkCategories())
                 .metro(customerInfo.getMetro())
                 .house(customerInfo.getHouse())
+                .hasOther(customerInfo.getHasOther())
                 .other(customerInfo.getOther())
                 .objectName(customerInfo.getObjectName())
                 .startDate(customerInfo.getStartDate())
