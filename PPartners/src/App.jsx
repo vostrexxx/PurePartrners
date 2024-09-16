@@ -26,9 +26,6 @@ const App = () => {
                 <Route path="/passcode-enter" element={<EnterCodePage />} />
                 <Route path="/password-reset" element={<PasswordResetPage />} />
                 <Route path="/account-actions" element={<PageWTabs />} />
-
-                {/* <Route path="/photo" element={<Photo />} /> */}
-
             </Routes>
         </Router>
     );
