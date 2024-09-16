@@ -8,7 +8,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import partners.UserInfo.Constants;
+import partners.UserInfo.config.Constants;
 import partners.UserInfo.dto.*;
 import partners.UserInfo.exception.CantSavePersonalDataException;
 import partners.UserInfo.exception.UserNotFoundException;
@@ -17,7 +17,6 @@ import partners.UserInfo.repository.UserInfoRepository;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -42,38 +41,31 @@ public class UserInfoService {
                 .build();
         UserInfo savedPersonalData = userInfoRepository.save(userInfo);
         if (savedPersonalData.getId() == null)
-            throw new CantSavePersonalDataException(Constants.cantSavePersonalData, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CantSavePersonalDataException(Constants.KEY_EXCEPTION_CANT_SAVE_USER_INFO, HttpStatus.INTERNAL_SERVER_ERROR);
         return new OperationStatusResponse(1);
     }
 
-    public PersonalDataResponse getPersonalData(Long userId) throws UserNotFoundException {
+    public PersonalDataResponse getPersonalData(Long userId) {
         Optional<UserInfo> userInfo = userInfoRepository.findById(userId);
         if (userInfo.isEmpty())
             return new PersonalDataResponse(0, null);
-//                orElseThrow(() -> new UserNotFoundException(Constants.userNotFound, HttpStatus.BAD_REQUEST));
         UserInfo actualUserInfo = userInfo.get();
         return new PersonalDataResponse(1, actualUserInfo);
     }
 
     public Resource getUserImages(Long userId) throws IOException {
-        Path firstImagePath = Path.of("src/main/resources/images/" + userId + ".jpg");
+        Path firstImagePath = Path.of(Constants.KEY_IMAGES_PATH + userId + Constants.KEY_DEFAULT_IMAGES_EXTENSION);
         File isFileExists = new File(firstImagePath.toUri());
         if (isFileExists.isFile()) {
             Resource resource = new UrlResource(firstImagePath.toUri());
-
-//        InputStream firstImage = getClass().getClassLoader().getResourceAsStream("src/main/resources/images/4.jpg");
-//        InputStream secondImage = getClass().getResourceAsStream("2.jpg");
-//        byte[][] images = new byte[2][];
-//        images[0] = IOUtils.toByteArray(firstImage);
-//        images[1] = IOUtils.toByteArray(secondImage);
             return resource;
         }
         else
-            throw new BadRequestException("No image found");
+            throw new BadRequestException(Constants.KEY_EXCEPTION_NO_IMAGE);
     }
 
     public OperationStatusResponse saveImage(MultipartFile image, Long userId) throws IOException {
-        String imagePath = "src/main/resources/images/" + userId + ".jpg";
+        String imagePath = Constants.KEY_IMAGES_PATH + userId + Constants.KEY_DEFAULT_IMAGES_EXTENSION;
         File userImage = new File(imagePath);
         image.transferTo(userImage.toPath());
         File checkFile = new File(imagePath);

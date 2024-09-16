@@ -1,6 +1,6 @@
 package com.partners.authserver.service;
 
-import com.partners.authserver.Constants;
+import com.partners.authserver.config.Constants;
 import com.partners.authserver.dto.*;
 import com.partners.authserver.exception.CantSaveUserException;
 import com.partners.authserver.exception.PhoneNumberTakenException;

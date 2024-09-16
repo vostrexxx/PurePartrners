@@ -1,6 +1,6 @@
 package com.partners.authserver.service;
 
-import com.partners.authserver.Constants;
+import com.partners.authserver.config.Constants;
 import com.partners.authserver.repository.UserAuthInfoRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

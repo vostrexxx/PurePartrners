@@ -6,6 +6,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import partners.contractorInfo.config.Constants;
 import partners.contractorInfo.dto.GetContractorInfoResponse;
 import partners.contractorInfo.dto.OperationStatusResponse;
 import partners.contractorInfo.dto.ContractorInfo;
@@ -38,11 +39,12 @@ public class ContractorService {
                 .selfInfo(contractorInfo.getSelfInfo())
                 .prices(contractorInfo.getPrices())
                 .build();
-
-        Contractor savedContractor = contractorRepository.save(contractor);
-        if (savedContractor.getId() == null)
-            throw new BadRequestException("Can't save contractor");
-        return new OperationStatusResponse(1);
+        try {
+            contractorRepository.save(contractor);
+            return new OperationStatusResponse(1);
+        } catch (Exception e){
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     public GetContractorInfoResponse getContractorInfo(Long userId){
@@ -73,7 +75,7 @@ public class ContractorService {
             return resource;
         }
         else
-            throw new BadRequestException("No image found");
+            throw new BadRequestException(Constants.KEY_NO_IMAGE_FOUND);
     }
 
     public OperationStatusResponse saveCompletedImage(Long userId, MultipartFile image) throws IOException {

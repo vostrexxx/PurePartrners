@@ -13,4 +13,11 @@ public class ExceptionApiHandler {
                 .status(e.getStatusCode())
                 .body(e.getMessage());
     }
+
+    @ExceptionHandler(CantSaveCustomerException.class)
+    public ResponseEntity<String> handlerCantSaveCustomerException(CantSaveCustomerException e) {
+        return ResponseEntity
+                .status(e.getStatusCode())
+                .body(e.getMessage());
+    }
 }

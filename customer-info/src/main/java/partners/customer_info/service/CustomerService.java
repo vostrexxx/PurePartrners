@@ -7,8 +7,11 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import partners.customer_info.config.Constants;
 import partners.customer_info.dto.GetCustomerInfoResponse;
 import partners.customer_info.dto.OperationStatusResponse;
+import partners.customer_info.exception.CantSaveCustomerException;
+import partners.customer_info.exception.CustomException;
 import partners.customer_info.exception.ImageNotFoundException;
 import partners.customer_info.model.Customer;
 import partners.customer_info.model.CustomerInfo;
@@ -45,7 +48,7 @@ public class CustomerService {
         return new GetCustomerInfoResponse(1, customerInfo);
     }
 
-    public OperationStatusResponse saveCustomerInfo(Long userId, CustomerInfo customerInfo){
+    public OperationStatusResponse saveCustomerInfo(Long userId, CustomerInfo customerInfo) throws CantSaveCustomerException {
         Customer customer = Customer.builder()
                 .id(userId)
                 .totalCost(customerInfo.getTotalCost())
@@ -60,26 +63,27 @@ public class CustomerService {
                 .comments(customerInfo.getComments())
                 .build();
         //TODO builder
-        Customer savedCustomer = repository.save(customer);
-        if (savedCustomer.getId() != null){
-            return new OperationStatusResponse(0);
+        try {
+            repository.save(customer);
+            return new OperationStatusResponse(1);
+        } catch (Exception e){
+            throw new CantSaveCustomerException(Constants.KEY_EXCEPTION_CANT_SAVE_CUSTOMER, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new OperationStatusResponse(1);
     }
 
     public Resource getCustomerImage(Long userId) throws IOException, ImageNotFoundException {
-        Path firstImagePath = Path.of("src/main/resources/images/" + userId + ".jpg");
+        Path firstImagePath = Path.of(Constants.KEY_IMAGES_PATH + userId + Constants.KEY_DEFAULT_IMAGE_EXTENSION);
         File isFileExists = new File(firstImagePath.toUri());
         if (isFileExists.isFile()) {
             Resource resource = new UrlResource(firstImagePath.toUri());
             return resource;
         }
         else
-            throw new ImageNotFoundException("Image not found", HttpStatus.BAD_REQUEST);
+            throw new ImageNotFoundException(Constants.KEY_EXCEPTION_NO_IMAGE_FOUND, HttpStatus.BAD_REQUEST);
     }
 
     public OperationStatusResponse saveCustomerImage(Long userId, MultipartFile image) throws IOException {
-        String imagePath = "src/main/resources/images/" + userId + ".jpg";
+        String imagePath = Constants.KEY_IMAGES_PATH + userId + Constants.KEY_DEFAULT_IMAGE_EXTENSION;
         File userImage = new File(imagePath);
         image.transferTo(userImage.toPath());
         File checkFile = new File(imagePath);
@@ -89,7 +93,7 @@ public class CustomerService {
     }
 
     public OperationStatusResponse deleteCustomerImage(Long userId) {
-        File fileToDelete = new File("src/main/resources/images/" + userId + ".jpg");
+        File fileToDelete = new File(Constants.KEY_IMAGES_PATH + userId + Constants.KEY_DEFAULT_IMAGE_EXTENSION);
         if (fileToDelete.delete())
             return new OperationStatusResponse(1);
         return new OperationStatusResponse(0);

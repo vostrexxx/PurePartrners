@@ -1,4 +1,4 @@
-package com.partners.authserver;
+package com.partners.authserver.config;
 
 public class Constants {
     public static String phoneNumberAlreadyTaken = "Номер уже занят";
