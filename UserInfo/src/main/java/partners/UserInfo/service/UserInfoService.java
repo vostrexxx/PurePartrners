@@ -1,8 +1,8 @@
 package partners.UserInfo.service;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.io.IOUtils;
 import org.apache.coyote.BadRequestException;
+import org.modelmapper.ModelMapper;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
@@ -11,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 import partners.UserInfo.config.Constants;
 import partners.UserInfo.dto.*;
 import partners.UserInfo.exception.CantSavePersonalDataException;
-import partners.UserInfo.exception.UserNotFoundException;
 import partners.UserInfo.model.UserInfo;
 import partners.UserInfo.repository.UserInfoRepository;
 
@@ -25,20 +24,26 @@ import java.util.Optional;
 public class UserInfoService {
     private final UserInfoRepository userInfoRepository;
 
-    public OperationStatusResponse saveUserPersonalData(SavePersonalDataRequest personalData,
+    private final ModelMapper modelMapper = new ModelMapper();
+
+    public OperationStatusResponse saveUserPersonalData(PersonalDataDTO personalData,
                                                          Long userId) throws CantSavePersonalDataException {
         //TODO make abstract builder
         //TODO implement modelmapper
-        UserInfo userInfo = UserInfo.builder()
-                .id(userId)
-                .name(personalData.getName())
-                .surname(personalData.getSurname())
-                .patronymic(personalData.getPatronymic())
-                .email(personalData.getEmail())
-                .birthday(personalData.getBirthday())
-                .phoneNumber(personalData.getPhoneNumber())
-                .isPassportConfirmed(personalData.isPasswordConfirmed())
-                .build();
+
+        UserInfo userInfo = modelMapper.map(personalData, UserInfo.class);
+
+//        UserInfo userInfo = UserInfo.builder()
+//                .id(userId)
+//                .name(personalData.getName())
+//                .surname(personalData.getSurname())
+//                .patronymic(personalData.getPatronymic())
+//                .email(personalData.getEmail())
+//                .birthday(personalData.getBirthday())
+//                .phoneNumber(personalData.getPhoneNumber())
+//                .isPassportConfirmed(personalData.isPasswordConfirmed())
+//                .build();
+        userInfo.setId(userId);
         UserInfo savedPersonalData = userInfoRepository.save(userInfo);
         if (savedPersonalData.getId() == null)
             throw new CantSavePersonalDataException(Constants.KEY_EXCEPTION_CANT_SAVE_USER_INFO, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -50,7 +55,8 @@ public class UserInfoService {
         if (userInfo.isEmpty())
             return new PersonalDataResponse(0, null);
         UserInfo actualUserInfo = userInfo.get();
-        return new PersonalDataResponse(1, actualUserInfo);
+        PersonalDataDTO personalDataDTO = modelMapper.map(actualUserInfo, PersonalDataDTO.class);
+        return new PersonalDataResponse(1, personalDataDTO);
     }
 
     public Resource getUserImages(Long userId) throws IOException {

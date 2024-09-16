@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import partners.UserInfo.dto.OperationStatusResponse;
+import partners.UserInfo.dto.PersonalDataDTO;
 import partners.UserInfo.dto.PersonalDataResponse;
 import partners.UserInfo.dto.SavePersonalDataRequest;
 import partners.UserInfo.exception.CantSavePersonalDataException;
@@ -24,7 +25,7 @@ public class UserInfoController {
 
     private final UserInfoService userInfoService;
     @PostMapping("")
-    public ResponseEntity<OperationStatusResponse> savePersonalData(@RequestBody SavePersonalDataRequest personalData,
+    public ResponseEntity<OperationStatusResponse> savePersonalData(@RequestBody PersonalDataDTO personalData,
                                                                      @RequestHeader Long userId)
             throws CantSavePersonalDataException {
         OperationStatusResponse userPersonalData = userInfoService.saveUserPersonalData(personalData, userId);
