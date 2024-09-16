@@ -19,8 +19,8 @@ const PageWithTabs = () => {
       <div className="tabs">
         <button onClick={() => handleTabClick(0)}>Персональная информация</button>
         <button onClick={() => handleTabClick(1)}>Данные для анкеты</button>
-        <button onClick={() => handleTabClick(2)}>Обратная связь (Отзывы + оценки)</button>
-        <button onClick={() => handleTabClick(3)}>Анкета/Объявление</button>
+        <button onClick={() => handleTabClick(2)}>Данные для объявления</button>
+        <button onClick={() => handleTabClick(3)}>Обратная связь (Отзывы + оценки)</button>
       </div>
 
       <div className="tab-content">

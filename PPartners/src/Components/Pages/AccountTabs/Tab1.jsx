@@ -119,7 +119,7 @@ const ProfilePage = () => {
 
             if (data.success) {
                 alert('Профиль успешно обновлен!');
-                setProfileData(data.profile); // Обновляем данные профиля
+                setProfileData(data); // Обновляем данные профиля
                 setIsEditable(false); // Поля снова становятся не редактируемыми
             } else {
                 alert('Ошибка при обновлении профиля.');
