@@ -28,7 +28,7 @@ public class UserInfoService {
     public OperationStatusResponse saveUserPersonalData(SavePersonalDataRequest personalData,
                                                          Long userId) throws CantSavePersonalDataException {
         //TODO make abstract builder
-        //TODO check mapstruct, modelmapper
+        //TODO implement modelmapper
         UserInfo userInfo = UserInfo.builder()
                 .id(userId)
                 .name(personalData.getName())
