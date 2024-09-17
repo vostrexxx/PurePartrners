@@ -7,9 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import partners.customer_info.dto.GetCustomerInfoResponse;
 import partners.customer_info.dto.OperationStatusResponse;
-import partners.customer_info.exception.CantSaveCustomerException;
-import partners.customer_info.exception.ImageNotFoundException;
-import partners.customer_info.model.Customer;
 import partners.customer_info.model.CustomerInfo;
 import partners.customer_info.service.CustomerService;
 
@@ -29,13 +26,13 @@ public class CustomerController {
     }
 
     @PostMapping("")
-    public ResponseEntity<OperationStatusResponse> saveCustomerInfo(@RequestHeader Long userId, @RequestBody CustomerInfo customerInfo) throws CantSaveCustomerException {
+    public ResponseEntity<OperationStatusResponse> saveCustomerInfo(@RequestHeader Long userId, @RequestBody CustomerInfo customerInfo){
         OperationStatusResponse response = service.saveCustomerInfo(userId, customerInfo);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/image")
-    public ResponseEntity<Resource> getCustomerImage(@RequestHeader Long userId) throws IOException, ImageNotFoundException {
+    public ResponseEntity<Resource> getCustomerImage(@RequestHeader Long userId) throws IOException{
         Resource image = service.getCustomerImage(userId);
         return ResponseEntity.ok(image);
     }

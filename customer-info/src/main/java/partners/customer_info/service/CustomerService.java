@@ -1,18 +1,16 @@
 package partners.customer_info.service;
 
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.InternalServerErrorException;
 import lombok.AllArgsConstructor;
-import org.apache.coyote.BadRequestException;
+import org.modelmapper.ModelMapper;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import partners.customer_info.config.Constants;
 import partners.customer_info.dto.GetCustomerInfoResponse;
 import partners.customer_info.dto.OperationStatusResponse;
-import partners.customer_info.exception.CantSaveCustomerException;
-import partners.customer_info.exception.CustomException;
-import partners.customer_info.exception.ImageNotFoundException;
 import partners.customer_info.model.Customer;
 import partners.customer_info.model.CustomerInfo;
 import partners.customer_info.repository.CustomerRepository;
@@ -26,6 +24,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class CustomerService {
     private CustomerRepository repository;
+    private final ModelMapper modelMapper = new ModelMapper();
 
     public GetCustomerInfoResponse getCustomerInfo(Long userId){
         Optional<Customer> customer = repository.findById(userId);
@@ -33,53 +32,54 @@ public class CustomerService {
             return new GetCustomerInfoResponse(0, null);
         }
         Customer actualCustomerInfo = customer.get();
-        CustomerInfo customerInfo = CustomerInfo.builder()
-                .totalCost(actualCustomerInfo.getTotalCost())
-                .workCategories(actualCustomerInfo.getWorkCategories())
-                .metro(actualCustomerInfo.getMetro())
-                .house(actualCustomerInfo.getHouse())
-                .other(actualCustomerInfo.getOther())
-                .objectName(actualCustomerInfo.getObjectName())
-                .startDate(actualCustomerInfo.getStartDate())
-                .finishDate(actualCustomerInfo.getFinishDate())
-                .comments(actualCustomerInfo.getComments())
-                .build();
+        CustomerInfo customerInfo = modelMapper.map(actualCustomerInfo, CustomerInfo.class);
+//        CustomerInfo customerInfo = CustomerInfo.builder()
+//                .totalCost(actualCustomerInfo.getTotalCost())
+//                .workCategories(actualCustomerInfo.getWorkCategories())
+//                .metro(actualCustomerInfo.getMetro())
+//                .house(actualCustomerInfo.getHouse())
+//                .other(actualCustomerInfo.getOther())
+//                .objectName(actualCustomerInfo.getObjectName())
+//                .startDate(actualCustomerInfo.getStartDate())
+//                .finishDate(actualCustomerInfo.getFinishDate())
+//                .comments(actualCustomerInfo.getComments())
+//                .build();
 
         return new GetCustomerInfoResponse(1, customerInfo);
     }
 
-    public OperationStatusResponse saveCustomerInfo(Long userId, CustomerInfo customerInfo) throws CantSaveCustomerException {
-        Customer customer = Customer.builder()
-                .id(userId)
-                .totalCost(customerInfo.getTotalCost())
-                .workCategories(customerInfo.getWorkCategories())
-                .metro(customerInfo.getMetro())
-                .house(customerInfo.getHouse())
-                .hasOther(customerInfo.getHasOther())
-                .other(customerInfo.getOther())
-                .objectName(customerInfo.getObjectName())
-                .startDate(customerInfo.getStartDate())
-                .finishDate(customerInfo.getFinishDate())
-                .comments(customerInfo.getComments())
-                .build();
-        //TODO builder
+    public OperationStatusResponse saveCustomerInfo(Long userId, CustomerInfo customerInfo){
+        Customer customer = modelMapper.map(customerInfo, Customer.class);
+        customer.setId(userId);
+//        Customer customer = Customer.builder()
+//                .id(userId)
+//                .totalCost(customerInfo.getTotalCost())
+//                .workCategories(customerInfo.getWorkCategories())
+//                .metro(customerInfo.getMetro())
+//                .house(customerInfo.getHouse())
+//                .hasOther(customerInfo.getHasOther())
+//                .other(customerInfo.getOther())
+//                .objectName(customerInfo.getObjectName())
+//                .startDate(customerInfo.getStartDate())
+//                .finishDate(customerInfo.getFinishDate())
+//                .comments(customerInfo.getComments())
+//                .build();
         try {
             repository.save(customer);
             return new OperationStatusResponse(1);
         } catch (Exception e){
-            throw new CantSaveCustomerException(Constants.KEY_EXCEPTION_CANT_SAVE_CUSTOMER, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new InternalServerErrorException(Constants.KEY_EXCEPTION_CANT_SAVE_CUSTOMER);
         }
     }
 
-    public Resource getCustomerImage(Long userId) throws IOException, ImageNotFoundException {
+    public Resource getCustomerImage(Long userId) throws IOException{
         Path firstImagePath = Path.of(Constants.KEY_IMAGES_PATH + userId + Constants.KEY_DEFAULT_IMAGE_EXTENSION);
         File isFileExists = new File(firstImagePath.toUri());
         if (isFileExists.isFile()) {
             Resource resource = new UrlResource(firstImagePath.toUri());
             return resource;
-        }
-        else
-            throw new ImageNotFoundException(Constants.KEY_EXCEPTION_NO_IMAGE_FOUND, HttpStatus.BAD_REQUEST);
+        } else
+            throw new BadRequestException(Constants.KEY_EXCEPTION_NO_IMAGE_FOUND);
     }
 
     public OperationStatusResponse saveCustomerImage(Long userId, MultipartFile image) throws IOException {
@@ -89,13 +89,15 @@ public class CustomerService {
         File checkFile = new File(imagePath);
         if (checkFile.isFile())
             return new OperationStatusResponse(1);
-        return new OperationStatusResponse(0);
+        else
+            throw new InternalServerErrorException(Constants.KEY_EXCEPTION_CANT_SAVE_IMAGE);
     }
 
     public OperationStatusResponse deleteCustomerImage(Long userId) {
         File fileToDelete = new File(Constants.KEY_IMAGES_PATH + userId + Constants.KEY_DEFAULT_IMAGE_EXTENSION);
         if (fileToDelete.delete())
             return new OperationStatusResponse(1);
-        return new OperationStatusResponse(0);
+        else
+            throw new InternalServerErrorException(Constants.KEY_EXCEPTION_CANT_DELETE_IMAGE);
     }
 }

@@ -1,12 +1,8 @@
 package com.partners.authserver.controller;
 
 import com.partners.authserver.dto.*;
-import com.partners.authserver.exception.CantSaveUserException;
 import com.partners.authserver.exception.InvalidTokenException;
-import com.partners.authserver.exception.PhoneNumberTakenException;
-import com.partners.authserver.exception.TelephoneNotFoundException;
 import com.partners.authserver.service.UserAuthInfoService;
-import jdk.dynalink.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,9 +16,7 @@ public class AuthenticationController {
     private final UserAuthInfoService userAuthInfoService;
 
     @PostMapping("/register")
-    public ResponseEntity<OperationStatusResponse> userRegistration(@RequestBody RegistrationInfo registrationInfo) throws
-            PhoneNumberTakenException,
-            CantSaveUserException {
+    public ResponseEntity<OperationStatusResponse> userRegistration(@RequestBody RegistrationInfo registrationInfo){
         OperationStatusResponse response = userAuthInfoService.register(registrationInfo);
         return ResponseEntity.ok(response);
     }
@@ -47,7 +41,7 @@ public class AuthenticationController {
     }
 
     @GetMapping("/{phoneNumber}")
-    public ResponseEntity<IdFromTelephoneResponse> getIdByTelephone(@PathVariable("phoneNumber") String phoneNumber) throws TelephoneNotFoundException {
+    public ResponseEntity<IdFromTelephoneResponse> getIdByTelephone(@PathVariable("phoneNumber") String phoneNumber){
         IdFromTelephoneResponse userId = userAuthInfoService.getIdByPhoneNumber(phoneNumber);
         return ResponseEntity.ok(userId);
     }

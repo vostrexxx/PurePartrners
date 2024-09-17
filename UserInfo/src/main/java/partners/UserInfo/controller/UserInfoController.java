@@ -10,9 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 import partners.UserInfo.dto.OperationStatusResponse;
 import partners.UserInfo.dto.PersonalDataDTO;
 import partners.UserInfo.dto.PersonalDataResponse;
-import partners.UserInfo.dto.SavePersonalDataRequest;
-import partners.UserInfo.exception.CantSavePersonalDataException;
-import partners.UserInfo.exception.UserNotFoundException;
 import partners.UserInfo.service.UserInfoService;
 
 import java.io.IOException;
@@ -26,15 +23,13 @@ public class UserInfoController {
     private final UserInfoService userInfoService;
     @PostMapping("")
     public ResponseEntity<OperationStatusResponse> savePersonalData(@RequestBody PersonalDataDTO personalData,
-                                                                     @RequestHeader Long userId)
-            throws CantSavePersonalDataException {
+                                                                     @RequestHeader Long userId) {
         OperationStatusResponse userPersonalData = userInfoService.saveUserPersonalData(personalData, userId);
         return ResponseEntity.ok(userPersonalData);
     }
 
     @GetMapping("")
-    public ResponseEntity<PersonalDataResponse> getPersonalData(@RequestHeader Long userId)
-            throws UserNotFoundException {
+    public ResponseEntity<PersonalDataResponse> getPersonalData(@RequestHeader Long userId) {
         PersonalDataResponse personalData = userInfoService.getPersonalData(userId);
         return ResponseEntity.ok(personalData);
     }

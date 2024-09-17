@@ -1,16 +1,15 @@
 package partners.UserInfo.service;
 
+import jakarta.ws.rs.InternalServerErrorException;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.modelmapper.ModelMapper;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import partners.UserInfo.config.Constants;
 import partners.UserInfo.dto.*;
-import partners.UserInfo.exception.CantSavePersonalDataException;
 import partners.UserInfo.model.UserInfo;
 import partners.UserInfo.repository.UserInfoRepository;
 
@@ -27,9 +26,7 @@ public class UserInfoService {
     private final ModelMapper modelMapper = new ModelMapper();
 
     public OperationStatusResponse saveUserPersonalData(PersonalDataDTO personalData,
-                                                         Long userId) throws CantSavePersonalDataException {
-        //TODO make abstract builder
-        //TODO implement modelmapper
+                                                         Long userId) {
 
         UserInfo userInfo = modelMapper.map(personalData, UserInfo.class);
 
@@ -44,10 +41,12 @@ public class UserInfoService {
 //                .isPassportConfirmed(personalData.isPasswordConfirmed())
 //                .build();
         userInfo.setId(userId);
-        UserInfo savedPersonalData = userInfoRepository.save(userInfo);
-        if (savedPersonalData.getId() == null)
-            throw new CantSavePersonalDataException(Constants.KEY_EXCEPTION_CANT_SAVE_USER_INFO, HttpStatus.INTERNAL_SERVER_ERROR);
-        return new OperationStatusResponse(1);
+        try {
+            userInfoRepository.save(userInfo);
+            return new OperationStatusResponse(1);
+        } catch (Exception e) {
+            throw new InternalServerErrorException(Constants.KEY_EXCEPTION_CANT_SAVE_USER_INFO);
+        }
     }
 
     public PersonalDataResponse getPersonalData(Long userId) {
@@ -77,7 +76,8 @@ public class UserInfoService {
         File checkFile = new File(imagePath);
         if (checkFile.isFile())
             return new OperationStatusResponse(1);
-        return new OperationStatusResponse(0);
+        else
+            throw new InternalServerErrorException(Constants.KEY_EXCEPTION_CANT_SAVE_IMAGE);
     }
 
 }
