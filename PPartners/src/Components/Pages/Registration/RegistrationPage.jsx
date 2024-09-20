@@ -8,6 +8,16 @@ const RegistrationPage = () => {
     const [phoneNumber, setPhoneNumber] = useState(localStorage.getItem('phoneNumber'));
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const ChangePhoneNumber = async () => {
+  
+        const simulateResponse = () => 1;
+        if (simulateResponse() === 1) {
+            navigate('/identification');
+        } else {
+            console.error('Ошибка входа');
+        }
+        
+    };
 
     const handleRegister = async () => {
         if (password !== confirmPassword) {
@@ -59,6 +69,9 @@ const RegistrationPage = () => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
             />
+            <button onClick={ChangePhoneNumber}>
+                Изменить номер телефона
+            </button>
             <button onClick={handleRegister}>Зарегистрироваться</button>
         </div>
     );
