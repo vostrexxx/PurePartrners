@@ -7,6 +7,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import partners.UserInfo.dto.GetImageResponse;
 import partners.UserInfo.dto.OperationStatusResponse;
 import partners.UserInfo.dto.PersonalDataDTO;
 import partners.UserInfo.dto.PersonalDataResponse;
@@ -37,9 +38,9 @@ public class UserInfoController {
         return ResponseEntity.ok(personalData);
     }
 
-    @GetMapping(value = "/image", produces = MediaType.IMAGE_JPEG_VALUE)
-    public ResponseEntity<Resource> getUserPassport (@RequestHeader Long userId) throws IOException, NoImageException {
-        Resource images = userInfoService.getUserImages(userId);
+    @GetMapping(value = "/image")
+    public ResponseEntity<GetImageResponse> getUserPassport (@RequestHeader Long userId) throws IOException, NoImageException {
+        GetImageResponse images = userInfoService.getUserImages(userId);
         return ResponseEntity.ok(images);
     }
 

@@ -8,6 +8,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 import partners.UserInfo.config.Constants;
 import partners.UserInfo.dto.*;
@@ -62,15 +63,16 @@ public class UserInfoService {
         return new PersonalDataResponse(1, personalDataDTO);
     }
 
-    public Resource getUserImages(Long userId) throws IOException, NoImageException {
+    public GetImageResponse getUserImages(Long userId) throws IOException, NoImageException {
         Path firstImagePath = Path.of(Constants.KEY_IMAGES_PATH + userId + Constants.KEY_DEFAULT_IMAGES_EXTENSION);
         File isFileExists = new File(firstImagePath.toUri());
         if (isFileExists.isFile()) {
             Resource resource = new UrlResource(firstImagePath.toUri());
-            return resource;
+            byte[] image = StreamUtils.copyToByteArray(resource.getInputStream());
+            return new GetImageResponse(1, image);
         }
         else
-            throw new NoImageException(Constants.KEY_EXCEPTION_NO_IMAGE, HttpStatus.BAD_REQUEST);
+            return new GetImageResponse(0, null);
     }
 
     public OperationStatusResponse saveImage(MultipartFile image, Long userId) throws IOException, CantSaveImageException {
