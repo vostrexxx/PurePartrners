@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "contractor")
-@Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

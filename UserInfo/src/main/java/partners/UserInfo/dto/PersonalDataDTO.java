@@ -15,5 +15,5 @@ public class PersonalDataDTO {
     private String phoneNumber;
     private String email;
     private String birthday;
-    private boolean isPasswordConfirmed;
+    private Boolean isPassportConfirmed;
 }
