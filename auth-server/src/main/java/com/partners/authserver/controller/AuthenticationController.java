@@ -1,7 +1,7 @@
 package com.partners.authserver.controller;
 
 import com.partners.authserver.dto.*;
-import com.partners.authserver.exception.InvalidTokenException;
+import com.partners.authserver.exception.*;
 import com.partners.authserver.service.UserAuthInfoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -78,7 +78,7 @@ public class ContractorService {
     public Resource getCompletedImage(Long userId) throws MalformedURLException {
         Path firstImagePath = Path.of(Constants.KEY_IMAGES_PATH + userId + Constants.KEY_IMAGES_DEFAULT_EXTENSION);
         File isFileExists = new File(firstImagePath.toUri());
-        if (isFileExists.isFile()) {
+        if (isFileExists.isFile()) {    
             Resource resource = new UrlResource(firstImagePath.toUri());
             return resource;
         }

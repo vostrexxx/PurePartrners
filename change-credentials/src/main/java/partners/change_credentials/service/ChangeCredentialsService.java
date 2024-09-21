@@ -2,6 +2,7 @@ package partners.change_credentials.service;
 
 import jakarta.ws.rs.InternalServerErrorException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import partners.change_credentials.config.Constants;
 import partners.change_credentials.dto.OperationStatusResponse;

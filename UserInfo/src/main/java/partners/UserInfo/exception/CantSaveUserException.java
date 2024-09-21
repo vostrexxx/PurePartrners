@@ -1,6 +1,5 @@
 package partners.UserInfo.exception;
 
-
 import org.springframework.http.HttpStatus;
 
 public class CantSaveUserException extends CustomException{

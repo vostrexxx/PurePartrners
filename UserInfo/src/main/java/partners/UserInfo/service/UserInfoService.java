@@ -6,10 +6,14 @@ import org.apache.coyote.BadRequestException;
 import org.modelmapper.ModelMapper;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import partners.UserInfo.config.Constants;
 import partners.UserInfo.dto.*;
+import partners.UserInfo.exception.CantSaveImageException;
+import partners.UserInfo.exception.CantSaveUserException;
+import partners.UserInfo.exception.NoImageException;
 import partners.UserInfo.model.UserInfo;
 import partners.UserInfo.repository.UserInfoRepository;
 
@@ -26,7 +30,7 @@ public class UserInfoService {
     private final ModelMapper modelMapper = new ModelMapper();
 
     public OperationStatusResponse saveUserPersonalData(PersonalDataDTO personalData,
-                                                         Long userId) {
+                                                         Long userId) throws CantSaveUserException {
 
         UserInfo userInfo = modelMapper.map(personalData, UserInfo.class);
 
@@ -45,7 +49,7 @@ public class UserInfoService {
             userInfoRepository.save(userInfo);
             return new OperationStatusResponse(1);
         } catch (Exception e) {
-            throw new InternalServerErrorException(Constants.KEY_EXCEPTION_CANT_SAVE_USER_INFO);
+            throw new CantSaveUserException(Constants.KEY_EXCEPTION_CANT_SAVE_USER_INFO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -58,7 +62,7 @@ public class UserInfoService {
         return new PersonalDataResponse(1, personalDataDTO);
     }
 
-    public Resource getUserImages(Long userId) throws IOException {
+    public Resource getUserImages(Long userId) throws IOException, NoImageException {
         Path firstImagePath = Path.of(Constants.KEY_IMAGES_PATH + userId + Constants.KEY_DEFAULT_IMAGES_EXTENSION);
         File isFileExists = new File(firstImagePath.toUri());
         if (isFileExists.isFile()) {
@@ -66,10 +70,10 @@ public class UserInfoService {
             return resource;
         }
         else
-            throw new BadRequestException(Constants.KEY_EXCEPTION_NO_IMAGE);
+            throw new NoImageException(Constants.KEY_EXCEPTION_NO_IMAGE, HttpStatus.BAD_REQUEST);
     }
 
-    public OperationStatusResponse saveImage(MultipartFile image, Long userId) throws IOException {
+    public OperationStatusResponse saveImage(MultipartFile image, Long userId) throws IOException, CantSaveImageException {
         String imagePath = Constants.KEY_IMAGES_PATH + userId + Constants.KEY_DEFAULT_IMAGES_EXTENSION;
         File userImage = new File(imagePath);
         image.transferTo(userImage.toPath());
@@ -77,7 +81,7 @@ public class UserInfoService {
         if (checkFile.isFile())
             return new OperationStatusResponse(1);
         else
-            throw new InternalServerErrorException(Constants.KEY_EXCEPTION_CANT_SAVE_IMAGE);
+            throw new CantSaveImageException(Constants.KEY_EXCEPTION_CANT_SAVE_IMAGE, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

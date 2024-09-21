@@ -9,17 +9,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class ExceptionAPIHandler {
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<String> handleBadRequestException(BadRequestException e) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(e.getMessage());
+
+    @ExceptionHandler(CantSaveImageException.class)
+    public ResponseEntity<String> handleCantSaveImageException(CantSaveImageException e) {
+        return new ResponseEntity<>(e.getMessage(), e.getStatus());
     }
 
-    @ExceptionHandler(InternalServerErrorException.class)
-    public ResponseEntity<String> handleInternalServerErrorException(InternalServerErrorException e) {
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(e.getMessage());
+    @ExceptionHandler(CantSaveUserException.class)
+    public ResponseEntity<String> handleCantSaveUserException(CantSaveUserException e) {
+        return new ResponseEntity<>(e.getMessage(), e.getStatus());
+    }
+
+    @ExceptionHandler(NoImageException.class)
+    public ResponseEntity<String> handleNoImageException(NoImageException e) {
+        return new ResponseEntity<>(e.getMessage(), e.getStatus());
     }
 }
