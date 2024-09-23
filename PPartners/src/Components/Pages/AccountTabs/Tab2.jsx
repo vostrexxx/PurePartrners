@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
+import { useProfile } from '../../Context/ProfileContext';
 // Компонент для отображения поля формы
 const FormField = ({ type, label, name, placeholder, value, onChange, disabled, hidden }) => {
     if (hidden) return null;

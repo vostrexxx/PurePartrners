@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
+import TopBar from '../TopBar/TopBar';
 import Tab1 from './Tab1';
-import Tab2_1 from './Tab2_1';
 import Tab2 from './Tab2';
 import Tab3 from './Tab3';
 import Tab4 from './Tab4';
-
+import { useProfile } from '../../Context/ProfileContext';
 
 const PageWithTabs = () => {
   const [activeTab, setActiveTab] = useState(0);
+  const { isSpecialist, toggleProfile } = useProfile();
 
   const handleTabClick = (index) => {
     setActiveTab(index);
@@ -15,11 +16,12 @@ const PageWithTabs = () => {
 
   return (
     <div>
+      <TopBar />
       <h1>Личный кабинет</h1>
       <div className="tabs">
         <button onClick={() => handleTabClick(0)}>Персональная информация</button>
-        <button onClick={() => handleTabClick(1)}>Данные для анкеты</button>
-        <button onClick={() => handleTabClick(2)}>Данные для объявления</button>
+        {isSpecialist && <button onClick={() => handleTabClick(1)}>Данные для анкеты</button>}
+        {!isSpecialist && <button onClick={() => handleTabClick(2)}>Данные для объявления</button>}
         <button onClick={() => handleTabClick(3)}>Обратная связь (Отзывы + оценки)</button>
       </div>
 
