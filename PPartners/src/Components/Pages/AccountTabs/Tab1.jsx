@@ -89,6 +89,7 @@ const ProfilePage = () => {
     const handleImageChange = (event) => {
         if (event.target.files && event.target.files.length > 0) {
             const file = event.target.files[0];
+            console.log(file)
             setImageFile(file); // Сохраняем файл изображения
             const imageURL = URL.createObjectURL(file);
             setSelectedImage(imageURL); // Отображаем изображение
@@ -137,7 +138,7 @@ const ProfilePage = () => {
         }
 
         const formData = new FormData();
-        formData.append('', imageFile); // Добавляем файл в FormData
+        formData.append('image', imageFile); // Добавляем файл в FormData
 
         try {
             const response = await fetch(url + '/profile/image', {
