@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import partners.customer_info.dto.GetCustomerInfoResponse;
+import partners.customer_info.dto.GetImageResponse;
 import partners.customer_info.dto.OperationStatusResponse;
 import partners.customer_info.model.CustomerInfo;
 import partners.customer_info.service.CustomerService;
@@ -17,7 +18,7 @@ import java.io.IOException;
 @CrossOrigin
 @RequestMapping("/customer")
 public class CustomerController {
-    private CustomerService service;
+    private final CustomerService service;
 
     @GetMapping("")
     public ResponseEntity<GetCustomerInfoResponse> getCustomerInfo(@RequestHeader Long userId){
@@ -32,8 +33,8 @@ public class CustomerController {
     }
 
     @GetMapping("/image")
-    public ResponseEntity<Resource> getCustomerImage(@RequestHeader Long userId) throws IOException{
-        Resource image = service.getCustomerImage(userId);
+    public ResponseEntity<GetImageResponse> getCustomerImage(@RequestHeader Long userId) throws IOException{
+        GetImageResponse image = service.getCustomerImage(userId);
         return ResponseEntity.ok(image);
     }
 

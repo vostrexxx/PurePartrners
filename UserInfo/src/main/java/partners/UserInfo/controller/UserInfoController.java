@@ -39,7 +39,7 @@ public class UserInfoController {
     }
 
     @GetMapping(value = "/image")
-    public ResponseEntity<GetImageResponse> getUserPassport (@RequestHeader Long userId) throws IOException, NoImageException {
+    public ResponseEntity<GetImageResponse> getUserPassport (@RequestHeader Long userId) throws IOException{
         GetImageResponse images = userInfoService.getUserImages(userId);
         return ResponseEntity.ok(images);
     }

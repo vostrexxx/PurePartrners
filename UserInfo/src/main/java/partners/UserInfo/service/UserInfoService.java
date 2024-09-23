@@ -63,7 +63,7 @@ public class UserInfoService {
         return new PersonalDataResponse(1, personalDataDTO);
     }
 
-    public GetImageResponse getUserImages(Long userId) throws IOException, NoImageException {
+    public GetImageResponse getUserImages(Long userId) throws IOException{
         Path firstImagePath = Path.of(Constants.KEY_IMAGES_PATH + userId + Constants.KEY_DEFAULT_IMAGES_EXTENSION);
         File isFileExists = new File(firstImagePath.toUri());
         if (isFileExists.isFile()) {

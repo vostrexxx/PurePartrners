@@ -7,9 +7,11 @@ import org.modelmapper.ModelMapper;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 import partners.contractorInfo.config.Constants;
 import partners.contractorInfo.dto.GetContractorInfoResponse;
+import partners.contractorInfo.dto.GetImageResponse;
 import partners.contractorInfo.dto.OperationStatusResponse;
 import partners.contractorInfo.dto.ContractorInfo;
 import partners.contractorInfo.model.Contractor;
@@ -75,15 +77,16 @@ public class ContractorService {
         return new GetContractorInfoResponse(1, contractorInfo);
     }
 
-    public Resource getCompletedImage(Long userId) throws MalformedURLException {
+    public GetImageResponse getCompletedImage(Long userId) throws IOException {
         Path firstImagePath = Path.of(Constants.KEY_IMAGES_PATH + userId + Constants.KEY_IMAGES_DEFAULT_EXTENSION);
         File isFileExists = new File(firstImagePath.toUri());
         if (isFileExists.isFile()) {    
             Resource resource = new UrlResource(firstImagePath.toUri());
-            return resource;
+            byte[] image =StreamUtils.copyToByteArray(resource.getInputStream());
+            return new GetImageResponse(1, image);
         }
         else
-            throw new BadRequestException(Constants.KEY_EXCEPTION_NO_IMAGE_FOUND);
+            return new GetImageResponse(0, null);
     }
 
     public OperationStatusResponse saveCompletedImage(Long userId, MultipartFile image) throws IOException {

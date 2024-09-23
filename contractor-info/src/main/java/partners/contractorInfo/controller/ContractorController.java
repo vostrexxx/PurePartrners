@@ -1,17 +1,16 @@
 package partners.contractorInfo.controller;
 
 import lombok.AllArgsConstructor;
-import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import partners.contractorInfo.dto.ContractorInfo;
 import partners.contractorInfo.dto.GetContractorInfoResponse;
+import partners.contractorInfo.dto.GetImageResponse;
 import partners.contractorInfo.dto.OperationStatusResponse;
 import partners.contractorInfo.service.ContractorService;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 
 @RestController
 @AllArgsConstructor
@@ -34,8 +33,8 @@ public class ContractorController {
     }
 
     @GetMapping("/image")
-    public ResponseEntity<Resource> getCompletedImage(@RequestHeader Long userId) throws MalformedURLException {
-        Resource image = contractorService.getCompletedImage(userId);
+    public ResponseEntity<GetImageResponse> getCompletedImage(@RequestHeader Long userId) throws IOException {
+        GetImageResponse image = contractorService.getCompletedImage(userId);
         return ResponseEntity.ok(image);
     }
 
