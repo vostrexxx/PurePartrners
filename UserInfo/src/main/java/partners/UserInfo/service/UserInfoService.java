@@ -35,16 +35,6 @@ public class UserInfoService {
 
         UserInfo userInfo = modelMapper.map(personalData, UserInfo.class);
 
-//        UserInfo userInfo = UserInfo.builder()
-//                .id(userId)
-//                .name(personalData.getName())
-//                .surname(personalData.getSurname())
-//                .patronymic(personalData.getPatronymic())
-//                .email(personalData.getEmail())
-//                .birthday(personalData.getBirthday())
-//                .phoneNumber(personalData.getPhoneNumber())
-//                .isPassportConfirmed(personalData.isPasswordConfirmed())
-//                .build();
         userInfo.setId(userId);
         try {
             userInfoRepository.save(userInfo);
