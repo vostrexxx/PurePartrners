@@ -5,24 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="726a6b98-a730-4412-9593-b53f08bdfed5" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mvnw" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mvnw.cmd" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/partners/contractorInfo/ContractorInfoApplication.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/partners/contractorInfo/config/Constants.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/partners/contractorInfo/controller/ContractorController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/partners/contractorInfo/dto/ContractorInfo.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/partners/contractorInfo/dto/GetContractorInfoResponse.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/partners/contractorInfo/dto/GetImageResponse.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/partners/contractorInfo/dto/OperationStatusResponse.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/partners/contractorInfo/exception/ExceptionApiHandler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/partners/contractorInfo/model/Contractor.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/partners/contractorInfo/repository/ContractorRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/partners/contractorInfo/service/ContractorService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/partners/contractorInfo/ContractorInfoApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,26 +22,26 @@
       </MavenGeneralSettings>
     </option>
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 7
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 7
+}</component>
   <component name="ProjectId" id="2mWSUbSJyaOVilfMe1o5IUS7nWp" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "backend",
-    "ignore.virus.scanning.warn.message": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/ideaProjects/questionnaire-info",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;backend&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/ideaProjects/customer-info&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="ContractorInfoApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="contractor-info" />
@@ -85,6 +68,8 @@
       <option name="presentableId" value="Default" />
       <updated>1727190856954</updated>
       <workItem from="1727190857935" duration="77000" />
+      <workItem from="1727192440230" duration="49000" />
+      <workItem from="1728328088260" duration="20000" />
     </task>
     <servers />
   </component>

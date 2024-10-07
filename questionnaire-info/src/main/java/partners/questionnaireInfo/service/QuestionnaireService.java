@@ -16,6 +16,7 @@ import partners.questionnaireInfo.repository.QuestionnaireRepository;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -97,10 +98,15 @@ public class QuestionnaireService {
     }
 
     public GetAllPreviews getAllQuestionnairesPreviews(Long userId){
-        List<QuestionnairePreview> previews = questionnaireRepository.findAllByUserId(userId);
+        List<Questionnaire> previews = questionnaireRepository.findAllByUserId(userId);
+        List<QuestionnairePreview> questionnairePreviews = new ArrayList<>();
+        for (Questionnaire questionnaire : previews) {
+            QuestionnairePreview questionnairePreview = modelMapper.map(questionnaire, QuestionnairePreview.class);
+            questionnairePreviews.add(questionnairePreview);
+        }
         if (previews.isEmpty())
             return new GetAllPreviews(0, null);
-        return new GetAllPreviews(1, previews);
+        return new GetAllPreviews(1, questionnairePreviews);
     }
 
 }
