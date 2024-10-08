@@ -16,8 +16,8 @@ import java.io.IOException;
 public class CustomerController {
     private final CustomerService service;
 
-    @GetMapping("")
-    public ResponseEntity<GetCustomerInfoResponse> getCustomerInfo(@RequestBody Long customerId){
+    @GetMapping("/{customerId}")
+    public ResponseEntity<GetCustomerInfoResponse> getCustomerInfo(@PathVariable("customerId") Long customerId){
         GetCustomerInfoResponse response = service.getCustomerInfo(customerId);
         return ResponseEntity.ok(response);
     }
