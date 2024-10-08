@@ -4,7 +4,26 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="726a6b98-a730-4412-9593-b53f08bdfed5" name="Changes" comment="" />
+    <list default="true" id="726a6b98-a730-4412-9593-b53f08bdfed5" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/partners/contractorInfo/ContractorInfoApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/partners/contractorInfo/config/Constants.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/partners/contractorInfo/controller/ContractorController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/partners/contractorInfo/dto/ContractorInfo.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/partners/contractorInfo/dto/GetContractorInfoResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/partners/contractorInfo/dto/GetImageResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/partners/contractorInfo/dto/OperationStatusResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/partners/contractorInfo/exception/ExceptionApiHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/partners/contractorInfo/model/Contractor.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/partners/contractorInfo/repository/ContractorRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/partners/contractorInfo/service/ContractorService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/partners/contractorInfo/ContractorInfoApplicationTests.java" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,10 +39,10 @@
       </MavenGeneralSettings>
     </option>
   </component>
-  <component name="ProjectColorInfo">{
-  &quot;customColor&quot;: &quot;&quot;,
-  &quot;associatedIndex&quot;: 7
-}</component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 7
+}]]></component>
   <component name="ProjectId" id="2mWSUbSJyaOVilfMe1o5IUS7nWp" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -35,7 +54,7 @@
     "git-widget-placeholder": "backend",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/home/biba/Рабочий стол/noname/customer-info",
+    "last_opened_file_path": "C:/ideaProjects/questionnaire-info",
     "nodejs_package_manager_path": "npm",
     "vue.rearranger.settings.migration": "true"
   }
@@ -52,8 +71,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-b114ca120d71-intellij.indexing.shared.core-IU-242.20224.419" />
-        <option value="bundled-js-predefined-d6986cc7102b-410509235cf1-JavaScript-IU-242.20224.419" />
+        <option value="bundled-jdk-9823dce3aa75-b114ca120d71-intellij.indexing.shared.core-IU-242.21829.142" />
+        <option value="bundled-js-predefined-d6986cc7102b-7c0b70fcd90d-JavaScript-IU-242.21829.142" />
       </set>
     </attachedChunks>
   </component>
@@ -66,7 +85,6 @@
       <option name="presentableId" value="Default" />
       <updated>1727190856954</updated>
       <workItem from="1727190857935" duration="77000" />
-      <workItem from="1727948360585" duration="6000" />
     </task>
     <servers />
   </component>
