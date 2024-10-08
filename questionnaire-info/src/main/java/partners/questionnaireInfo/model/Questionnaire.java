@@ -9,7 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "contractor")
+@Table(name = "questionnaires")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,33 +19,25 @@ public class Questionnaire {
 
     private Long userId;
 
-//    @Column(name = "categories_of_work")
     private String categoriesOfWork;
 
-//    @Column(name = "has_team")
     private Boolean hasTeam;
 
     private String team;
 
-//    @Column(name = "has_edu")
     private Boolean hasEdu;
 
-//    @Column(name = "edu_est")
     @Nullable
     private String eduEst;
 
-//    @Column(name = "edu_date_start")
     @Nullable
     private String eduDateStart;
 
-//    @Column(name = "edu_date_end")
     @Nullable
     private String eduDateEnd;
 
-//    @Column(name = "work_exp")
     private String workExp;
 
-//    @Column(name = "self_info")
     private String selfInfo;
 
     private String prices;

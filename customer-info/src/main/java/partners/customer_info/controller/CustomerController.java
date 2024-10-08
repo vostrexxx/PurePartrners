@@ -17,8 +17,8 @@ public class CustomerController {
     private final CustomerService service;
 
     @GetMapping("")
-    public ResponseEntity<GetCustomerInfoResponse> getCustomerInfo(@RequestHeader Long userId){
-        GetCustomerInfoResponse response = service.getCustomerInfo(userId);
+    public ResponseEntity<GetCustomerInfoResponse> getCustomerInfo(@RequestBody Long customerId){
+        GetCustomerInfoResponse response = service.getCustomerInfo(customerId);
         return ResponseEntity.ok(response);
     }
 

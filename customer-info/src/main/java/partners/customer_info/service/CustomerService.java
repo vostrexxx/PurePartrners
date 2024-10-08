@@ -26,44 +26,19 @@ public class CustomerService {
     private CustomerRepository repository;
     private final ModelMapper modelMapper = new ModelMapper();
 
-    public GetCustomerInfoResponse getCustomerInfo(Long userId){
-        Optional<Customer> customer = repository.findById(userId);
+    public GetCustomerInfoResponse getCustomerInfo(Long customerId) {
+        Optional<Customer> customer = repository.findById(customerId);
         if (customer.isEmpty()){
             return new GetCustomerInfoResponse(0, null);
         }
         Customer actualCustomerInfo = customer.get();
         CustomerInfo customerInfo = modelMapper.map(actualCustomerInfo, CustomerInfo.class);
-//        CustomerInfo customerInfo = CustomerInfo.builder()
-//                .totalCost(actualCustomerInfo.getTotalCost())
-//                .workCategories(actualCustomerInfo.getWorkCategories())
-//                .metro(actualCustomerInfo.getMetro())
-//                .house(actualCustomerInfo.getHouse())
-//                .other(actualCustomerInfo.getOther())
-//                .objectName(actualCustomerInfo.getObjectName())
-//                .startDate(actualCustomerInfo.getStartDate())
-//                .finishDate(actualCustomerInfo.getFinishDate())
-//                .comments(actualCustomerInfo.getComments())
-//                .build();
-
         return new GetCustomerInfoResponse(1, customerInfo);
     }
 
     public OperationStatusResponse saveCustomerInfo(Long userId, CustomerInfo customerInfo){
         Customer customer = modelMapper.map(customerInfo, Customer.class);
-        customer.setId(userId);
-//        Customer customer = Customer.builder()
-//                .id(userId)
-//                .totalCost(customerInfo.getTotalCost())
-//                .workCategories(customerInfo.getWorkCategories())
-//                .metro(customerInfo.getMetro())
-//                .house(customerInfo.getHouse())
-//                .hasOther(customerInfo.getHasOther())
-//                .other(customerInfo.getOther())
-//                .objectName(customerInfo.getObjectName())
-//                .startDate(customerInfo.getStartDate())
-//                .finishDate(customerInfo.getFinishDate())
-//                .comments(customerInfo.getComments())
-//                .build();
+        customer.setUserId(userId);
         try {
             repository.save(customer);
             return new OperationStatusResponse(1);

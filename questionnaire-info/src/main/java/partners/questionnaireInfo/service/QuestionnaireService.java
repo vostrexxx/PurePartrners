@@ -30,21 +30,7 @@ public class QuestionnaireService {
     public OperationStatusResponse saveQuestionnaire(Long userId, QuestionnaireInfo questionnaireInfo){
 
         Questionnaire questionnaire = modelMapper.map(questionnaireInfo, Questionnaire.class);
-        questionnaire.setId(userId);
-
-//        Contractor contractor = Contractor.builder()
-//                .id(userId)
-//                .categoriesOfWork(contractorInfo.getCategoriesOfWork())
-//                .hasTeam(contractorInfo.getHasTeam())
-//                .team(contractorInfo.getTeam())
-//                .hasEdu(contractorInfo.getHasEdu())
-//                .eduEst(contractorInfo.getEduEst())
-//                .eduDateStart(contractorInfo.getEduDateStart())
-//                .eduDateEnd(contractorInfo.getEduDateEnd())
-//                .workExp(contractorInfo.getWorkExp())
-//                .selfInfo(contractorInfo.getSelfInfo())
-//                .prices(contractorInfo.getPrices())
-//                .build();
+        questionnaire.setUserId(userId);
         try {
             questionnaireRepository.save(questionnaire);
             return new OperationStatusResponse(1);
@@ -53,24 +39,12 @@ public class QuestionnaireService {
         }
     }
 
-    public GetQuestionnaireInfoResponse getQuestionnaire(Long userId){
-        Optional<Questionnaire> contractor = questionnaireRepository.findById(userId);
+    public GetQuestionnaireInfoResponse getQuestionnaire(Long questionnaireId){
+        Optional<Questionnaire> contractor = questionnaireRepository.findById(questionnaireId);
         if (contractor.isEmpty())
             return new GetQuestionnaireInfoResponse(0, null);
         Questionnaire actualQuestionnaireData = contractor.get();
         QuestionnaireInfo questionnaireInfo = modelMapper.map(actualQuestionnaireData, QuestionnaireInfo.class);
-//        ContractorInfo contractorInfo = ContractorInfo.builder()
-//                .categoriesOfWork(actualContractorData.getCategoriesOfWork())
-//                .hasTeam(actualContractorData.getHasTeam())
-//                .team(actualContractorData.getTeam())
-//                .hasEdu(actualContractorData.getHasEdu())
-//                .eduEst(actualContractorData.getEduEst())
-//                .eduDateStart(actualContractorData.getEduDateStart())
-//                .eduDateEnd(actualContractorData.getEduDateEnd())
-//                .workExp(actualContractorData.getWorkExp())
-//                .selfInfo(actualContractorData.getSelfInfo())
-//                .prices(actualContractorData.getPrices())
-//                .build();
         return new GetQuestionnaireInfoResponse(1, questionnaireInfo);
     }
 

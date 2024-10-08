@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 public class Customer {
     @Id
     private Long id;
+    private Long userId;
     @Nullable
     private String totalCost;
     private String workCategories;
