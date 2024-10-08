@@ -43,10 +43,10 @@ spring:
                 bodyClass: java.util.LinkedHashMap
             - AddIdToRequestFilter
 
-        - id: contractor-info
-          uri: lb://contractor-info
+        - id: questionnaire-info
+          uri: lb://questionnaire-info
           predicates:
-            - Path=/contractor/**
+            - Path=/questionnaire/**
           filters:
             - AuthenticationFilter
 
