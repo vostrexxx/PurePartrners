@@ -24,8 +24,8 @@ public class QuestionnaireController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("")
-    public ResponseEntity<GetQuestionnaireInfoResponse> getQuestionnaire(@RequestBody Long questionnaireId){
+    @GetMapping("/{questionnaireId}")
+    public ResponseEntity<GetQuestionnaireInfoResponse> getQuestionnaire(@PathVariable("questionnaireId") Long questionnaireId){
         GetQuestionnaireInfoResponse response = questionnaireService.getQuestionnaire(questionnaireId);
         return ResponseEntity.ok(response);
     }
