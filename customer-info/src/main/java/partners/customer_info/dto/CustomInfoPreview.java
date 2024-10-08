@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class GetCustomerInfoResponse {
-    private int success;
-    private CustomerInfo customer;
+public class CustomInfoPreview {
+    private Long id;
+    private String workCategories;
 }

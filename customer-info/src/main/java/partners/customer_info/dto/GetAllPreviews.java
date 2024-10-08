@@ -3,9 +3,11 @@ package partners.customer_info.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
-public class GetCustomerInfoResponse {
+public class GetAllPreviews {
     private int success;
-    private CustomerInfo customer;
+    private List<CustomInfoPreview> previews;
 }

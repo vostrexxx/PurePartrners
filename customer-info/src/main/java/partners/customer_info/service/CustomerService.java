@@ -1,6 +1,5 @@
 package partners.customer_info.service;
 
-import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.InternalServerErrorException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -10,16 +9,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 import partners.customer_info.config.Constants;
-import partners.customer_info.dto.GetCustomerInfoResponse;
-import partners.customer_info.dto.GetImageResponse;
-import partners.customer_info.dto.OperationStatusResponse;
+import partners.customer_info.dto.*;
 import partners.customer_info.model.Customer;
-import partners.customer_info.model.CustomerInfo;
 import partners.customer_info.repository.CustomerRepository;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -102,5 +100,17 @@ public class CustomerService {
             return new OperationStatusResponse(1);
         else
             throw new InternalServerErrorException(Constants.KEY_EXCEPTION_CANT_DELETE_IMAGE);
+    }
+
+    public GetAllPreviews getAllPreviews(Long userId){
+        List<Customer> previews = repository.findAllByUserId(userId);
+        List<CustomInfoPreview> customInfoPreviews = new ArrayList<>();
+        for (Customer customer : previews){
+            CustomInfoPreview anotherPreview = modelMapper.map(customer, CustomInfoPreview.class);
+            customInfoPreviews.add(anotherPreview);
+        }
+        if (customInfoPreviews.isEmpty())
+            return new GetAllPreviews(0, null);
+        return new GetAllPreviews(1, customInfoPreviews);
     }
 }

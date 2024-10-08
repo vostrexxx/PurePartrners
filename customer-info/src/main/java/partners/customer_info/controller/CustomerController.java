@@ -1,14 +1,10 @@
 package partners.customer_info.controller;
 
 import lombok.AllArgsConstructor;
-import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import partners.customer_info.dto.GetCustomerInfoResponse;
-import partners.customer_info.dto.GetImageResponse;
-import partners.customer_info.dto.OperationStatusResponse;
-import partners.customer_info.model.CustomerInfo;
+import partners.customer_info.dto.*;
 import partners.customer_info.service.CustomerService;
 
 import java.io.IOException;
@@ -47,6 +43,12 @@ public class CustomerController {
     @PostMapping("/image/delete")
     public ResponseEntity<OperationStatusResponse> deleteCustomerImage(@RequestHeader Long userId){
         OperationStatusResponse response = service.deleteCustomerImage(userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/preview")
+    public ResponseEntity<GetAllPreviews> getAllPreviews(@RequestHeader Long userId){
+        GetAllPreviews response = service.getAllPreviews(userId);
         return ResponseEntity.ok(response);
     }
 }
