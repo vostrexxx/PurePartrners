@@ -21,6 +21,7 @@ import partners.UserInfo.repository.UserInfoRepository;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Base64;
 import java.util.Optional;
 
 @Service
@@ -59,7 +60,8 @@ public class UserInfoService {
         if (isFileExists.isFile()) {
             Resource resource = new UrlResource(firstImagePath.toUri());
             byte[] image = StreamUtils.copyToByteArray(resource.getInputStream());
-            return new GetImageResponse(1, image);
+            String encodedImage = Base64.getEncoder().encodeToString(image);
+            return new GetImageResponse(1, encodedImage);
         }
         else
             return new GetImageResponse(0, null);

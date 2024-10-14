@@ -8,5 +8,5 @@ import org.springframework.core.io.Resource;
 @AllArgsConstructor
 public class GetImageResponse {
     private int success;
-    private byte[] image;
+    private String image;
 }
