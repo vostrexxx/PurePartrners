@@ -55,7 +55,7 @@ public class UserInfoService {
     }
 
     public GetAvatarResponse getAvatar(Long userId) throws IOException{
-        Path firstImagePath = Path.of(Constants.KEY_IMAGES_AVATAR_PATH + userId + Constants.KEY_DEFAULT_IMAGES_EXTENSION);
+        Path firstImagePath = Path.of(Constants.KEY_IMAGES_AVATAR_PATH + userId + "/1" + Constants.KEY_DEFAULT_IMAGES_EXTENSION);
         File isFileExists = new File(firstImagePath.toUri());
         if (isFileExists.isFile()) {
             Resource resource = new UrlResource(firstImagePath.toUri());
