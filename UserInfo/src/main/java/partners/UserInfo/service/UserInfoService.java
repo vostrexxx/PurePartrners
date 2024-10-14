@@ -68,7 +68,11 @@ public class UserInfoService {
     }
 
     public OperationStatusResponse saveAvatar(MultipartFile image, Long userId) throws IOException, CantSaveImageException {
-        String imagePath = Constants.KEY_IMAGES_AVATAR_PATH + userId + Constants.KEY_DEFAULT_IMAGES_EXTENSION;
+        String imagePath = Constants.KEY_IMAGES_AVATAR_PATH + userId;
+        File directory = new File(imagePath);
+        if (!directory.exists())
+            directory.mkdirs();
+        imagePath = imagePath + "/1" + Constants.KEY_DEFAULT_IMAGES_EXTENSION;
         File userImage = new File(imagePath);
         image.transferTo(userImage.toPath());
         File checkFile = new File(imagePath);
