@@ -1,8 +1,7 @@
 package partners.UserInfo.service;
 
-import jakarta.ws.rs.InternalServerErrorException;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
+import org.apache.commons.io.FileUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -14,14 +13,15 @@ import partners.UserInfo.config.Constants;
 import partners.UserInfo.dto.*;
 import partners.UserInfo.exception.CantSaveImageException;
 import partners.UserInfo.exception.CantSaveUserException;
-import partners.UserInfo.exception.NoImageException;
 import partners.UserInfo.model.UserInfo;
 import partners.UserInfo.repository.UserInfoRepository;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -54,21 +54,21 @@ public class UserInfoService {
         return new PersonalDataResponse(1, personalDataDTO);
     }
 
-    public GetImageResponse getUserImages(Long userId) throws IOException{
-        Path firstImagePath = Path.of(Constants.KEY_IMAGES_PATH + userId + Constants.KEY_DEFAULT_IMAGES_EXTENSION);
+    public GetAvatarResponse getAvatar(Long userId) throws IOException{
+        Path firstImagePath = Path.of(Constants.KEY_IMAGES_AVATAR_PATH + userId + Constants.KEY_DEFAULT_IMAGES_EXTENSION);
         File isFileExists = new File(firstImagePath.toUri());
         if (isFileExists.isFile()) {
             Resource resource = new UrlResource(firstImagePath.toUri());
             byte[] image = StreamUtils.copyToByteArray(resource.getInputStream());
             String encodedImage = Base64.getEncoder().encodeToString(image);
-            return new GetImageResponse(1, encodedImage);
+            return new GetAvatarResponse(1, encodedImage);
         }
         else
-            return new GetImageResponse(0, null);
+            return new GetAvatarResponse(0, null);
     }
 
-    public OperationStatusResponse saveImage(MultipartFile image, Long userId) throws IOException, CantSaveImageException {
-        String imagePath = Constants.KEY_IMAGES_PATH + userId + Constants.KEY_DEFAULT_IMAGES_EXTENSION;
+    public OperationStatusResponse saveAvatar(MultipartFile image, Long userId) throws IOException, CantSaveImageException {
+        String imagePath = Constants.KEY_IMAGES_AVATAR_PATH + userId + Constants.KEY_DEFAULT_IMAGES_EXTENSION;
         File userImage = new File(imagePath);
         image.transferTo(userImage.toPath());
         File checkFile = new File(imagePath);
@@ -78,4 +78,39 @@ public class UserInfoService {
             throw new CantSaveImageException(Constants.KEY_EXCEPTION_CANT_SAVE_IMAGE, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    public OperationStatusResponse savePassportImages(Long userId, MultipartFile[] images) throws IOException {
+        try {
+            for (int i = 0; i < images.length; i++) {
+                String imagePath = Constants.KEY_IMAGES_PASSPORT_PATH + userId + "/" + i + Constants.KEY_DEFAULT_IMAGES_EXTENSION;
+                File anotherPassportImage = new File(imagePath);
+                images[i].transferTo(anotherPassportImage);
+                File checkFile = new File(imagePath);
+                if (!checkFile.isFile())
+                    return new OperationStatusResponse(0);
+            }
+            return new OperationStatusResponse(1);
+        } catch (Exception e) {
+            return new OperationStatusResponse(0);
+        }
+    }
+
+    public GetPassportResponse getPassportImages(Long userId) {
+        File dir = new File(Constants.KEY_IMAGES_PASSPORT_PATH + userId);
+        if (dir.isDirectory()){
+            try {
+                List<String> passportImages = new ArrayList<>();
+                for (File file : dir.listFiles()){
+                    if (file.isFile()){
+                        byte[] anotherImage = FileUtils.readFileToByteArray(file);
+                        String anotherEncodedImage = Base64.getEncoder().encodeToString(anotherImage);
+                        passportImages.add(anotherEncodedImage);
+                    }
+                }
+                return new GetPassportResponse(1, passportImages);
+            } catch (Exception e) {
+                return new GetPassportResponse(0, null);
+            }
+        } else
+            return new GetPassportResponse(0, null);
+    }
 }

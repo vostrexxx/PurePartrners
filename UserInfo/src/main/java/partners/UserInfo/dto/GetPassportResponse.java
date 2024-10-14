@@ -2,11 +2,12 @@ package partners.UserInfo.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.springframework.core.io.Resource;
+
+import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class GetImageResponse {
+public class GetPassportResponse {
     private int success;
-    private String image;
+    private List<String> images;
 }

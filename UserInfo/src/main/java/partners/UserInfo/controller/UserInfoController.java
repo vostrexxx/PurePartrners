@@ -1,19 +1,14 @@
 package partners.UserInfo.controller;
 
 
+import jakarta.servlet.ServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.Resource;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import partners.UserInfo.dto.GetImageResponse;
-import partners.UserInfo.dto.OperationStatusResponse;
-import partners.UserInfo.dto.PersonalDataDTO;
-import partners.UserInfo.dto.PersonalDataResponse;
+import partners.UserInfo.dto.*;
 import partners.UserInfo.exception.CantSaveImageException;
 import partners.UserInfo.exception.CantSaveUserException;
-import partners.UserInfo.exception.NoImageException;
 import partners.UserInfo.service.UserInfoService;
 
 import java.io.IOException;
@@ -38,15 +33,27 @@ public class UserInfoController {
         return ResponseEntity.ok(personalData);
     }
 
-    @GetMapping(value = "/image")
-    public ResponseEntity<GetImageResponse> getUserPassport (@RequestHeader Long userId) throws IOException{
-        GetImageResponse images = userInfoService.getUserImages(userId);
+    @GetMapping(value = "/avatar")
+    public ResponseEntity<GetAvatarResponse> getAvatar (@RequestHeader Long userId) throws IOException{
+        GetAvatarResponse images = userInfoService.getAvatar(userId);
         return ResponseEntity.ok(images);
     }
 
-    @PostMapping(value = "/image")
-    public ResponseEntity<OperationStatusResponse> saveImage (@RequestHeader Long userId, @RequestBody MultipartFile image) throws IOException, CantSaveImageException {
-        OperationStatusResponse response = userInfoService.saveImage(image, userId);
+    @PostMapping(value = "/avatar")
+    public ResponseEntity<OperationStatusResponse> saveAvatar (@RequestHeader Long userId, @RequestBody MultipartFile image) throws IOException, CantSaveImageException {
+        OperationStatusResponse response = userInfoService.saveAvatar(image, userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/passport")
+    public ResponseEntity<OperationStatusResponse> savePassportImages(@RequestHeader Long userId, @RequestBody MultipartFile[] images) throws IOException, CantSaveImageException {
+        OperationStatusResponse response = userInfoService.savePassportImages(userId, images);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/passport")
+    public ResponseEntity<GetPassportResponse> getPassportImages(@RequestHeader Long userId){
+        GetPassportResponse response = userInfoService.getPassportImages(userId);
         return ResponseEntity.ok(response);
     }
 }
