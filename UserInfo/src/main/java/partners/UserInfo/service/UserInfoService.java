@@ -78,10 +78,14 @@ public class UserInfoService {
             throw new CantSaveImageException(Constants.KEY_EXCEPTION_CANT_SAVE_IMAGE, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    public OperationStatusResponse savePassportImages(Long userId, MultipartFile[] images) throws IOException {
+    public OperationStatusResponse savePassportImages(Long userId, MultipartFile[] images){
         try {
             for (int i = 0; i < images.length; i++) {
-                String imagePath = Constants.KEY_IMAGES_PASSPORT_PATH + userId + "/" + i + Constants.KEY_DEFAULT_IMAGES_EXTENSION;
+                String imagePath = Constants.KEY_IMAGES_PASSPORT_PATH + userId;
+                File directory = new File(imagePath);
+                if (!directory.exists())
+                    directory.mkdirs();
+                imagePath += "/" + i + Constants.KEY_DEFAULT_IMAGES_EXTENSION;
                 File anotherPassportImage = new File(imagePath);
                 images[i].transferTo(anotherPassportImage);
                 File checkFile = new File(imagePath);
