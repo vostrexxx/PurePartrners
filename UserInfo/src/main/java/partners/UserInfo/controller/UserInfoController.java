@@ -3,6 +3,7 @@ package partners.UserInfo.controller;
 
 import jakarta.servlet.ServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,6 +33,13 @@ public class UserInfoController {
         PersonalDataResponse personalData = userInfoService.getPersonalData(userId);
         return ResponseEntity.ok(personalData);
     }
+
+    @GetMapping(value = "/image")
+    public ResponseEntity<Resource> getImageByPath(@RequestParam String imagePath){
+        Resource response = userInfoService.getImageByPath(imagePath);
+        return ResponseEntity.ok(response);
+    }
+
 
     @GetMapping(value = "/avatar")
     public ResponseEntity<GetAvatarResponse> getAvatar (@RequestHeader Long userId) throws IOException{

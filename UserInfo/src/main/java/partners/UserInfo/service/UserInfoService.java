@@ -3,6 +3,7 @@ package partners.UserInfo.service;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FileUtils;
 import org.modelmapper.ModelMapper;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
@@ -51,6 +52,13 @@ public class UserInfoService {
             return new PersonalDataResponse(0, null);
         UserInfo actualUserInfo = userInfo.get();
         PersonalDataDTO personalDataDTO = modelMapper.map(actualUserInfo, PersonalDataDTO.class);
+        String avatarPath = Constants.KEY_IMAGES_AVATAR_PATH + userId;
+        File dir = new File(avatarPath);
+        if (dir.exists() && dir.isDirectory() && dir.list().length > 0) {
+            String resultPath = "avatar/" + userId + "/1" + Constants.KEY_DEFAULT_IMAGES_EXTENSION;
+            personalDataDTO.setAvatar(resultPath);
+        } else
+            personalDataDTO.setAvatar(null);
         return new PersonalDataResponse(1, personalDataDTO);
     }
 
@@ -120,5 +128,14 @@ public class UserInfoService {
             }
         } else
             return new GetPassportResponse(0, null);
+    }
+
+    public Resource getImageByPath(String imagePath){
+        String fullImagePath = Constants.KEY_IMAGES_DEFAULT_PATH + imagePath;
+        File file = new File(fullImagePath);
+        if (file.exists()){
+            return new FileSystemResource(file);
+        } else
+            return null;
     }
 }
