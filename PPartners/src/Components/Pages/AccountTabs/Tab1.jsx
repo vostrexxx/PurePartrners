@@ -16,9 +16,12 @@ const ProfilePage = () => {
     const [token, setToken] = useState('');
     const [isEditable, setIsEditable] = useState(false);
     const [isDataLoaded, setIsDataLoaded] = useState(false);
-    const [isUserRegistered, setIsUserRegistered] = useState(true);
+    // const [isUserRegistered, setIsUserRegistered] = useState(true);
     const [selectedImage, setSelectedImage] = useState(null);
     const [imageFile, setImageFile] = useState(null); // Хранение файла изображения
+
+    const [selectedImages, setSelectedImages] = useState([]); // Массив для хранения выбранных изображений
+    const [imageFiles, setImageFiles] = useState([]); // Массив для файлов изображений
 
     useEffect(() => {
         const authToken = getAuthToken();
@@ -32,7 +35,7 @@ const ProfilePage = () => {
                         'Authorization': `Bearer ${authToken}`,
                     },
                 }),
-                fetch(url + '/profile/image', {
+                fetch(url + '/profile/avatar', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${authToken}`,
@@ -43,21 +46,21 @@ const ProfilePage = () => {
                 // Обработайте JSON ответ для профиля
                 return Promise.all([
                     profileResponse.json(),
-                    photoResponse.blob() // Получите изображение как blob
+                    photoResponse.json() // Теперь ожидаем Base64 строку
                 ]);
             })
-            .then(([profileData, photoBlob]) => {
+            .then(([profileData, photoData]) => {
                 if (profileData.success === 1) {
                     setProfileData(profileData.profile); // Заполняем форму данными профиля
                     setIsEditable(false); // Поля изначально не редактируемы
                 } else {
                     setIsUserRegistered(false); // Если профиль не найден, показываем форму регистрации
                 }
-
-                // Создайте URL для изображения и установите его в состояние
-                const photoURL = URL.createObjectURL(photoBlob);
-                setSelectedImage(photoURL);
-
+    
+                // Если фотография пришла как Base64, устанавливаем её в состояние
+                const base64Image = `data:image/jpeg;base64,${photoData.image}`; // Замените на соответствующее поле
+                setSelectedImage(base64Image);
+    
                 setIsDataLoaded(true); // Данные загружены
             })
             .catch(error => {
@@ -69,6 +72,70 @@ const ProfilePage = () => {
             setIsDataLoaded(true); // Данные не нужны, так как это форма регистрации
         }
     }, []);
+    
+    // Обработка изменения файлов
+    const handleImageChange = (event) => {
+        const files = Array.from(event.target.files); // Преобразуем FileList в массив
+
+        // Ограничение на количество файлов (не более 3)
+        if (files.length > 3) {
+            alert('Вы можете загрузить не более 3 изображений.');
+            return;
+        }
+
+        // Создаем массив URL для отображения превью изображений
+        const imageUrls = files.map(file => URL.createObjectURL(file));
+        
+        setSelectedImages(imageUrls); // Устанавливаем URL для отображения
+        setImageFiles(files); // Сохраняем сами файлы для отправки
+    };
+
+    // Удаление одного изображения
+    const handleRemoveImages = (index) => {
+        const updatedImages = selectedImages.filter((_, i) => i !== index);
+        const updatedFiles = imageFiles.filter((_, i) => i !== index);
+        setSelectedImages(updatedImages);
+        setImageFiles(updatedFiles);
+    };
+
+  // Отправка фото на сервер
+  const handleSubmitPhotos = async () => {
+    if (imageFiles.length === 0) {
+        alert('Пожалуйста, выберите как минимум одно изображение.');
+        return;
+    }
+
+    const formData = new FormData();
+    imageFiles.forEach((file, index) => {
+        formData.append(`image_${index + 1}`, file); // Добавляем каждый файл в formData
+    });
+
+    try {
+        const response = await fetch(url + '/passport/photos', { // Укажи здесь свой URL
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`, // Укажи здесь свой токен
+            },
+            body: formData, // Отправляем FormData с изображениями
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            alert('Фото успешно загружены!');
+            // Обновляем состояние после успешной загрузки
+            setSelectedImages([]);
+            setImageFiles([]);
+        } else {
+            alert('Ошибка при загрузке фото.');
+        }
+    } catch (error) {
+        console.error('Ошибка при загрузке фото:', error);
+        alert('Произошла ошибка. Попробуйте снова.');
+    }
+};
+
+
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -86,7 +153,7 @@ const ProfilePage = () => {
         }));
     };
 
-    const handleImageChange = (event) => {
+    const handleImagesChange = (event) => {
         if (event.target.files && event.target.files.length > 0) {
             const file = event.target.files[0];
             console.log(file)
@@ -141,7 +208,7 @@ const ProfilePage = () => {
         formData.append('image', imageFile); // Добавляем файл в FormData
 
         try {
-            const response = await fetch(url + '/profile/image', {
+            const response = await fetch(url + '/profile/avatar', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -171,7 +238,41 @@ const ProfilePage = () => {
 
     return (
         <div>
-            <h2>Фото выполненных проектов</h2>
+            <h2>Ваши фото паспортных данных</h2>
+            <div>
+                {selectedImages.length > 0 ? (
+                    <div>
+                        {selectedImages.map((image, index) => (
+                            <div key={index} style={{ marginBottom: "10px" }}>
+                                <img
+                                    src={image}
+                                    alt={`Uploaded ${index + 1}`}
+                                    style={{ width: "300px", marginTop: "20px" }}
+                                />
+                                <button 
+                                    onClick={() => handleRemoveImages(index)} 
+                                    style={{ display: "block", marginTop: "10px" }}
+                                >
+                                    Удалить
+                                </button>
+                            </div>
+                        ))}
+                        <button onClick={handleSubmitPhotos} style={{ display: "block", marginTop: "10px" }}>
+                            Сохранить все фото
+                        </button>
+                    </div>
+                ) : (
+                    <div>
+                        <input 
+                            type="file" 
+                            accept="image/*" 
+                            multiple // Позволяет выбрать несколько изображений
+                            onChange={handleImagesChange}
+                        />
+                    </div>
+                )}
+            </div>
+            <h2>Ваше фото профиля</h2>
             <div>
                 {selectedImage ? (
                     <div>
@@ -195,6 +296,7 @@ const ProfilePage = () => {
                     </div>
                 )}
             </div>
+
             <h2>Личные данные</h2>
             <div>
                 <label>Имя:</label>

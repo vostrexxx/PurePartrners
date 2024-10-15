@@ -44,34 +44,6 @@ const IdentificationPage = () => {
         }
     };
 
-    // const handleSubmit = async () => {
-    //     if (isValid) {
-    //         try {
-    //             // заглушка для POST запроса))
-    //             const mockResponse = await new Promise((resolve) => {
-    //                 setTimeout(() => {
-    //                     resolve({
-    //                         json: () => Promise.resolve({ success: 0 }),
-    //                     });
-    //                 }, 1000);
-    //             });
-    //             const data = await mockResponse.json();
-    //             console.log(data.success)
-
-    //             if (data.success) {
-    //                 navigate('/login');
-    //             } else {
-    //                 navigate('/register');
-    //             }
-    //         } catch (error) {
-    //             console.error('Ошибка:', error);
-    //         }
-    //     } else {
-    //         alert("Неверный формат номера телефона. Введите в формате: +79164331768");
-    //     }
-    // };
-
-
     return (
         <div>
             <label>Введите номер телефона:</label>

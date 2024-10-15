@@ -18,6 +18,11 @@ const FormField = ({ type, label, name, placeholder, value, onChange, disabled, 
     );
 };
 let url = localStorage.getItem('url')
+// /questionnaire/preview get c токеном -> id анкеты и categoriesOfWork
+// '/questionnaire/' + id анкеты
+
+// /customer/preview get c токеном -> id анкеты и categoriesOfWork
+// '/customer/' + id анкеты
 
 const FormPage = () => {
     const [formData, setFormData] = useState({
@@ -51,14 +56,14 @@ const FormPage = () => {
 
             try {
                 const [contractorResponse, imageResponse] = await Promise.all([
-                    fetch(url + '/contractor', {
+                    fetch(url + '/questionnaire/', {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${authToken}`
                         }
                     }),
-                    fetch(url + '/contractor/image', {
+                    fetch(url + '/questionnaire/image', {
                         method: 'GET',
                         headers: {
                             'Authorization': `Bearer ${authToken}`,
