@@ -150,7 +150,7 @@ public class UserInfoService {
     }
 
     public Resource getImageByPath(ImagePathRequest imagePath){
-        String fullImagePath = Constants.KEY_IMAGES_DEFAULT_PATH + imagePath;
+        String fullImagePath = Constants.KEY_IMAGES_DEFAULT_PATH + imagePath.getImagePath();
         File file = new File(fullImagePath);
         if (file.exists()){
             return new FileSystemResource(file);
