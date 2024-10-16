@@ -35,7 +35,7 @@ public class UserInfoController {
     }
 
     @PostMapping(value = "/image")
-    public ResponseEntity<Resource> getImageByPath(@RequestBody String imagePath){
+    public ResponseEntity<Resource> getImageByPath(@RequestBody ImagePathRequest imagePath){
         Resource response = userInfoService.getImageByPath(imagePath);
         return ResponseEntity.ok(response);
     }
