@@ -149,8 +149,8 @@ public class UserInfoService {
             return new GetPassportResponse(0, null);
     }
 
-    public Resource getImageByPath(ImagePathRequest imagePath){
-        String fullImagePath = Constants.KEY_IMAGES_DEFAULT_PATH + imagePath.getImagePath();
+    public Resource getImageByPath(String imagePath){
+        String fullImagePath = Constants.KEY_IMAGES_DEFAULT_PATH + imagePath;
         File file = new File(fullImagePath);
         if (file.exists()){
             return new FileSystemResource(file);
