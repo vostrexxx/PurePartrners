@@ -52,13 +52,31 @@ public class UserInfoService {
             return new PersonalDataResponse(0, null);
         UserInfo actualUserInfo = userInfo.get();
         PersonalDataDTO personalDataDTO = modelMapper.map(actualUserInfo, PersonalDataDTO.class);
+
+        //Получение ссылки на авватар
         String avatarPath = Constants.KEY_IMAGES_AVATAR_PATH + userId;
-        File dir = new File(avatarPath);
-        if (dir.exists() && dir.isDirectory() && dir.list().length > 0) {
+        File avatarDir = new File(avatarPath);
+        if (avatarDir.exists() && avatarDir.isDirectory() && avatarDir.list().length > 0) {
             String resultPath = "avatar/" + userId + "/1" + Constants.KEY_DEFAULT_IMAGES_EXTENSION;
             personalDataDTO.setAvatar(resultPath);
         } else
             personalDataDTO.setAvatar(null);
+
+        //Получение ссылок на изображения паспорта
+        String passportPath = Constants.KEY_IMAGES_PASSPORT_PATH + userId;
+        File passportDir = new File(passportPath);
+        List<String> passportImages = new ArrayList<>();
+        if (passportDir.exists() && passportDir.isDirectory() && passportDir.list().length > 0) {
+            for (File file : passportDir.listFiles()){
+                if (file.isFile()){
+                    String imagePath = "passport/" + userId + file.getName() + Constants.KEY_DEFAULT_IMAGES_EXTENSION;
+                    passportImages.add(imagePath);
+                }
+            }
+        } else
+            passportImages = null;
+        personalDataDTO.setPassport(passportImages);
+
         return new PersonalDataResponse(1, personalDataDTO);
     }
 
@@ -130,12 +148,12 @@ public class UserInfoService {
             return new GetPassportResponse(0, null);
     }
 
-    public Resource getImageByPath(String imagePath){
+    public GetImageResponse getImageByPath(String imagePath){
         String fullImagePath = Constants.KEY_IMAGES_DEFAULT_PATH + imagePath;
         File file = new File(fullImagePath);
         if (file.exists()){
-            return new FileSystemResource(file);
+            return new GetImageResponse(1, new FileSystemResource(imagePath));
         } else
-            return null;
+            return new GetImageResponse(0, null);
     }
 }

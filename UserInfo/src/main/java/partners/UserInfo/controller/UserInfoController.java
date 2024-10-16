@@ -35,17 +35,17 @@ public class UserInfoController {
     }
 
     @PostMapping(value = "/image")
-    public ResponseEntity<Resource> getImageByPath(@RequestBody String imagePath){
-        Resource response = userInfoService.getImageByPath(imagePath);
+    public ResponseEntity<GetImageResponse> getImageByPath(@RequestBody String imagePath){
+        GetImageResponse response = userInfoService.getImageByPath(imagePath);
         return ResponseEntity.ok(response);
     }
 
 
-    @GetMapping(value = "/avatar")
-    public ResponseEntity<GetAvatarResponse> getAvatar (@RequestHeader Long userId) throws IOException{
-        GetAvatarResponse images = userInfoService.getAvatar(userId);
-        return ResponseEntity.ok(images);
-    }
+//    @GetMapping(value = "/avatar")
+//    public ResponseEntity<GetAvatarResponse> getAvatar (@RequestHeader Long userId) throws IOException{
+//        GetAvatarResponse images = userInfoService.getAvatar(userId);
+//        return ResponseEntity.ok(images);
+//    }
 
     @PostMapping(value = "/avatar")
     public ResponseEntity<OperationStatusResponse> saveAvatar (@RequestHeader Long userId, @RequestBody MultipartFile image) throws IOException, CantSaveImageException {
@@ -54,7 +54,7 @@ public class UserInfoController {
     }
 
     @PostMapping("/passport")
-    public ResponseEntity<OperationStatusResponse> savePassportImages(@RequestHeader Long userId, @RequestBody MultipartFile[] images) throws IOException, CantSaveImageException {
+    public ResponseEntity<OperationStatusResponse> savePassportImages(@RequestHeader Long userId, @RequestBody MultipartFile[] images){
         OperationStatusResponse response = userInfoService.savePassportImages(userId, images);
         return ResponseEntity.ok(response);
     }
