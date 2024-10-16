@@ -1,5 +1,6 @@
 package partners.UserInfo.service;
 
+import jakarta.ws.rs.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FileUtils;
 import org.modelmapper.ModelMapper;
@@ -148,12 +149,12 @@ public class UserInfoService {
             return new GetPassportResponse(0, null);
     }
 
-    public GetImageResponse getImageByPath(String imagePath){
+    public Resource getImageByPath(String imagePath){
         String fullImagePath = Constants.KEY_IMAGES_DEFAULT_PATH + imagePath;
         File file = new File(fullImagePath);
         if (file.exists()){
-            return new GetImageResponse(1, new FileSystemResource(file));
+            return new FileSystemResource(file);
         } else
-            return new GetImageResponse(0, null);
+            return null;
     }
 }
