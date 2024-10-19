@@ -40,16 +40,15 @@ public class UserInfoController {
         return ResponseEntity.ok(response);
     }
 
-
-//    @GetMapping(value = "/avatar")
-//    public ResponseEntity<GetAvatarResponse> getAvatar (@RequestHeader Long userId) throws IOException{
-//        GetAvatarResponse images = userInfoService.getAvatar(userId);
-//        return ResponseEntity.ok(images);
-//    }
-
     @PostMapping(value = "/avatar")
     public ResponseEntity<OperationStatusResponse> saveAvatar (@RequestHeader Long userId, @RequestBody MultipartFile image) throws IOException, CantSaveImageException {
         OperationStatusResponse response = userInfoService.saveAvatar(image, userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/image")
+    public ResponseEntity<OperationStatusResponse> deleteAvatar(@RequestParam String imagePath) throws IOException {
+        OperationStatusResponse response = userInfoService.deleteAvatar(imagePath);
         return ResponseEntity.ok(response);
     }
 

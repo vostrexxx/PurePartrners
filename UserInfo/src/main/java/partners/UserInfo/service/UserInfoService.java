@@ -20,6 +20,7 @@ import partners.UserInfo.repository.UserInfoRepository;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -156,5 +157,15 @@ public class UserInfoService {
             return new FileSystemResource(file);
         } else
             return null;
+    }
+
+    public OperationStatusResponse deleteAvatar(String imagePath) throws IOException {
+        String fullImagePath = Constants.KEY_IMAGES_DEFAULT_PATH + imagePath;
+        File file = new File(fullImagePath);
+        boolean success = Files.deleteIfExists(file.toPath());
+        if (success)
+            return new OperationStatusResponse(1);
+        else
+            return new OperationStatusResponse(0);
     }
 }
