@@ -13,4 +13,5 @@ import java.util.Optional;
 public interface QuestionnaireRepository extends JpaRepository<Questionnaire, Long> {
     List<Questionnaire> findAllByUserId(Long userId);
     Optional<Questionnaire> findByUserId(Long userId);
+    List<Questionnaire> findAllByUserIdNot(Long userId);
 }

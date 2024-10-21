@@ -55,4 +55,10 @@ public class QuestionnaireController {
         return ResponseEntity.ok(previews);
     }
 
+    @GetMapping("/filter")
+    public ResponseEntity<GetAllPreviews> filterQuestionnaires(@RequestHeader Long userId){
+        GetAllPreviews previews = questionnaireService.filterQuestionnaires(userId);
+        return ResponseEntity.ok(previews);
+    }
+
 }

@@ -116,4 +116,16 @@ public class QuestionnaireService {
         return new GetAllPreviews(1, questionnairePreviews);
     }
 
+    public GetAllPreviews filterQuestionnaires(Long userId){
+        List<Questionnaire> previews = questionnaireRepository.findAllByUserIdNot(userId);
+        List<QuestionnairePreview> questionnairePreviews = new ArrayList<>();
+        for (Questionnaire questionnaire : previews) {
+            QuestionnairePreview questionnairePreview = modelMapper.map(questionnaire, QuestionnairePreview.class);
+            questionnairePreviews.add(questionnairePreview);
+        }
+        if (previews.isEmpty())
+            return new GetAllPreviews(0, null);
+        return new GetAllPreviews(1, questionnairePreviews);
+    }
+
 }
