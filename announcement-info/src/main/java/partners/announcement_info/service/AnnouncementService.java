@@ -86,8 +86,6 @@ public class AnnouncementService {
             AnnouncementInfoPreview anotherPreview = modelMapper.map(announcement, AnnouncementInfoPreview.class);
             announcementInfoPreviews.add(anotherPreview);
         }
-        if (announcementInfoPreviews.isEmpty())
-            return new GetAllPreviews(0, null);
         return new GetAllPreviews(1, announcementInfoPreviews);
     }
 

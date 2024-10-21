@@ -111,8 +111,6 @@ public class QuestionnaireService {
             QuestionnairePreview questionnairePreview = modelMapper.map(questionnaire, QuestionnairePreview.class);
             questionnairePreviews.add(questionnairePreview);
         }
-        if (previews.isEmpty())
-            return new GetAllPreviews(0, null);
         return new GetAllPreviews(1, questionnairePreviews);
     }
 
