@@ -1,6 +1,7 @@
 package partners.questionnaireInfo.controller;
 
 import lombok.AllArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,7 +20,7 @@ public class QuestionnaireController {
     private final QuestionnaireService questionnaireService;
 
     @PostMapping("")
-    public ResponseEntity<OperationStatusResponse> createQuestionnaire(@RequestHeader Long userId, @RequestBody QuestionnaireInfo questionnaire){
+    public ResponseEntity<OperationStatusResponse> saveQuestionnaire(@RequestHeader Long userId, @RequestBody QuestionnaireInfo questionnaire){
         OperationStatusResponse response = questionnaireService.saveQuestionnaire(userId, questionnaire);
         return ResponseEntity.ok(response);
     }
@@ -31,14 +32,20 @@ public class QuestionnaireController {
     }
 
     @GetMapping("/image")
-    public ResponseEntity<GetImageResponse> getCompletedImage(@RequestHeader Long userId) throws IOException {
-        GetImageResponse image = questionnaireService.getCompletedImage(userId);
+    public ResponseEntity<Resource> getImageByPath(@RequestParam String imagePath){
+        Resource image = questionnaireService.getImageByPath(imagePath);
         return ResponseEntity.ok(image);
     }
 
     @PostMapping("/image")
-    public ResponseEntity<OperationStatusResponse> saveCompletedImage(@RequestHeader Long userId, @RequestBody MultipartFile image) throws IOException {
-        OperationStatusResponse response = questionnaireService.saveCompletedImage(userId, image);
+    public ResponseEntity<OperationStatusResponse> saveImages(@RequestBody SaveQuestionnaireImages images) throws IOException {
+        OperationStatusResponse response = questionnaireService.saveQuestionnaireImages(images);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/image")
+    public ResponseEntity<OperationStatusResponse> deleteImageByPath(@RequestParam String imagePath) throws IOException {
+        OperationStatusResponse response = questionnaireService.deleteImageByPath(imagePath);
         return ResponseEntity.ok(response);
     }
 

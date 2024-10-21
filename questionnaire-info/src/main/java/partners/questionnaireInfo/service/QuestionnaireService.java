@@ -3,6 +3,7 @@ package partners.questionnaireInfo.service;
 import jakarta.ws.rs.InternalServerErrorException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import partners.questionnaireInfo.repository.QuestionnaireRepository;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,30 +47,61 @@ public class QuestionnaireService {
             return new GetQuestionnaireInfoResponse(0, null);
         Questionnaire actualQuestionnaireData = contractor.get();
         QuestionnaireInfo questionnaireInfo = modelMapper.map(actualQuestionnaireData, QuestionnaireInfo.class);
+
+        //Получение изображений для анкеты
+        String questionnaireImagePath = Constants.KEY_DEFAULT_IMAGES_PATH + questionnaireId;
+        File directory = new File(questionnaireImagePath);
+        List<String> questionnaireImages = new ArrayList<>();
+        if (directory.exists() && directory.isDirectory() && directory.list().length > 0) {
+            for (File file : directory.listFiles()){
+                if (file.isFile()){
+                    String imagePath = questionnaireId + file.getName();
+                    questionnaireImages.add(imagePath);
+                }
+            }
+        } else
+            questionnaireImages = null;
+
+        questionnaireInfo.setQuestionnaireImages(questionnaireImages);
         return new GetQuestionnaireInfoResponse(1, questionnaireInfo);
     }
 
-    public GetImageResponse getCompletedImage(Long userId) throws IOException {
-        Path firstImagePath = Path.of(Constants.KEY_IMAGES_PATH + userId + Constants.KEY_IMAGES_DEFAULT_EXTENSION);
-        File isFileExists = new File(firstImagePath.toUri());
-        if (isFileExists.isFile()) {    
-            Resource resource = new UrlResource(firstImagePath.toUri());
-            byte[] image =StreamUtils.copyToByteArray(resource.getInputStream());
-            return new GetImageResponse(1, image);
-        }
-        else
-            return new GetImageResponse(0, null);
+    public Resource getImageByPath(String imagePath){
+        String fullImagePath = Constants.KEY_DEFAULT_IMAGES_PATH + imagePath;
+        File file = new File(fullImagePath);
+        if (file.exists()){
+            return new FileSystemResource(file);
+        } else
+            return null;
     }
 
-    public OperationStatusResponse saveCompletedImage(Long userId, MultipartFile image) throws IOException {
-        String imagePath = Constants.KEY_IMAGES_PATH + userId + Constants.KEY_IMAGES_DEFAULT_EXTENSION;
-        File userImage = new File(imagePath);
-        image.transferTo(userImage.toPath());
-        File checkFile = new File(imagePath);
-        if (checkFile.isFile())
+    public OperationStatusResponse deleteImageByPath(String imagePath) throws IOException {
+        String fullImagePath = Constants.KEY_DEFAULT_IMAGES_PATH + imagePath;
+        File file = new File(fullImagePath);
+        boolean success = Files.deleteIfExists(file.toPath());
+        if (success)
             return new OperationStatusResponse(1);
         else
-            throw new InternalServerErrorException(Constants.KEY_EXCEPTION_CANT_SAVE_IMAGE);
+            return new OperationStatusResponse(0);
+    }
+
+    public OperationStatusResponse saveQuestionnaireImages(SaveQuestionnaireImages images) throws IOException {
+        Long questionnaireId = images.getQuestionnaireId();
+        MultipartFile[] questionnaireImages = images.getQuestionnaireImages();
+
+        for (int i = 0; i < questionnaireImages.length; i++){
+            String imagePath = Constants.KEY_DEFAULT_IMAGES_PATH + questionnaireId;
+            File directory = new File(imagePath);
+            if (!directory.exists())
+                directory.mkdirs();
+            imagePath += "/" + i + Constants.KEY_DEFAULT_IMAGES_EXTENSION;
+            File userImage = new File(imagePath);
+            questionnaireImages[i].transferTo(userImage.toPath());
+            File checkFile = new File(imagePath);
+            if (!checkFile.isFile())
+                return new OperationStatusResponse(0);
+        }
+        return new OperationStatusResponse(1);
     }
 
     public GetAllPreviews getAllQuestionnairesPreviews(Long userId){

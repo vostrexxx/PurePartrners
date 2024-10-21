@@ -53,14 +53,8 @@ public class UserInfoController {
     }
 
     @PostMapping("/passport")
-    public ResponseEntity<OperationStatusResponse> savePassportImages(@RequestHeader Long userId, @RequestBody MultipartFile[] images){
-        OperationStatusResponse response = userInfoService.savePassportImages(userId, images);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/passport")
-    public ResponseEntity<GetPassportResponse> getPassportImages(@RequestHeader Long userId){
-        GetPassportResponse response = userInfoService.getPassportImages(userId);
+    public ResponseEntity<OperationStatusResponse> savePassportImages(@RequestHeader Long userId, @RequestPart(value = "image") MultipartFile image, @RequestParam(value = "page") int page) throws IOException {
+        OperationStatusResponse response = userInfoService.savePassportImages(userId, image, page);
         return ResponseEntity.ok(response);
     }
 }

@@ -71,7 +71,7 @@ public class UserInfoService {
         if (passportDir.exists() && passportDir.isDirectory() && passportDir.list().length > 0) {
             for (File file : passportDir.listFiles()){
                 if (file.isFile()){
-                    String imagePath = "passport/" + userId + file.getName() + Constants.KEY_DEFAULT_IMAGES_EXTENSION;
+                    String imagePath = "passport/" + userId + "/" + file.getName();
                     passportImages.add(imagePath);
                 }
             }
@@ -110,20 +110,18 @@ public class UserInfoService {
             throw new CantSaveImageException(Constants.KEY_EXCEPTION_CANT_SAVE_IMAGE, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    public OperationStatusResponse savePassportImages(Long userId, MultipartFile[] images){
+    public OperationStatusResponse savePassportImages(Long userId, MultipartFile image, int page){
         try {
-            for (int i = 0; i < images.length; i++) {
-                String imagePath = Constants.KEY_IMAGES_PASSPORT_PATH + userId;
-                File directory = new File(imagePath);
-                if (!directory.exists())
-                    directory.mkdirs();
-                imagePath += "/" + i + Constants.KEY_DEFAULT_IMAGES_EXTENSION;
-                File anotherPassportImage = new File(imagePath);
-                images[i].transferTo(anotherPassportImage);
-                File checkFile = new File(imagePath);
-                if (!checkFile.isFile())
-                    return new OperationStatusResponse(0);
-            }
+            String imagePath = Constants.KEY_IMAGES_PASSPORT_PATH + userId;
+            File directory = new File(imagePath);
+            if (!directory.exists())
+                directory.mkdirs();
+            imagePath += "/" + page + Constants.KEY_DEFAULT_IMAGES_EXTENSION;
+            File anotherPassportImage = new File(imagePath);
+            image.transferTo(anotherPassportImage.toPath());
+            File checkFile = new File(imagePath);
+            if (!checkFile.isFile())
+                return new OperationStatusResponse(0);
             return new OperationStatusResponse(1);
         } catch (Exception e) {
             return new OperationStatusResponse(0);
