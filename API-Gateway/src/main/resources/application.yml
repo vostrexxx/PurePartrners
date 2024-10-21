@@ -50,10 +50,10 @@ spring:
           filters:
             - AuthenticationFilter
 
-        - id: customer-info
-          uri: lb://customer-info
+        - id: announcement-info
+          uri: lb://announcement-info
           predicates:
-            - Path=/customer/**
+            - Path=/announcement/**
           filters:
             - AuthenticationFilter
 
