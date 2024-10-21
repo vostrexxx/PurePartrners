@@ -8,6 +8,7 @@ import partners.announcement_info.dto.*;
 import partners.announcement_info.service.AnnouncementService;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -48,8 +49,14 @@ public class AnnouncementController {
     }
 
     @GetMapping("/preview")
-    public ResponseEntity<GetAllPreviews> getAllPreviews(@RequestHeader Long userId){
-        GetAllPreviews response = service.getAllPreviews(userId);
+    public ResponseEntity<GetAllPreviews> getAllCustomerPreviews(@RequestHeader Long userId){
+        GetAllPreviews response = service.getAllCustomerPreviews(userId);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<GetAllPreviews> filter(@RequestHeader Long userId){
+        GetAllPreviews allPreviews = service.filterPreviews(userId);
+        return ResponseEntity.ok(allPreviews);
     }
 }

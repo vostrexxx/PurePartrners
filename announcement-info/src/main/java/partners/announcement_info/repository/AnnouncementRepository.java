@@ -10,4 +10,5 @@ import java.util.Optional;
 @Repository
 public interface AnnouncementRepository extends JpaRepository<Announcement, Long> {
     List<Announcement> findAllByUserId(Long userId);
+    List<Announcement> findAllByUserIdNot(Long userId);
 }

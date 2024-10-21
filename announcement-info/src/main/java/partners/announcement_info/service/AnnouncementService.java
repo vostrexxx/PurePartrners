@@ -79,8 +79,20 @@ public class AnnouncementService {
         return new OperationStatusResponse(1);
     }
 
-    public GetAllPreviews getAllPreviews(Long userId){
+    public GetAllPreviews getAllCustomerPreviews(Long userId){
         List<Announcement> previews = repository.findAllByUserId(userId);
+        List<AnnouncementInfoPreview> announcementInfoPreviews = new ArrayList<>();
+        for (Announcement announcement : previews){
+            AnnouncementInfoPreview anotherPreview = modelMapper.map(announcement, AnnouncementInfoPreview.class);
+            announcementInfoPreviews.add(anotherPreview);
+        }
+        if (announcementInfoPreviews.isEmpty())
+            return new GetAllPreviews(0, null);
+        return new GetAllPreviews(1, announcementInfoPreviews);
+    }
+
+    public GetAllPreviews filterPreviews(Long userId){
+        List<Announcement> previews = repository.findAllByUserIdNot(userId);
         List<AnnouncementInfoPreview> announcementInfoPreviews = new ArrayList<>();
         for (Announcement announcement : previews){
             AnnouncementInfoPreview anotherPreview = modelMapper.map(announcement, AnnouncementInfoPreview.class);
