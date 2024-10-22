@@ -1,4 +1,4 @@
-import React, { useState } from 'react'; // Добавляем импорт useState
+import React, { useEffect, useState } from 'react'; // Добавляем импорт useState
 import { Switch } from '@mui/material';
 import { useProfile } from '../../Context/ProfileContext'; // Импортируем хук профиля
 import { useNavigate } from 'react-router-dom';
@@ -8,10 +8,67 @@ const MainPage = () => {
     const { isSpecialist, toggleProfile } = useProfile(); // Доступ к состоянию профиля
     const navigate = useNavigate();
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const getAuthToken = () => localStorage.getItem('authToken');
+
+    // Функциаонал под карточки объявлений и анкет
+    const [announcements, setAnnouncements] = useState();
+    const [questionnaires, setQuestionnaires] = useState();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    let url = localStorage.getItem('url');
+
 
     const toggleDropdown = () => {
         setDropdownOpen(!dropdownOpen);
     };
+
+    useEffect(() => {
+        // Чистим данные при переключении
+        setAnnouncements([])
+        setQuestionnaires([])
+        setLoading(true);
+        setError(null);
+
+        const fetchData = async () =>{
+            try {
+                let response;
+                if (isSpecialist){
+                    // console.log(isSpecialist, url + 'questionnaire/filter')
+                    // Если активен спец, то делаем запрос на анкеты
+                    response = await fetch(url + '/questionnaire/filter', {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${getAuthToken()}`,
+                        }
+                    });
+                    const data = await response.json();
+                    // Устанавливаем данные под анкеты 
+                    setQuestionnaires(data);
+                } else {
+                    // Если активен заказчик, то делаем запрос на объявы
+                    response = await fetch(url + '/announcement/filter', {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${getAuthToken()}`,
+                        }
+                    });
+                    const data = await response.json();
+                    // Устанавливаем данные под объявы 
+                    setAnnouncements(data)
+                }
+            } catch (error) {
+                setError('Чё-то бля ошибки какие-то я хз че там')
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    // массив зависимостей
+    }, [isSpecialist]); // useEffect будет вызываться, когда будет изменяться isSpecialist,
+    //  он как бы слушается на изменения 
 
     return (
         <div>

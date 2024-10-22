@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 // Функция для получения токена
 const getAuthToken = () => localStorage.getItem('authToken');
-let url = localStorage.getItem('url')
+let url = localStorage.getItem('url');
 
 const ProfilePage = () => {
     const [profileData, setProfileData] = useState({
@@ -14,6 +14,7 @@ const ProfilePage = () => {
         birthday: '',
         isPassportConfirmed: false,
     });
+    
     const [token, setToken] = useState('');
     const [isEditable, setIsEditable] = useState(false);
     const [isDataLoaded, setIsDataLoaded] = useState(false);
@@ -22,16 +23,25 @@ const ProfilePage = () => {
     const [selectedProfileImage, setSelectedProfileImage] = useState(null);
     const [profileImageFile, setProfileImageFile] = useState(null);
 
-    // Состояние для фото паспортных данных
-    const [selectedPassportImages, setSelectedPassportImages] = useState([]);
-    const [passportImageFiles, setPassportImageFiles] = useState([]);
+    // Состояние для трех независимых фото паспорта
+    const [passportImage1, setPassportImage1] = useState(null);
+    const [passportImageFile1, setPassportImageFile1] = useState(null);
 
+    const [passportImage2, setPassportImage2] = useState(null);
+    const [passportImageFile2, setPassportImageFile2] = useState(null);
+
+    const [passportImage3, setPassportImage3] = useState(null);
+    const [passportImageFile3, setPassportImageFile3] = useState(null);
+
+    const [imagePath, setImagePath] = useState(null);
+
+    // Загружаем данные профиля и фото
     useEffect(() => {
         const authToken = getAuthToken();
         if (authToken) {
             setToken(authToken);
             
-            // Запрос на профиль пользователя
+            // Запрос на получение профиля пользователя
             fetch(url + '/profile', {
                 method: 'GET',
                 headers: {
@@ -39,41 +49,14 @@ const ProfilePage = () => {
                     'Authorization': `Bearer ${authToken}`,
                 }
             })
-            .then(response => response.json()) // Преобразуем ответ в JSON
+            .then(response => response.json())
             .then(profileData => {
-                // Проверяем, успешен ли ответ
                 if (profileData.success === 1) {
-                    setProfileData(profileData.profile); // Сохраняем данные профиля
-                    const imagePath = profileData.profile.avatar;
-        
-                    // Если аватара нет (avatar === null), не делаем запрос на изображение
-                    if (imagePath) {
-                        // Создаем новый URL для изображения, не изменяя базовый URL
-                        const imageUrl = `${url}/profile/image?imagePath=${encodeURIComponent(imagePath)}`;
-    
-                        // Запрос для получения аватара
-                        fetch(imageUrl, {
-                            method: 'GET',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${authToken}`,
-                            }
-                        })
-                        .then(response => response.blob()) 
-                        .then(photoBlob => {
-                            const photoURL = URL.createObjectURL(photoBlob);
-                            setSelectedProfileImage(photoURL); // Устанавливаем URL для отображения изображения
-                            setIsDataLoaded(true); // Данные загружены
-                        })
-                        .catch(error => {
-                            console.error('Ошибка при загрузке аватара:', error);
-                            setIsDataLoaded(true); // Устанавливаем флаг загрузки данных
-                        });
-                    } else {
-                        setIsDataLoaded(true); // Если аватара нет, данные загружены
-                    }
-                } else {
+                    setProfileData(profileData.profile);
+                    setImagePath(profileData.profile.avatar);
                     setIsDataLoaded(true);
+                } else {
+                    setIsDataLoaded(true); // Если профиль не найден
                 }
             })
             .catch(error => {
@@ -81,160 +64,109 @@ const ProfilePage = () => {
                 setIsDataLoaded(true);
             });
         } else {
-            setIsDataLoaded(true); // Если токена нет, данные не загружаются
+            setIsDataLoaded(true);
         }
     }, []);
-    
-    
 
-    // Обработка изменения профиля фото
-    const handleProfileImageChange = (event) => {
+    // Обработка изменения для каждой страницы паспорта
+    const handlePassportImageChange = (event, pageNumber) => {
         const file = event.target.files[0];
-        setProfileImageFile(file); // Сохраняем файл изображения
         const imageURL = URL.createObjectURL(file);
-        setSelectedProfileImage(imageURL); // Отображаем изображение
-    };
 
-    // Обработка изменения паспортных фото
-    const handlePassportImagesChange = (event) => {
-        const files = Array.from(event.target.files); // Преобразуем FileList в массив
-
-        // Ограничение на количество файлов (не более 3)
-        if (files.length > 3) {
-            alert('Вы можете загрузить не более 3 изображений.');
-            return;
+        switch(pageNumber) {
+            case 1:
+                setPassportImage1(imageURL);
+                setPassportImageFile1(file);
+                break;
+            case 2:
+                setPassportImage2(imageURL);
+                setPassportImageFile2(file);
+                break;
+            case 3:
+                setPassportImage3(imageURL);
+                setPassportImageFile3(file);
+                break;
+            default:
+                break;
         }
-
-        const imageUrls = files.map(file => URL.createObjectURL(file));
-        setSelectedPassportImages(imageUrls); // Устанавливаем URL для отображения
-        setPassportImageFiles(files); // Сохраняем сами файлы для отправки
     };
 
-    // Отправка фото профиля на сервер
-    const handleSubmitProfilePhoto = async () => {
-        if (!profileImageFile) {
+    // Отправка фото паспорта на сервер с указанием страницы (page)
+    const handleSubmitPassportImage = async (imageFile, page) => {
+        if (!imageFile) {
             alert('Пожалуйста, выберите файл.');
             return;
         }
 
         const formData = new FormData();
-        formData.append('image', profileImageFile); // Добавляем файл в FormData
+        formData.append('image', imageFile);
+        formData.append('page', page); // Отправляем номер страницы
 
         try {
-            const response = await fetch(url + '/profile/avatar', {
+            const response = await fetch(`${url}/profile/passport`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },
-                body: formData, // Отправляем FormData
+                body: formData,
             });
 
             const data = await response.json();
 
             if (data.success) {
-                alert('Фото профиля успешно загружено!');
+                alert(`Фото страницы ${page} паспорта успешно загружено!`);
             } else {
-                alert('Ошибка при загрузке фото профиля.');
+                alert(`Ошибка при загрузке фото страницы ${page}.`);
             }
         } catch (error) {
-            console.error('Ошибка при загрузке фото профиля:', error);
+            console.error(`Ошибка при загрузке фото страницы ${page}:`, error);
         }
     };
 
-    // Отправка паспортных фото на сервер
-    const handleSubmitPassportPhotos = async () => {
-        if (passportImageFiles.length === 0) {
-            alert('Пожалуйста, выберите как минимум одно изображение.');
-            return;
-        }
-
-        const formData = new FormData();
-        passportImageFiles.forEach((file, index) => {
-            formData.append(`image_${index + 1}`, file); // Добавляем каждый файл в formData
-        });
-
+    // Удаление фото паспорта с указанием страницы
+    const handleRemovePassportImage = async (page) => {
         try {
-            const response = await fetch(url + '/passport/photos', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: formData, // Отправляем FormData с изображениями
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                alert('Паспортные фото успешно загружены!');
-                setSelectedPassportImages([]); // Очищаем изображения после успешной загрузки
-                setPassportImageFiles([]);
-            } else {
-                alert('Ошибка при загрузке паспортных фото.');
-            }
-        } catch (error) {
-            console.error('Ошибка при загрузке паспортных фото:', error);
-        }
-    };
-
-    // Удаление выбранного изображения паспорта
-    const handleRemovePassportImage = (index) => {
-        const updatedImages = selectedPassportImages.filter((_, i) => i !== index);
-        const updatedFiles = passportImageFiles.filter((_, i) => i !== index);
-        setSelectedPassportImages(updatedImages);
-        setPassportImageFiles(updatedFiles);
-    };
-
-    // Удаление фото профиля
-    const handleRemoveProfileImage = () => {
-        setSelectedProfileImage(null);
-        setProfileImageFile(null); // Очищаем выбранное изображение
-    };
-
-    // Логика для редактирования личных данных
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setProfileData(prevData => ({
-            ...prevData,
-            [name]: value
-        }));
-    };
-
-    const handleEdit = () => {
-        setIsEditable(true); // Позволяем редактировать поля
-    };
-
-    const handleSubmitProfile = async () => {
-        try {
-            const response = await fetch(url + '/profile', {
-                method: 'POST',
+            const response = await fetch(`${url}/profile/passport`, {
+                method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`,
                 },
-                body: JSON.stringify(profileData),
+                body: JSON.stringify({ page }), // Указываем страницу для удаления
             });
 
             const data = await response.json();
 
             if (data.success) {
-                alert('Профиль успешно обновлен!');
-                setProfileData(data); // Обновляем данные профиля
-                setIsEditable(false); // Поля снова становятся не редактируемыми
+                alert(`Фото страницы ${page} паспорта успешно удалено!`);
+                switch(page) {
+                    case 1:
+                        setPassportImage1(null);
+                        setPassportImageFile1(null);
+                        break;
+                    case 2:
+                        setPassportImage2(null);
+                        setPassportImageFile2(null);
+                        break;
+                    case 3:
+                        setPassportImage3(null);
+                        setPassportImageFile3(null);
+                        break;
+                    default:
+                        break;
+                }
             } else {
-                alert('Ошибка при обновлении профиля.');
+                alert(`Ошибка при удалении фото страницы ${page}.`);
             }
         } catch (error) {
-            console.error('Ошибка при отправке запроса:', error);
-            alert('Произошла ошибка. Попробуйте снова.');
+            console.error(`Ошибка при удалении фото страницы ${page}:`, error);
         }
     };
 
-    if (!isDataLoaded) {
-        return <div>Ждём-ссс...</div>;
-    }
-
+    // Рендерим компонент
     return (
         <div>
+            {/* Фото профиля */}
             <h2>Ваше фото профиля</h2>
             <div>
                 {selectedProfileImage ? (
@@ -244,120 +176,71 @@ const ProfilePage = () => {
                             alt="Фото профиля"
                             style={{ width: "300px", marginTop: "20px" }}
                         />
-                        <button onClick={handleRemoveProfileImage} style={{ display: "block", marginTop: "10px" }}>
-                            Удалить
-                        </button>
-                        {profileImageFile && (
-                            <button onClick={handleSubmitProfilePhoto} style={{ display: "block", marginTop: "10px" }}>
-                                Сохранить фото профиля
-                            </button>
-                        )}
                     </div>
                 ) : (
                     <div>
-                        <input type="file" accept="image/*" onChange={handleProfileImageChange} />
+                        <input type="file" accept="image/*" onChange={event => handlePassportImageChange(event, 0)} />
                     </div>
                 )}
             </div>
 
-            <h2>Фото паспортных данных</h2>
+            {/* Формы для трех страниц паспорта */}
+            <h2>Фото страниц паспорта</h2>
             <div>
-                {selectedPassportImages.length > 0 ? (
-                    <div>
-                        {selectedPassportImages.map((image, index) => (
-                            <div key={index} style={{ marginBottom: "10px" }}>
-                                <img
-                                    src={image}
-                                    alt={`Паспортное фото ${index + 1}`}
-                                    style={{ width: "300px", marginTop: "20px" }}
-                                />
-                                <button onClick={() => handleRemovePassportImage(index)} style={{ display: "block", marginTop: "10px" }}>
-                                    Удалить
-                                </button>
-                            </div>
-                        ))}
-                        <button onClick={handleSubmitPassportPhotos} style={{ display: "block", marginTop: "10px" }}>
-                            Сохранить все паспортные фото
-                        </button>
-                    </div>
-                ) : (
-                    <div>
-                        <input type="file" accept="image/*" multiple onChange={handlePassportImagesChange} />
-                    </div>
-                )}
-            </div>
+                {/* Страница 1 */}
+                <div>
+                    <h3>Страница 1</h3>
+                    {passportImage1 ? (
+                        <div>
+                            <img src={passportImage1} alt="Страница 1 паспорта" style={{ width: "300px", marginTop: "20px" }} />
+                            <button onClick={() => handleRemovePassportImage(1)}>Удалить</button>
+                        </div>
+                    ) : (
+                        <div>
+                            <input type="file" accept="image/*" onChange={event => handlePassportImageChange(event, 1)} />
+                        </div>
+                    )}
+                    {passportImageFile1 && (
+                        <button onClick={() => handleSubmitPassportImage(passportImageFile1, 1)}>Сохранить</button>
+                    )}
+                </div>
 
-            <h2>Личные данные</h2>
-            <div>
-                <label>Имя:</label>
-                <input
-                    type="text"
-                    name="name"
-                    placeholder="Введите имя"
-                    value={profileData.name}
-                    onChange={handleInputChange}
-                    disabled={!isEditable}
-                />
+                {/* Страница 2 */}
+                <div>
+                    <h3>Страница 2</h3>
+                    {passportImage2 ? (
+                        <div>
+                            <img src={passportImage2} alt="Страница 2 паспорта" style={{ width: "300px", marginTop: "20px" }} />
+                            <button onClick={() => handleRemovePassportImage(2)}>Удалить</button>
+                        </div>
+                    ) : (
+                        <div>
+                            <input type="file" accept="image/*" onChange={event => handlePassportImageChange(event, 2)} />
+                        </div>
+                    )}
+                    {passportImageFile2 && (
+                        <button onClick={() => handleSubmitPassportImage(passportImageFile2, 2)}>Сохранить</button>
+                    )}
+                </div>
+
+                {/* Страница 3 */}
+                <div>
+                    <h3>Страница 3</h3>
+                    {passportImage3 ? (
+                        <div>
+                            <img src={passportImage3} alt="Страница 3 паспорта" style={{ width: "300px", marginTop: "20px" }} />
+                            <button onClick={() => handleRemovePassportImage(3)}>Удалить</button>
+                        </div>
+                    ) : (
+                        <div>
+                            <input type="file" accept="image/*" onChange={event => handlePassportImageChange(event, 3)} />
+                        </div>
+                    )}
+                    {passportImageFile3 && (
+                        <button onClick={() => handleSubmitPassportImage(passportImageFile3, 3)}>Сохранить</button>
+                    )}
+                </div>
             </div>
-            <div>
-                <label>Фамилия:</label>
-                <input
-                    type="text"
-                    name="surname"
-                    placeholder="Введите фамилию"
-                    value={profileData.surname}
-                    onChange={handleInputChange}
-                    disabled={!isEditable}
-                />
-            </div>
-            <div>
-                <label>Отчество:</label>
-                <input
-                    type="text"
-                    name="patronymic"
-                    placeholder="Введите отчество"
-                    value={profileData.patronymic}
-                    onChange={handleInputChange}
-                    disabled={!isEditable}
-                />
-            </div>
-            <div>
-                <label>Почта:</label>
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Введите почту"
-                    value={profileData.email}
-                    onChange={handleInputChange}
-                    disabled={!isEditable}
-                />
-            </div>
-            <div>
-                <label>Номер телефона:</label>
-                <input
-                    type="text"
-                    name="phoneNumber"
-                    placeholder="Введите номер телефона"
-                    value={profileData.phoneNumber}
-                    onChange={handleInputChange}
-                    disabled={!isEditable}
-                />
-            </div>
-            <div>
-                <label>Дата рождения:</label>
-                <input
-                    type="date"
-                    name="birthday"
-                    value={profileData.birthday}
-                    onChange={handleInputChange}
-                    disabled={!isEditable}
-                />
-            </div>
-            {/* Добавьте остальные поля для редактирования */}
-            <button onClick={handleEdit}>Редактировать</button>
-            {isEditable && (
-                <button onClick={handleSubmitProfile}>Сохранить данные</button>
-            )}
         </div>
     );
 };
