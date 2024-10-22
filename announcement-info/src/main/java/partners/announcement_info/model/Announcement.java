@@ -1,9 +1,7 @@
 package partners.announcement_info.model;
 
 import jakarta.annotation.Nullable;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,6 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class Announcement {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long userId;
     @Nullable
@@ -32,6 +31,5 @@ public class Announcement {
     private String startDate;
     @Nullable
     private String finishDate;
-    @Nullable
     private String comments;
 }
