@@ -5,7 +5,7 @@ eureka:
 
 spring:
   application:
-    name: customer-info
+    name: announcement-info
 
   datasource:
     url: jdbc:postgresql://localhost:5432/customer_info
