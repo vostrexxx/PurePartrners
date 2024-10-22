@@ -20,15 +20,13 @@ const PageWithTabs = () => {
       <h1>Личный кабинет</h1>
       <div className="tabs">
         <button onClick={() => handleTabClick(0)}>Персональная информация</button>
-        {isSpecialist && <button onClick={() => handleTabClick(1)}>Данные для анкеты</button>}
-        {!isSpecialist && <button onClick={() => handleTabClick(2)}>Данные для объявления</button>}
+        <button onClick={() => handleTabClick(1)}>Данные по анкете/объявлению</button>
         <button onClick={() => handleTabClick(3)}>Обратная связь (Отзывы + оценки)</button>
       </div>
 
       <div className="tab-content">
         {activeTab === 0 && <Tab1 />}
         {activeTab === 1 && <Tab2 />}
-        {activeTab === 2 && <Tab3 />}
         {activeTab === 3 && <Tab4 />}
       </div>
     </div>

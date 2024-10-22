@@ -2,21 +2,25 @@ import React, { useState, useEffect } from 'react';
 
 // Компонент для отображения поля формы
 const FormField = ({ type, label, name, placeholder, value, onChange, disabled, hidden }) => {
-    if (hidden) return null;
-    return (
-        <div>
-            <label>{label}</label>
-            <input
-                type={type}
-                name={name}
-                placeholder={placeholder}
-                value={value}
-                onChange={onChange}
-                disabled={disabled}
-            />
-        </div>
-    );
-};
+    if (hidden) {
+        return null
+    }
+    else{
+        return (
+            <div>
+                <label>{label}</label>
+                <input
+                    type={type}
+                    name={name}
+                    placeholder={placeholder}
+                    value={value}
+                    onChange={onChange}
+                    disabled={disabled}
+                />
+            </div>
+        );
+    
+    } };
 let url = localStorage.getItem('url')
 
 const FormPage = () => {
@@ -39,6 +43,9 @@ const FormPage = () => {
     const [imageFile, setImageFile] = useState(null);
     const [error, setError] = useState(null);
 
+
+
+    
     useEffect(() => {
         let isMounted = true;
         const fetchData = async () => {
@@ -74,16 +81,17 @@ const FormPage = () => {
                 if (customerData.success === 0) {
                     console.log('Ответ success: 0, устанавливаем значения по умолчанию');
                     setFormData({
-                        totalCost: '',
-                        workCategories: '',  
-                        metro: '',
-                        house: '',
-                        other: '',
-                        hasOther: false,
-                        objectName: '',
-                        startDate: '',
-                        finishDate: '',
-                        comments: ''
+                        totalCost: '', //
+                        other: '',// 
+                        hasOther: false,// o 
+                        workCategories: '', // o  
+                        metro: '', //
+                        house: '', //
+                        
+                        objectName: '', // o
+                        startDate: '', // 
+                        finishDate: '', //
+                        comments: '' // o
                     });
                 } else {
                     setFormData(customerData.customer);
