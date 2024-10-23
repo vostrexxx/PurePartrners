@@ -5,26 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f0afb29a-768d-4daf-b409-f7e7b78d6622" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mvnw" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mvnw.cmd" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/partners/customer_info/CustomerInfoApplication.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/partners/customer_info/config/Constants.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/partners/customer_info/controller/CustomerController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/partners/customer_info/dto/CustomInfoPreview.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/partners/customer_info/dto/CustomerInfo.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/partners/customer_info/dto/GetAllPreviews.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/partners/customer_info/dto/GetCustomerInfoResponse.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/partners/customer_info/dto/GetImageResponse.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/partners/customer_info/dto/OperationStatusResponse.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/partners/customer_info/exception/CustomException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/partners/customer_info/exception/ExceptionApiHandler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/partners/customer_info/model/Customer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/partners/customer_info/repository/CustomerRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/partners/customer_info/service/CustomerService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/partners/customer_info/CustomerInfoApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../contractor-info/.idea/workspace.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,7 +36,7 @@
     "git-widget-placeholder": "backend",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/ideaProjects/announcement-info",
+    "last_opened_file_path": "/home/biba/Рабочий стол/noname/questionnaire-info",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -91,8 +73,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-b114ca120d71-intellij.indexing.shared.core-IU-242.21829.142" />
-        <option value="bundled-js-predefined-d6986cc7102b-7c0b70fcd90d-JavaScript-IU-242.21829.142" />
+        <option value="bundled-jdk-9823dce3aa75-b114ca120d71-intellij.indexing.shared.core-IU-242.20224.419" />
+        <option value="bundled-js-predefined-d6986cc7102b-410509235cf1-JavaScript-IU-242.20224.419" />
       </set>
     </attachedChunks>
   </component>
@@ -111,6 +93,7 @@
       <workItem from="1728414662845" duration="665000" />
       <workItem from="1729340042121" duration="1092000" />
       <workItem from="1729415615445" duration="797000" />
+      <workItem from="1729595574966" duration="625000" />
     </task>
     <servers />
   </component>
