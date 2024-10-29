@@ -1,7 +1,12 @@
 package partners.questionnaireInfo.service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.InternalServerErrorException;
 import lombok.AllArgsConstructor;
+import org.hibernate.search.engine.search.query.SearchResult;
+import org.hibernate.search.mapper.orm.Search;
+import org.hibernate.search.mapper.orm.session.SearchSession;
 import org.modelmapper.ModelMapper;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -20,7 +25,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -28,6 +35,7 @@ public class QuestionnaireService {
 
     private final QuestionnaireRepository questionnaireRepository;
     private final ModelMapper modelMapper = new ModelMapper();
+    private final EntityManager entityManager;
 
     public OperationStatusResponse saveQuestionnaire(Long userId, QuestionnaireInfo questionnaireInfo){
 
@@ -114,16 +122,29 @@ public class QuestionnaireService {
         return new GetAllPreviews(1, questionnairePreviews);
     }
 
-    public GetAllPreviews filterQuestionnaires(Long userId){
-        List<Questionnaire> previews = questionnaireRepository.findAllByUserIdNot(userId);
-        List<QuestionnairePreview> questionnairePreviews = new ArrayList<>();
-        for (Questionnaire questionnaire : previews) {
-            QuestionnairePreview questionnairePreview = modelMapper.map(questionnaire, QuestionnairePreview.class);
-            questionnairePreviews.add(questionnairePreview);
+    @Transactional
+    public GetAllPreviews filterQuestionnaires(Long userId, String text){
+        SearchSession session = Search.session(entityManager);
+//        String searchText = String.format("*%s*", text);
+        List<QuestionnairePreview> finalFilteredResult;
+        if (!Objects.equals(text, "")) {
+            List<Questionnaire> result = session.search(Questionnaire.class)
+                    .where(f -> f.match()
+                            .fields("selfInfo", "eduEst", "team", "categoriesOfWork")
+                            .matching(text))
+                    .fetchHits(20);
+            finalFilteredResult = result.stream()
+                    .filter(questionnaire -> !questionnaire.getUserId().equals(userId))
+                    .map(questionnaire -> modelMapper.map(questionnaire, QuestionnairePreview.class))
+                    .toList();
+        } else {
+            List<Questionnaire> result = questionnaireRepository.findAll();
+            finalFilteredResult = result.stream()
+                    .filter(questionnaire -> !questionnaire.getUserId().equals(userId))
+                    .map(questionnaire -> modelMapper.map(questionnaire, QuestionnairePreview.class))
+                    .toList();
+            return new GetAllPreviews(1, finalFilteredResult);
         }
-        if (previews.isEmpty())
-            return new GetAllPreviews(0, null);
-        return new GetAllPreviews(1, questionnairePreviews);
+        return new GetAllPreviews(1, finalFilteredResult);
     }
-
 }

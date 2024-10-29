@@ -25,8 +25,8 @@ public class QuestionnaireController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{questionnaireId}")
-    public ResponseEntity<GetQuestionnaireInfoResponse> getQuestionnaire(@PathVariable("questionnaireId") Long questionnaireId){
+    @GetMapping("")
+    public ResponseEntity<GetQuestionnaireInfoResponse> getQuestionnaire(@RequestParam Long questionnaireId){
         GetQuestionnaireInfoResponse response = questionnaireService.getQuestionnaire(questionnaireId);
         return ResponseEntity.ok(response);
     }
@@ -56,8 +56,8 @@ public class QuestionnaireController {
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<GetAllPreviews> filterQuestionnaires(@RequestHeader Long userId){
-        GetAllPreviews previews = questionnaireService.filterQuestionnaires(userId);
+    public ResponseEntity<GetAllPreviews> filterQuestionnaires(@RequestHeader Long userId, @RequestParam String text){
+        GetAllPreviews previews = questionnaireService.filterQuestionnaires(userId, text);
         return ResponseEntity.ok(previews);
     }
 
