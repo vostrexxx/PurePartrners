@@ -115,15 +115,67 @@ public class AnnouncementService {
     }
 
     @Transactional
-    public GetAllPreviews filterAnnouncement(Long userId, String text){
+    public GetAllPreviews filterAnnouncement(Long userId, String text,
+                                             int minPrice, int maxPrice,
+                                             String metro, ){
         SearchSession session = Search.session(entityManager);
         List<AnnouncementInfoPreview> finalFilteredResult;
         if (!Objects.equals(text, "")) {
+            //Пока что просто поиск по словам
+//            List<Announcement> result = session.search(Announcement.class)
+//                    .where(f -> f.match()
+//                            .fields("comments", "objectName", "other", "house", "metro", "workCategories")
+//                            .matching(text))
+//                    .fetchHits(20);
+
+            //Поиск и фильтрация
+//            SearchSession searchSession = Search.session(entityManager);
+//            List<Announcement> result = session.search(Announcement.class)
+//                    .where(f -> {
+//                        f.bool().must(f.match()
+//                                .fields("comments", "objectName", "other", "house", "metro", "workCategories")
+//                                .matching(text));
+//                        f.
+//                    })
             List<Announcement> result = session.search(Announcement.class)
-                    .where(f -> f.match()
-                            .fields("comments", "objectName", "other", "house", "metro", "workCategories")
-                            .matching(text))
-                    .fetchHits(20);
+                    .where(f -> {
+                        // Начинаем с базового условия для полнотекстового поиска
+                        var query = f.bool()
+                                .must(f.match()
+                                        .fields("comments", "objectName", "other", "house", "metro", "workCategories")
+                                        .matching(text));
+
+                        // Добавляем фильтр по цене, если параметры заданы
+                        if (minPrice != null && maxPrice != null) {
+                            query = query.filter(f.range()
+                                    .field("price")
+                                    .between(minPrice, maxPrice));
+                        } else if (minPrice != null) {
+                            query = query.filter(f.range()
+                                    .field("price")
+                                    .atLeast(minPrice));
+                        } else if (maxPrice != null) {
+                            query = query.filter(f.range()
+                                    .field("price")
+                                    .atMost(maxPrice));
+                        }
+
+                        // Добавляем фильтр по метро, если параметр задан
+                        if (metro != null && !metro.isEmpty()) {
+                            query = query.filter(f.match()
+                                    .field("metro")
+                                    .matching(metro));
+                        }
+
+
+
+                        return query;
+                    })
+                    .fetchHits(20); // Лимит на количество возвращаемых результатов
+
+
+
+
             finalFilteredResult = result.stream()
                     .filter(announcement -> !announcement.getUserId().equals(userId))
                     .map(announcement -> modelMapper.map(announcement, AnnouncementInfoPreview.class))
