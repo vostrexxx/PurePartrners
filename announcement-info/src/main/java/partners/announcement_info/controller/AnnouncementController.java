@@ -18,8 +18,8 @@ public class AnnouncementController {
 
     private final AnnouncementService service;
 
-    @GetMapping("/{announcementId}")
-    public ResponseEntity<GetAnnouncementInfoResponse> getAnnouncementInfo(@PathVariable("announcementId") Long announcementId){
+    @GetMapping("")
+    public ResponseEntity<GetAnnouncementInfoResponse> getAnnouncementInfo(@RequestParam Long announcementId){
         GetAnnouncementInfoResponse response = service.getAnnouncementInfo(announcementId);
         return ResponseEntity.ok(response);
     }
@@ -55,8 +55,8 @@ public class AnnouncementController {
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<GetAllPreviews> filter(@RequestHeader Long userId){
-        GetAllPreviews allPreviews = service.filterPreviews(userId);
+    public ResponseEntity<GetAllPreviews> filter(@RequestHeader Long userId, @RequestParam String text){
+        GetAllPreviews allPreviews = service.filterAnnouncement(userId, text);
         return ResponseEntity.ok(allPreviews);
     }
 }

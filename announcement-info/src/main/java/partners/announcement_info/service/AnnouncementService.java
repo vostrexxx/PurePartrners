@@ -1,7 +1,11 @@
 package partners.announcement_info.service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.InternalServerErrorException;
 import lombok.AllArgsConstructor;
+import org.hibernate.search.mapper.orm.Search;
+import org.hibernate.search.mapper.orm.session.SearchSession;
 import org.modelmapper.ModelMapper;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -17,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -24,6 +29,7 @@ import java.util.Optional;
 public class AnnouncementService {
     private AnnouncementRepository repository;
     private final ModelMapper modelMapper = new ModelMapper();
+    private final EntityManager entityManager;
 
     public GetAnnouncementInfoResponse getAnnouncementInfo(Long announcementId) {
         Optional<Announcement> announcement = repository.findById(announcementId);
@@ -89,18 +95,6 @@ public class AnnouncementService {
         return new GetAllPreviews(1, announcementInfoPreviews);
     }
 
-    public GetAllPreviews filterPreviews(Long userId){
-        List<Announcement> previews = repository.findAllByUserIdNot(userId);
-        List<AnnouncementInfoPreview> announcementInfoPreviews = new ArrayList<>();
-        for (Announcement announcement : previews){
-            AnnouncementInfoPreview anotherPreview = modelMapper.map(announcement, AnnouncementInfoPreview.class);
-            announcementInfoPreviews.add(anotherPreview);
-        }
-        if (announcementInfoPreviews.isEmpty())
-            return new GetAllPreviews(0, null);
-        return new GetAllPreviews(1, announcementInfoPreviews);
-    }
-
     public Resource getImageByPath(String imagePath){
         String fullImagePath = Constants.KEY_DEFAULT_IMAGES_PATH + imagePath;
         File file = new File(fullImagePath);
@@ -118,5 +112,30 @@ public class AnnouncementService {
             return new OperationStatusResponse(1);
         else
             return new OperationStatusResponse(0);
+    }
+
+    @Transactional
+    public GetAllPreviews filterAnnouncement(Long userId, String text){
+        SearchSession session = Search.session(entityManager);
+        List<AnnouncementInfoPreview> finalFilteredResult;
+        if (!Objects.equals(text, "")) {
+            List<Announcement> result = session.search(Announcement.class)
+                    .where(f -> f.match()
+                            .fields("comments", "objectName", "other", "house", "metro", "workCategories")
+                            .matching(text))
+                    .fetchHits(20);
+            finalFilteredResult = result.stream()
+                    .filter(announcement -> !announcement.getUserId().equals(userId))
+                    .map(announcement -> modelMapper.map(announcement, AnnouncementInfoPreview.class))
+                    .toList();
+        } else {
+            List<Announcement> result = repository.findAll();
+            finalFilteredResult = result.stream()
+                    .filter(announcement -> !announcement.getUserId().equals(userId))
+                    .map(announcement -> modelMapper.map(announcement, AnnouncementInfoPreview.class))
+                    .toList();
+            return new GetAllPreviews(1, finalFilteredResult);
+        }
+        return new GetAllPreviews(1, finalFilteredResult);
     }
 }
