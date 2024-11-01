@@ -3,7 +3,7 @@ package partners.questionnaireInfo.config;
 import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
 import org.apache.lucene.analysis.core.WhitespaceTokenizerFactory;
 import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilterFactory;
-import org.apache.lucene.analysis.ngram.EdgeNGramFilterFactory;
+import org.apache.lucene.analysis.ngram.NGramFilterFactory;
 import org.apache.lucene.analysis.ru.RussianLightStemFilterFactory;
 import org.hibernate.search.backend.lucene.analysis.LuceneAnalysisConfigurationContext;
 import org.hibernate.search.backend.lucene.analysis.LuceneAnalysisConfigurer;
@@ -15,7 +15,7 @@ public class QuestionnaireAnalysisConfigurer implements LuceneAnalysisConfigurer
                 .tokenizer(WhitespaceTokenizerFactory.class)
                 .tokenFilter(LowerCaseFilterFactory.class)
                 .tokenFilter(ASCIIFoldingFilterFactory.class)
-                .tokenFilter(EdgeNGramFilterFactory.class)
+                .tokenFilter(NGramFilterFactory.class)
                 .param("minGramSize", "1")
                 .param("maxGramSize", "10")
                 .tokenFilter(RussianLightStemFilterFactory.class);
