@@ -55,8 +55,11 @@ public class AnnouncementController {
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<GetAllPreviews> filter(@RequestHeader Long userId, @RequestParam String text){
-        GetAllPreviews allPreviews = service.filterAnnouncement(userId, text);
+    public ResponseEntity<GetAllPreviews> filter(@RequestHeader Long userId, @RequestParam String text,
+                                                @RequestParam Integer minPrice, @RequestParam Integer maxPrice,
+                                                 @RequestParam Boolean hasOther, @RequestParam String startDate, @RequestParam String endDate){
+        GetAllPreviews allPreviews = service.filterAnnouncement(userId, text, minPrice, maxPrice,
+                                                                hasOther, startDate, endDate);
         return ResponseEntity.ok(allPreviews);
     }
 }

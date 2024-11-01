@@ -116,8 +116,8 @@ public class AnnouncementService {
 
     @Transactional
     public GetAllPreviews filterAnnouncement(Long userId, String text,
-                                             int minPrice, int maxPrice,
-                                             String metro, ){
+                                             Integer minPrice, Integer maxPrice,
+                                             Boolean hasOther, String startDate, String endDate){
         SearchSession session = Search.session(entityManager);
         List<AnnouncementInfoPreview> finalFilteredResult;
         if (!Objects.equals(text, "")) {
@@ -159,16 +159,13 @@ public class AnnouncementService {
                                     .field("price")
                                     .atMost(maxPrice));
                         }
-
-                        // Добавляем фильтр по метро, если параметр задан
-                        if (metro != null && !metro.isEmpty()) {
+                        // Добавляем фильтр по другому, если параметр задан
+                        if (hasOther != null) {
                             query = query.filter(f.match()
-                                    .field("metro")
-                                    .matching(metro));
+                                    .field("hasOther")
+                                    .matching(hasOther));
                         }
-
-
-
+                        
                         return query;
                     })
                     .fetchHits(20); // Лимит на количество возвращаемых результатов
