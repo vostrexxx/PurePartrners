@@ -35,7 +35,7 @@ const ProfilePage = () => {
 
     const [imagePath, setImagePath] = useState(null);
 
-    // Загружаем данные профиля и фото
+    // Загружаем данные профиля и 
     useEffect(() => {
         const authToken = getAuthToken();
         if (authToken) {

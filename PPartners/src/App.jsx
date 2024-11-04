@@ -10,7 +10,9 @@ import RegistrationPage from './Components/Pages/Registration/RegistrationPage';
 import MainPage from './Components/Pages/Main/MainPage';
 import ProfilePage from './Components/Pages/Profile/ProfilePage';
 import PageWTabs from './Components/Pages/AccountTabs/PageWTabs';
-// import Photo from './Components/Pages/AccountTabs/Photo';
+
+import QuestionnaireDetails from './Components/Pages/QACards/QuestionnaireDetails';
+import AnnouncementDetails from './Components/Pages/QACards/AnnouncementDetails';
 
 const App = () => {
     return (
@@ -26,6 +28,10 @@ const App = () => {
                 <Route path="/passcode-enter" element={<EnterCodePage />} />
                 <Route path="/password-reset" element={<PasswordResetPage />} />
                 <Route path="/account-actions" element={<PageWTabs />} />
+
+                <Route path="/questionnaire/:id" element={<QuestionnaireDetails />} />
+                <Route path="/announcement/:id" element={<AnnouncementDetails />} />
+
             </Routes>
         </Router>
     );

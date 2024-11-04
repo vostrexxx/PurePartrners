@@ -1,8 +1,8 @@
 import React from 'react';
 
-const Card = ({ title, description, date, onClick }) => {
+const Card = ({ title, description, date, onClick, key }) => {
     return (
-        <div style={styles.card} onClick={onClick}>
+        <div style={styles.card} onClick={onClick} key = {key}>
             <h3>{title}</h3>
             <p>{description}</p>
             <small>{date}</small>
@@ -12,6 +12,7 @@ const Card = ({ title, description, date, onClick }) => {
 
 const styles = {
     card: {
+        color:'black', 
         border: '1px solid #ccc',
         borderRadius: '8px',
         padding: '16px',

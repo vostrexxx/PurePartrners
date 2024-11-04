@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useProfile } from '../../Context/ProfileContext'; // Импорт профиля
 import { ImTextColor } from 'react-icons/im';
+import Card from '../../Previews/Card.jsx';
+import { useNavigate } from 'react-router-dom';
 
 
 const FormField = ({ type, label, name, placeholder, value, onChange, disabled, hidden }) => {
@@ -481,6 +483,8 @@ const AnnouncementForm = () => {
 // Основной компонент
 
 const MainPage = () => {
+    const navigate = useNavigate();
+
     const { isSpecialist } = useProfile(); // Получаем профиль
     const [isCreating, setIsCreating] = useState(false);
     const [announcements, setAnnouncements] = useState([]);
@@ -542,6 +546,18 @@ const MainPage = () => {
         setIsCreating(false); // Скрываем форму после отправки
     };
 
+    const handleAnnCardClick = async (id) => {
+        console.log('id:', id);
+        navigate(`/announcement/${id}`);
+        
+    };
+    
+    const handleQueCardClick = async (id) => {
+
+        console.log('id:', id);
+        navigate(`/questionnaire/${id}`);
+    };
+
     const handleCancel = () => {
         setIsCreating(false); // Отмена создания
     };
@@ -567,11 +583,14 @@ const MainPage = () => {
                         <div>
                             <h2>Анкеты</h2>
                             {questionnaires.length > 0 ? (
-                                questionnaires.map((item) => (
-                                    <div key={item.id} style={styles.card}>
-                                        <h3>{item.categoriesOfWork}</h3>
-                                        <p>ID: {item.id}</p>
-                                    </div>
+                                questionnaires.map((item) => 
+                                    (
+                                        <Card title = {item.categoriesOfWork} onClick = {() => handleQueCardClick(item.id)} key={item.id}></Card>
+
+                                    // <div key={item.id} style={styles.card}>
+                                    //     <h3>{item.categoriesOfWork}</h3>
+                                    //     {/* <p>ID: {item.id}</p> */}
+                                    // </div>
                                 ))
                             ) : (
                                 <p>Нет анкет</p>
@@ -582,10 +601,12 @@ const MainPage = () => {
                             <h2>Объявления</h2>
                             {announcements.length > 0 ? (
                                 announcements.map((item) => (
-                                    <div key={item.id} style={styles.card}>
-                                        <h3>{item.workCategories}</h3>
-                                        <p>ID: {item.id}</p>
-                                    </div>
+                                    <Card title = {item.workCategories} onClick = {() => handleAnnCardClick(item.id)} key={item.id}></Card>
+
+                                    // <div key={item.id} style={styles.card}>
+                                    //     <h3>{item.workCategories}</h3>
+                                    //     {/* <p>ID: {item.id}</p> */}
+                                    // </div>
                                 ))
                             ) : (
                                 <p>Нет объявлений</p>
