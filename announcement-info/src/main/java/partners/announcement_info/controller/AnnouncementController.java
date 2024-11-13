@@ -36,6 +36,18 @@ public class AnnouncementController {
         return ResponseEntity.ok(image);
     }
 
+    @DeleteMapping("")
+    public ResponseEntity<OperationStatusResponse> deleteAnnouncement(@RequestParam Long announcementId){
+        OperationStatusResponse response = service.deleteAnnouncement(announcementId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{announcementId}")
+    public ResponseEntity<OperationStatusResponse> updateAnnouncement(@PathVariable("announcementId") Long announcementId, @RequestBody AnnouncementInfo announcementInfo){
+        OperationStatusResponse response = service.updateAnnouncement(announcementId, announcementInfo);
+        return ResponseEntity.ok(response);
+    }
+
     @DeleteMapping("/image")
     public ResponseEntity<OperationStatusResponse> deleteImageByPath(@RequestParam String imagePath) throws IOException{
         OperationStatusResponse response = service.deleteImageByPath(imagePath);
@@ -55,9 +67,10 @@ public class AnnouncementController {
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<GetAllPreviews> filter(@RequestHeader Long userId, @RequestParam String text,
-                                                @RequestParam Integer minPrice, @RequestParam Integer maxPrice,
-                                                 @RequestParam Boolean hasOther, @RequestParam String startDate, @RequestParam String endDate){
+    public ResponseEntity<GetAllPreviews> filter(@RequestHeader Long userId, @RequestParam(required = false) String text,
+                                                @RequestParam(required = false) Integer minPrice, @RequestParam(required = false) Integer maxPrice,
+                                                 @RequestParam(required = false) Boolean hasOther, @RequestParam(required = false) String startDate,
+                                                 @RequestParam(required = false) String endDate){
         GetAllPreviews allPreviews = service.filterAnnouncement(userId, text, minPrice, maxPrice,
                                                                 hasOther, startDate, endDate);
         return ResponseEntity.ok(allPreviews);

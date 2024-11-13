@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: Categories-of-work
+
+  neo4j:
+    uri: bolt://localhost:7687
+    authentication:
+      username: neo4j
+      password: partners
+
+  devtools:
+    livereload:
+      enabled: false
+
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+
+server:
+  port: 8085
+
+
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          neo4j: DEBUG
+      neo4j:
+        driver: DEBUG

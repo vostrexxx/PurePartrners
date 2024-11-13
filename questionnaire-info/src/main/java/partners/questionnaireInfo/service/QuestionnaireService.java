@@ -8,6 +8,7 @@ import org.hibernate.search.engine.search.query.SearchResult;
 import org.hibernate.search.mapper.orm.Search;
 import org.hibernate.search.mapper.orm.session.SearchSession;
 import org.modelmapper.ModelMapper;
+import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -122,29 +123,104 @@ public class QuestionnaireService {
         return new GetAllPreviews(1, questionnairePreviews);
     }
 
+    public OperationStatusResponse deleteQuestionnaire(Long questionnaireId){
+        if (questionnaireRepository.existsById(questionnaireId)) {
+            questionnaireRepository.deleteById(questionnaireId);
+            return new OperationStatusResponse(1);
+        } else
+            return new OperationStatusResponse(0);
+    }
+
+    public OperationStatusResponse updateQuestionnaire(Long questionnaireId, QuestionnaireInfo questionnaireInfo){
+        Questionnaire questionnaire = questionnaireRepository.getReferenceById(questionnaireId);
+        questionnaire.setCategoriesOfWork(questionnaireInfo.getCategoriesOfWork());
+        questionnaire.setHasTeam(questionnaireInfo.getHasTeam());
+        questionnaire.setTeam(questionnaireInfo.getTeam());
+        questionnaire.setHasEdu(questionnaireInfo.getHasEdu());
+        questionnaire.setEduEst(questionnaireInfo.getEduEst());
+        questionnaire.setEduDateStart(questionnaireInfo.getEduDateStart());
+        questionnaire.setEduDateEnd(questionnaireInfo.getEduDateEnd());
+        questionnaire.setWorkExp(questionnaireInfo.getWorkExp());
+        questionnaire.setSelfInfo(questionnaireInfo.getSelfInfo());
+        questionnaire.setPrices(questionnaireInfo.getPrices());
+        questionnaireRepository.save(questionnaire);
+        return new OperationStatusResponse(1);
+    }
+
+
     @Transactional
-    public GetAllPreviews filterQuestionnaires(Long userId, String text){
+    public GetAllPreviews filterQuestionnaires(Long userId, String text,
+                                               Boolean hasEdu, Boolean hasTeam,
+                                               Double minPrice, Double maxPrice,
+                                               Integer minWorkExp) {
         SearchSession session = Search.session(entityManager);
-//        String searchText = String.format("*%s*", text);
         List<QuestionnairePreview> finalFilteredResult;
-        if (!Objects.equals(text, "")) {
-            List<Questionnaire> result = session.search(Questionnaire.class)
-                    .where(f -> f.match()
-                            .fields("selfInfo", "eduEst", "team", "categoriesOfWork")
-                            .matching(text))
-                    .fetchHits(20);
-            finalFilteredResult = result.stream()
-                    .filter(questionnaire -> !questionnaire.getUserId().equals(userId))
-                    .map(questionnaire -> modelMapper.map(questionnaire, QuestionnairePreview.class))
-                    .toList();
-        } else {
-            List<Questionnaire> result = questionnaireRepository.findAll();
-            finalFilteredResult = result.stream()
-                    .filter(questionnaire -> !questionnaire.getUserId().equals(userId))
-                    .map(questionnaire -> modelMapper.map(questionnaire, QuestionnairePreview.class))
-                    .toList();
-            return new GetAllPreviews(1, finalFilteredResult);
-        }
+
+        List<Questionnaire> result = session.search(Questionnaire.class)
+                .where(f -> {
+                    var query = f.bool();
+
+                    // Проверка на полнотекстовый поиск
+                    if (text != null && !text.isEmpty()) {
+                        query.must(f.match()
+                                .fields("selfInfo", "eduEst", "team", "categoriesOfWork")
+                                .matching(text));
+                    }
+
+                    // Проверка на фильтры, если они заданы
+                    boolean hasFilters = false;
+                    if (hasEdu != null) {
+                        query.filter(f.match()
+                                .field("hasEdu")
+                                .matching(hasEdu));
+                        hasFilters = true;
+                    }
+
+                    if (hasTeam != null) {
+                        query.filter(f.match()
+                                .field("hasTeam")
+                                .matching(hasTeam));
+                        hasFilters = true;
+                    }
+
+                    if (minPrice != null || maxPrice != null) {
+                        if (minPrice != null && maxPrice != null) {
+                            query.filter(f.range()
+                                    .field("prices")
+                                    .between(minPrice, maxPrice));
+                        } else if (minPrice != null) {
+                            query.filter(f.range()
+                                    .field("prices")
+                                    .atLeast(minPrice));
+                        } else {
+                            query.filter(f.range()
+                                    .field("prices")
+                                    .atMost(maxPrice));
+                        }
+                        hasFilters = true;
+                    }
+
+                    if (minWorkExp != null) {
+                        query.filter(f.range()
+                                .field("workExp")
+                                .atLeast(minWorkExp));
+                        hasFilters = true;
+                    }
+
+                    // Если нет ни текста, ни фильтров, возвращаем все записи
+                    if (!hasFilters && (text == null || text.isEmpty())) {
+                        query.must(f.matchAll());  // Добавляем matchAll для возвращения всех записей
+                    }
+
+                    return query;
+                })
+                .fetchHits(20);
+
+        finalFilteredResult = result.stream()
+                .filter(questionnaire -> !questionnaire.getUserId().equals(userId))
+                .map(questionnaire -> modelMapper.map(questionnaire, QuestionnairePreview.class))
+                .toList();
+
         return new GetAllPreviews(1, finalFilteredResult);
     }
 }

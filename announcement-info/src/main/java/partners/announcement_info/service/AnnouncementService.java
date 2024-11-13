@@ -114,6 +114,30 @@ public class AnnouncementService {
             return new OperationStatusResponse(0);
     }
 
+    public OperationStatusResponse deleteAnnouncement(Long announcementId){
+        if (repository.existsById(announcementId)) {
+            repository.deleteById(announcementId);
+            return new OperationStatusResponse(1);
+        } else
+            return new OperationStatusResponse(0);
+    }
+
+    public OperationStatusResponse updateAnnouncement(Long announcementId, AnnouncementInfo announcementInfo){
+        Announcement announcement = repository.getReferenceById(announcementId);
+        announcement.setTotalCost(announcementInfo.getTotalCost());
+        announcement.setWorkCategories(announcementInfo.getWorkCategories());
+        announcement.setMetro(announcementInfo.getMetro());
+        announcement.setHouse(announcementInfo.getHouse());
+        announcement.setHasOther(announcementInfo.getHasOther());
+        announcement.setOther(announcementInfo.getOther());
+        announcement.setObjectName(announcementInfo.getObjectName());
+        announcement.setStartDate(announcementInfo.getStartDate());
+        announcement.setFinishDate(announcementInfo.getFinishDate());
+        announcement.setComments(announcementInfo.getComments());
+        repository.save(announcement);
+        return new OperationStatusResponse(1);
+    }
+
     @Transactional
     public GetAllPreviews filterAnnouncement(Long userId, String text,
                                              Integer minPrice, Integer maxPrice,
@@ -148,15 +172,15 @@ public class AnnouncementService {
                         // Добавляем фильтр по цене, если параметры заданы
                         if (minPrice != null && maxPrice != null) {
                             query = query.filter(f.range()
-                                    .field("price")
+                                    .field("totalCost")
                                     .between(minPrice, maxPrice));
                         } else if (minPrice != null) {
                             query = query.filter(f.range()
-                                    .field("price")
+                                    .field("totalCost")
                                     .atLeast(minPrice));
                         } else if (maxPrice != null) {
                             query = query.filter(f.range()
-                                    .field("price")
+                                    .field("totalCost")
                                     .atMost(maxPrice));
                         }
                         // Добавляем фильтр по другому, если параметр задан
@@ -165,13 +189,19 @@ public class AnnouncementService {
                                     .field("hasOther")
                                     .matching(hasOther));
                         }
-                        
+
+                        if (startDate != null)
+                            query = query.filter(f.range()
+                                    .field("startDate")
+                                    .atLeast(startDate));
+
+                        if (endDate != null)
+                            query = query.filter(f.range()
+                                    .field("endDate")
+                                    .atMost(endDate));
                         return query;
                     })
                     .fetchHits(20); // Лимит на количество возвращаемых результатов
-
-
-
 
             finalFilteredResult = result.stream()
                     .filter(announcement -> !announcement.getUserId().equals(userId))
