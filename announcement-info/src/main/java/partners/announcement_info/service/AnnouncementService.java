@@ -165,7 +165,7 @@ public class AnnouncementService {
                                     .field("hasOther")
                                     .matching(hasOther));
                         }
-                        
+
                         return query;
                     })
                     .fetchHits(20); // Лимит на количество возвращаемых результатов
