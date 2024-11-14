@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @AllArgsConstructor
@@ -12,8 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 public class AnnouncementInfo {
     @Nullable
-    private String totalCost;
-    @Nullable
+    private Double totalCost;
     private String workCategories;
     @Nullable
     private String metro;
@@ -24,10 +24,10 @@ public class AnnouncementInfo {
     private String other;
     private String objectName;
     @Nullable
-    private String startDate;
+    private LocalDate startDate;
     @Nullable
-    private String finishDate;
-    @Nullable
+    private LocalDate finishDate;
     private String comments;
+    @Nullable
     private List<String> announcementImages;
 }

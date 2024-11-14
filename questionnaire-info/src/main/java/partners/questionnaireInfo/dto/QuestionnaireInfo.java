@@ -1,20 +1,26 @@
 package partners.questionnaireInfo.dto;
 
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class QuestionnaireInfo {
+    private Long id;
+
     private String categoriesOfWork;
 
+    private Long userId;
+
     @Nullable
-    private String eduDateEnd;
+    private LocalDate eduDateEnd;
 
     private Boolean hasTeam;
 
@@ -28,12 +34,14 @@ public class QuestionnaireInfo {
     private String eduEst;
 
     @Nullable
-    private String eduDateStart;
+    private LocalDate eduDateStart;
 
-    private String workExp;
+    private Integer workExp;
 
     private String selfInfo;
 
-    private String prices;
+    private Double prices;
+
+    @Nullable
     private List<String> questionnaireImages;
 }

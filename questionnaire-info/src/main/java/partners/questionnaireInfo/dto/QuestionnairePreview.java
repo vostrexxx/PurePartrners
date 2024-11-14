@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class QuestionnairePreview {
     private Long id;
     private String categoriesOfWork;
+    private Long userId;
 }

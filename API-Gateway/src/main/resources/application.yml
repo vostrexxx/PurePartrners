@@ -57,6 +57,18 @@ spring:
           filters:
             - AuthenticationFilter
 
+        - id: categories-of-work-info
+          uri: lb://categories-of-work-info
+          predicates:
+            - Path=/categories/**
+
+        - id: agreement-connection-info
+          uri: lb://agreement-connection-info
+          predicates:
+            - Path=/agreement/**
+          filters:
+            - AuthenticationFilter
+
 server:
   port: 8887
 

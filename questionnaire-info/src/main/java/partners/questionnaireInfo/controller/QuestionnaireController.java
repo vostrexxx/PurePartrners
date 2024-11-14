@@ -31,6 +31,18 @@ public class QuestionnaireController {
         return ResponseEntity.ok(response);
     }
 
+    @DeleteMapping("")
+    public ResponseEntity<OperationStatusResponse> deleteQuestionnaire(@RequestParam Long questionnaireId){
+        OperationStatusResponse response = questionnaireService.deleteQuestionnaire(questionnaireId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{questionnaireId}")
+    public ResponseEntity<OperationStatusResponse> updateQuestionnaire(@PathVariable("questionnaireId") Long questionnaireId, @RequestBody QuestionnaireInfo questionnaire){
+        OperationStatusResponse response = questionnaireService.updateQuestionnaire(questionnaireId, questionnaire);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/image")
     public ResponseEntity<Resource> getImageByPath(@RequestParam String imagePath){
         Resource image = questionnaireService.getImageByPath(imagePath);
@@ -56,8 +68,11 @@ public class QuestionnaireController {
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<GetAllPreviews> filterQuestionnaires(@RequestHeader Long userId, @RequestParam String text){
-        GetAllPreviews previews = questionnaireService.filterQuestionnaires(userId, text);
+    public ResponseEntity<GetAllPreviews> filterQuestionnaires(@RequestHeader Long userId, @RequestParam(required = false) String text,
+                                                               @RequestParam(required = false) Boolean hasEdu, @RequestParam(required = false) Boolean hasTeam,
+                                                               @RequestParam(required = false) Double minPrice, @RequestParam(required = false) Double maxPrice,
+                                                               @RequestParam(required = false) Integer minWorkExp){
+        GetAllPreviews previews = questionnaireService.filterQuestionnaires(userId, text, hasEdu, hasTeam, minPrice, maxPrice, minWorkExp);
         return ResponseEntity.ok(previews);
     }
 

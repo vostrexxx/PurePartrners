@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class AnnouncementInfoPreview {
     private Long id;
     private String workCategories;
+    private Long userId;
 }
