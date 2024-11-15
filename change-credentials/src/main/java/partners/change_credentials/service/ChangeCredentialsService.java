@@ -20,7 +20,8 @@ public class ChangeCredentialsService {
 
     public OperationStatusResponse generatePhoneNumberResetCode(Long id){
         Random r = new Random();
-        String randomNumber = String.format(Constants.KEY_KODE_FORMAT, r.nextInt(1001));
+        int randomNumberInt = r.nextInt(9000) + 1000;
+        String randomNumber = String.format(Constants.KEY_KODE_FORMAT, randomNumberInt);
         ChangeCredentials code = new ChangeCredentials(id, randomNumber);
         ChangeCredentials tmpCode = changeCredentialsRepository.save(code);
         if (tmpCode.getId() == null)
@@ -29,11 +30,9 @@ public class ChangeCredentialsService {
     }
 
     public OperationStatusResponse compareResetPasswordCode(String code, Long id){
-        Optional<ChangeCredentials> currentCode = changeCredentialsRepository.findById(id);
-        if (currentCode.isEmpty())
-            throw new InternalServerErrorException(Constants.KEY_EXCEPTION_NO_RESET_TOKEN);
-        ChangeCredentials actualCurrentCode = currentCode.get();
-        if (actualCurrentCode.getCode().equals(code)){
+        ChangeCredentials currentCode = changeCredentialsRepository.findById(id)
+                .orElseThrow(() -> new InternalServerErrorException(Constants.KEY_EXCEPTION_NO_RESET_TOKEN));
+        if (currentCode.getCode().equals(code)){
             return new OperationStatusResponse(1);
         } else
             return new OperationStatusResponse(0);

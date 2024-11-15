@@ -26,9 +26,9 @@ public class AgreementService {
         try {
             Agreement agreementForSave = modelMapper.map(agreementInfo, Agreement.class);
             agreementForSave.setInitiatorId(userId);
-            agreementForSave.setStatus(ConnectionStatus.PENDING);
-            agreementForSave.setCreateDate(LocalDateTime.now());
-            agreementForSave.setUpdateDate(LocalDateTime.now());
+//            agreementForSave.setStatus(ConnectionStatus.PENDING);
+//            agreementForSave.setCreateDate(LocalDateTime.now());
+//            agreementForSave.setUpdateDate(LocalDateTime.now());
             agreementRepository.save(agreementForSave);
             return new OperationStatusResponse(1);
         } catch (Exception e) {
@@ -49,7 +49,7 @@ public class AgreementService {
     public OperationStatusResponse updateAgreement(UpdateAgreementInfo updateAgreementInfo) {
         Agreement agreement = agreementRepository.getReferenceById(updateAgreementInfo.getAgreementId());
         agreement.setStatus(updateAgreementInfo.getNewStatus());
-        agreement.setUpdateDate(LocalDateTime.now());
+//        agreement.setUpdateDate(LocalDateTime.now());
         agreementRepository.save(agreement);
         return new OperationStatusResponse(1);
     }

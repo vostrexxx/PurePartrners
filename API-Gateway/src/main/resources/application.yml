@@ -20,6 +20,11 @@ spring:
             allowedOrigins: "*"
             allowedMethods: "*"
             allowedHeaders: "*"
+#TODO add retry filters
+#- name: Retry
+      #    args:
+      #      retries: 3
+      #      statuses: BAD_GATEWAY, GATEWAY_TIMEOUT
       routes:
         - id: auth-service
           uri: lb://auth-service
