@@ -60,9 +60,15 @@ public class AnnouncementController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/preview")
+    @GetMapping("/previews")
     public ResponseEntity<GetAllPreviews> getAllCustomerPreviews(@RequestHeader Long userId){
         GetAllPreviews response = service.getAllCustomerPreviews(userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/preview")
+    public ResponseEntity<AnnouncementInfoPreview> getPreviewByAnnouncementId(@RequestParam Long announcementId){
+        AnnouncementInfoPreview response = service.getPreviewByAnnouncementId(announcementId);
         return ResponseEntity.ok(response);
     }
 

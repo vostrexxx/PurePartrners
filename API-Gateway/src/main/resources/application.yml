@@ -69,6 +69,14 @@ spring:
           filters:
             - AuthenticationFilter
 
+
+        - id: chat-producer-service
+          uri: lb://chat-producer-service
+          predicates:
+            - Path=/chat/**
+          filters:
+            - AuthenticationFilter
+
 server:
   port: 8887
 

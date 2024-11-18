@@ -3,6 +3,7 @@ package partners.announcement_info.service;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.InternalServerErrorException;
+import jakarta.ws.rs.NotFoundException;
 import lombok.AllArgsConstructor;
 import org.hibernate.search.mapper.orm.Search;
 import org.hibernate.search.mapper.orm.session.SearchSession;
@@ -136,6 +137,16 @@ public class AnnouncementService {
         announcement.setComments(announcementInfo.getComments());
         repository.save(announcement);
         return new OperationStatusResponse(1);
+    }
+
+    public AnnouncementInfoPreview getPreviewByAnnouncementId(Long announcementId){
+        Announcement announcement = repository.findById(announcementId)
+                .orElseThrow(NotFoundException::new);
+        try {
+            return modelMapper.map(announcement, AnnouncementInfoPreview.class);
+        } catch (Exception e){
+            throw new InternalServerErrorException(e.getMessage());
+        }
     }
 
     @Transactional

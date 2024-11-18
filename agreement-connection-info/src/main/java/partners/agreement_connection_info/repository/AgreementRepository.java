@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface AgreementRepository extends JpaRepository<Agreement, Long> {
     List<Agreement> findAllByReceiverId(Long receiverId);
+    List<Agreement> findALlByInitiatorId(Long initiatorId);
 }

@@ -2,25 +2,24 @@ package partners.agreement_connection_info.service;
 
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import partners.agreement_connection_info.config.ConnectionStatus;
-import partners.agreement_connection_info.dto.AgreementInfo;
-import partners.agreement_connection_info.dto.AllUserAgreements;
-import partners.agreement_connection_info.dto.OperationStatusResponse;
-import partners.agreement_connection_info.dto.UpdateAgreementInfo;
+import partners.agreement_connection_info.dto.*;
 import partners.agreement_connection_info.model.Agreement;
 import partners.agreement_connection_info.repository.AgreementRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
 public class AgreementService {
     private final AgreementRepository agreementRepository;
     private final ModelMapper modelMapper = new ModelMapper();
+    private final static String kafkaNewChatTopic = "newChat";
+    private final KafkaTemplate<String, NewChat> kafkaTemplate;
 
     public OperationStatusResponse createAgreement(Long userId, AgreementInfo agreementInfo) {
         try {
@@ -36,8 +35,12 @@ public class AgreementService {
         }
     }
 
-    public AllUserAgreements getALlUserAgreements(Long userId){
-        List<Agreement> allUserAgreements = agreementRepository.findAllByReceiverId(userId);
+    public AllUserAgreements getUserAgreementsByMode(Long userId, boolean mode){
+        List<Agreement> allUserAgreements;
+        if (mode)
+            allUserAgreements = agreementRepository.findALlByInitiatorId(userId);
+        else
+            allUserAgreements = agreementRepository.findAllByReceiverId(userId);
         List<AgreementInfo> resultList = new ArrayList<>();
         for (Agreement agreement : allUserAgreements) {
             AgreementInfo agreementInfo = modelMapper.map(agreement, AgreementInfo.class);
@@ -51,6 +54,11 @@ public class AgreementService {
         agreement.setStatus(updateAgreementInfo.getNewStatus());
         agreement.setUpdateDate(LocalDateTime.now());
         agreementRepository.save(agreement);
+
+//        NewChat =
+
+//        kafkaTemplate.send(kafkaNewChatTopic, )
+
         return new OperationStatusResponse(1);
     }
 }

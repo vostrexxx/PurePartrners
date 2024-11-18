@@ -24,9 +24,15 @@ public class AgreementController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/notifications")
-    public ResponseEntity<AllUserAgreements> getUserNotifications(@RequestHeader Long userId) {
-        AllUserAgreements response = agreementService.getALlUserAgreements(userId);
+    @GetMapping("/sent")
+    public ResponseEntity<AllUserAgreements> getSentAgreements(@RequestHeader Long userId) {
+        AllUserAgreements response = agreementService.getUserAgreementsByMode(userId, true);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/received")
+    public ResponseEntity<AllUserAgreements> getReceivedAgreements(@RequestHeader Long userId) {
+        AllUserAgreements response = agreementService.getUserAgreementsByMode(userId, false);
         return ResponseEntity.ok(response);
     }
 

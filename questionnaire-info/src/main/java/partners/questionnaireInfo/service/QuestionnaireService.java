@@ -3,6 +3,7 @@ package partners.questionnaireInfo.service;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.InternalServerErrorException;
+import jakarta.ws.rs.NotFoundException;
 import lombok.AllArgsConstructor;
 import org.hibernate.search.engine.search.query.SearchResult;
 import org.hibernate.search.mapper.orm.Search;
@@ -121,6 +122,16 @@ public class QuestionnaireService {
             questionnairePreviews.add(questionnairePreview);
         }
         return new GetAllPreviews(1, questionnairePreviews);
+    }
+
+    public QuestionnairePreview getPreviewByQuestionnaireId(Long questionnaireId){
+        Questionnaire questionnaire = questionnaireRepository.findById(questionnaireId)
+                .orElseThrow(NotFoundException::new);
+        try {
+            return modelMapper.map(questionnaire, QuestionnairePreview.class);
+        } catch (Exception e){
+            throw new InternalServerErrorException(e.getMessage());
+        }
     }
 
     public OperationStatusResponse deleteQuestionnaire(Long questionnaireId){

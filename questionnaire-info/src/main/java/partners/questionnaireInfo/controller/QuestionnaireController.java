@@ -1,6 +1,7 @@
 package partners.questionnaireInfo.controller;
 
 import lombok.AllArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -61,10 +62,16 @@ public class QuestionnaireController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/preview")
+    @GetMapping("/previews")
     public ResponseEntity<GetAllPreviews> getAllQuestionnairesPreviews(@RequestHeader Long userId){
         GetAllPreviews previews = questionnaireService.getAllQuestionnairesPreviews(userId);
         return ResponseEntity.ok(previews);
+    }
+
+    @GetMapping("/preview")
+    public ResponseEntity<QuestionnairePreview> getPreviewByQuestionnaireId(@RequestParam Long questionnaireId){
+        QuestionnairePreview response = questionnaireService.getPreviewByQuestionnaireId(questionnaireId);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/filter")
