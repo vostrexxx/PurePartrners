@@ -1,4 +1,4 @@
-package com.partners.authserver.model;
+package com.partners.authserver.config;
 
 public enum Role {
     USER,

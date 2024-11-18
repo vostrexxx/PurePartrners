@@ -4,10 +4,7 @@ import lombok.AllArgsConstructor;
 import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import partners.agreement_connection_info.dto.AgreementInfo;
-import partners.agreement_connection_info.dto.AllUserAgreements;
-import partners.agreement_connection_info.dto.OperationStatusResponse;
-import partners.agreement_connection_info.dto.UpdateAgreementInfo;
+import partners.agreement_connection_info.dto.*;
 import partners.agreement_connection_info.service.AgreementService;
 
 @RestController

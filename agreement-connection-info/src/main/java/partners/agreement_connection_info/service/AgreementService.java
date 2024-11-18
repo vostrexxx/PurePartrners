@@ -18,8 +18,6 @@ import java.util.List;
 public class AgreementService {
     private final AgreementRepository agreementRepository;
     private final ModelMapper modelMapper = new ModelMapper();
-    private final static String kafkaNewChatTopic = "newChat";
-    private final KafkaTemplate<String, NewChat> kafkaTemplate;
 
     public OperationStatusResponse createAgreement(Long userId, AgreementInfo agreementInfo) {
         try {
@@ -54,11 +52,6 @@ public class AgreementService {
         agreement.setStatus(updateAgreementInfo.getNewStatus());
 //        agreement.setUpdateDate(LocalDateTime.now());
         agreementRepository.save(agreement);
-
-//        NewChat =
-
-//        kafkaTemplate.send(kafkaNewChatTopic, )
-
         return new OperationStatusResponse(1);
     }
 }

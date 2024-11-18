@@ -3,7 +3,7 @@ package com.partners.authserver.service;
 import com.partners.authserver.config.Constants;
 import com.partners.authserver.dto.*;
 import com.partners.authserver.exception.*;
-import com.partners.authserver.model.Role;
+import com.partners.authserver.config.Role;
 import com.partners.authserver.model.UserAuthInfo;
 import com.partners.authserver.repository.UserAuthInfoRepository;
 import jakarta.transaction.Transactional;
@@ -19,8 +19,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -114,5 +112,11 @@ public class UserAuthInfoService{
         if (affectedRows < 1)
             throw new BadRequestException(Constants.KEY_EXCEPTION_CANT_RESET_PASSWORD);
         return new OperationStatusResponse(1);
+    }
+
+    public OperationStatusResponse generatePasswordResetCode(String phoneNumber){
+        UserAuthInfo userAuthInfo = userAuthInfoRepository.findByPhoneNumber(phoneNumber)
+                .orElseThrow(() -> new UsernameNotFoundException(Constants.KEY_EXCEPTION_USER_NOT_FOUND));
+
     }
 }

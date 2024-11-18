@@ -46,6 +46,12 @@ public class AuthenticationController {
         return ResponseEntity.ok(userId);
     }
 
+    @PostMapping("/password/code")
+    public ResponseEntity<OperationStatusResponse> generatePasswordResetCode(@RequestBody CheckPhoneNumber phoneNumber){
+        OperationStatusResponse response = userAuthInfoService.generatePasswordResetCode(phoneNumber);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/password")
     public ResponseEntity<OperationStatusResponse> resetPassword(@RequestBody ResetPasswordRequest newPassword){
         OperationStatusResponse response = userAuthInfoService.resetPassword(newPassword);
