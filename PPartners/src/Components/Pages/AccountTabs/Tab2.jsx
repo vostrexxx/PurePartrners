@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useProfile } from '../../Context/ProfileContext'; // Импорт профиля
 import { ImTextColor } from 'react-icons/im';
 import Card from '../../Previews/Card.jsx';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 
 const FormField = ({ type, label, name, placeholder, value, onChange, disabled, hidden }) => {
@@ -50,7 +50,7 @@ const getAuthToken = () => {
 let url = localStorage.getItem('url')
 
 // Компонент формы для анкеты (Специалист)
-const QuestionnaireForm = () => {
+const QuestionnaireForm = ({ onSubmit, onCancel }) => {
 const [isEditable, setIsEditable] = useState(false);
 
     const [formData, setFormData] = useState({
@@ -66,40 +66,6 @@ const [isEditable, setIsEditable] = useState(false);
         workExp: '',//o
     });
 
-    // const handleSubmit = async (e) => {
-    //     e.preventDefault();
-
-    //     try {
-    //         const authToken = getAuthToken();
-    //         if (!authToken) {
-    //             alert('Токен не найден');
-    //             return;
-    //         }
-
-    //         const response = await fetch(url + '/customer', {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 'Authorization': `Bearer ${authToken}`
-    //             },
-    //             body: JSON.stringify(formData)
-    //         });
-
-    //         if (response.ok) {
-    //             alert('Профиль успешно обновлен!');
-    //             setIsEditable(false);
-    //         } else {
-    //             const errorMsg = await response.text();
-    //             console.error('Ошибка:', errorMsg);
-    //             alert(`Ошибка при обновлении профиля: ${errorMsg}`);
-    //         }
-    //     } catch (error) {
-    //         console.error('Ошибка при отправке запроса:', error);
-    //         alert('Произошла ошибка. Попробуйте снова.');
-    //     }
-    // };
-
-
     const handleEdit = () => {
         setIsEditable(true);
     };
@@ -113,41 +79,30 @@ const [isEditable, setIsEditable] = useState(false);
     };
 
 
-    const handleSubmit = (e) => {
-        // e.preventDefault();
-        // onSubmit(formData); // Отправка данных формы
-
+    const handleSubmit = async (e) => {
+        e.preventDefault();
         try {
             const authToken = getAuthToken();
             if (!authToken) {
                 alert('Токен не найден');
                 return;
+            }
+            const response = await fetch(`${url}/questionnaire`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+                body: JSON.stringify(formData),
+            });
+
+            if (response.ok) {
+                alert('Анкета успешно добавлена!');
+                onSubmit(); // Успешное завершение, закрываем форму
             } else {
-                const response =  fetch(url + '/questionnaire', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`
-                    },
-                    body: JSON.stringify(formData)
-                });
-    
-                if (response.ok) {
-                    alert('Анкета успешно добавлена!');
-                    setIsEditable(false);
-                } else {
-                    const errorMsg =  response.text();
-                    console.error('Ошибка:', errorMsg);
-                    alert(`Ошибка при обновлении профиля: ${errorMsg}`);
-                }
-            }            
+                const errorMsg = await response.text();
+                alert(`Ошибка при добавлении анкеты: ${errorMsg}`);
+            }
         } catch (error) {
-            console.error('Ошибка при отправке запроса:', error);
             alert('Произошла ошибка. Попробуйте снова.');
         }
-
-
-        console.log(formData)
     };
 
     return (
@@ -256,14 +211,14 @@ const [isEditable, setIsEditable] = useState(false);
                         Редактировать
                     </button>
                 )}
-                <button type="button">Отмена</button>
+                <button type="button" onClick={onCancel}>Отмена</button>
             </form>
         </div>
     );
 };
 
 // Компонент формы для объявления (Заказчик)
-const AnnouncementForm = () => {
+const AnnouncementForm = ({ onSubmit, onCancel }) => {
     const [isEditable, setIsEditable] = useState(false);
     
         const [formData, setFormData] = useState({
@@ -323,40 +278,31 @@ const AnnouncementForm = () => {
         };
     
     
-        const handleSubmit = (e) => {
-            // e.preventDefault();
-            // onSubmit(formData); // Отправка данных формы
-    
+        const handleSubmit = async (e) => {
+            e.preventDefault();
             try {
                 const authToken = getAuthToken();
                 if (!authToken) {
                     alert('Токен не найден');
                     return;
+                }
+                const response = await fetch(`${url}/announcement`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+                    body: JSON.stringify(formData),
+                });
+    
+                if (response.ok) {
+                    alert('Объявление успешно добавлено!');
+                    onSubmit(); // Успешное завершение, закрываем форму
                 } else {
-                    const response =  fetch(url + '/announcement', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${authToken}`
-                        },
-                        body: JSON.stringify(formData)
-                    });
-        
-                    if (response.ok) {
-                        alert('Анкета успешно добавлена!');
-                        setIsEditable(false);
-                    } else {
-                        const errorMsg =  response.text();
-                        console.error('Ошибка:', errorMsg);
-                        alert(`Ошибка при обновлении профиля: ${errorMsg}`);
-                    }
-                }            
+                    const errorMsg = await response.text();
+                    alert(`Ошибка при добавлении объявления: ${errorMsg}`);
+                }
             } catch (error) {
-                console.error('Ошибка при отправке запроса:', error);
                 alert('Произошла ошибка. Попробуйте снова.');
             }
-            // console.log(formData)
-        };
+        };    
     
         return (
             <div>
@@ -474,7 +420,7 @@ const AnnouncementForm = () => {
                             Редактировать
                         </button>
                     )}
-                    <button type="button">Отмена</button>
+                    <button type="button" onClick={onCancel}>Отмена</button>
                 </form>
             </div>
         );
@@ -504,7 +450,7 @@ const MainPage = () => {
                 let response;
                 if (isSpecialist) {
                     // Запрос на анкеты для специалиста
-                    response = await fetch(url + '/questionnaire/preview', {
+                    response = await fetch(url + '/questionnaire/previews', {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
@@ -516,7 +462,7 @@ const MainPage = () => {
                     setQuestionnaires(data.previews || []);
                 } else {
                     // Запрос на объявления для заказчика
-                    response = await fetch(url + '/announcement/preview', {
+                    response = await fetch(url + '/announcement/previews', {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
@@ -547,16 +493,15 @@ const MainPage = () => {
     };
 
     const handleAnnCardClick = async (id) => {
-        console.log('id:', id);
-        navigate(`/announcement/${id}`);
-        
+        // console.log('id:', id);
+        navigate(`/announcement/${id}`, { state: { fromLk: true } });
     };
     
     const handleQueCardClick = async (id) => {
-
-        console.log('id:', id);
-        navigate(`/questionnaire/${id}`);
+        // console.log('id:', id);
+        navigate(`/questionnaire/${id}`, { state: { fromLk: true } });
     };
+    
 
     const handleCancel = () => {
         setIsCreating(false); // Отмена создания
@@ -638,4 +583,3 @@ const styles = {
 };
 
 export default MainPage;
-

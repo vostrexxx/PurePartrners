@@ -79,8 +79,11 @@ const MainPage = () => {
             const data = await response.json();
             if (isSpecialist) {
                 setQuestionnaires(data.previews);
+                // console.log(questionnaires)
             } else {
                 setAnnouncements(data.previews);
+                // console.log(announcements)
+                
             }
         } catch (error) {
             setError('Ошибка загрузки данных');
@@ -114,15 +117,14 @@ const MainPage = () => {
     };
 
     useEffect(() => {
-        setAnnouncements([]);
-        setQuestionnaires([]);
-        setLoading(true);
-        setError(null);
-
         const fetchData = async () => {
+            setLoading(true);
+            setError(null);
+    
             try {
                 let response;
                 const params = new URLSearchParams({ text: "" });
+    
                 if (isSpecialist) {
                     response = await fetch(`${url}/questionnaire/filter?${params.toString()}`, {
                         method: 'GET',
@@ -132,7 +134,7 @@ const MainPage = () => {
                         }
                     });
                     const data = await response.json();
-                    setQuestionnaires(data.previews);
+                    setQuestionnaires(data.previews || []);
                 } else {
                     response = await fetch(`${url}/announcement/filter?${params.toString()}`, {
                         method: 'GET',
@@ -142,7 +144,7 @@ const MainPage = () => {
                         }
                     });
                     const data = await response.json();
-                    setAnnouncements(data.previews);
+                    setAnnouncements(data.previews || []);
                 }
             } catch (error) {
                 setError('Ошибка загрузки данных');
@@ -150,9 +152,16 @@ const MainPage = () => {
                 setLoading(false);
             }
         };
-
-        fetchData();
+    
+        // Проверка на пустые массивы, чтобы предотвратить повторную загрузку данных
+        if (isSpecialist && questionnaires.length === 0) {
+            fetchData();
+        } else if (!isSpecialist && announcements.length === 0) {
+            fetchData();
+        }
     }, [isSpecialist]);
+    
+    
 
     return (
         <div>
@@ -164,6 +173,9 @@ const MainPage = () => {
                             <div style={styles.dropdownMenu}>
                                 <ul style={styles.dropdownList}>
                                     <li style={styles.dropdownItem} onClick={() => navigate('/account-actions')}>Работа с аккаунтом</li>
+                                </ul>
+                                <ul style={styles.dropdownList}>
+                                    <li style={styles.dropdownItem} onClick={() => navigate('/agreement')}>Отклики</li>
                                 </ul>
                             </div>
                         )}
@@ -284,14 +296,14 @@ const MainPage = () => {
             </Drawer>
 
             <div>
-                {isSpecialist ? (
+                {!isSpecialist ? (
                     <div>
-                        <h2>Анкеты</h2>
+                        <h2>Ваши анкеты</h2>
                         {questionnaires.length > 0 ? (
                             questionnaires.map((item) => (
                                 <Card
                                     title={item.categoriesOfWork}
-                                    onClick={() => navigate(`/questionnaire/${item.id}`)}
+                                    onClick={() => navigate(`/questionnaire/${item.id}`, { state: { fromLk: false } })}
                                     key={item.id}
                                 />
                             ))
@@ -306,7 +318,7 @@ const MainPage = () => {
                             announcements.map((item) => (
                                 <Card
                                     title={item.workCategories}
-                                    onClick={() => navigate(`/announcement/${item.id}`)}
+                                    onClick={() => navigate(`/announcement/${item.id}`, { state: { fromLk: false } })}
                                     key={item.id}
                                 />
                             ))

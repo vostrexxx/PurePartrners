@@ -9,7 +9,7 @@ const PhoneNumberEnteringPage = () => {
 
     const handleEnterPhoneNumber = async () => {
         try {
-            const response = await fetch(url + '/change/newCode', {
+            const response = await fetch(url + '/auth/password/code', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

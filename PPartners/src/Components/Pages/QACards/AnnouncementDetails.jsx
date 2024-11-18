@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useLocation,useNavigate } from 'react-router-dom';
+import ReactionWindow from '../Agreement/Reaction';
 
 const AnnouncementDetails = () => {
     const { id } = useParams(); // Получаем ID из URL
@@ -13,6 +14,8 @@ const AnnouncementDetails = () => {
     const getAuthToken = () => {
         return localStorage.getItem('authToken');
     };
+
+    const location = useLocation();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -117,7 +120,7 @@ const AnnouncementDetails = () => {
 
                 const data = await response.json();
                 if (data.success === 1) {
-                    navigate('/main'); // Перенаправление после успешного удаления
+                    navigate('/account-actions'); // Перенаправление после успешного удаления
                 } else {
                     setError('Не удалось удалить объявление');
                 }
@@ -248,16 +251,22 @@ const AnnouncementDetails = () => {
                 style={styles.input}
             />
 
-            <div style={styles.buttonContainer}>
-                {!isEditable ? (
+            <div>
+                {!isEditable && canEditOrDelete ? (
                     <>
                         <button onClick={handleEditClick} style={styles.button}>Редактировать</button>
                         <button onClick={handleDeleteClick} style={styles.deleteButton}>Удалить</button>
                     </>
-                ) : (
+                ) : isEditable ? (
                     <button onClick={handleSaveClick} style={styles.button}>Сохранить</button>
+                ) : (
+                    <button style={styles.button}>Откликнуться</button>
                 )}
             </div>
+
+            <ReactionWindow isOpen={isModalOpen} onClose={closeModal} >
+                
+            </ReactionWindow>
         </div>
     );
 };

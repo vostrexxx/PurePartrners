@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import NonAuthMainPage from './Components/Pages/Main/NonAuthMainPage';
 import IdentificationPage from './Components/Pages/Identification/IdentificationPage';
@@ -14,7 +14,24 @@ import PageWTabs from './Components/Pages/AccountTabs/PageWTabs';
 import QuestionnaireDetails from './Components/Pages/QACards/QuestionnaireDetails';
 import AnnouncementDetails from './Components/Pages/QACards/AnnouncementDetails';
 
+import AgreementPage from './Components/Pages/Agreement/AgreementPage';
+
 const App = () => {
+    useEffect(() => {
+        const handleBeforeUnload = () => {
+            // Очищаем токен при закрытии вкладки
+            localStorage.removeItem('authToken');
+        };
+
+        // Добавляем обработчик события `beforeunload`
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        // Убираем обработчик при размонтировании компонента
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, []);
+
     return (
         <Router>
             <Routes>
@@ -28,10 +45,10 @@ const App = () => {
                 <Route path="/passcode-enter" element={<EnterCodePage />} />
                 <Route path="/password-reset" element={<PasswordResetPage />} />
                 <Route path="/account-actions" element={<PageWTabs />} />
-
                 <Route path="/questionnaire/:id" element={<QuestionnaireDetails />} />
                 <Route path="/announcement/:id" element={<AnnouncementDetails />} />
 
+                <Route path="/agreement" element={<AgreementPage />} />
             </Routes>
         </Router>
     );

@@ -1,66 +1,52 @@
-import React, { useState} from 'react';
+import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-let url = localStorage.getItem('url')
 
-const PhoneNumberEnteringPage = () => {
+let url = localStorage.getItem('url');
+
+const codeEnteringPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const [passcode, setPasscode] = useState('');
+    const [code, setPasscode] = useState('');
     const [phoneNumber, setPhoneNumber] = useState(localStorage.getItem('phoneNumber') || '');
+    const [error, setError] = useState(null); // Добавлено состояние для ошибки
 
     const ChangePhoneNumber = async () => {
-  
         const simulateResponse = () => 1;
         if (simulateResponse() === 1) {
             navigate('/phone-enter');
         } else {
-            console.error('Ошибка входа');
+            console.error('Ошибка изменения номера');
         }
-        
     };
 
     const PasscodeEnter = async () => {
         try {
-            const response = await fetch(url + '/change/code', {
+            const response = await fetch(`${url}/auth/password/code/verification`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ phoneNumber, passcode }),
+                body: JSON.stringify({ phoneNumber, code }),
             });
 
             if (response.ok) {
-                navigate('/passcode-enter');
-
-                // Симулируем ответ, если нужно
-                // const simulateResponse = () => 1;
-                // if (simulateResponse() === 1) {
-                //     navigate('/passcode-enter');
-                // } else {
-                //     console.error('Ошибка входа');
-                // }
+                setError(null); // Сбрасываем ошибку, если запрос успешен
+                navigate('/password-reset');
             } else {
-                console.error('Ошибка при отправке номера телефона');
+                setError('Неверный код или срок действия кода истёк. Попробуйте снова.'); // Устанавливаем сообщение об ошибке
             }
         } catch (error) {
+            setError('Произошла ошибка при отправке данных.'); // Обрабатываем другие ошибки
             console.error('Произошла ошибка:', error);
         }
-        const simulateResponse = () => 1;
-        if (simulateResponse() === 1) {
-            navigate('/password-reset');
-        } else {
-            console.error('Ошибка входа');
-        }
-        
     };
-
 
     return (
         <div>
             <label>Введите код из СМС:</label>
             <input
-                type="passcode"
-                value={passcode}
+                type="text"
+                value={code}
                 onChange={(e) => setPasscode(e.target.value)}
                 placeholder="000000"
             />
@@ -70,9 +56,11 @@ const PhoneNumberEnteringPage = () => {
             <button onClick={ChangePhoneNumber}>
                 Изменить номер телефона
             </button>
+            
+            {/* Вывод сообщения об ошибке */}
+            {error && <p style={{ color: 'red' }}>{error}</p>}
         </div>
     );
 };
 
-export default PhoneNumberEnteringPage;
-
+export default codeEnteringPage;

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
+import ReactionWindow from '../Agreement/Reaction';
 
 const QuestionnaireDetails = () => {
     const { id } = useParams();
@@ -7,11 +8,15 @@ const QuestionnaireDetails = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isEditable, setIsEditable] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const url = localStorage.getItem('url');
 
     const getAuthToken = () => {
         return localStorage.getItem('authToken');
     };
+
+    const location = useLocation();
+    const canEditOrDelete = location.state?.fromLk || false; // Показывать кнопки только если fromLk === true
 
     useEffect(() => {
         const fetchData = async () => {
@@ -52,6 +57,18 @@ const QuestionnaireDetails = () => {
     const handleEditClick = () => {
         setIsEditable(true);
     };
+
+    const handleOpenReaction = () => {
+        // тут открываем модульное окно
+        
+        setIsModalOpen(true); // Открыть модальное окно
+    };
+
+    const closeModal = () => {
+        // тут открываем модульное окно
+        setIsModalOpen(false); // Открыть модальное окно
+    };
+
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -108,7 +125,7 @@ const QuestionnaireDetails = () => {
 
                 const data = await response.json();
                 if (data.success === 1) {
-                    navigate('/'); // Перенаправление после успешного удаления
+                    navigate('/account-actions'); // Перенаправление после успешного удаления
                 } else {
                     setError('Не удалось удалить анкету');
                 }
@@ -262,15 +279,25 @@ const QuestionnaireDetails = () => {
             )}
 
             <div>
-                {!isEditable ? (
+                {!isEditable && canEditOrDelete ? (
                     <>
                         <button onClick={handleEditClick} style={styles.button}>Редактировать</button>
                         <button onClick={handleDeleteClick} style={styles.deleteButton}>Удалить</button>
-                    </>     
-                ) : (
+                    </>
+                ) : isEditable ? (
                     <button onClick={handleSaveClick} style={styles.button}>Сохранить</button>
+                ) : (
+                    <button onClick={handleOpenReaction} style={styles.button}>Откликнуться</button>
                 )}
             </div>
+
+            <ReactionWindow
+                isOpen={isModalOpen} onClose={closeModal}
+                userId={questionnaire.userId}
+                id={questionnaire.id}
+                mode={1}
+            />
+
         </div>
     );
 };
@@ -300,6 +327,7 @@ const styles = {
         border: 'none',
         cursor: 'pointer',
     },
+    
 };
 
 export default QuestionnaireDetails;

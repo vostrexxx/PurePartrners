@@ -26,6 +26,9 @@ const TopBar = () => {
                                     {/* <li style={styles.dropdownItem} onClick={() => navigate('/profiles')}>Работа с профилями</li>
                                     <li style={styles.dropdownItem} onClick={() => navigate('/account-actions')}>Действия с аккаунтом</li> */}
                                 </ul>
+                                <ul style={styles.dropdownList}>
+                                    <li style={styles.dropdownItem} onClick={() => navigate('/agreement')}>Отклики</li>
+                                </ul>
                             </div>
                         )}
                         <div style={styles.profileSwitchContainer}>
