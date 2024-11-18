@@ -39,4 +39,11 @@ public class ExceptionApiHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(internalServerErrorException.getMessage());
     }
+
+    @ExceptionHandler(ResetPasswordForbiddenException.class)
+    public ResponseEntity<String> handleResetPasswordForbiddenException(ResetPasswordForbiddenException resetPasswordForbiddenException){
+        return ResponseEntity
+                .status(resetPasswordForbiddenException.getHttpStatus())
+                .body(resetPasswordForbiddenException.getMessage());
+    }
 }

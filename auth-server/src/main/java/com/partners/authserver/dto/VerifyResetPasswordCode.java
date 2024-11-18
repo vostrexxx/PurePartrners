@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class ResetPasswordResponse {
-    private int success;
+public class VerifyResetPasswordCode {
+    private String phoneNumber;
+    private String code;
 }

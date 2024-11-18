@@ -9,5 +9,8 @@ public class Constants {
     public static final String KEY_EXCEPTION_NO_PHONE_NUMBER = "Phone number not found";
     public static final String KEY_EXCEPTION_CANT_RESET_PASSWORD = "Can't reset password";
     public static final String KEY_BEARER_HEADER = "Bearer ";
-
+    public static final String KEY_EXCEPTION_PASSWORD_RESET_CODE_NOT_FOUND = "Password reset code not found";
+    public static final String KEY_EXCEPTION_PASSWORD_RESET_CODE_EXPIRED = "Password reset code expired";
+    public static final String KEY_EXCEPTION_PASSWORD_RESET_CODE_INVALID = "Password reset code invalid";
+    public static final String KEY_EXCEPTION_PASSWORD_RESET_FAILED = "Password reset failed";
 }

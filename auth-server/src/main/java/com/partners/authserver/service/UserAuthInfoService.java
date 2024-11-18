@@ -4,7 +4,9 @@ import com.partners.authserver.config.Constants;
 import com.partners.authserver.dto.*;
 import com.partners.authserver.exception.*;
 import com.partners.authserver.config.Role;
+import com.partners.authserver.model.PasswordResetCode;
 import com.partners.authserver.model.UserAuthInfo;
+import com.partners.authserver.repository.ResetCodeRepository;
 import com.partners.authserver.repository.UserAuthInfoRepository;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
@@ -20,6 +22,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class UserAuthInfoService{
@@ -30,6 +34,7 @@ public class UserAuthInfoService{
     private final AuthenticationManager authenticationManager;
     private final UserDetailService userDetailService;
     private final ModelMapper modelMapper = new ModelMapper();
+    private final ResetCodeRepository resetCodeRepository;
 
     public OperationStatusResponse register(RegistrationInfo registrationInfo){
 
@@ -103,20 +108,48 @@ public class UserAuthInfoService{
         return new IdFromTelephoneResponse(HttpStatus.OK, userAuthInfo.getId());
     }
 
-    @Transactional
-    public OperationStatusResponse resetPassword(ResetPasswordRequest newPassword){
-        String phoneNumber = newPassword.getPhoneNumber();
-        String password = newPassword.getNewPassword();
-        String encodedPassword = passwordEncoder.encode(password);
-        int affectedRows = userAuthInfoRepository.setPasswordByPhoneNumber(encodedPassword, phoneNumber);
-        if (affectedRows < 1)
-            throw new BadRequestException(Constants.KEY_EXCEPTION_CANT_RESET_PASSWORD);
-        return new OperationStatusResponse(1);
-    }
-
     public OperationStatusResponse generatePasswordResetCode(String phoneNumber){
         UserAuthInfo userAuthInfo = userAuthInfoRepository.findByPhoneNumber(phoneNumber)
                 .orElseThrow(() -> new UsernameNotFoundException(Constants.KEY_EXCEPTION_USER_NOT_FOUND));
+        PasswordResetCode resetCode = resetCodeRepository.findByUserAuthInfo(userAuthInfo)
+                .orElse(new PasswordResetCode());
+        String code = String.valueOf((int) (Math.random() * 9000) + 1000);
+        resetCode.setCode(code);
+        resetCode.setExpiresAt(LocalDateTime.now().plusMinutes(3));
+        resetCode.setUserAuthInfo(userAuthInfo);
+        resetCode.setIsVerified(false);
 
+        resetCodeRepository.save(resetCode);
+        return new OperationStatusResponse(1);
+    }
+
+    public OperationStatusResponse verifyResetCode(String code, String phoneNumber) throws ResetPasswordForbiddenException {
+        UserAuthInfo userAuthInfo = userAuthInfoRepository.findByPhoneNumber(phoneNumber)
+                .orElseThrow(() -> new UsernameNotFoundException(Constants.KEY_EXCEPTION_USER_NOT_FOUND));
+        PasswordResetCode passwordResetCode = resetCodeRepository.findByUserAuthInfo(userAuthInfo)
+                .orElseThrow(() -> new UsernameNotFoundException(Constants.KEY_EXCEPTION_PASSWORD_RESET_CODE_NOT_FOUND));
+
+        if (!code.equals(passwordResetCode.getCode()))
+            throw new ResetPasswordForbiddenException(Constants.KEY_EXCEPTION_PASSWORD_RESET_CODE_INVALID, HttpStatus.FORBIDDEN);
+
+        if (passwordResetCode.getExpiresAt().isBefore(LocalDateTime.now()))
+            throw new ResetPasswordForbiddenException(Constants.KEY_EXCEPTION_PASSWORD_RESET_CODE_EXPIRED, HttpStatus.FORBIDDEN);
+
+        passwordResetCode.setIsVerified(true);
+        resetCodeRepository.save(passwordResetCode);
+        return new OperationStatusResponse(1);
+    }
+
+    public OperationStatusResponse resetPassword(String phoneNumber, String newPassword) throws ResetPasswordForbiddenException {
+        UserAuthInfo userAuthInfo = userAuthInfoRepository.findByPhoneNumber(phoneNumber)
+                .orElseThrow(() -> new UsernameNotFoundException(Constants.KEY_EXCEPTION_USER_NOT_FOUND));
+        PasswordResetCode passwordResetCode = resetCodeRepository.findByUserAuthInfoAndIsVerified(userAuthInfo, true)
+                .orElseThrow(() -> new ResetPasswordForbiddenException(Constants.KEY_EXCEPTION_PASSWORD_RESET_FAILED, HttpStatus.FORBIDDEN));
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        userAuthInfo.setPassword(encodedPassword);
+        userAuthInfoRepository.save(userAuthInfo);
+
+        resetCodeRepository.delete(passwordResetCode);
+        return new OperationStatusResponse(1);
     }
 }

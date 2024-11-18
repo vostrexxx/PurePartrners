@@ -11,16 +11,16 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "reset-code")
+@Table(name = "reset_code")
 public class PasswordResetCode {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String code;
-    private Long userId;
-
-    @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
-    private UserAuthInfo user;
-
     private LocalDateTime expiresAt;
+    private Boolean isVerified;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private UserAuthInfo userAuthInfo;
 }

@@ -48,13 +48,23 @@ public class AuthenticationController {
 
     @PostMapping("/password/code")
     public ResponseEntity<OperationStatusResponse> generatePasswordResetCode(@RequestBody CheckPhoneNumber phoneNumber){
-        OperationStatusResponse response = userAuthInfoService.generatePasswordResetCode(phoneNumber);
+        OperationStatusResponse response = userAuthInfoService.generatePasswordResetCode(phoneNumber.getPhoneNumber());
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/password/code/verification")
+    public ResponseEntity<OperationStatusResponse> verifyPasswordResetCode(@RequestBody VerifyResetPasswordCode verifyResetPasswordCode)
+            throws ResetPasswordForbiddenException {
+        OperationStatusResponse response = userAuthInfoService.verifyResetCode(verifyResetPasswordCode.getCode(),
+                verifyResetPasswordCode.getPhoneNumber());
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/password")
-    public ResponseEntity<OperationStatusResponse> resetPassword(@RequestBody ResetPasswordRequest newPassword){
-        OperationStatusResponse response = userAuthInfoService.resetPassword(newPassword);
+    public ResponseEntity<OperationStatusResponse> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest)
+            throws ResetPasswordForbiddenException {
+        OperationStatusResponse response = userAuthInfoService.resetPassword(resetPasswordRequest.getPhoneNumber(),
+                resetPasswordRequest.getNewPassword());
         return ResponseEntity.ok(response);
     }
 }
