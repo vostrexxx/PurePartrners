@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor
@@ -60,17 +61,26 @@ public class QuestionnaireService {
 
         //Получение изображений для анкеты
         String questionnaireImagePath = Constants.KEY_DEFAULT_IMAGES_PATH + questionnaireId;
-        File directory = new File(questionnaireImagePath);
         List<String> questionnaireImages = new ArrayList<>();
-        if (directory.exists() && directory.isDirectory() && directory.list().length > 0) {
-            for (File file : directory.listFiles()){
-                if (file.isFile()){
-                    String imagePath = questionnaireId + file.getName();
-                    questionnaireImages.add(imagePath);
-                }
-            }
-        } else
-            questionnaireImages = null;
+
+//        try (Stream<Path> paths = Files.list(Path.of(questionnaireImagePath))){
+//            questionnaireImages = paths
+//                    .filter(Files::isRegularFile)
+//                    .map(path -> questionnaireId + path.getFileName().toString())
+//                    .collect(Collectors.toList());
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            questionnaireImages = null;
+//        }
+//        if (directory.exists() && directory.isDirectory() && directory.list().length > 0) {
+//            for (File file : directory.listFiles()){
+//                if (file.isFile()){
+//                    String imagePath = questionnaireId + file.getName();
+//                    questionnaireImages.add(imagePath);
+//                }
+//            }
+//        } else
+//            questionnaireImages = null;
 
         questionnaireInfo.setQuestionnaireImages(questionnaireImages);
         return new GetQuestionnaireInfoResponse(1, questionnaireInfo);
@@ -101,14 +111,11 @@ public class QuestionnaireService {
 
         for (int i = 0; i < questionnaireImages.length; i++){
             String imagePath = Constants.KEY_DEFAULT_IMAGES_PATH + questionnaireId;
-            File directory = new File(imagePath);
-            if (!directory.exists())
-                directory.mkdirs();
+            Files.createDirectory(Path.of(imagePath));
             imagePath += "/" + i + Constants.KEY_DEFAULT_IMAGES_EXTENSION;
-            File userImage = new File(imagePath);
-            questionnaireImages[i].transferTo(userImage.toPath());
-            File checkFile = new File(imagePath);
-            if (!checkFile.isFile())
+            Path anotherImagePath = Path.of(imagePath);
+            questionnaireImages[i].transferTo(anotherImagePath);
+            if (!Files.exists(anotherImagePath))
                 return new OperationStatusResponse(0);
         }
         return new OperationStatusResponse(1);

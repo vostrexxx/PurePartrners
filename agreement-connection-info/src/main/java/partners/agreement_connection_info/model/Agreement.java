@@ -45,4 +45,16 @@ public class Agreement {
 
     @Column(nullable = false)
     private LocalDateTime updateDate;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createDate = LocalDateTime.now();
+        this.updateDate = LocalDateTime.now();
+        this.status = ConnectionStatus.PENDING;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updateDate = LocalDateTime.now();
+    }
 }

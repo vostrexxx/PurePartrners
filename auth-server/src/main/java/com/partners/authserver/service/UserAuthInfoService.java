@@ -100,10 +100,9 @@ public class UserAuthInfoService{
     }
 
     public IdFromTelephoneResponse getIdByPhoneNumber(String phoneNumber){
-        Optional<UserAuthInfo> userAuthInfo = userAuthInfoRepository.findByPhoneNumber(phoneNumber);
-        if (userAuthInfo.isEmpty())
-            throw new BadRequestException(Constants.KEY_EXCEPTION_NO_PHONE_NUMBER);
-        return new IdFromTelephoneResponse(HttpStatus.OK, userAuthInfo.get().getId());
+        UserAuthInfo userAuthInfo = userAuthInfoRepository.findByPhoneNumber(phoneNumber)
+                .orElseThrow(() -> new UsernameNotFoundException(Constants.KEY_EXCEPTION_USER_NOT_FOUND));
+        return new IdFromTelephoneResponse(HttpStatus.OK, userAuthInfo.getId());
     }
 
     @Transactional

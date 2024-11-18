@@ -7,5 +7,6 @@ public class Constants {
     public static final String KEY_EXCEPTION_CANT_DELETE_IMAGE = "Can't delete image";
     public static final String KEY_DEFAULT_IMAGE_EXTENSION = ".jpg";
     public static final String KEY_DEFAULT_IMAGES_PATH = "src/main/resources/images/";
+    public static final String KEY_EXCEPTION_ANNOUNCEMENT_NOT_FOUND = "Announcement not found";
 }
 

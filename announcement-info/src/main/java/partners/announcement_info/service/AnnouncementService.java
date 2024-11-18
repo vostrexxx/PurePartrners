@@ -20,10 +20,9 @@ import partners.announcement_info.repository.AnnouncementRepository;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -33,27 +32,29 @@ public class AnnouncementService {
     private final EntityManager entityManager;
 
     public GetAnnouncementInfoResponse getAnnouncementInfo(Long announcementId) {
-        Optional<Announcement> announcement = repository.findById(announcementId);
-        if (announcement.isEmpty()){
-            return new GetAnnouncementInfoResponse(0, null);
-        }
-        Announcement actualAnnouncementInfo = announcement.get();
-        AnnouncementInfo announcementInfo = modelMapper.map(actualAnnouncementInfo, AnnouncementInfo.class);
+        Announcement announcement = repository.findById(announcementId)
+                .orElseThrow(() -> new NotFoundException(Constants.KEY_EXCEPTION_ANNOUNCEMENT_NOT_FOUND));
+        AnnouncementInfo announcementInfo = modelMapper.map(announcement, AnnouncementInfo.class);
 
         //Получение ссылок на изображения
         String announcementImagesPath = Constants.KEY_DEFAULT_IMAGES_PATH + announcementId;
         File directory = new File(announcementImagesPath);
-        List<String> announcementImages = new ArrayList<>();
-        if (directory.exists() && directory.isDirectory() && directory.list().length > 0) {
-            for (File file : directory.listFiles()){
-                if (file.isFile()){
-                    String imagePath = announcementId + file.getName();
-                    announcementImages.add(imagePath);
-                }
-            }
-        } else
-            announcementImages = null;
-        announcementInfo.setAnnouncementImages(announcementImages);
+//        List<String> announcementImages = new ArrayList<>();
+        List<String> announcementImages = Arrays.stream(Objects.requireNonNull(directory.listFiles()))
+                .filter(File::isFile)
+                .map(file -> announcementId + file.getName())
+                .collect(Collectors.toList());
+//        if (directory.exists() && directory.isDirectory() && directory.list().length > 0) {
+//            for (File file : directory.listFiles()){
+//                if (file.isFile()){
+//                    String imagePath = announcementId + file.getName();
+//                    announcementImages.add(imagePath);
+//                }
+//            }
+//        } else
+//            announcementImages = null;
+        announcementInfo.setAnnouncementImages(announcementImages.isEmpty() ? null : announcementImages);
+//        announcementInfo.setAnnouncementImages(announcementImages);
         return new GetAnnouncementInfoResponse(1, announcementInfo);
     }
 
@@ -73,14 +74,11 @@ public class AnnouncementService {
         MultipartFile[] announcementImages = images.getAnnouncementImages();
         for (int i = 0; i < announcementImages.length; i++){
             String imagePath = Constants.KEY_DEFAULT_IMAGES_PATH + announcementId;
-            File directory = new File(imagePath);
-            if (!directory.exists())
-                directory.mkdirs();
+            Files.createDirectory(Path.of(imagePath));
             imagePath += "/" + i + Constants.KEY_DEFAULT_IMAGE_EXTENSION;
-            File userImage = new File(imagePath);
-            announcementImages[i].transferTo(userImage.toPath());
-            File checkFile = new File(imagePath);
-            if (!checkFile.isFile())
+            Path anotherImagePath = Path.of(imagePath);
+            announcementImages[i].transferTo(anotherImagePath);
+            if (!Files.exists(anotherImagePath))
                 return new OperationStatusResponse(0);
         }
         return new OperationStatusResponse(1);
@@ -124,6 +122,7 @@ public class AnnouncementService {
     }
 
     public OperationStatusResponse updateAnnouncement(Long announcementId, AnnouncementInfo announcementInfo){
+        //TODO динамическое обновление полей (обновились ли поля или нет проверка нужна)
         Announcement announcement = repository.getReferenceById(announcementId);
         announcement.setTotalCost(announcementInfo.getTotalCost());
         announcement.setWorkCategories(announcementInfo.getWorkCategories());
