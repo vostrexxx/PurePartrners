@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.NotFoundException;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.search.engine.search.query.SearchResult;
 import org.hibernate.search.mapper.orm.Search;
 import org.hibernate.search.mapper.orm.session.SearchSession;
@@ -25,15 +26,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class QuestionnaireService {
 
     private final QuestionnaireRepository questionnaireRepository;
@@ -61,26 +60,15 @@ public class QuestionnaireService {
 
         //Получение изображений для анкеты
         String questionnaireImagePath = Constants.KEY_DEFAULT_IMAGES_PATH + questionnaireId;
+        File directory = new File(questionnaireImagePath);
         List<String> questionnaireImages = new ArrayList<>();
 
-//        try (Stream<Path> paths = Files.list(Path.of(questionnaireImagePath))){
-//            questionnaireImages = paths
-//                    .filter(Files::isRegularFile)
-//                    .map(path -> questionnaireId + path.getFileName().toString())
-//                    .collect(Collectors.toList());
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            questionnaireImages = null;
-//        }
-//        if (directory.exists() && directory.isDirectory() && directory.list().length > 0) {
-//            for (File file : directory.listFiles()){
-//                if (file.isFile()){
-//                    String imagePath = questionnaireId + file.getName();
-//                    questionnaireImages.add(imagePath);
-//                }
-//            }
-//        } else
-//            questionnaireImages = null;
+        if (directory.exists() && directory.isDirectory() && directory.listFiles() != null) {
+            questionnaireImages = Arrays.stream(directory.listFiles())
+                    .filter(File::isFile)
+                    .map(file -> questionnaireId + file.getName())
+                    .collect(Collectors.toList());
+        }
 
         questionnaireInfo.setQuestionnaireImages(questionnaireImages);
         return new GetQuestionnaireInfoResponse(1, questionnaireInfo);
@@ -97,9 +85,7 @@ public class QuestionnaireService {
 
     public OperationStatusResponse deleteImageByPath(String imagePath) throws IOException {
         String fullImagePath = Constants.KEY_DEFAULT_IMAGES_PATH + imagePath;
-        File file = new File(fullImagePath);
-        boolean success = Files.deleteIfExists(file.toPath());
-        if (success)
+        if (Files.deleteIfExists(Path.of(fullImagePath)))
             return new OperationStatusResponse(1);
         else
             return new OperationStatusResponse(0);
@@ -123,11 +109,9 @@ public class QuestionnaireService {
 
     public GetAllPreviews getAllQuestionnairesPreviews(Long userId){
         List<Questionnaire> previews = questionnaireRepository.findAllByUserId(userId);
-        List<QuestionnairePreview> questionnairePreviews = new ArrayList<>();
-        for (Questionnaire questionnaire : previews) {
-            QuestionnairePreview questionnairePreview = modelMapper.map(questionnaire, QuestionnairePreview.class);
-            questionnairePreviews.add(questionnairePreview);
-        }
+        List<QuestionnairePreview> questionnairePreviews = previews.stream()
+                .map(questionnaire -> modelMapper.map(questionnaire, QuestionnairePreview.class))
+                .collect(Collectors.toList());
         return new GetAllPreviews(1, questionnairePreviews);
     }
 
@@ -154,11 +138,6 @@ public class QuestionnaireService {
         questionnaire.setCategoriesOfWork(questionnaireInfo.getCategoriesOfWork());
         questionnaire.setHasTeam(questionnaireInfo.getHasTeam());
         questionnaire.setTeam(questionnaireInfo.getTeam());
-        questionnaire.setHasEdu(questionnaireInfo.getHasEdu());
-        questionnaire.setEduEst(questionnaireInfo.getEduEst());
-        questionnaire.setEduDateStart(questionnaireInfo.getEduDateStart());
-        questionnaire.setEduDateEnd(questionnaireInfo.getEduDateEnd());
-        questionnaire.setWorkExp(questionnaireInfo.getWorkExp());
         questionnaire.setSelfInfo(questionnaireInfo.getSelfInfo());
         questionnaire.setPrices(questionnaireInfo.getPrices());
         questionnaireRepository.save(questionnaire);
@@ -173,7 +152,6 @@ public class QuestionnaireService {
                                                Integer minWorkExp) {
         SearchSession session = Search.session(entityManager);
         List<QuestionnairePreview> finalFilteredResult;
-
         List<Questionnaire> result = session.search(Questionnaire.class)
                 .where(f -> {
                     var query = f.bool();

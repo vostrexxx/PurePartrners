@@ -7,5 +7,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class GetAnnouncementInfoResponse {
     private int success;
-    private AnnouncementInfo announcement;
+    private AnnouncementInfo announcementInfo;
 }

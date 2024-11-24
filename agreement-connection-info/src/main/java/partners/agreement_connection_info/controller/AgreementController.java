@@ -22,14 +22,14 @@ public class AgreementController {
     }
 
     @GetMapping("/sent")
-    public ResponseEntity<AllUserAgreements> getSentAgreements(@RequestHeader Long userId) {
-        AllUserAgreements response = agreementService.getUserAgreementsByMode(userId, true);
+    public ResponseEntity<AllUserAgreements> getSentAgreements(@RequestHeader Long userId, @RequestParam int mode) {
+        AllUserAgreements response = agreementService.getUserAgreementsByMode(userId, true, mode);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/received")
-    public ResponseEntity<AllUserAgreements> getReceivedAgreements(@RequestHeader Long userId) {
-        AllUserAgreements response = agreementService.getUserAgreementsByMode(userId, false);
+    public ResponseEntity<AllUserAgreements> getReceivedAgreements(@RequestHeader Long userId, @RequestParam int mode) {
+        AllUserAgreements response = agreementService.getUserAgreementsByMode(userId, false, mode);
         return ResponseEntity.ok(response);
     }
 

@@ -12,6 +12,8 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 public class AnnouncementInfo {
+    private Long id;
+    private Long userId;
     @Nullable
     private Double totalCost;
     private String workCategories;

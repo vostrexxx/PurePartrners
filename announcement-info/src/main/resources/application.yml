@@ -26,6 +26,7 @@ spring:
             directory.root: ./data/index
             analysis:
               configurer: partners.announcement_info.config.AnnouncementAnalysisConfigurer
+        default_schema: announcement
 
 server:
   port: 8083

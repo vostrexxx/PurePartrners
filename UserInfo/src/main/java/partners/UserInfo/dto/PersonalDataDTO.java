@@ -3,6 +3,7 @@ package partners.UserInfo.dto;
 import jakarta.annotation.Nullable;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -16,8 +17,7 @@ public class PersonalDataDTO {
 
     private String phoneNumber;
     private String email;
-    private String birthday;
-    private Boolean isPassportConfirmed;
+    private LocalDate birthday;
     private String avatar;
     private List<String> passport;
 }

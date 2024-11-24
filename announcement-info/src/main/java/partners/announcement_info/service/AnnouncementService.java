@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.NotFoundException;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.search.mapper.orm.Search;
 import org.hibernate.search.mapper.orm.session.SearchSession;
 import org.modelmapper.ModelMapper;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class AnnouncementService {
     private AnnouncementRepository repository;
     private final ModelMapper modelMapper = new ModelMapper();
@@ -39,22 +41,14 @@ public class AnnouncementService {
         //Получение ссылок на изображения
         String announcementImagesPath = Constants.KEY_DEFAULT_IMAGES_PATH + announcementId;
         File directory = new File(announcementImagesPath);
-//        List<String> announcementImages = new ArrayList<>();
-        List<String> announcementImages = Arrays.stream(Objects.requireNonNull(directory.listFiles()))
-                .filter(File::isFile)
-                .map(file -> announcementId + file.getName())
-                .collect(Collectors.toList());
-//        if (directory.exists() && directory.isDirectory() && directory.list().length > 0) {
-//            for (File file : directory.listFiles()){
-//                if (file.isFile()){
-//                    String imagePath = announcementId + file.getName();
-//                    announcementImages.add(imagePath);
-//                }
-//            }
-//        } else
-//            announcementImages = null;
-        announcementInfo.setAnnouncementImages(announcementImages.isEmpty() ? null : announcementImages);
-//        announcementInfo.setAnnouncementImages(announcementImages);
+        List<String> announcementImages = new ArrayList<>();
+        if (directory.exists() && directory.isDirectory() && directory.listFiles() != null) {
+            announcementImages = Arrays.stream(directory.listFiles())
+                    .filter(File::isFile)
+                    .map(file -> announcementId + file.getName())
+                    .collect(Collectors.toList());
+        }
+        announcementInfo.setAnnouncementImages(announcementImages);
         return new GetAnnouncementInfoResponse(1, announcementInfo);
     }
 
@@ -74,11 +68,10 @@ public class AnnouncementService {
         MultipartFile[] announcementImages = images.getAnnouncementImages();
         for (int i = 0; i < announcementImages.length; i++){
             String imagePath = Constants.KEY_DEFAULT_IMAGES_PATH + announcementId;
-            Files.createDirectory(Path.of(imagePath));
+            Files.createDirectories(Path.of(imagePath));
             imagePath += "/" + i + Constants.KEY_DEFAULT_IMAGE_EXTENSION;
-            Path anotherImagePath = Path.of(imagePath);
-            announcementImages[i].transferTo(anotherImagePath);
-            if (!Files.exists(anotherImagePath))
+            announcementImages[i].transferTo(Path.of(imagePath));
+            if (!Files.exists(Path.of(imagePath)))
                 return new OperationStatusResponse(0);
         }
         return new OperationStatusResponse(1);
@@ -86,28 +79,24 @@ public class AnnouncementService {
 
     public GetAllPreviews getAllCustomerPreviews(Long userId){
         List<Announcement> previews = repository.findAllByUserId(userId);
-        List<AnnouncementInfoPreview> announcementInfoPreviews = new ArrayList<>();
-        for (Announcement announcement : previews){
-            AnnouncementInfoPreview anotherPreview = modelMapper.map(announcement, AnnouncementInfoPreview.class);
-            announcementInfoPreviews.add(anotherPreview);
-        }
+        List<AnnouncementInfoPreview> announcementInfoPreviews = previews.stream()
+                .map(announcement -> modelMapper.map(announcement, AnnouncementInfoPreview.class))
+                .collect(Collectors.toList());
         return new GetAllPreviews(1, announcementInfoPreviews);
     }
 
     public Resource getImageByPath(String imagePath){
         String fullImagePath = Constants.KEY_DEFAULT_IMAGES_PATH + imagePath;
-        File file = new File(fullImagePath);
-        if (file.exists()){
-            return new FileSystemResource(file);
+        File image = new File(fullImagePath);
+        if (image.exists()){
+            return new FileSystemResource(image);
         } else
             return null;
     }
 
     public OperationStatusResponse deleteImageByPath(String imagePath) throws IOException {
         String fullImagePath = Constants.KEY_DEFAULT_IMAGES_PATH + imagePath;
-        File file = new File(fullImagePath);
-        boolean success = Files.deleteIfExists(file.toPath());
-        if (success)
+        if (Files.deleteIfExists(Path.of(fullImagePath)))
             return new OperationStatusResponse(1);
         else
             return new OperationStatusResponse(0);
@@ -154,77 +143,68 @@ public class AnnouncementService {
                                              Boolean hasOther, String startDate, String endDate){
         SearchSession session = Search.session(entityManager);
         List<AnnouncementInfoPreview> finalFilteredResult;
-        if (!Objects.equals(text, "")) {
-            //Пока что просто поиск по словам
-//            List<Announcement> result = session.search(Announcement.class)
-//                    .where(f -> f.match()
-//                            .fields("comments", "objectName", "other", "house", "metro", "workCategories")
-//                            .matching(text))
-//                    .fetchHits(20);
+        List<Announcement> result = session.search(Announcement.class)
+                .where(f -> {
+                    var query = f.bool();
 
-            //Поиск и фильтрация
-//            SearchSession searchSession = Search.session(entityManager);
-//            List<Announcement> result = session.search(Announcement.class)
-//                    .where(f -> {
-//                        f.bool().must(f.match()
-//                                .fields("comments", "objectName", "other", "house", "metro", "workCategories")
-//                                .matching(text));
-//                        f.
-//                    })
-            List<Announcement> result = session.search(Announcement.class)
-                    .where(f -> {
-                        // Начинаем с базового условия для полнотекстового поиска
-                        var query = f.bool()
-                                .must(f.match()
-                                        .fields("comments", "objectName", "other", "house", "metro", "workCategories")
-                                        .matching(text));
+                    if (text != null && !text.isEmpty()) {
+                        query.must(f.match()
+                                .fields("comments", "objectName", "other", "house", "metro", "workCategories")
+                                .matching(text));
+                    }
+                    boolean hasFilters = false;
 
-                        // Добавляем фильтр по цене, если параметры заданы
-                        if (minPrice != null && maxPrice != null) {
-                            query = query.filter(f.range()
-                                    .field("totalCost")
-                                    .between(minPrice, maxPrice));
-                        } else if (minPrice != null) {
-                            query = query.filter(f.range()
-                                    .field("totalCost")
-                                    .atLeast(minPrice));
-                        } else if (maxPrice != null) {
-                            query = query.filter(f.range()
-                                    .field("totalCost")
-                                    .atMost(maxPrice));
-                        }
-                        // Добавляем фильтр по другому, если параметр задан
-                        if (hasOther != null) {
-                            query = query.filter(f.match()
-                                    .field("hasOther")
-                                    .matching(hasOther));
-                        }
+                    // Добавляем фильтр по цене, если параметры заданы
+                    if (minPrice != null && maxPrice != null) {
+                        query.filter(f.range()
+                                .field("totalCost")
+                                .between(minPrice, maxPrice));
+                        hasFilters = true;
+                    } else if (minPrice != null) {
+                        query.filter(f.range()
+                                .field("totalCost")
+                                .atLeast(minPrice));
+                        hasFilters = true;
+                    } else if (maxPrice != null) {
+                        query.filter(f.range()
+                                .field("totalCost")
+                                .atMost(maxPrice));
+                        hasFilters = true;
+                    }
+                    // Добавляем фильтр по другому, если параметр задан
+                    if (hasOther != null) {
+                        query.filter(f.match()
+                                .field("hasOther")
+                                .matching(hasOther));
+                        hasFilters = true;
+                    }
 
-                        if (startDate != null)
-                            query = query.filter(f.range()
-                                    .field("startDate")
-                                    .atLeast(startDate));
+                    if (startDate != null) {
+                        query.filter(f.range()
+                                .field("startDate")
+                                .atLeast(startDate));
+                        hasFilters = true;
+                    }
+                    if (endDate != null) {
+                        query.filter(f.range()
+                                .field("endDate")
+                                .atMost(endDate));
+                        hasFilters = true;
+                    }
 
-                        if (endDate != null)
-                            query = query.filter(f.range()
-                                    .field("endDate")
-                                    .atMost(endDate));
-                        return query;
-                    })
-                    .fetchHits(20); // Лимит на количество возвращаемых результатов
+                    // Если нет ни текста, ни фильтров, возвращаем все записи
+                    if (!hasFilters && (text == null || text.isEmpty())) {
+                        query.must(f.matchAll());
+                    }
 
-            finalFilteredResult = result.stream()
-                    .filter(announcement -> !announcement.getUserId().equals(userId))
-                    .map(announcement -> modelMapper.map(announcement, AnnouncementInfoPreview.class))
-                    .toList();
-        } else {
-            List<Announcement> result = repository.findAll();
-            finalFilteredResult = result.stream()
-                    .filter(announcement -> !announcement.getUserId().equals(userId))
-                    .map(announcement -> modelMapper.map(announcement, AnnouncementInfoPreview.class))
-                    .toList();
-            return new GetAllPreviews(1, finalFilteredResult);
-        }
+                    return query;
+                })
+                .fetchHits(20); // Лимит на количество возвращаемых результатов
+
+        finalFilteredResult = result.stream()
+                .filter(announcement -> !announcement.getUserId().equals(userId))
+                .map(announcement -> modelMapper.map(announcement, AnnouncementInfoPreview.class))
+                .toList();
         return new GetAllPreviews(1, finalFilteredResult);
     }
 }

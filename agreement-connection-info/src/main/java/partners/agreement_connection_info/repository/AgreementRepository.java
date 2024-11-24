@@ -8,6 +8,6 @@ import java.util.List;
 
 @Repository
 public interface AgreementRepository extends JpaRepository<Agreement, Long> {
-    List<Agreement> findAllByReceiverId(Long receiverId);
-    List<Agreement> findALlByInitiatorId(Long initiatorId);
+    List<Agreement> findAllByReceiverIdAndMode(Long receiverId, int mode);
+    List<Agreement> findALlByInitiatorIdAndMode(Long initiatorId, int mode);
 }

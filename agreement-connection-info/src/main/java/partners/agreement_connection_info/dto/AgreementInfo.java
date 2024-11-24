@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AgreementInfo {
+    private Long initiatorId;
     private Long receiverId;
 
     private Long initiatorItemId;

@@ -37,24 +37,6 @@ public class Questionnaire {
     @Nullable
     private String team;
 
-    @GenericField
-    @Column(nullable = false)
-    private Boolean hasEdu;
-
-    @Nullable
-    @FullTextField(analyzer = "autocomplete_indexing", searchAnalyzer = "autocomplete_search")
-    private String eduEst;
-
-    @Nullable
-    private LocalDate eduDateStart;
-
-    @Nullable
-    private LocalDate eduDateEnd;
-
-    @GenericField
-    @Column(nullable = false)
-    private Integer workExp;
-
     @FullTextField(analyzer = "autocomplete_indexing", searchAnalyzer = "autocomplete_search")
     @Column(nullable = false)
     private String selfInfo;

@@ -1,6 +1,7 @@
 package partners.agreement_connection_info.service;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -15,30 +16,29 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class AgreementService {
     private final AgreementRepository agreementRepository;
-    private final ModelMapper modelMapper = new ModelMapper();
+    private final ModelMapper modelMapper;
 
     public OperationStatusResponse createAgreement(Long userId, AgreementInfo agreementInfo) {
         try {
             Agreement agreementForSave = modelMapper.map(agreementInfo, Agreement.class);
             agreementForSave.setInitiatorId(userId);
-//            agreementForSave.setStatus(ConnectionStatus.PENDING);
-//            agreementForSave.setCreateDate(LocalDateTime.now());
-//            agreementForSave.setUpdateDate(LocalDateTime.now());
             agreementRepository.save(agreementForSave);
             return new OperationStatusResponse(1);
         } catch (Exception e) {
+            log.error(e.getMessage());
             return new OperationStatusResponse(0);
         }
     }
 
-    public AllUserAgreements getUserAgreementsByMode(Long userId, boolean mode){
+    public AllUserAgreements getUserAgreementsByMode(Long userId, boolean initiatorMode, int mode){
         List<Agreement> allUserAgreements;
-        if (mode)
-            allUserAgreements = agreementRepository.findALlByInitiatorId(userId);
+        if (initiatorMode)
+            allUserAgreements = agreementRepository.findALlByInitiatorIdAndMode(userId, mode);
         else
-            allUserAgreements = agreementRepository.findAllByReceiverId(userId);
+            allUserAgreements = agreementRepository.findAllByReceiverIdAndMode(userId, mode);
         List<AgreementInfo> resultList = new ArrayList<>();
         for (Agreement agreement : allUserAgreements) {
             AgreementInfo agreementInfo = modelMapper.map(agreement, AgreementInfo.class);

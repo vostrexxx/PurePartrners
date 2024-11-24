@@ -4,6 +4,8 @@ import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.time.LocalDate;
+
 @Data
 @AllArgsConstructor
 public class SavePersonalDataRequest {
@@ -14,6 +16,5 @@ public class SavePersonalDataRequest {
 
     private String phoneNumber;
     private String email;
-    private String birthday;
-    private boolean isPasswordConfirmed;
+    private LocalDate birthday;
 }
