@@ -12,7 +12,11 @@ const SentAgreement = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch(`${url}/agreement/sent`, {
+
+                const params = new URLSearchParams({
+                    mode: isSpecialist ? 1 : 0,
+                });
+                const response = await fetch(`${url}/agreement/sent?${params.toString()}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -25,23 +29,24 @@ const SentAgreement = () => {
                 }
 
                 const data = await response.json();
-                setAgreements(data.agreements); // Устанавливаем данные
+                setAgreements(data.agreements);
             } catch (error) {
                 console.error('Ошибка при загрузке данных:', error);
             }
         };
 
         fetchData();
-    }, [isSpecialist]); // Зависимость от isSpecialist, если это важно
+    }, [isSpecialist]);
 
 
     return (
         <div>
-            <h2>На что откликнулся пользователь</h2>
+            <h2>На что вы откликнулись</h2>
             {agreements.length > 0 ? (
                 agreements.map((item, index) => (
                     <Agreement 
                         mode={item.mode} 
+                        initiatorId={item.initiatorId} 
                         initiatorItemId={item.initiatorItemId} 
                         receiverId={item.receiverId}
                         receiverItemId={item.receiverItemId}
@@ -52,7 +57,7 @@ const SentAgreement = () => {
                     />
                 ))
             ) : (
-                <p>Нет отправленных откликов</p>
+                <p>Нет откликов</p>
             )}
         </div>
     );

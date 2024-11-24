@@ -109,113 +109,93 @@ const [isEditable, setIsEditable] = useState(false);
         <div>
             <h3>Создать анкету (Специалист)</h3>
             <form onSubmit={handleSubmit}>
-            <FormField
-                type="text"
-                label="Категории ваших работ"
-                name="categoriesOfWork"
-                placeholder="Категория работ"
-                value={formData.categoriesOfWork}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-                // hidden={!formData.hasTeam}
-            />
-            <CheckboxField
-                label="Имеется профильное образование?"
-                name="hasEdu"
-                checked={formData.hasEdu}
-                disabled={!isEditable}
-                onChange={handleInputChange}
-            />
-            <FormField
-                type="text"
-                label="Образовательное учреждение"
-                name="eduEst"
-                placeholder="МИРЭА"
-                value={formData.eduEst}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-                hidden={!formData.hasEdu} // Управляем видимостью
-            />
-            <FormField
-                type="date"
-                label="Дата начала обучения"
-                name="eduDateStart"
-                placeholder="Дата старта"
-                value={formData.eduDateStart}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-                hidden={!formData.hasEdu} // Управляем видимостью
-
-            />
-            <FormField
-                type="date"
-                label="Дата окончания обучения"
-                name="finishDate"
-                placeholder="Дата старта"
-                value={formData.eduDateEnd}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-                hidden={!formData.hasEdu} // Управляем видимостью
-            />
-            <CheckboxField
-                label="Имеется ли команда?"
-                name="hasTeam"
-                checked={formData.hasTeam}
-                disabled={!isEditable}
-                onChange={handleInputChange}
-            />
-            <FormField
-                type="text"
-                label="Команда"
-                name="team"
-                placeholder="Команда"
-                value={formData.team}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-                hidden={!formData.hasTeam}
-            />
-            <FormField
-                type="text"
-                label="Расценки"
-                name="prices"
-                placeholder="50к баксов"
-                value={formData.prices}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-                // hidden={!formData.hasEdu}
-            />
-            <FormField
-                type="text"
-                label="Информация о себе"
-                name="selfInfo"
-                placeholder="Информация о себе"
-                value={formData.selfInfo}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-            />
-            <FormField
-                type="text"
-                label="Опыт работы"
-                name="workExp"
-                placeholder="опыт работы"
-                value={formData.workExp}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-            />
-            
-
-            {isEditable ? (
-                    <button type="button" onClick={handleSubmit}>Сохранить анкету</button>
-                ) : (
-                    <button type="button" onClick={handleEdit}>
-                        Редактировать
-                    </button>
-                )}
+                <FormField
+                    type="text"
+                    label="Категории ваших работ"
+                    name="categoriesOfWork"
+                    placeholder="Категория работ"
+                    value={formData.categoriesOfWork}
+                    onChange={handleInputChange}
+                />
+                <CheckboxField
+                    label="Имеется профильное образование?"
+                    name="hasEdu"
+                    checked={formData.hasEdu}
+                    onChange={handleInputChange}
+                />
+                <FormField
+                    type="text"
+                    label="Образовательное учреждение"
+                    name="eduEst"
+                    placeholder="МИРЭА"
+                    value={formData.eduEst}
+                    onChange={handleInputChange}
+                    hidden={!formData.hasEdu} // Управляем видимостью
+                />
+                <FormField
+                    type="date"
+                    label="Дата начала обучения"
+                    name="eduDateStart"
+                    placeholder="Дата старта"
+                    value={formData.eduDateStart}
+                    onChange={handleInputChange}
+                    hidden={!formData.hasEdu} // Управляем видимостью
+                />
+                <FormField
+                    type="date"
+                    label="Дата окончания обучения"
+                    name="finishDate"
+                    placeholder="Дата окончания"
+                    value={formData.eduDateEnd}
+                    onChange={handleInputChange}
+                    hidden={!formData.hasEdu} // Управляем видимостью
+                />
+                <CheckboxField
+                    label="Имеется ли команда?"
+                    name="hasTeam"
+                    checked={formData.hasTeam}
+                    onChange={handleInputChange}
+                />
+                <FormField
+                    type="text"
+                    label="Команда"
+                    name="team"
+                    placeholder="Команда"
+                    value={formData.team}
+                    onChange={handleInputChange}
+                    hidden={!formData.hasTeam}
+                />
+                <FormField
+                    type="text"
+                    label="Расценки"
+                    name="prices"
+                    placeholder="50к баксов"
+                    value={formData.prices}
+                    onChange={handleInputChange}
+                />
+                <FormField
+                    type="text"
+                    label="Информация о себе"
+                    name="selfInfo"
+                    placeholder="Информация о себе"
+                    value={formData.selfInfo}
+                    onChange={handleInputChange}
+                />
+                <FormField
+                    type="text"
+                    label="Опыт работы"
+                    name="workExp"
+                    placeholder="Опыт работы"
+                    value={formData.workExp}
+                    onChange={handleInputChange}
+                />
+    
+                <button type="submit">Сохранить анкету</button>
                 <button type="button" onClick={onCancel}>Отмена</button>
             </form>
         </div>
     );
-};
+};    
 
 // Компонент формы для объявления (Заказчик)
 const AnnouncementForm = ({ onSubmit, onCancel }) => {

@@ -1,28 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import ReactionWindow from '../Agreement/Reaction';
 
 const QuestionnaireDetails = () => {
     const { id } = useParams();
+    const location = useLocation();
+    const navigate = useNavigate();
+
     const [questionnaire, setQuestionnaire] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isEditable, setIsEditable] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+
     const url = localStorage.getItem('url');
-
-    const getAuthToken = () => {
-        return localStorage.getItem('authToken');
-    };
-
-    const location = useLocation();
-    const canEditOrDelete = location.state?.fromLk || false; // Показывать кнопки только если fromLk === true
+    const getAuthToken = () => localStorage.getItem('authToken');
+    const canEditOrDelete = location.state?.fromLk || false;
 
     useEffect(() => {
         const fetchData = async () => {
-            const params = new URLSearchParams({
-                questionnaireId: id,
-            });
+            const params = new URLSearchParams({ questionnaireId: id });
 
             try {
                 const response = await fetch(`${url}/questionnaire?${params.toString()}`, {
@@ -30,7 +27,7 @@ const QuestionnaireDetails = () => {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${getAuthToken()}`,
-                    }
+                    },
                 });
 
                 if (!response.ok) {
@@ -45,7 +42,7 @@ const QuestionnaireDetails = () => {
                     setError('Информация об анкете не найдена');
                 }
             } catch (error) {
-                setError(`Ошибка при выполнении запроса: ${error.message}`);
+                setError(`Ошибка при загрузке данных: ${error.message}`);
             } finally {
                 setLoading(false);
             }
@@ -54,21 +51,9 @@ const QuestionnaireDetails = () => {
         fetchData();
     }, [id, url]);
 
-    const handleEditClick = () => {
-        setIsEditable(true);
-    };
-
-    const handleOpenReaction = () => {
-        // тут открываем модульное окно
-        
-        setIsModalOpen(true); // Открыть модальное окно
-    };
-
-    const closeModal = () => {
-        // тут открываем модульное окно
-        setIsModalOpen(false); // Открыть модальное окно
-    };
-
+    const handleEditClick = () => setIsEditable(true);
+    const handleOpenReaction = () => setIsModalOpen(true);
+    const closeModal = () => setIsModalOpen(false);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -90,7 +75,7 @@ const QuestionnaireDetails = () => {
             });
 
             if (!response.ok) {
-                throw new Error(`Ошибка при сохранении данных: ${response.status}`);
+                throw new Error(`Ошибка при сохранении: ${response.status}`);
             }
 
             const data = await response.json();
@@ -107,10 +92,8 @@ const QuestionnaireDetails = () => {
     const handleDeleteClick = async () => {
         if (window.confirm('Вы уверены, что хотите удалить анкету?')) {
             try {
-                const params = new URLSearchParams({
-                    questionnaireId: id,
-                });
-                
+                const params = new URLSearchParams({ questionnaireId: id });
+
                 const response = await fetch(`${url}/questionnaire?${params.toString()}`, {
                     method: 'DELETE',
                     headers: {
@@ -118,14 +101,13 @@ const QuestionnaireDetails = () => {
                     },
                 });
 
-
                 if (!response.ok) {
-                    throw new Error(`Ошибка при удалении анкеты: ${response.status}`);
+                    throw new Error(`Ошибка при удалении: ${response.status}`);
                 }
 
                 const data = await response.json();
                 if (data.success === 1) {
-                    navigate('/account-actions'); // Перенаправление после успешного удаления
+                    navigate('/account-actions');
                 } else {
                     setError('Не удалось удалить анкету');
                 }
@@ -141,32 +123,30 @@ const QuestionnaireDetails = () => {
     return (
         <div style={styles.container}>
             <h2>Детали анкеты</h2>
-            
+
             <label htmlFor="categoriesOfWork">Категории работ</label>
             <input
                 type="text"
                 name="categoriesOfWork"
                 id="categoriesOfWork"
-                value={questionnaire.categoriesOfWork}
+                value={questionnaire.categoriesOfWork || ''}
                 onChange={handleInputChange}
                 disabled={!isEditable}
                 style={styles.input}
             />
-            
+
             <label>Есть ли команда:</label>
             <select
                 name="hasTeam"
                 value={questionnaire.hasTeam ? 'Да' : 'Нет'}
-                onChange={(e) =>
-                    handleInputChange({ target: { name: 'hasTeam', value: e.target.value === 'Да' } })
-                }
+                onChange={(e) => handleInputChange({ target: { name: 'hasTeam', value: e.target.value === 'Да' } })}
                 disabled={!isEditable}
                 style={styles.input}
             >
                 <option>Да</option>
                 <option>Нет</option>
             </select>
-            
+
             {questionnaire.hasTeam && (
                 <>
                     <label htmlFor="team">Команда</label>
@@ -174,7 +154,7 @@ const QuestionnaireDetails = () => {
                         type="text"
                         name="team"
                         id="team"
-                        value={questionnaire.team}
+                        value={questionnaire.team || ''}
                         onChange={handleInputChange}
                         disabled={!isEditable}
                         style={styles.input}
@@ -186,16 +166,14 @@ const QuestionnaireDetails = () => {
             <select
                 name="hasEdu"
                 value={questionnaire.hasEdu ? 'Да' : 'Нет'}
-                onChange={(e) =>
-                    handleInputChange({ target: { name: 'hasEdu', value: e.target.value === 'Да' } })
-                }
+                onChange={(e) => handleInputChange({ target: { name: 'hasEdu', value: e.target.value === 'Да' } })}
                 disabled={!isEditable}
                 style={styles.input}
             >
                 <option>Да</option>
                 <option>Нет</option>
             </select>
-            
+
             {questionnaire.hasEdu && (
                 <>
                     <label htmlFor="eduEst">Учебное заведение</label>
@@ -203,7 +181,7 @@ const QuestionnaireDetails = () => {
                         type="text"
                         name="eduEst"
                         id="eduEst"
-                        value={questionnaire.eduEst}
+                        value={questionnaire.eduEst || ''}
                         onChange={handleInputChange}
                         disabled={!isEditable}
                         style={styles.input}
@@ -214,7 +192,7 @@ const QuestionnaireDetails = () => {
                         type="date"
                         name="eduDateStart"
                         id="eduDateStart"
-                        value={questionnaire.eduDateStart}
+                        value={questionnaire.eduDateStart || ''}
                         onChange={handleInputChange}
                         disabled={!isEditable}
                         style={styles.input}
@@ -225,7 +203,7 @@ const QuestionnaireDetails = () => {
                         type="date"
                         name="eduDateEnd"
                         id="eduDateEnd"
-                        value={questionnaire.eduDateEnd}
+                        value={questionnaire.eduDateEnd || ''}
                         onChange={handleInputChange}
                         disabled={!isEditable}
                         style={styles.input}
@@ -238,7 +216,7 @@ const QuestionnaireDetails = () => {
                 type="text"
                 name="workExp"
                 id="workExp"
-                value={questionnaire.workExp}
+                value={questionnaire.workExp || ''}
                 onChange={handleInputChange}
                 disabled={!isEditable}
                 style={styles.input}
@@ -249,7 +227,7 @@ const QuestionnaireDetails = () => {
                 type="text"
                 name="selfInfo"
                 id="selfInfo"
-                value={questionnaire.selfInfo}
+                value={questionnaire.selfInfo || ''}
                 onChange={handleInputChange}
                 disabled={!isEditable}
                 style={styles.input}
@@ -260,7 +238,7 @@ const QuestionnaireDetails = () => {
                 type="text"
                 name="prices"
                 id="prices"
-                value={questionnaire.prices}
+                value={questionnaire.prices || ''}
                 onChange={handleInputChange}
                 disabled={!isEditable}
                 style={styles.input}
@@ -271,33 +249,43 @@ const QuestionnaireDetails = () => {
                     <img
                         src={questionnaire.questionnaireImages}
                         alt="Фото анкеты"
-                        style={{ width: "300px", marginTop: "20px" }}
+                        style={{ width: '300px', marginTop: '20px' }}
                     />
                 </div>
             ) : (
                 <p>Изображение не предоставлено</p>
             )}
 
-            <div>
-                {!isEditable && canEditOrDelete ? (
-                    <>
-                        <button onClick={handleEditClick} style={styles.button}>Редактировать</button>
-                        <button onClick={handleDeleteClick} style={styles.deleteButton}>Удалить</button>
-                    </>
-                ) : isEditable ? (
-                    <button onClick={handleSaveClick} style={styles.button}>Сохранить</button>
-                ) : (
-                    <button onClick={handleOpenReaction} style={styles.button}>Откликнуться</button>
-                )}
-            </div>
+            {location.state?.fromLk === null ? null : (
+                <div>
+                    {!isEditable && canEditOrDelete ? (
+                        <>
+                            <button onClick={handleEditClick} style={styles.button}>
+                                Редактировать
+                            </button>
+                            <button onClick={handleDeleteClick} style={styles.deleteButton}>
+                                Удалить
+                            </button>
+                        </>
+                    ) : isEditable ? (
+                        <button onClick={handleSaveClick} style={styles.button}>
+                            Сохранить
+                        </button>
+                    ) : (
+                        <button onClick={handleOpenReaction} style={styles.button}>
+                            Откликнуться
+                        </button>
+                    )}
+                </div>
+            )}
 
             <ReactionWindow
-                isOpen={isModalOpen} onClose={closeModal}
+                isOpen={isModalOpen}
+                onClose={closeModal}
                 userId={questionnaire.userId}
                 id={questionnaire.id}
                 mode={1}
             />
-
         </div>
     );
 };
@@ -306,9 +294,9 @@ const styles = {
     container: {
         display: 'flex',
         flexDirection: 'column',
-        gap: '10px', // промежуток между элементами
-        maxWidth: '400px', // ширина контейнера
-        margin: '0 auto', // центрирование на странице
+        gap: '10px',
+        maxWidth: '400px',
+        margin: '0 auto',
     },
     input: {
         width: '100%',
@@ -327,7 +315,6 @@ const styles = {
         border: 'none',
         cursor: 'pointer',
     },
-    
 };
 
 export default QuestionnaireDetails;

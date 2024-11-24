@@ -11,7 +11,7 @@ const SearchComponent = ({ onSearch }) => {
     return (
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <TextField
-                label="Поиск анкет"
+                label="Поиск"
                 variant="outlined"
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}

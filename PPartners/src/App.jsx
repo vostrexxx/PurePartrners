@@ -17,20 +17,20 @@ import AnnouncementDetails from './Components/Pages/QACards/AnnouncementDetails'
 import AgreementPage from './Components/Pages/Agreement/AgreementPage';
 
 const App = () => {
-    useEffect(() => {
-        const handleBeforeUnload = () => {
-            // Очищаем токен при закрытии вкладки
-            localStorage.removeItem('authToken');
-        };
+    // useEffect(() => {
+    //     const handleBeforeUnload = () => {
+    //         // Очищаем токен при закрытии вкладки
+    //         localStorage.removeItem('authToken');
+    //     };
 
-        // Добавляем обработчик события `beforeunload`
-        window.addEventListener('beforeunload', handleBeforeUnload);
+    //     // Добавляем обработчик события `beforeunload`
+    //     window.addEventListener('beforeunload', handleBeforeUnload);
 
-        // Убираем обработчик при размонтировании компонента
-        return () => {
-            window.removeEventListener('beforeunload', handleBeforeUnload);
-        };
-    }, []);
+    //     // Убираем обработчик при размонтировании компонента
+    //     return () => {
+    //         window.removeEventListener('beforeunload', handleBeforeUnload);
+    //     };
+    // }, []);
 
     return (
         <Router>

@@ -65,8 +65,8 @@ const MainPage = () => {
             }
     
             const urlWithParams = isSpecialist
-                ? `${url}/questionnaire/filter?${params.toString()}`
-                : `${url}/announcement/filter?${params.toString()}`;
+                ? `${url}/announcement/filter?${params.toString()}`
+                : `${url}/questionnaire/filter?${params.toString()}`;
     
             response = await fetch(urlWithParams, {
                 method: 'GET',
@@ -78,10 +78,10 @@ const MainPage = () => {
     
             const data = await response.json();
             if (isSpecialist) {
-                setQuestionnaires(data.previews);
+                setAnnouncements(data.previews);
                 // console.log(questionnaires)
             } else {
-                setAnnouncements(data.previews);
+                setQuestionnaires(data.previews);
                 // console.log(announcements)
                 
             }
@@ -124,18 +124,7 @@ const MainPage = () => {
             try {
                 let response;
                 const params = new URLSearchParams({ text: "" });
-    
                 if (isSpecialist) {
-                    response = await fetch(`${url}/questionnaire/filter?${params.toString()}`, {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${getAuthToken()}`,
-                        }
-                    });
-                    const data = await response.json();
-                    setQuestionnaires(data.previews || []);
-                } else {
                     response = await fetch(`${url}/announcement/filter?${params.toString()}`, {
                         method: 'GET',
                         headers: {
@@ -145,6 +134,17 @@ const MainPage = () => {
                     });
                     const data = await response.json();
                     setAnnouncements(data.previews || []);
+
+                } else {
+                    response = await fetch(`${url}/questionnaire/filter?${params.toString()}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${getAuthToken()}`,
+                        }
+                    });
+                    const data = await response.json();
+                    setQuestionnaires(data.previews || []);
                 }
             } catch (error) {
                 setError('Ошибка загрузки данных');
@@ -153,12 +153,8 @@ const MainPage = () => {
             }
         };
     
-        // Проверка на пустые массивы, чтобы предотвратить повторную загрузку данных
-        if (isSpecialist && questionnaires.length === 0) {
             fetchData();
-        } else if (!isSpecialist && announcements.length === 0) {
-            fetchData();
-        }
+        
     }, [isSpecialist]);
     
     
@@ -189,7 +185,7 @@ const MainPage = () => {
             </div>
 
             <div style={styles.mainContent}>
-                {isSpecialist ? <div>Интерфейс Специалиста</div> : <div>Интерфейс Заказчика</div>}
+                {isSpecialist ? <div>Поиск объявлений</div> : <div>Поиск анкет</div>}
             </div>
 
             <div style={{ marginTop: '20px' }}>
@@ -203,7 +199,7 @@ const MainPage = () => {
                 <div style={{ width: '300px', padding: '20px' }}>
                     <h3>Фильтры</h3>
 
-                    {isSpecialist ? (
+                    {!isSpecialist ? (
                         <>
                             <FormControl component="fieldset">
                                 <FormLabel component="legend">Имеется ли команда?</FormLabel>
@@ -282,7 +278,7 @@ const MainPage = () => {
                                 onChange={(e, newValue) => handleFilterChange(e, newValue)}
                                 valueLabelDisplay="auto"
                                 min={0}
-                                max={500000}
+                                max={1000000}
                                 name="totalCost"
                                 label="Общая стоимость"
                             />
@@ -298,7 +294,7 @@ const MainPage = () => {
             <div>
                 {!isSpecialist ? (
                     <div>
-                        <h2>Ваши анкеты</h2>
+                        <h2>Анкеты:</h2>
                         {questionnaires.length > 0 ? (
                             questionnaires.map((item) => (
                                 <Card
@@ -313,7 +309,7 @@ const MainPage = () => {
                     </div>
                 ) : (
                     <div>
-                        <h2>Объявления</h2>
+                        <h2>Объявления:</h2>
                         {announcements.length > 0 ? (
                             announcements.map((item) => (
                                 <Card

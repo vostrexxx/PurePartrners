@@ -98,7 +98,6 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode }) => {
         isOpen && (
             <div style={styles.overlay}>
                 <div style={styles.modal}>
-                    {/* <button onClick={onClose} style={styles.closeButton}>Закрыть</button> */}
                     <h3>Выберите превью и оставьте комментарий</h3>
 
                     {/* Список превью */}
@@ -106,7 +105,7 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode }) => {
                         {previews.length > 0 ? (
                             previews.map((preview) => (
                                 <Card
-                                    title={preview.workCategories}
+                                    title={isSpecialist ? preview.categoriesOfWork : preview.workCategories}
                                     onClick={() => setAgreementData((prevData) => ({
                                         ...prevData, // Сохраняем остальные данные
                                         initiatorItemId: preview.id, // Обновляем initiatorItemId

@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from 'react';
+import Card from '../Previews/Card';
+import { useNavigate } from 'react-router-dom';
 
-const Agreement = ({ mode, initiatorItemId, receiverId, receiverItemId, status, comment, createDate, updateDate }) => {
+const Agreement = ({ mode, initiatorItemId, receiverItemId, comment, status }) => {
     const [questionnaireId, setQuestionnaireId] = useState(null);
     const [announcementId, setAnnouncementId] = useState(null);
+
     const [questionnaireData, setQuestionnaireData] = useState(null);
+    const [announcementData, setAnnouncementData] = useState(null);
+
     const url = localStorage.getItem('url');
     const getAuthToken = () => localStorage.getItem('authToken');
+    const navigate = useNavigate();
 
     useEffect(() => {
-        // Определяем ID для анкеты и объявления
+        // Определяем, что является `questionnaire` и `announcement`
         if (mode) {
             setAnnouncementId(initiatorItemId);
             setQuestionnaireId(receiverItemId);
@@ -19,13 +25,20 @@ const Agreement = ({ mode, initiatorItemId, receiverId, receiverItemId, status, 
     }, [mode, initiatorItemId, receiverItemId]);
 
     useEffect(() => {
-        // Загружаем данные только если есть questionnaireId
-        const fetchQuestionnaireData = async () => {
-            if (!questionnaireId) return;
+        const fetchData = async (id, type) => {
+            if (!id) return;
 
             try {
-                const params = new URLSearchParams({ questionnaireId });
-                const response = await fetch(`${url}/questionnaire/preview?${params.toString()}`, {
+                const params = new URLSearchParams();
+                if (type === 'questionnaire') {
+                    params.append('questionnaireId', id);
+                } else {
+                    params.append('announcementId', id);
+                }
+
+                const endpoint = type === 'questionnaire' ? 'questionnaire/preview' : 'announcement/preview';
+
+                const response = await fetch(`${url}/${endpoint}?${params.toString()}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -35,32 +48,64 @@ const Agreement = ({ mode, initiatorItemId, receiverId, receiverItemId, status, 
 
                 if (response.ok) {
                     const data = await response.json();
-                    setQuestionnaireData(data);
+                    if (type === 'questionnaire') {
+                        setQuestionnaireData(data);
+                    } else {
+                        setAnnouncementData(data);
+                    }
                 } else {
-                    console.error('Ошибка при загрузке анкеты:', response.status);
+                    console.error(`Ошибка при загрузке данных (${type}):`, response.status);
                 }
             } catch (error) {
-                console.error('Ошибка при выполнении запроса:', error);
+                console.error(`Ошибка при выполнении запроса (${type}):`, error);
             }
         };
 
-        fetchQuestionnaireData();
-    }, [questionnaireId, url]); // Запрос только если изменился questionnaireId
+        fetchData(questionnaireId, 'questionnaire');
+        fetchData(announcementId, 'announcement');
+    }, [questionnaireId, announcementId]);
+
+    const renderCard = (data, type) => {
+        if (!data) return <p>Данные не загружены</p>;
+        console.log(data)
+        return (
+            <Card
+                title={type === 'questionnaire' ? data.categoriesOfWork : data.workCategories}
+                description={data.description || 'Описание отсутствует'}
+                date={data.date || 'Дата отсутствует'}
+                onClick={() => navigate(`/${type}/${data.id}`, { state: { fromLk: null } })}
+            />
+        );
+    };
 
     return (
         <div style={styles.agreement}>
-            <h3>{status}</h3>
-            <p>{comment}</p>
-            <small>Анкета ID: {questionnaireId}</small>
-            <small>Объявление ID: {announcementId}</small>
-
-            {questionnaireData ? (
+            {mode ? (
                 <div>
-                    <h4>Данные анкеты:</h4>
-                    <p>{JSON.stringify(questionnaireData)}</p>
+                    <h4>Анкета:</h4>
+                    {renderCard(questionnaireData, 'questionnaire')}
+
+                    <h4>Объявление:</h4>
+                    {renderCard(announcementData, 'announcement')}
+
+                    <h4>Комментарий откликнувшегося:</h4>
+                    <p>{comment}</p>
+
+                    <h2>{status}</h2>
                 </div>
             ) : (
-                <p>Загрузка данных анкеты...</p>
+                <div>
+                    <h4>Объявление:</h4>
+                    {renderCard(announcementData, 'announcement')}
+
+                    <h4>Анкета:</h4>
+                    {renderCard(questionnaireData, 'questionnaire')}
+
+                    <h4>Комментарий откликнувшегося:</h4>
+                    <p>{comment}</p>
+
+                    <h2>{status}</h2>
+                </div>
             )}
         </div>
     );

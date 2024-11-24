@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useLocation,useNavigate } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import ReactionWindow from '../Agreement/Reaction';
 
 const AnnouncementDetails = () => {
-    const { id } = useParams(); // Получаем ID из URL
-    const navigate = useNavigate();
+    const { id } = useParams();
     const [announcement, setAnnouncement] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isEditable, setIsEditable] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const url = localStorage.getItem('url');
 
     const getAuthToken = () => {
@@ -16,11 +16,12 @@ const AnnouncementDetails = () => {
     };
 
     const location = useLocation();
+    const canEditOrDelete = location.state?.fromLk || false; // Показывать кнопки только если fromLk === true
 
     useEffect(() => {
         const fetchData = async () => {
             const params = new URLSearchParams({
-                announcementId: id, // передаем ID как query параметр
+                announcementId: id,
             });
 
             try {
@@ -32,17 +33,17 @@ const AnnouncementDetails = () => {
                     }
                 });
 
+
                 if (!response.ok) {
                     throw new Error(`Ошибка сети: ${response.status}`);
                 }
 
                 const data = await response.json();
 
-                // Проверяем, успешен ли ответ и есть ли информация об объявлении
-                if (data.success === 1 && data.announcement) {
-                    setAnnouncement(data.announcement); // Сохраняем данные в состояние
+                if (data.success === 1 && data.announcementInfo) {
+                    setAnnouncement(data.announcementInfo);
                 } else {
-                    setError('Информация об объявлении не найдена');
+                    setError('Информация об анкете не найдена');
                 }
             } catch (error) {
                 setError(`Ошибка при выполнении запроса: ${error.message}`);
@@ -56,6 +57,17 @@ const AnnouncementDetails = () => {
 
     const handleEditClick = () => {
         setIsEditable(true);
+    };
+
+    const handleOpenReaction = () => {
+        // тут открываем модульное окно
+        
+        setIsModalOpen(true); // Открыть модальное окно
+    };
+
+    const closeModal = () => {
+        // тут открываем модульное окно
+        setIsModalOpen(false); // Открыть модальное окно
     };
 
     const handleInputChange = (e) => {
@@ -95,13 +107,6 @@ const AnnouncementDetails = () => {
     const handleDeleteClick = async () => {
         if (window.confirm('Вы уверены, что хотите удалить объявление?')) {
             try {
-                // const response = await fetch(`${url}/announcement/${id}`, {
-                //     method: 'DELETE',
-                //     headers: {
-                //         'Authorization': `Bearer ${getAuthToken()}`,
-                //     },
-                // });
-
                 const params = new URLSearchParams({
                     announcementId: id,
                 });
@@ -122,7 +127,7 @@ const AnnouncementDetails = () => {
                 if (data.success === 1) {
                     navigate('/account-actions'); // Перенаправление после успешного удаления
                 } else {
-                    setError('Не удалось удалить объявление');
+                    setError('Не удалось удалить анкету');
                 }
             } catch (error) {
                 setError(`Ошибка при удалении: ${error.message}`);
@@ -130,144 +135,175 @@ const AnnouncementDetails = () => {
         }
     };
 
-    if (loading) return <div>Загрузка данных объявления...</div>;
+    if (loading) return <div>Загрузка данных анкеты...</div>;
     if (error) return <div>Ошибка: {error}</div>;
 
     return (
         <div style={styles.container}>
-            <h2>Детали объявления</h2>
-            
-            <label htmlFor="workCategories">Категории работ</label>
+    <h2>Детали объявления</h2>
+
+    <label htmlFor="workCategories">Категории работ</label>
+    <input
+        type="text"
+        name="workCategories"
+        id="workCategories"
+        value={announcement.workCategories}
+        onChange={handleInputChange}
+        disabled={!isEditable}
+        style={styles.input}
+    />
+
+    <label htmlFor="totalCost">Общая стоимость</label>
+    <input
+        type="text"
+        name="totalCost"
+        id="totalCost"
+        value={announcement.totalCost}
+        onChange={handleInputChange}
+        disabled={!isEditable}
+        style={styles.input}
+    />
+
+    <label>Цена по договору:</label>
+    <select
+        name="hasOther"
+        value={announcement.hasOther ? 'Да' : 'Нет'}
+        onChange={(e) =>
+            handleInputChange({ target: { name: 'hasOther', value: e.target.value === 'Да' } })
+        }
+        disabled={!isEditable}
+        style={styles.input}
+    >
+        <option>Да</option>
+        <option>Нет</option>
+    </select>
+
+    {announcement.hasOther && (
+        <>
+            <label htmlFor="other">Цена по договору</label>
             <input
                 type="text"
-                name="workCategories"
-                id="workCategories"
-                value={announcement.workCategories}
+                name="other"
+                id="other"
+                value={announcement.other}
                 onChange={handleInputChange}
                 disabled={!isEditable}
                 style={styles.input}
             />
+        </>
+    )}
 
-            <label htmlFor="metro">Станция метро</label>
-            <input
-                type="text"
-                name="metro"
-                id="metro"
-                value={announcement.metro}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-                style={styles.input}
+    <label htmlFor="metro">Ближайшее метро</label>
+    <input
+        type="text"
+        name="metro"
+        id="metro"
+        value={announcement.metro}
+        onChange={handleInputChange}
+        disabled={!isEditable}
+        style={styles.input}
+    />
+
+    <label htmlFor="house">Дом</label>
+    <input
+        type="text"
+        name="house"
+        id="house"
+        value={announcement.house}
+        onChange={handleInputChange}
+        disabled={!isEditable}
+        style={styles.input}
+    />
+
+    <label htmlFor="objectName">Наименование объекта</label>
+    <input
+        type="text"
+        name="objectName"
+        id="objectName"
+        value={announcement.objectName}
+        onChange={handleInputChange}
+        disabled={!isEditable}
+        style={styles.input}
+    />
+
+    <label htmlFor="startDate">Дата начала</label>
+    <input
+        type="date"
+        name="startDate"
+        id="startDate"
+        value={announcement.startDate}
+        onChange={handleInputChange}
+        disabled={!isEditable}
+        style={styles.input}
+    />
+
+    <label htmlFor="finishDate">Дата окончания</label>
+    <input
+        type="date"
+        name="finishDate"
+        id="finishDate"
+        value={announcement.finishDate}
+        onChange={handleInputChange}
+        disabled={!isEditable}
+        style={styles.input}
+    />
+
+    <label htmlFor="comments">Комментарий</label>
+    <input
+        type="text"
+        name="comments"
+        id="comments"
+        value={announcement.comments}
+        onChange={handleInputChange}
+        disabled={!isEditable}
+        style={styles.input}
+    />
+
+    {announcement.announcementImages ? (
+        <div>
+            <img
+                src={announcement.announcementImages}
+                alt="Фото объявления"
+                style={{ width: "300px", marginTop: "20px" }}
             />
-
-            <label htmlFor="house">Дом</label>
-            <input
-                type="text"
-                name="house"
-                id="house"
-                value={announcement.house}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-                style={styles.input}
-            />
-
-            <label htmlFor="hasOther">Есть ли дополнительные сведения</label>
-            <input
-                type="checkbox"
-                name="hasOther"
-                id="hasOther"
-                checked={announcement.hasOther}
-                onChange={(e) => handleInputChange({ target: { name: 'hasOther', value: e.target.checked } })}
-                disabled={!isEditable}
-                style={styles.input}
-            />
-            
-            {announcement.hasOther && (
-                <>
-                    <label htmlFor="other">Дополнительная информация</label>
-                    <input
-                        type="text"
-                        name="other"
-                        id="other"
-                        value={announcement.other}
-                        onChange={handleInputChange}
-                        disabled={!isEditable}
-                        style={styles.input}
-                    />
-                </>
-            )}
-
-            <label htmlFor="objectName">Наименование объекта</label>
-            <input
-                type="text"
-                name="objectName"
-                id="objectName"
-                value={announcement.objectName}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-                style={styles.input}
-            />
-
-            <label htmlFor="startDate">Дата начала</label>
-            <input
-                type="date"
-                name="startDate"
-                id="startDate"
-                value={announcement.startDate}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-                style={styles.input}
-            />
-
-            <label htmlFor="finishDate">Дата окончания</label>
-            <input
-                type="date"
-                name="finishDate"
-                id="finishDate"
-                value={announcement.finishDate}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-                style={styles.input}
-            />
-
-            <label htmlFor="comments">Комментарии</label>
-            <input
-                type="text"
-                name="comments"
-                id="comments"
-                value={announcement.comments}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-                style={styles.input}
-            />
-
-            <label htmlFor="totalCost">Общая стоимость</label>
-            <input
-                type="text"
-                name="totalCost"
-                id="totalCost"
-                value={announcement.totalCost}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-                style={styles.input}
-            />
-
-            <div>
-                {!isEditable && canEditOrDelete ? (
-                    <>
-                        <button onClick={handleEditClick} style={styles.button}>Редактировать</button>
-                        <button onClick={handleDeleteClick} style={styles.deleteButton}>Удалить</button>
-                    </>
-                ) : isEditable ? (
-                    <button onClick={handleSaveClick} style={styles.button}>Сохранить</button>
-                ) : (
-                    <button style={styles.button}>Откликнуться</button>
-                )}
-            </div>
-
-            <ReactionWindow isOpen={isModalOpen} onClose={closeModal} >
-                
-            </ReactionWindow>
         </div>
+    ) : (
+        <p>Изображение не предоставлено</p>
+    )}
+
+    <div>
+    {location.state?.fromLk === null ? null : (
+                <div>
+                    {!isEditable && canEditOrDelete ? (
+                        <>
+                            <button onClick={handleEditClick} style={styles.button}>
+                                Редактировать
+                            </button>
+                            <button onClick={handleDeleteClick} style={styles.deleteButton}>
+                                Удалить
+                            </button>
+                        </>
+                    ) : isEditable ? (
+                        <button onClick={handleSaveClick} style={styles.button}>
+                            Сохранить
+                        </button>
+                    ) : (
+                        <button onClick={handleOpenReaction} style={styles.button}>
+                            Откликнуться
+                        </button>
+                    )}
+                </div>
+            )}
+    </div>
+
+    <ReactionWindow
+        isOpen={isModalOpen} onClose={closeModal}
+        userId={announcement.userId}
+        id={announcement.id}
+        mode={0}
+    />
+</div>
+
     );
 };
 
@@ -275,9 +311,9 @@ const styles = {
     container: {
         display: 'flex',
         flexDirection: 'column',
-        gap: '10px',
-        maxWidth: '400px',
-        margin: '0 auto',
+        gap: '10px', // промежуток между элементами
+        maxWidth: '400px', // ширина контейнера
+        margin: '0 auto', // центрирование на странице
     },
     input: {
         width: '100%',
@@ -285,12 +321,8 @@ const styles = {
         marginTop: '4px',
         boxSizing: 'border-box',
     },
-    buttonContainer: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        marginTop: '20px',
-    },
     button: {
+        marginTop: '20px',
         padding: '10px',
     },
     deleteButton: {
@@ -300,6 +332,7 @@ const styles = {
         border: 'none',
         cursor: 'pointer',
     },
+    
 };
 
 export default AnnouncementDetails;
