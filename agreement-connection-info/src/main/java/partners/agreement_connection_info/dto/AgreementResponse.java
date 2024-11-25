@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AgreementInfo {
+public class AgreementResponse {
     private Long initiatorId;
     private Long receiverId;
 
@@ -23,9 +23,8 @@ public class AgreementInfo {
 
     private String chatId;
 
-    private ConnectionStatus status;
+    private String localizedStatus;
 
     private LocalDateTime createDate;
     private LocalDateTime updateDate;
-
 }

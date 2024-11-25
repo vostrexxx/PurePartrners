@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 public class NewChat {
     private Long chatId;
-    private List<ChatParticipant> participants;
+    private List<Long> participants;
     @Nullable
     private LocalDateTime createdAt;
 }

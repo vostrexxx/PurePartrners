@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import partners.agreement_connection_info.config.ChatIdGenerator;
 import partners.agreement_connection_info.config.ConnectionStatus;
 import partners.agreement_connection_info.dto.*;
 import partners.agreement_connection_info.model.Agreement;
@@ -25,6 +26,8 @@ public class AgreementService {
         try {
             Agreement agreementForSave = modelMapper.map(agreementInfo, Agreement.class);
             agreementForSave.setInitiatorId(userId);
+            String chatId = ChatIdGenerator.generateChatId(userId, agreementInfo.getReceiverId());
+            agreementForSave.setChatId(chatId);
             agreementRepository.save(agreementForSave);
             return new OperationStatusResponse(1);
         } catch (Exception e) {
@@ -39,9 +42,10 @@ public class AgreementService {
             allUserAgreements = agreementRepository.findALlByInitiatorIdAndMode(userId, mode);
         else
             allUserAgreements = agreementRepository.findAllByReceiverIdAndMode(userId, mode);
-        List<AgreementInfo> resultList = new ArrayList<>();
+        List<AgreementResponse> resultList = new ArrayList<>();
         for (Agreement agreement : allUserAgreements) {
-            AgreementInfo agreementInfo = modelMapper.map(agreement, AgreementInfo.class);
+            AgreementResponse agreementInfo = modelMapper.map(agreement, AgreementResponse.class);
+            agreementInfo.setLocalizedStatus(agreement.getStatus().getRussianName());
             resultList.add(agreementInfo);
         }
         return new AllUserAgreements(userId, resultList);

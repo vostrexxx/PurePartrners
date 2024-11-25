@@ -27,6 +27,7 @@ spring:
             directory.root: ./data/index
             analysis:
               configurer: partners.questionnaireInfo.config.QuestionnaireAnalysisConfigurer
+        default_schema: questionnaire
 
 server:
   port: 8084

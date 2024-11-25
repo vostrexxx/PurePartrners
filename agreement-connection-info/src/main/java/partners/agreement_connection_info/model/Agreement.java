@@ -36,6 +36,8 @@ public class Agreement {
     @Column(nullable = false)
     private int mode;
 
+    private String chatId;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ConnectionStatus status;

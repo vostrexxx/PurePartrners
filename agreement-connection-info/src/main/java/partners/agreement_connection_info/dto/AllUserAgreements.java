@@ -9,5 +9,5 @@ import java.util.List;
 @AllArgsConstructor
 public class AllUserAgreements {
     private Long userId;
-    private List<AgreementInfo> agreements;
+    private List<AgreementResponse> agreements;
 }
