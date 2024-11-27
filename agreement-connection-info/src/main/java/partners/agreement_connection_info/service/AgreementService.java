@@ -53,7 +53,8 @@ public class AgreementService {
 
     public OperationStatusResponse updateAgreement(UpdateAgreementInfo updateAgreementInfo) {
         Agreement agreement = agreementRepository.getReferenceById(updateAgreementInfo.getAgreementId());
-        agreement.setStatus(updateAgreementInfo.getNewStatus());
+        ConnectionStatus newConnectionStatus = ConnectionStatus.fromRussianName(updateAgreementInfo.getNewStatus());
+        agreement.setStatus(newConnectionStatus);
 //        agreement.setUpdateDate(LocalDateTime.now());
         agreementRepository.save(agreement);
         return new OperationStatusResponse(1);

@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AgreementResponse {
+    private Long id;
     private Long initiatorId;
     private Long receiverId;
 

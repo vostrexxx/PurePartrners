@@ -7,5 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChatParticipant {
+public class OperationStatusResponse {
+    private int success;
 }

@@ -13,17 +13,17 @@ import partners.chat_producer_service.service.ChatProducerService;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/chat")
+@RequestMapping("/event")
 public class ChatProducerController {
     private final ChatProducerService service;
 
-    @PostMapping("/message")
+    @PostMapping("/new-message")
     public ResponseEntity<OperationStatusResponse> sendMessage(@RequestBody ChatMessage message) {
         OperationStatusResponse response = service.sendMessage(message);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("")
+    @PostMapping("/new-chat")
     public ResponseEntity<OperationStatusResponse> createNewChat(@RequestBody NewChat newChat) {
         OperationStatusResponse response = service.sendNewChat(newChat);
         return ResponseEntity.ok(response);

@@ -6,14 +6,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class NewChat {
-    private Long chatId;
-    private List<Long> participants;
-    @Nullable
-    private LocalDateTime createdAt;
+    private String chatId;
+    private Long chatReceiverId;
+    private Long chatInitiatorId;
+    private String chatInitiatorName;
+    private String chatReceiverName;
 }

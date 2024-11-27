@@ -6,5 +6,5 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class OperationStatusResponse {
-    private int status;
+    private int success;
 }

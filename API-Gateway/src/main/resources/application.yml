@@ -78,6 +78,13 @@ spring:
         - id: chat-producer-service
           uri: lb://chat-producer-service
           predicates:
+            - Path=/event/**
+          filters:
+            - AuthenticationFilter
+
+        - id: chat-consumer-service
+          uri: lb://chat-consumer-service
+          predicates:
             - Path=/chat/**
           filters:
             - AuthenticationFilter

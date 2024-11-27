@@ -33,7 +33,6 @@ public class ChatProducerService {
     }
 
     public OperationStatusResponse sendNewChat(NewChat newChat) {
-        newChat.setCreatedAt(LocalDateTime.now());
         try {
             newChatKafkaTemplate.send(newChatTopic, newChat);
             log.info("Message sent to" + newChatTopic + " {}", newChat);
