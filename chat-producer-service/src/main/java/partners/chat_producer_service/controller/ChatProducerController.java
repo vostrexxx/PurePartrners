@@ -2,10 +2,7 @@ package partners.chat_producer_service.controller;
 
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import partners.chat_producer_service.dto.ChatMessage;
 import partners.chat_producer_service.dto.NewChat;
 import partners.chat_producer_service.dto.OperationStatusResponse;
@@ -18,8 +15,9 @@ public class ChatProducerController {
     private final ChatProducerService service;
 
     @PostMapping("/new-message")
-    public ResponseEntity<OperationStatusResponse> sendMessage(@RequestBody ChatMessage message) {
-        OperationStatusResponse response = service.sendMessage(message);
+    public ResponseEntity<OperationStatusResponse> sendMessage(@RequestBody ChatMessage message,
+                                                               @RequestHeader Long userId) {
+        OperationStatusResponse response = service.sendMessage(message, userId);
         return ResponseEntity.ok(response);
     }
 

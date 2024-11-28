@@ -5,5 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import partners.chat_consumer_service.model.Chat;
 
 @Repository
-public interface ChatConsumerRepository extends JpaRepository<Chat, String>{
+public interface ChatRepository extends JpaRepository<Chat, String>{
+
 }

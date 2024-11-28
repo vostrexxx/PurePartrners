@@ -14,15 +14,15 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Slf4j
 public class ChatProducerService {
-    private static final String chatsTopic = "chats";
+    private static final String chatsTopic = "messages";
     private static final String newChatTopic = "newChat";
 
     private final KafkaTemplate<String, ChatMessage> newMessageKafkaTemplate;
     private final KafkaTemplate<String, NewChat> newChatKafkaTemplate;
 
 
-    public OperationStatusResponse sendMessage(ChatMessage message) {
-        message.setTimestamp(LocalDateTime.now());
+    public OperationStatusResponse sendMessage(ChatMessage message, Long userId) {
+        message.setInitiatorId(userId);
         try {
             newMessageKafkaTemplate.send(chatsTopic, message);
             log.info("Message sent to" + chatsTopic + " {}", message);

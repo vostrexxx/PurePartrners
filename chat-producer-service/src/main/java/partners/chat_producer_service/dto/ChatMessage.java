@@ -11,10 +11,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ChatMessage {
-    private Long chatId;
+    private String chatId;
     private String message;
-    private Long senderId;
-    private Long receiverId;
+    @Nullable
+    private Long initiatorId;
     @Nullable
     private LocalDateTime timestamp;
 }

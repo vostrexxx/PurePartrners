@@ -4,13 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChatMessage {
-    private Long initiatorId;
-    private String message;
-    private LocalDateTime timestamp;
+public class ChatHistory {
+    private String chatId;
+    private Long userId;
+    private List<ChatMessage> allMessages;
 }

@@ -9,8 +9,9 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChatMessage {
-    private Long initiatorId;
+public class SendChatMessage {
+    private String chatId;
     private String message;
+    private String initiatorId;
     private LocalDateTime timestamp;
 }

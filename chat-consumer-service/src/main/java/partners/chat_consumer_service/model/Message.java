@@ -24,7 +24,6 @@ public class Message {
     private String message;
 
     private Long initiatorId;
-    private Long receiverId;
 
-    private LocalDateTime sentAt;
+    private LocalDateTime timestamp;
 }
