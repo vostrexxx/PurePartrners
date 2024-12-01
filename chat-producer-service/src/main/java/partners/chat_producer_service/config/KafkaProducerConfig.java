@@ -10,6 +10,7 @@ import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import partners.chat_producer_service.dto.ChatMessage;
 import partners.chat_producer_service.dto.NewChat;
+import partners.chat_producer_service.dto.SendChatMessage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +19,7 @@ import java.util.Map;
 public class KafkaProducerConfig {
 
     @Bean
-    public ProducerFactory<String, ChatMessage> newMessageProducerFactory() {
+    public ProducerFactory<String, SendChatMessage> newMessageProducerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -28,7 +29,7 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, ChatMessage> newMessageKafkaTemplate() {
+    public KafkaTemplate<String, SendChatMessage> newMessageKafkaTemplate() {
         return new KafkaTemplate<>(newMessageProducerFactory());
     }
 

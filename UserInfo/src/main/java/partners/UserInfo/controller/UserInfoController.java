@@ -14,7 +14,6 @@ import partners.UserInfo.service.UserInfoService;
 
 import java.io.IOException;
 
-@CrossOrigin
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/profile")

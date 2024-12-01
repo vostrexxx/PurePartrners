@@ -16,4 +16,5 @@ public class NewChat {
     private Long chatInitiatorId;
     private String chatInitiatorName;
     private String chatReceiverName;
+    private Boolean isSpecialist;
 }

@@ -15,7 +15,6 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/questionnaire")
-@CrossOrigin
 public class QuestionnaireController {
 
     private final QuestionnaireService questionnaireService;

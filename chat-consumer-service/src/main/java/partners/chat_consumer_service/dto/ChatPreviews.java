@@ -10,9 +10,6 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChatMessage {
-    private Long initiatorId;
-    private String message;
-    private LocalDateTime timestamp;
-    private List<String> attachments;
+public class ChatPreviews {
+    List<ChatPreview> chatPreviews;
 }

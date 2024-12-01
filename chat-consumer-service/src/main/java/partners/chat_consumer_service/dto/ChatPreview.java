@@ -5,14 +5,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChatMessage {
-    private Long initiatorId;
-    private String message;
-    private LocalDateTime timestamp;
-    private List<String> attachments;
+public class ChatPreview {
+    private String chatId;
+    private String lastMessage;
+    private String title;
+    private LocalDateTime lastMessageTime;
 }

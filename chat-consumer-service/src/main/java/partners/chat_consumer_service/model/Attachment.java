@@ -1,30 +1,23 @@
 package partners.chat_consumer_service.model;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "attachment")
 @Entity
-@Table(name = "message")
-public class Message {
+public class Attachment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String url;
+
     @ManyToOne
-    @JoinColumn(name = "chat_id")
-    private Chat chat;
-
-    private String message;
-
-    private Long initiatorId;
-
-    private LocalDateTime timestamp;
+    @JoinColumn(name = "message_id", nullable = false)
+    private Message message;
 }

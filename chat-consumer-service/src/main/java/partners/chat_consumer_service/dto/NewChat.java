@@ -17,6 +17,7 @@ public class NewChat {
     private Long chatReceiverId;
     private String chatInitiatorName;
     private String chatReceiverName;
+    private Boolean isSpecialist;
     @Nullable
     private LocalDateTime createdAt;
 }

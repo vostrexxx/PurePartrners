@@ -12,7 +12,6 @@ import partners.agreement_connection_info.service.AgreementService;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/agreement")
-@CrossOrigin
 public class AgreementController {
     private final AgreementService agreementService;
 

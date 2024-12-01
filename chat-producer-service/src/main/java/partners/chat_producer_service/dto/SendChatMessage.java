@@ -7,11 +7,12 @@ import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChatMessage {
+public class SendChatMessage {
     private String chatId;
     @Nullable
     private String message;
@@ -20,5 +21,5 @@ public class ChatMessage {
     @Nullable
     private LocalDateTime timestamp;
     @Nullable
-    private MultipartFile[] files;
+    private List<String> imagesUrls;
 }

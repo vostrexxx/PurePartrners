@@ -12,14 +12,13 @@ spring:
 
   cloud:
     gateway:
-      default-filters:
-        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
       globalcors:
         cors-configurations:
           '[/**]':
-            allowedOrigins: "*"
+            allowedOrigins: "http://localhost:5173"
             allowedMethods: "*"
             allowedHeaders: "*"
+            allowCredentials: true
 #TODO add retry filters
 #- name: Retry
       #    args:
@@ -89,6 +88,19 @@ spring:
           filters:
             - AuthenticationFilter
 
+        - id: chat-consumer-websocket-service
+          uri: lb://chat-consumer-service
+          predicates:
+            - Path=/ws/**
+          filters:
+            - name: DisableCorsFilter
+            - name: AuthenticationFilter
+
+#logging:
+#  level:
+#    org.springframework.web.socket: DEBUG
+#    org.springframework.cloud.gateway: DEBUG
+#    io.netty: DEBUG
 server:
   port: 8887
 

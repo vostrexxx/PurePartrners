@@ -4,13 +4,14 @@ import com.partners.authserver.dto.*;
 import com.partners.authserver.exception.*;
 import com.partners.authserver.service.UserAuthInfoService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin
 @RequestMapping("/auth")
+@Slf4j
 public class AuthenticationController {
 
     private final UserAuthInfoService userAuthInfoService;
@@ -30,6 +31,7 @@ public class AuthenticationController {
     @GetMapping("/validateToken/{token}")
     public ResponseEntity<TokenValidationResponse> validateToken(@PathVariable("token") String token) throws
             InvalidTokenException {
+        log.info("VALIDATING: {}", token);
         TokenValidationResponse response = userAuthInfoService.validateToken(token);
         return ResponseEntity.ok(response);
     }
