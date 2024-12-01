@@ -109,13 +109,15 @@ public class ChatConsumerService {
         for (Chat chat : allChats){
             ChatPreview chatPreview = new ChatPreview();
             chatPreview.setChatId(chat.getId());
-            Message lastMessage = messageRepository.findFirstByChatOrderByTimestampDesc(chat);
-            chatPreview.setLastMessage(lastMessage.getMessage());
             if (Objects.equals(userId, chat.getChatInitiatorId()))
                 chatPreview.setTitle(chat.getChatInitiatorName());
             else
                 chatPreview.setTitle(chat.getChatReceiverName());
-            chatPreview.setLastMessageTime(lastMessage.getTimestamp());
+            Message lastMessage = messageRepository.findFirstByChatOrderByTimestampDesc(chat);
+            if (lastMessage != null) {
+                chatPreview.setLastMessage(lastMessage.getMessage());
+                chatPreview.setLastMessageTime(lastMessage.getTimestamp());
+            }
             allChatPreviews.add(chatPreview);
         }
         return new ChatPreviews(allChatPreviews);
