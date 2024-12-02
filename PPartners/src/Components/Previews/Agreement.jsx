@@ -2,16 +2,47 @@ import React, { useState, useEffect } from 'react';
 import Card from '../Previews/Card';
 import { useNavigate } from 'react-router-dom';
 
-const Agreement = ({ mode, initiatorItemId, receiverItemId, comment, status }) => {
+const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localizedStatus, isReceiver, initiatorId , receiverId, chatId, isSpecialist }) => {
     const [questionnaireId, setQuestionnaireId] = useState(null);
     const [announcementId, setAnnouncementId] = useState(null);
 
     const [questionnaireData, setQuestionnaireData] = useState(null);
     const [announcementData, setAnnouncementData] = useState(null);
 
+    const [isChatExists, setIsChatExists] = useState(null);
+    const [isConversation, setIsConversation] = useState(localizedStatus === 'Переговоры' ? true : false);
+
     const url = localStorage.getItem('url');
     const getAuthToken = () => localStorage.getItem('authToken');
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const params = new URLSearchParams({
+            chatId: chatId,
+        });
+    
+        fetch(`${url}/chat/exists?${params.toString()}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getAuthToken()}`,
+            },
+        })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`Ошибка при проверке существования чата: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then((data) => {
+            setIsChatExists(data.isChatExists);
+            console.log("Обновлено isChatExists:", data.isChatExists);
+        })
+        .catch((error) => {
+            console.error("Ошибка:", error);
+        });
+    }, [chatId]);
+    
 
     useEffect(() => {
         // Определяем, что является `questionnaire` и `announcement`
@@ -48,6 +79,8 @@ const Agreement = ({ mode, initiatorItemId, receiverItemId, comment, status }) =
 
                 if (response.ok) {
                     const data = await response.json();
+                    console.log("data", data)
+
                     if (type === 'questionnaire') {
                         setQuestionnaireData(data);
                     } else {
@@ -78,6 +111,110 @@ const Agreement = ({ mode, initiatorItemId, receiverItemId, comment, status }) =
         );
     };
 
+    const handleReject = async () => {
+        // console.log(questionnaireData)
+        const bodyData = {
+            newStatus: "Отклонено",
+            agreementId: id,
+        };
+        try {
+            const response = await fetch(`${url}/agreement`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getAuthToken()}`,
+                },
+                body: JSON.stringify(bodyData),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Ошибка при отклонении: ${response.status}`);
+            }
+
+            const data = await response.json();
+            if (data.success === 1) {
+                // setIsEditable(false);
+            } else {
+                // setError('Не удалось отклонить соглашение');
+            }
+        } catch (error) {
+            // setError(`Ошибка при отклонении: ${error.message}`);
+        }
+    };
+
+    const handleStartChat = async () => {
+        let initiatorChatName = '';
+        let receiverChatName = '';
+    
+        if (mode === 1) {
+            // Инициатор — анкета, получатель — объявление
+            initiatorChatName = questionnaireData?.categoriesOfWork || 'Неизвестно';
+            receiverChatName = announcementData?.workCategories || 'Неизвестно';
+        } else if (mode === 0) {
+            // Инициатор — объявление, получатель — анкета
+            initiatorChatName = announcementData?.workCategories || 'Неизвестно';
+            receiverChatName = questionnaireData?.categoriesOfWork || 'Неизвестно';
+        }
+    
+        const bodyData = {
+            chatInitiatorId: initiatorId,
+            chatReceiverId: receiverId,
+            chatId: chatId,
+            chatInitiatorName: initiatorChatName,
+            chatReceiverName: receiverChatName,
+            isSpecialist: isSpecialist
+            //agreement
+        };
+    
+        fetch(`${url}/event/new-chat`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getAuthToken()}`,
+            },
+            body: JSON.stringify(bodyData),
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Ошибка при открытии чата: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(() => {
+                const bodyData = {
+                    newStatus: 'Переговоры',
+                    agreementId: id,
+                };
+                fetch(`${url}/agreement`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getAuthToken()}`,
+                    },
+                    body: JSON.stringify(bodyData),
+                })
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error(`Ошибка при обновлении соглашения: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then((data) => {
+                        console.log('Успешный ответ:', data);
+                    })
+                    .catch((error) => {
+                        console.error('Ошибка:', error.message);
+                    });
+            })
+            .catch((error) => {
+                console.error('Ошибка:', error.message);
+            });
+    };
+    
+    const handleOpenChat = async () => {
+        navigate(`/chat/${chatId}`)
+    };
+
     return (
         <div style={styles.agreement}>
             {mode ? (
@@ -91,7 +228,7 @@ const Agreement = ({ mode, initiatorItemId, receiverItemId, comment, status }) =
                     <h4>Комментарий откликнувшегося:</h4>
                     <p>{comment}</p>
 
-                    <h2>{status}</h2>
+                    <h2>{localizedStatus}</h2>
                 </div>
             ) : (
                 <div>
@@ -104,9 +241,25 @@ const Agreement = ({ mode, initiatorItemId, receiverItemId, comment, status }) =
                     <h4>Комментарий откликнувшегося:</h4>
                     <p>{comment}</p>
 
-                    <h2>{status}</h2>
+                    <h2>{localizedStatus}</h2>
                 </div>
             )}
+            { isReceiver ? (
+                <div>
+                    <button onClick={handleReject} style={styles.button}>
+                            Отклонить
+                    </button>
+                    {isChatExists ? 
+                        (<button onClick={handleOpenChat} style={styles.button}>Открыть чат</button>)
+                        :
+                        (<button onClick={handleStartChat} style={styles.button}>Создать чат</button>)
+                    }
+                    
+                </div>
+            ) : (
+                isConversation ? (<button onClick={handleOpenChat} style={styles.button}>Открыть чат</button>) : null
+            )}
+
         </div>
     );
 };

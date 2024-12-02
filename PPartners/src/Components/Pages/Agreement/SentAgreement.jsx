@@ -14,7 +14,7 @@ const SentAgreement = () => {
             try {
 
                 const params = new URLSearchParams({
-                    mode: isSpecialist ? 1 : 0,
+                    mode: isSpecialist ? 0 : 1,
                 });
                 const response = await fetch(`${url}/agreement/sent?${params.toString()}`, {
                     method: 'GET',
@@ -45,15 +45,21 @@ const SentAgreement = () => {
             {agreements.length > 0 ? (
                 agreements.map((item, index) => (
                     <Agreement 
+                        id={item.id} 
                         mode={item.mode} 
                         initiatorId={item.initiatorId} 
                         initiatorItemId={item.initiatorItemId} 
                         receiverId={item.receiverId}
                         receiverItemId={item.receiverItemId}
-                        status={item.status}
+                        localizedStatus={item.localizedStatus}
                         comment={item.comment}
                         updateDate={item.updateDate}
                         key={index}
+                        isReceiver={false}
+                        chatId={item.chatId}
+                        isSpecialist={isSpecialist}
+
+
                     />
                 ))
             ) : (

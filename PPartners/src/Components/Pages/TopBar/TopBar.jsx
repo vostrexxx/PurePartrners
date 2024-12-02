@@ -23,11 +23,12 @@ const TopBar = () => {
                             <div style={styles.dropdownMenu}>
                                 <ul style={styles.dropdownList}>
                                     <li style={styles.dropdownItem} onClick={() => navigate('/account-actions')}>Работа с аккаунтом</li>
-                                    {/* <li style={styles.dropdownItem} onClick={() => navigate('/profiles')}>Работа с профилями</li>
-                                    <li style={styles.dropdownItem} onClick={() => navigate('/account-actions')}>Действия с аккаунтом</li> */}
                                 </ul>
                                 <ul style={styles.dropdownList}>
                                     <li style={styles.dropdownItem} onClick={() => navigate('/agreement')}>Отклики</li>
+                                </ul>
+                                <ul style={styles.dropdownList}>
+                                    <li style={styles.dropdownItem} onClick={() => navigate('/all-chats')}>Мои чаты</li>
                                 </ul>
                             </div>
                         )}

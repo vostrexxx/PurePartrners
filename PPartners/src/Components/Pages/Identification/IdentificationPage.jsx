@@ -8,7 +8,7 @@ const IdentificationPage = () => {
     localStorage.setItem('phoneNumber', phoneNumber);
 
     // localStorage.setItem('url', 'http://192.168.43.68:8887');
-    localStorage.setItem('url', 'http://192.168.1.12:8887');
+    localStorage.setItem('url', 'http://192.168.1.12:8887');    
 
     // const [url, setUrl] = useState(localStorage.getItem('url'));
     let url = localStorage.getItem('url')

@@ -22,7 +22,6 @@ const ImageLoader = ({ imagePath, label, place }) => {
                         'Authorization': `Bearer ${getAuthToken()}`,
                     },
                 });
-                // console.log(`${url}/profile/image?${params.toString()}`)
                 if (!response.ok) {
                     throw new Error(`Ошибка загрузки изображения: ${response.status}`);
                 }

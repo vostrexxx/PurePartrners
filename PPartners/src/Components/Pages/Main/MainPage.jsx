@@ -7,7 +7,7 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import Card from '../../Previews/Card';
 import SearchComponent from '../SearchComponent/SearchComponent';
-
+import TopBar from '../TopBar/TopBar';
 const MainPage = () => {
     const { isSpecialist, toggleProfile } = useProfile();
     const navigate = useNavigate();
@@ -161,28 +161,7 @@ const MainPage = () => {
 
     return (
         <div>
-            <div style={styles.topBar}>
-                <div style={styles.topBarContent}>
-                    <div style={styles.profileContainer}>
-                        <FaUserCircle size={30} style={styles.profileIcon} onClick={toggleDropdown} />
-                        {dropdownOpen && (
-                            <div style={styles.dropdownMenu}>
-                                <ul style={styles.dropdownList}>
-                                    <li style={styles.dropdownItem} onClick={() => navigate('/account-actions')}>Работа с аккаунтом</li>
-                                </ul>
-                                <ul style={styles.dropdownList}>
-                                    <li style={styles.dropdownItem} onClick={() => navigate('/agreement')}>Отклики</li>
-                                </ul>
-                            </div>
-                        )}
-                        <div style={styles.profileSwitchContainer}>
-                            <span>Заказчик</span>
-                            <Switch checked={isSpecialist} onChange={toggleProfile} color="primary" />
-                            <span>Специалист</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <TopBar></TopBar>
 
             <div style={styles.mainContent}>
                 {isSpecialist ? <div>Поиск объявлений</div> : <div>Поиск анкет</div>}

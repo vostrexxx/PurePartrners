@@ -9,6 +9,7 @@ const ReceivedAgreement = () => {
     const [agreements, setAgreements] = useState([]);
     const { isSpecialist } = useProfile();
 
+    
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -45,15 +46,19 @@ const ReceivedAgreement = () => {
             {agreements.length > 0 ? (
                 agreements.map((item, index) => (
                     <Agreement 
+                        id={item.id} 
                         mode={item.mode} 
                         initiatorId={item.initiatorId} 
                         initiatorItemId={item.initiatorItemId} 
                         receiverId={item.receiverId}
                         receiverItemId={item.receiverItemId}
-                        status={item.status}
+                        localizedStatus={item.localizedStatus}
                         comment={item.comment}
                         updateDate={item.updateDate}
                         key={index}
+                        isReceiver={true}
+                        chatId={item.chatId}
+                        isSpecialist={isSpecialist}
                     />
                 ))
             ) : (
