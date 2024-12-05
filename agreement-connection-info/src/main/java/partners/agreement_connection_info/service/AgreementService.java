@@ -1,5 +1,6 @@
 package partners.agreement_connection_info.service;
 
+import jakarta.ws.rs.NotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -58,5 +59,12 @@ public class AgreementService {
 //        agreement.setUpdateDate(LocalDateTime.now());
         agreementRepository.save(agreement);
         return new OperationStatusResponse(1);
+    }
+
+    public AgreementChatInfo getAgreementInfo(Long agreementId, Long userId){
+        Agreement agreement = agreementRepository.findById(agreementId)
+                .orElseThrow(NotFoundException::new);
+        AgreementInfo agreementInfo = modelMapper.map(agreement, AgreementInfo.class);
+        return new AgreementChatInfo(agreementInfo, userId);
     }
 }

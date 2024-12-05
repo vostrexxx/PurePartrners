@@ -65,6 +65,8 @@ spring:
           uri: lb://categories-of-work-info
           predicates:
             - Path=/categories/**
+          filters:
+            - AuthenticationFilter
 
         - id: agreement-connection-info
           uri: lb://agreement-connection-info

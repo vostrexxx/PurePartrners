@@ -1,11 +1,9 @@
 package partners.chat_producer_service.dto;
 
-import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -17,4 +15,5 @@ public class NewChat {
     private String chatInitiatorName;
     private String chatReceiverName;
     private Boolean isSpecialist;
+    private Long agreementId;
 }

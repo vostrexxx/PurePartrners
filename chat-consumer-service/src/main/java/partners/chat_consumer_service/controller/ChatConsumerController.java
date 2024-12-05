@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import partners.chat_consumer_service.dto.ChatHistory;
+import partners.chat_consumer_service.dto.ChatInfo;
 import partners.chat_consumer_service.dto.ChatPreviews;
 import partners.chat_consumer_service.dto.IsChatExists;
 import partners.chat_consumer_service.service.ChatConsumerService;
@@ -29,6 +30,12 @@ public class ChatConsumerController {
     @GetMapping("/previews")
     public ResponseEntity<ChatPreviews> getAllChatsPreviews(@RequestHeader Long userId, @RequestParam Boolean isSpecialist){
         ChatPreviews response = service.getAllChatsPreviews(userId, isSpecialist);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/info")
+    public ResponseEntity<ChatInfo> getChatInfo(@RequestParam String chatId){
+        ChatInfo response = service.getChatInfo(chatId);
         return ResponseEntity.ok(response);
     }
 }

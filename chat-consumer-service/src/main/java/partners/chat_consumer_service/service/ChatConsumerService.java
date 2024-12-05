@@ -122,4 +122,10 @@ public class ChatConsumerService {
         }
         return new ChatPreviews(allChatPreviews);
     }
+
+    public ChatInfo getChatInfo(String chatId){
+        Chat chat = chatRepository.findById(chatId)
+                .orElseThrow(NotFoundException::new);
+        return new ChatInfo(chat.getAgreementId());
+    }
 }

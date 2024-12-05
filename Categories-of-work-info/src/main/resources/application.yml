@@ -1,17 +1,12 @@
 spring:
   application:
-    name: Categories-of-work
+    name: Categories-of-work-info
 
   neo4j:
     uri: bolt://localhost:7687
     authentication:
       username: neo4j
       password: partners
-
-  devtools:
-    livereload:
-      enabled: false
-
 
 eureka:
   client:

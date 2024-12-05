@@ -26,6 +26,7 @@ public class Chat {
     private Long chatReceiverId;
     private Long chatInitiatorId;
     private Boolean isSpecialist;
+    private Long agreementId;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;

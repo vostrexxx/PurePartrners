@@ -9,6 +9,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import partners.chat_producer_service.config.Constants;
 import partners.chat_producer_service.dto.ChatMessage;
 import partners.chat_producer_service.dto.NewChat;
 import partners.chat_producer_service.dto.OperationStatusResponse;
@@ -40,8 +41,8 @@ public class ChatProducerService {
             if (message.getFiles() != null) {
                 for (MultipartFile image : message.getFiles()) {
                     String fileName = UUID.randomUUID().toString();
-                    Files.createDirectories(Path.of("src/main/resources/images/attachments/" + userId));
-                    String imagePath = "src/main/resources/images/attachments/" + userId + "/" + fileName + image.getOriginalFilename();
+                    Files.createDirectories(Path.of(Constants.KEY_CHAT_ATTACHMENT_PATH + userId));
+                    String imagePath = Constants.KEY_CHAT_ATTACHMENT_PATH + userId + "/" + fileName + image.getOriginalFilename();
                     image.transferTo(Path.of(imagePath));
                     String imagePathForSearch = userId + "/" + fileName + image.getOriginalFilename();
                     images.add(imagePathForSearch);
@@ -69,7 +70,7 @@ public class ChatProducerService {
     }
 
     public Resource getImageByPath(String imagePath){
-        String fullImagePath = "src/main/resources/images/attachments/" + imagePath;
+        String fullImagePath = Constants.KEY_CHAT_ATTACHMENT_PATH + imagePath;
         File file = new File(fullImagePath);
         if (file.exists()){
             return new FileSystemResource(file);

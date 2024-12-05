@@ -22,6 +22,12 @@ public class AgreementController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("")
+    public ResponseEntity<AgreementChatInfo> getAgreementInfo(@RequestParam Long agreementId, @RequestHeader Long userId) {
+        AgreementChatInfo response = agreementService.getAgreementInfo(agreementId, userId);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/sent")
     public ResponseEntity<AllUserAgreements> getSentAgreements(@RequestHeader Long userId, @RequestParam int mode) {
         AllUserAgreements response = agreementService.getUserAgreementsByMode(userId, true, mode);
