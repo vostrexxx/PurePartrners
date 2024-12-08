@@ -1,16 +1,24 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import Chat from './Chat';
+import ChatContext from './ChatContext';
+import Card from '../../Previews/Card';
+import RejectButton from './RejectButton';
+
 
 const ChatPage = () => {
-    const { chatId } = useParams();
+    const { chatId } = useParams(); 
+    const location = useLocation(); 
+    const agreementId = location.state?.agreementId; 
+
+    console.log(agreementId);
+
     return (
         <div style={styles.container}>
             {/* Левая часть */}
             <div style={styles.leftPanel}>
-                <h3>Левая панель</h3>
-
-                
+                <ChatContext agreementId={agreementId} />
+                <RejectButton agreementId={agreementId} />
             </div>
 
             {/* Правая часть с чатом */}
@@ -24,11 +32,11 @@ const ChatPage = () => {
 const styles = {
     container: {
         display: 'flex',
-        height: '100vh', // Высота на весь экран
-        width: '100%', // Ширина на весь экран
+        height: '100vh',
+        width: '100%',
     },
     leftPanel: {
-        flex: 1, // Занимает 1 часть от доступного пространства
+        flex: 1,
         backgroundColor: 'black',
         color: 'white',
         borderRight: '1px solid #ddd',
@@ -36,10 +44,10 @@ const styles = {
         overflowY: 'auto',
     },
     rightPanel: {
-        flex: 3, // Занимает оставшееся пространство
+        flex: 3,
         display: 'flex',
-        flexDirection: 'column', // Элементы вертикально
-        height: '100%', // Высота равна высоте экрана
+        flexDirection: 'column',
+        height: '100%',
         backgroundColor: '#f4f4f4',
         overflow: 'hidden',
     },

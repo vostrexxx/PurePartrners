@@ -3,7 +3,7 @@ import { useProfile } from '../../Context/ProfileContext'; // Импорт пр�
 import { ImTextColor } from 'react-icons/im';
 import Card from '../../Previews/Card.jsx';
 import { useNavigate, useLocation } from 'react-router-dom';
-
+import AutoCompleteInput from './AutoCompleteInput.jsx';
 
 const FormField = ({ type, label, name, placeholder, value, onChange, disabled, hidden }) => {
     if (hidden) {
@@ -51,33 +51,33 @@ let url = localStorage.getItem('url')
 
 // Компонент формы для анкеты (Специалист)
 const QuestionnaireForm = ({ onSubmit, onCancel }) => {
-const [isEditable, setIsEditable] = useState(false);
-
     const [formData, setFormData] = useState({
-        categoriesOfWork: '',//o
-        hasEdu: '',//o
-        eduEst:'',//
-        eduDateStart: '',//
-        eduDateEnd: '',//
-        hasTeam:'',//o
-        team: '',//
-        prices: '',//o
-        selfInfo: '',//o
-        workExp: '',//o
+        workCategories: '', // Это значение будет обновляться через AutoCompleteInput
+        hasEdu: '',
+        eduEst: '',
+        eduDateStart: '',
+        eduDateEnd: '',
+        hasTeam: '',
+        team: '',
+        prices: '',
+        selfInfo: '',
+        workExp: '',
     });
-
-    const handleEdit = () => {
-        setIsEditable(true);
-    };
 
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setFormData({
-            ...formData,
-            [name]: type === 'checkbox' ? checked : value // Если это чекбокс, то берем значение `checked`
-        });
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: type === 'checkbox' ? checked : value,
+        }));
     };
 
+    const handleCategorySelect = (value) => {
+        setFormData((prevData) => ({
+            ...prevData,
+            workCategories: value, // Обновляем workCategories при выборе
+        }));
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -109,14 +109,13 @@ const [isEditable, setIsEditable] = useState(false);
         <div>
             <h3>Создать анкету (Специалист)</h3>
             <form onSubmit={handleSubmit}>
-                <FormField
-                    type="text"
+                <AutoCompleteInput
                     label="Категории ваших работ"
-                    name="categoriesOfWork"
-                    placeholder="Категория работ"
-                    value={formData.categoriesOfWork}
-                    onChange={handleInputChange}
+                    name="workCategories"
+                    placeholder="Введите категорию"
+                    onCategorySelect={handleCategorySelect} // Передаем функцию для обновления formData
                 />
+
                 <CheckboxField
                     label="Имеется профильное образование?"
                     name="hasEdu"
@@ -139,16 +138,16 @@ const [isEditable, setIsEditable] = useState(false);
                     placeholder="Дата старта"
                     value={formData.eduDateStart}
                     onChange={handleInputChange}
-                    hidden={!formData.hasEdu} // Управляем видимостью
+                    hidden={!formData.hasEdu}
                 />
                 <FormField
                     type="date"
                     label="Дата окончания обучения"
-                    name="finishDate"
+                    name="eduDateEnd"
                     placeholder="Дата окончания"
                     value={formData.eduDateEnd}
                     onChange={handleInputChange}
-                    hidden={!formData.hasEdu} // Управляем видимостью
+                    hidden={!formData.hasEdu}
                 />
                 <CheckboxField
                     label="Имеется ли команда?"
@@ -189,13 +188,14 @@ const [isEditable, setIsEditable] = useState(false);
                     value={formData.workExp}
                     onChange={handleInputChange}
                 />
-    
+
                 <button type="submit">Сохранить анкету</button>
                 <button type="button" onClick={onCancel}>Отмена</button>
             </form>
         </div>
     );
-};    
+};
+
 
 // Компонент формы для объявления (Заказчик)
 const AnnouncementForm = ({ onSubmit, onCancel }) => {
@@ -244,7 +244,13 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
         //     }
         // };
     
-    
+        const handleCategorySelect = (value) => {
+            setFormData((prevData) => ({
+                ...prevData,
+                workCategories: value, // Обновляем workCategories при выборе
+            }));
+        };
+
         const handleEdit = () => {
             setIsEditable(true);
         };
@@ -256,7 +262,6 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
                 [name]: type === 'checkbox' ? checked : value // Если это чекбокс, то берем значение `checked`
             });
         };
-    
     
         const handleSubmit = async (e) => {
             e.preventDefault();
@@ -288,15 +293,11 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
             <div>
                 <h3>Создать Объявление (Заказчик)</h3>
                 <form onSubmit={handleSubmit}>
-                <FormField
-                    type="text"
-                    label="Категория работ"
+                <AutoCompleteInput
+                    label="Категории ваших работ"
                     name="workCategories"
-                    placeholder="Категория работ"
-                    value={formData.workCategories}
-                    onChange={handleInputChange}
-                    disabled={!isEditable}
-                    // hidden={!formData.hasTeam}
+                    placeholder="Введите категорию"
+                    onCategorySelect={handleCategorySelect} 
                 />
                 <FormField
                     type="text"

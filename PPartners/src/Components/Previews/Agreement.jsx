@@ -11,6 +11,7 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
 
     const [isChatExists, setIsChatExists] = useState(null);
     const [isConversation, setIsConversation] = useState(localizedStatus === 'Переговоры' ? true : false);
+    const [isRejected, setIsRejected] = useState(localizedStatus === 'Отклонено' ? true : false);
 
     const url = localStorage.getItem('url');
     const getAuthToken = () => localStorage.getItem('authToken');
@@ -162,8 +163,8 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
             chatId: chatId,
             chatInitiatorName: initiatorChatName,
             chatReceiverName: receiverChatName,
-            isSpecialist: isSpecialist
-            //agreement
+            isSpecialist: isSpecialist,
+            agreementId: id,
         };
     
         fetch(`${url}/event/new-chat`, {
@@ -211,9 +212,73 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
             });
     };
     
-    const handleOpenChat = async () => {
-        navigate(`/chat/${chatId}`)
+    const handleOpenChat = () => {
+        const params = new URLSearchParams({
+            chatId,
+        });
+    
+        fetch(`${url}/chat/info?${params.toString()}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${getAuthToken()}`,
+            },
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Ошибка при получении информации по соглашению: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((response) => {
+                // console.log('агримант', agreementId);
+                navigate(`/chat/${chatId}`, { state: { agreementId: response.agreementId } });
+            })
+            .catch((error) => {
+                console.log(`Ошибка при получении информации по соглашению: ${error.message}`);
+            });
     };
+    
+
+    // { r ? (
+    //     <div>
+    //         <button onClick={handleReject} style={styles.button}>
+    //                 Отклонить
+    //         </button>
+    //         {isChatExists ? 
+    //             (<button onClick={handleOpenChat} style={styles.button}>Открыть чат</button>)
+    //             :
+    //             (<button onClick={handleStartChat} style={styles.button}>Создать чат</button>)
+    //         }
+            
+    //     </div>
+    // ) : (
+    //     !isRejected && isConversation && isChatExists ? (<button onClick={handleOpenChat} style={styles.button}>Открыть чат</button>) : null
+    // )}
+
+    
+    let bottomEl;
+
+    if (!isRejected) {
+        if (isReceiver) {
+            bottomEl = (
+                <div>
+                    <button onClick={handleReject} style={styles.button}>Отклонить</button>
+                    {isChatExists ? 
+                        <button onClick={handleOpenChat} style={styles.button}>Открыть чат</button>
+                        :
+                        <button onClick={handleStartChat} style={styles.button}>Создать чат</button>
+                    }
+                </div>)
+        } else if (!isReceiver && isChatExists){
+            bottomEl = (
+                <div>
+                    <button onClick={handleOpenChat} style={styles.button}>Открыть чат</button>
+                </div>)
+        }  
+    } else {
+        bottomEl = null
+    }
+
 
     return (
         <div style={styles.agreement}>
@@ -235,7 +300,7 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
                     <h4>Объявление:</h4>
                     {renderCard(announcementData, 'announcement')}
 
-                    <h4>Анкета:</h4>
+                        <h4>Анкета:</h4>
                     {renderCard(questionnaireData, 'questionnaire')}
 
                     <h4>Комментарий откликнувшегося:</h4>
@@ -244,21 +309,7 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
                     <h2>{localizedStatus}</h2>
                 </div>
             )}
-            { isReceiver ? (
-                <div>
-                    <button onClick={handleReject} style={styles.button}>
-                            Отклонить
-                    </button>
-                    {isChatExists ? 
-                        (<button onClick={handleOpenChat} style={styles.button}>Открыть чат</button>)
-                        :
-                        (<button onClick={handleStartChat} style={styles.button}>Создать чат</button>)
-                    }
-                    
-                </div>
-            ) : (
-                isConversation ? (<button onClick={handleOpenChat} style={styles.button}>Открыть чат</button>) : null
-            )}
+                <div>{bottomEl}</div>
 
         </div>
     );

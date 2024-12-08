@@ -5,9 +5,9 @@ import './index.css';
 import { ProfileProvider } from './Components/Context/ProfileContext.jsx';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
+  // <React.StrictMode>
     <ProfileProvider>
       <App />
     </ProfileProvider>
-  </React.StrictMode>
+  // </React.StrictMode>
 );

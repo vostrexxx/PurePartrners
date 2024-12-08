@@ -41,7 +41,29 @@ const AllChatsPage = () => {
     }, [url, isSpecialist]);
     
     const handleChatPreviewClick = (chatId) => {
-        navigate(`/chat/${chatId}`)
+        const params = new URLSearchParams({
+            chatId,
+        });
+    
+        fetch(`${url}/chat/info?${params.toString()}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${getAuthToken()}`,
+            },
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Ошибка при получении информации по соглашению: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((response) => {
+                // console.log('агримант', agreementId);
+                navigate(`/chat/${chatId}`, { state: { agreementId: response.agreementId } });
+            })
+            .catch((error) => {
+                console.log(`Ошибка при получении информации по соглашению: ${error.message}`);
+            });
     };
         
     return (

@@ -16,6 +16,8 @@ import AgreementPage from './Components/Pages/Agreement/AgreementPage';
 import ChatPage from './Components/Pages/Chat/ChatPage';
 import global from 'global';
 import AllChatsPage from './Components/Pages/Chat/AllChatsPage';
+import AC from './Components/Pages/AccountTabs/AutoCompleteInput';
+
 global.global = global;  
 const App = () => {
     return (
@@ -37,6 +39,7 @@ const App = () => {
                 <Route path="/chat/:chatId" element={<ChatPage />} />
                 <Route path="/all-chats" element={<AllChatsPage />} />
 
+                <Route path="/ac" element={<AC />} />
                 
             </Routes>
         </Router>
