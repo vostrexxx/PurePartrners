@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-
 const ImageLoader = ({ imagePath, label, place }) => {
     const [imageSrc, setImageSrc] = useState(null);
     const [error, setError] = useState(null);

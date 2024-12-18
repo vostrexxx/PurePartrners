@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-
+import { useNavigate, useLocation } from 'react-router-dom';
 const RejectButton = ({ agreementId }) => {
+    const navigate = useNavigate();
+
     const getAuthToken = () => localStorage.getItem('authToken');
     const url = localStorage.getItem('url');
-
     const handleReject = async () => {
 
 
@@ -25,9 +26,10 @@ const RejectButton = ({ agreementId }) => {
             if (!response.ok) {
                 throw new Error(`Ошибка при отклонении: ${response.status}`);
             }
-
+            navigate(`/agreement`)
             const data = await response.json();
             console.log(data)
+            
         } catch (error) {
         }
     };

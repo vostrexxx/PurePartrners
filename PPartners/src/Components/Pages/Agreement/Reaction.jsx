@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel } from '@mui/material';
 import { useProfile } from '../../Context/ProfileContext';
 import Card from '../../Previews/Card';
-
+import { useNavigate, useLocation } from 'react-router-dom';
 const ReactionWindow = ({ isOpen, onClose, userId, id, mode }) => {
     const [selectedPreviewId, setSelectedPreviewId] = useState(null); // Выбранное превью
     // const [comment, setComment] = useState(""); // Комментарий
@@ -14,6 +14,7 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode }) => {
     const getAuthToken = () => localStorage.getItem('authToken');
     const url = localStorage.getItem('url');
 
+    const navigate = useNavigate();
 
     const [agreementData, setAgreementData] = useState({
         receiverId: userId,
@@ -71,7 +72,7 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode }) => {
 
 
     const handleSubmit = async () => {
-        console.log(agreementData)
+        // console.log(agreementData)
         try {
             const response = await fetch(`${url}/agreement`, {
                 method: 'POST',
@@ -83,6 +84,7 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode }) => {
             });
 
             if (response.ok) {
+                navigate(`/agreement`)
                 alert("Успешно отправлено!");
                 // onClose(); // Закрываем окно
             } else {
@@ -105,7 +107,7 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode }) => {
                         {previews.length > 0 ? (
                             previews.map((preview) => (
                                 <Card
-                                    title={isSpecialist ? preview.categoriesOfWork : preview.workCategories}
+                                    title={isSpecialist ? preview.workCategories : preview.workCategories}
                                     onClick={() => setAgreementData((prevData) => ({
                                         ...prevData, // Сохраняем остальные данные
                                         initiatorItemId: preview.id, // Обновляем initiatorItemId

@@ -1,23 +1,29 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ErrorMessage from '../../ErrorHandling/ErrorMessage';
 
 const IdentificationPage = () => {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [isValid, setIsValid] = useState(true);
+    const [errorMessage, setErrorMessage] = useState(null);
+    const [errorCode, setErrorCode] = useState(null);
     const navigate = useNavigate();
+
     localStorage.setItem('phoneNumber', phoneNumber);
-
+    localStorage.setItem('url', 'http://192.168.1.12:8887');
     // localStorage.setItem('url', 'http://192.168.43.68:8887');
-    localStorage.setItem('url', 'http://192.168.1.12:8887');    
+    // localStorage.setItem('url', 'http://192.168.110.68:8887');
 
-    // const [url, setUrl] = useState(localStorage.getItem('url'));
-    let url = localStorage.getItem('url')
+    localStorage.setItem('authToken', null);
+    const url = localStorage.getItem('url');
 
     const handleInputChange = (e) => {
         const value = e.target.value;
         setPhoneNumber(value);
         const isValidPhone = /^\+(?:[0-9] ?){6,14}[0-9]$/.test(value);
         setIsValid(isValidPhone);
+        setErrorMessage(null); // Сбрасываем ошибку при вводе нового номера
+        setErrorCode(null);
     };
 
     const handleSubmit = async () => {
@@ -31,18 +37,26 @@ const IdentificationPage = () => {
                     body: JSON.stringify({ phoneNumber }),
                 });
 
+                if (!response.ok) {
+                    setErrorCode(response.status);
+                    // console.log(response.status)
+                    return;
+                }
+
                 const data = await response.json();
 
-                if (data.success) {
+                if (data.success === 1) {
                     navigate('/login', { state: { phoneNumber } });
-                } else {
+                } else if (data.success === 0) {
                     navigate('/register', { state: { phoneNumber } });
                 }
             } catch (error) {
-                console.error('Ошибка:', error);
+                setErrorCode(null); // Сбрасываем код ошибки, если он не специфичный
+                setErrorMessage('Произошла ошибка. Проверьте соединение с интернетом.');
+                // console.error('Ошибка:', error);
             }
         } else {
-            alert("Неверный формат номера телефона. Введите в формате: +79164331768");
+            setErrorMessage('Неверный формат номера телефона. Введите в формате: +79164331768');
         }
     };
 
@@ -60,9 +74,11 @@ const IdentificationPage = () => {
                     Неверный формат номера телефона.
                 </p>
             )}
+            <ErrorMessage message={errorMessage} errorCode={errorCode} />
             <button onClick={handleSubmit}>Продолжить</button>
         </div>
     );
 };
 
 export default IdentificationPage;
+ 

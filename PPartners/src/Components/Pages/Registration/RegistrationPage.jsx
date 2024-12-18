@@ -1,22 +1,19 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 let url = localStorage.getItem('url')
+import ErrorMessage from '../../ErrorHandling/ErrorMessage';
 
 const RegistrationPage = () => {
+    const [errorMessage, setErrorMessage] = useState(null);
+    const [errorCode, setErrorCode] = useState(null);
+
     const location = useLocation();
     const navigate = useNavigate();
     const [phoneNumber, setPhoneNumber] = useState(localStorage.getItem('phoneNumber'));
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const ChangePhoneNumber = async () => {
-  
-        const simulateResponse = () => 1;
-        if (simulateResponse() === 1) {
-            navigate('/identification');
-        } else {
-            console.error('Ошибка входа');
-        }
-        
+            navigate('/identification');        
     };
 
     const handleRegister = async () => {
@@ -34,16 +31,18 @@ const RegistrationPage = () => {
                 body: JSON.stringify({ phoneNumber, password }),
             });
 
-            const data = await response.json();
-
-            if (data.success) {
-                navigate('/login', { state: { phoneNumber } });
+            if (!response.ok) {
+                setErrorCode(response.status);
+                setErrorMessage(response.message)
+                return;
             } else {
-                alert('Ошибка регистрации. Попробуйте снова.');
+                const data = await response.json();
+                    navigate('/login', { state: { phoneNumber }} );
             }
-        } catch (error) {
-            console.error('Ошибка:', error);
-            alert('Ошибка при отправке запроса. Попробуйте снова.');
+        }
+        catch (error) {
+            setErrorCode(null);
+            setErrorMessage(error);
         }
     };
 
@@ -73,6 +72,8 @@ const RegistrationPage = () => {
                 Изменить номер телефона
             </button>
             <button onClick={handleRegister}>Зарегистрироваться</button>
+            <ErrorMessage message={errorMessage} errorCode={errorCode} />
+
         </div>
     );
 };

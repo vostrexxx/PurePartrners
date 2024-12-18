@@ -124,12 +124,12 @@ const QuestionnaireDetails = () => {
         <div style={styles.container}>
             <h2>Детали анкеты</h2>
 
-            <label htmlFor="categoriesOfWork">Категории работ</label>
+            <label htmlFor="workCategories">Категории работ</label>
             <input
                 type="text"
-                name="categoriesOfWork"
-                id="categoriesOfWork"
-                value={questionnaire.categoriesOfWork || ''}
+                name="workCategories"
+                id="workCategories"
+                value={questionnaire.workCategories || ''}
                 onChange={handleInputChange}
                 disabled={!isEditable}
                 style={styles.input}

@@ -17,6 +17,7 @@ import ChatPage from './Components/Pages/Chat/ChatPage';
 import global from 'global';
 import AllChatsPage from './Components/Pages/Chat/AllChatsPage';
 import AC from './Components/Pages/AccountTabs/AutoCompleteInput';
+import BT from './Components/Pages/Chat/BuilderTest';
 
 global.global = global;  
 const App = () => {
@@ -39,7 +40,7 @@ const App = () => {
                 <Route path="/chat/:chatId" element={<ChatPage />} />
                 <Route path="/all-chats" element={<AllChatsPage />} />
 
-                <Route path="/ac" element={<AC />} />
+                <Route path="/bt" element={<BT />} />
                 
             </Routes>
         </Router>

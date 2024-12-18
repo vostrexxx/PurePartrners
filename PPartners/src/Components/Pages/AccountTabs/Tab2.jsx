@@ -511,12 +511,7 @@ const MainPage = () => {
                             {questionnaires.length > 0 ? (
                                 questionnaires.map((item) => 
                                     (
-                                        <Card title = {item.categoriesOfWork} onClick = {() => handleQueCardClick(item.id)} key={item.id}></Card>
-
-                                    // <div key={item.id} style={styles.card}>
-                                    //     <h3>{item.categoriesOfWork}</h3>
-                                    //     {/* <p>ID: {item.id}</p> */}
-                                    // </div>
+                                        <Card title = {item.workCategories} onClick = {() => handleQueCardClick(item.id)} key={item.id}></Card>
                                 ))
                             ) : (
                                 <p>Нет анкет</p>

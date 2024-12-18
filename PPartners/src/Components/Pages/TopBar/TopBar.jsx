@@ -18,6 +18,9 @@ const TopBar = () => {
             <div style={styles.topBar}>
                 <div style={styles.topBarContent}>
                     <div style={styles.profileContainer}>
+
+                        <button onClick={() => navigate(`/main`)}>Главная страница</button>
+                        
                         <FaUserCircle size={30} style={styles.profileIcon} onClick={toggleDropdown} />
                         {dropdownOpen && (
                             <div style={styles.dropdownMenu}>
@@ -29,6 +32,9 @@ const TopBar = () => {
                                 </ul>
                                 <ul style={styles.dropdownList}>
                                     <li style={styles.dropdownItem} onClick={() => navigate('/all-chats')}>Мои чаты</li>
+                                </ul>
+                                <ul style={styles.dropdownList}>
+                                    <li style={styles.dropdownItem} onClick={() => navigate('/identification')}>Выйти</li>
                                 </ul>
                             </div>
                         )}

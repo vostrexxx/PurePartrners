@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import ErrorMessage from '../../ErrorHandling/ErrorMessage';
 
 const LoginPage = () => {
+    const [errorMessage, setErrorMessage] = useState(null);
+    const [errorCode, setErrorCode] = useState(null);
+    
     const location = useLocation();
     const navigate = useNavigate();
     const [phoneNumber, setPhoneNumber] = useState(localStorage.getItem('phoneNumber'));
@@ -10,15 +14,14 @@ const LoginPage = () => {
 
     let url = localStorage.getItem('url')
 
-
     const ChangePhoneNumber = async () => {
   
-        const simulateResponse = () => 1;
-        if (simulateResponse() === 1) {
+        // const simulateResponse = () => 1;
+        // if (simulateResponse() === 1) {
             navigate('/identification');
-        } else {
-            console.error('Ошибка входа');
-        }
+        // } else {
+        //     console.error('Ошибка входа');
+        // }
         
     };
     const handleLogin = async () => {
@@ -32,36 +35,32 @@ const LoginPage = () => {
             });
     
             if (response.ok) {
+                setErrorMessage(null);
+                setErrorCode(null);
                 const data = await response.json();
-                const token = data.token; // Сервер возвращает токен в поле `token`
+                const token = data.token;
                 
                 localStorage.setItem('authToken', token);
                 
                 navigate('/main');
             } else {
-                console.error('Ошибка входа');
+                setErrorMessage(response.message)
+                setErrorCode(response.status)
+
             }
         } catch (error) {
-            console.error('Произошла ошибка:', error);
+            setErrorMessage(error.message)
+            setErrorCode(null)
         }
-
-        // const simulateResponse = () => 1;
-        // if (simulateResponse() === 1) {
-        //     navigate('/main');
-        // } else {
-        //     console.error('Ошибка входа');
-        // }
     };
 
     const handlePasswordReset = async () => {
-
-        const simulateResponse = () => 1;
-        if (simulateResponse() === 1) {
+        // const simulateResponse = () => 1;
+        // if (simulateResponse() === 1) {
             navigate('/phone-enter');
-        } else {
-            console.error('Ошибка входа');
-        }
-        
+        // } else {
+        //     console.error('Ошибка входа');
+        // }
     };
 
     return (
@@ -93,6 +92,8 @@ const LoginPage = () => {
             <button onClick={ChangePhoneNumber}>
                 Изменить номер телефона
             </button>
+            <ErrorMessage message={errorMessage} errorCode={errorCode} />
+
         </div>
     );
 };

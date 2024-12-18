@@ -27,7 +27,7 @@ const MainPage = () => {
         hasTeam: 'any', // "any" (по умолчанию), "yes", или "no"
         hasEdu: false,
         hasOther: false,
-        categoriesOfWork: ''
+        workCategories: ''
     });
     const [appliedFilters, setAppliedFilters] = useState({ ...filterParams });
     let url = localStorage.getItem('url');
@@ -40,50 +40,77 @@ const MainPage = () => {
         setLoading(true);
     
         try {
-            let response;
             const params = new URLSearchParams();
     
+            // Поисковый текст
             params.append('text', searchText || '');
-
     
-            if (appliedFilters.hasEdu) params.append('hasEdu', '1');
-            if (appliedFilters.minPrice !== 0) params.append('minPrice', appliedFilters.minPrice);
-            if (appliedFilters.maxPrice !== 100000) params.append('maxPrice', appliedFilters.maxPrice);
-            if (appliedFilters.experience !== 0) params.append('minWorkExp', appliedFilters.experience);
-
-            // Обрабатываем фильтр hasTeam
-            if (appliedFilters.hasTeam === 'yes') params.append('hasTeam', 'true');
-            if (appliedFilters.hasTeam === 'no') params.append('hasTeam', 'false');
-
+            // Общая стоимость: разбиваем на minPrice и maxPrice
+            if (appliedFilters.totalCost && appliedFilters.totalCost.length === 2) {
+                params.append('minPrice', appliedFilters.totalCost[0]);
+                params.append('maxPrice', appliedFilters.totalCost[1]);
+            }
+    
+            // Минимальная и максимальная цена
+            if (appliedFilters.minPrice > 0) {
+                params.append('minPrice', appliedFilters.minPrice);
+            }
+            if (appliedFilters.maxPrice < 100000) {
+                params.append('maxPrice', appliedFilters.maxPrice);
+            }
+    
+            // Опыт работы
+            if (appliedFilters.experience > 0) {
+                params.append('minWorkExp', appliedFilters.experience);
+            }
+    
+            // Фильтр "Есть образование"
+            if (appliedFilters.hasEdu) {
+                params.append('hasEdu', '1');
+            }
+    
+            // Фильтр команды
+            if (appliedFilters.hasTeam === 'yes') {
+                params.append('hasTeam', 'true');
+            }
+            if (appliedFilters.hasTeam === 'no') {
+                params.append('hasTeam', 'false');
+            }
+    
+            // Если пользователь не специалист
             if (!isSpecialist) {
-                if (appliedFilters.hasOther) params.append('hasOther', '1');
-                if (appliedFilters.startDate) params.append('startDate', appliedFilters.startDate.toISOString());
-                if (appliedFilters.finishDate) params.append('finishDate', appliedFilters.finishDate.toISOString());
-                if (appliedFilters.totalCost[0] !== 0 || appliedFilters.totalCost[1] !== 500000) {
-                    params.append('totalCost', appliedFilters.totalCost);
+                if (appliedFilters.hasOther) {
+                    params.append('hasOther', '1');
+                }
+                if (appliedFilters.startDate) {
+                    params.append('startDate', appliedFilters.startDate.toISOString());
+                }
+                if (appliedFilters.finishDate) {
+                    params.append('finishDate', appliedFilters.finishDate.toISOString());
                 }
             }
     
+            // Формируем URL с параметрами
             const urlWithParams = isSpecialist
                 ? `${url}/announcement/filter?${params.toString()}`
                 : `${url}/questionnaire/filter?${params.toString()}`;
     
-            response = await fetch(urlWithParams, {
+            // Выполняем запрос
+            const response = await fetch(urlWithParams, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${getAuthToken()}`,
+                    Authorization: `Bearer ${getAuthToken()}`,
                 },
             });
     
             const data = await response.json();
+    
+            // Обновляем состояние на основе роли пользователя
             if (isSpecialist) {
-                setAnnouncements(data.previews);
-                // console.log(questionnaires)
+                setAnnouncements(data.previews || []);
             } else {
-                setQuestionnaires(data.previews);
-                // console.log(announcements)
-                
+                setQuestionnaires(data.previews || []);
             }
         } catch (error) {
             setError('Ошибка загрузки данных');
@@ -91,6 +118,7 @@ const MainPage = () => {
             setLoading(false);
         }
     };
+    
 
     const handleFilterChange = (e, newValue) => {
         const { name, type, checked, value } = e.target || {};
@@ -113,7 +141,7 @@ const MainPage = () => {
     };
 
     const submitFilters = () => {
-        handleSearch(filterParams.categoriesOfWork);
+        handleSearch(filterParams.workCategories);
     };
 
     useEffect(() => {
@@ -241,7 +269,7 @@ const MainPage = () => {
                                 />
                             </LocalizationProvider>
                             
-                            <FormControlLabel
+                            {/* <FormControlLabel
                                 control={
                                     <Checkbox
                                         checked={filterParams.hasOther}
@@ -249,8 +277,8 @@ const MainPage = () => {
                                         name="hasOther"
                                     />
                                 }
-                                label="Дополнительные условия"
-                            />
+                                label="Цена под договору"
+                            /> */}
                             <h5>Общая стоимость</h5>
                             <Slider
                                 value={filterParams.totalCost}
@@ -277,7 +305,7 @@ const MainPage = () => {
                         {questionnaires.length > 0 ? (
                             questionnaires.map((item) => (
                                 <Card
-                                    title={item.categoriesOfWork}
+                                    title={item.workCategories}
                                     onClick={() => navigate(`/questionnaire/${item.id}`, { state: { fromLk: false } })}
                                     key={item.id}
                                 />

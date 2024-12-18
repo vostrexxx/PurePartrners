@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ImageLoader from './ImageLoader'
 
 const ImageUploader = ({ label, onUpload, imagePath }) => {
     const handleFileChange = async (e) => {
@@ -11,7 +12,7 @@ const ImageUploader = ({ label, onUpload, imagePath }) => {
     return (
         <div>
             <label>{label}</label>
-            {imagePath && <img src={imagePath} alt={label} style={{ width: '100px', height: '100px', display: 'block' }} />}
+            {/* {imagePath && <img src={imagePath}  style={{ width: '100px', height: '100px', display: 'block' }} />} */}
             <input type="file" accept="image/*" onChange={handleFileChange} />
         </div>
     );
@@ -117,7 +118,7 @@ const ProfilePage = () => {
 
     const handleAvatarUpload = async (file) => {
         const formData = new FormData();
-        formData.append('avatar', file);
+        formData.append('image', file);
 
         try {
             const response = await fetch(`${url}/profile/avatar`, {
@@ -142,8 +143,8 @@ const ProfilePage = () => {
 
     const handlePassportUpload = async (file, index) => {
         const formData = new FormData();
-        formData.append('passport', file);
-
+        formData.append('image', file);
+        formData.append('page', index+1);
         try {
             const response = await fetch(`${url}/profile/passport`, {
                 method: 'POST',
@@ -231,19 +232,25 @@ const ProfilePage = () => {
                 <button onClick={() => setIsEditable(true)}>Редактировать</button>
             )}
 
-            <h3>Загрузите фото</h3>
-
+            <h3>Фото</h3>
+            <ImageLoader imagePath={avatarPath} label={"Ваш аватар"} place={'profile'}></ImageLoader>
             <ImageUploader label="Загрузить аватар" imagePath={avatarPath} onUpload={handleAvatarUpload} />
+
+            <ImageLoader imagePath={passportPhoto1} label={"Первая страница паспорта"} place={'profile'}></ImageLoader>
             <ImageUploader
                 label="Загрузить фото паспорта 1"
                 imagePath={passportPhoto1}
                 onUpload={(file) => handlePassportUpload(file, 0)}
             />
+
+             <ImageLoader imagePath={passportPhoto2} label={"Вторая страница паспорта"} place={'profile'}></ImageLoader>
             <ImageUploader
                 label="Загрузить фото паспорта 2"
                 imagePath={passportPhoto2}
                 onUpload={(file) => handlePassportUpload(file, 1)}
             />
+
+             <ImageLoader imagePath={passportPhoto3} label={"Третья страница паспорта"} place={'profile'}></ImageLoader>
             <ImageUploader
                 label="Загрузить фото паспорта 3"
                 imagePath={passportPhoto3}

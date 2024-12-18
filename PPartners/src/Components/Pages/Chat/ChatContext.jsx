@@ -101,7 +101,7 @@ const ChatContext = ({ agreementId }) => {
             (type === 'questionnaire' && agreementInfo?.receiverItemId === data.id && mode) ||
             (type === 'announcement' && agreementInfo?.initiatorItemId === data.id && !mode);
     
-        const title = type === 'questionnaire' ? data.categoriesOfWork : data.workCategories;
+        const title = type === 'questionnaire' ? data.workCategories : data.workCategories;
     
         return (
             <Card
@@ -118,6 +118,7 @@ const ChatContext = ({ agreementId }) => {
         <div style={styles.card}>
             {mode !== null ? (
                 <div>
+                    <h3>Статус: {agreementInfo.localizedStatus}</h3>
                     <h4>Анкета:</h4>
                     {renderCard(questionnaireData, 'questionnaire')}
 

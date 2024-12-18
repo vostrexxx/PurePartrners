@@ -104,7 +104,7 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
         console.log(data)
         return (
             <Card
-                title={type === 'questionnaire' ? data.categoriesOfWork : data.workCategories}
+                title={type === 'questionnaire' ? data.workCategories : data.workCategories}
                 description={data.description || 'Описание отсутствует'}
                 date={data.date || 'Дата отсутствует'}
                 onClick={() => navigate(`/${type}/${data.id}`, { state: { fromLk: null } })}
@@ -149,12 +149,12 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
     
         if (mode === 1) {
             // Инициатор — анкета, получатель — объявление
-            initiatorChatName = questionnaireData?.categoriesOfWork || 'Неизвестно';
+            initiatorChatName = questionnaireData?.workCategories || 'Неизвестно';
             receiverChatName = announcementData?.workCategories || 'Неизвестно';
         } else if (mode === 0) {
             // Инициатор — объявление, получатель — анкета
             initiatorChatName = announcementData?.workCategories || 'Неизвестно';
-            receiverChatName = questionnaireData?.categoriesOfWork || 'Неизвестно';
+            receiverChatName = questionnaireData?.workCategories || 'Неизвестно';
         }
     
         const bodyData = {
