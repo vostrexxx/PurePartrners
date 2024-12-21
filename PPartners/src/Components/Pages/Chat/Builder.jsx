@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { TextField, Button, Select, MenuItem, IconButton } from '@mui/material';
-import { Add, Remove } from '@mui/icons-material';
+import { TextField, Button, Select, MenuItem, IconButton, Drawer  } from '@mui/material';
+import { Add, Remove, Menu } from '@mui/icons-material';
 
 const Builder = ({ agreementId }) => {
     const [estimate, setEstimate] = useState([]); // Текущее состояние
-    const [originalEstimate, setOriginalEstimate] = useState([]); // Эталонное состояние
-    const [changes, setChanges] = useState([]); // Массив изменений
+    const [originalEstimate, setOriginalEstimate] = useState([]); // Исходное состояние
     const [isNewBuilder, setIsNewBuilder] = useState(false); // Флаг для определения нового билдера
+    const [drawerOpen, setDrawerOpen] = useState(false); // Состояние для управления шторкой
     const url = localStorage.getItem("url");
     const authToken = localStorage.getItem("authToken");
 
@@ -29,21 +29,25 @@ const Builder = ({ agreementId }) => {
                 const data = await response.json();
 
                 if (data.estimate.length === 0) {
-                    setIsNewBuilder(true); // Если массив пустой, это новый билдер
+                    setEstimate([]); // Новый билдер
+                    setOriginalEstimate([]);
+                    setIsNewBuilder(true);
                 } else {
                     const parsedEstimate = data.estimate.map((item, index) => ({
-                        nodeId: `${index + 1}`, // Присваиваем порядковый номер
-                        id: item.id,
+                        nodeId: `${index + 1}`,
+                        elementId: item.elementId,
+                        type: 1,
                         subWorkCategoryName: item.subWorkCategoryName,
                         subSubWorkCategories: item.subSubWorkCategories.map((subItem, subIndex) => ({
                             ...subItem,
-                            nodeId: `${index + 1}.${subIndex + 1}`, // Присваиваем подномер
+                            elementId: subItem.elementId,
+                            nodeId: `${index + 1}.${subIndex + 1}`,
                         })),
                     }));
 
                     setEstimate(parsedEstimate);
-                    setOriginalEstimate(parsedEstimate); // Сохраняем эталонное состояние
-                    setIsNewBuilder(false); // Это существующий билдер
+                    setOriginalEstimate(parsedEstimate);
+                    setIsNewBuilder(false);
                 }
             } catch (error) {
                 console.error('Ошибка загрузки сметы:', error);
@@ -53,142 +57,233 @@ const Builder = ({ agreementId }) => {
         fetchEstimate();
     }, [agreementId, authToken, url]);
 
-    // Пересчет nodeId
-    const recalculateNodeIds = (estimateData) => {
-        return estimateData.map((orange, index) => ({
-            ...orange,
-            nodeId: `${index + 1}`,
-            subSubWorkCategories: orange.subSubWorkCategories.map((subItem, subIndex) => ({
-                ...subItem,
-                nodeId: `${index + 1}.${subIndex + 1}`,
-            })),
-        }));
-    };
-
-    // Функция для отслеживания изменений
-    const trackChanges = (operation, type, id, updatedFields, parentId = null) => {
-        setChanges((prevChanges) => [
-            ...prevChanges,
-            {
-                type,
-                operation,
-                id,
-                updatedFields,
-                parentId,
-            },
-        ]);
-    };
-
-    // Добавление нового рыжего элемента
-    const handleAddOrangeItem = () => {
+    const handleAddOrangeItem = (initialName = '') => {
         const newOrange = {
-            id: Date.now(),
+            elementId: Date.now().toString(),
             nodeId: `${estimate.length + 1}`,
-            subWorkCategoryName: '',
+            type: 1,
+            subWorkCategoryName: initialName,
             subSubWorkCategories: [],
         };
 
-        setEstimate((prev) => recalculateNodeIds([...prev, newOrange]));
-        trackChanges('add', '1', newOrange.id, { subWorkCategoryName: '', agreementId });
+        setEstimate((prev) => [...prev, newOrange]);
     };
 
-    // Удаление рыжего элемента
     const handleRemoveOrangeItem = (orangeId) => {
-        const updatedEstimate = estimate.filter((orange) => orange.id !== orangeId);
-        setEstimate(recalculateNodeIds(updatedEstimate));
-        trackChanges('delete', '1', orangeId, {});
+        setEstimate((prev) => prev.filter((orange) => orange.elementId !== orangeId));
     };
 
-    // Добавление белого элемента
     const handleAddSubItem = (orangeId) => {
-        const updatedEstimate = estimate.map((orange) =>
-            orange.id === orangeId
-                ? {
-                      ...orange,
-                      subSubWorkCategories: [
-                          ...orange.subSubWorkCategories,
-                          {
-                              id: Date.now(),
-                              nodeId: `${orange.nodeId}.${orange.subSubWorkCategories.length + 1}`,
-                              subSubWorkCategoryName: '',
-                              workAmount: '',
-                              measureUnit: '',
-                              price: '',
-                          },
-                      ],
-                  }
-                : orange
-        );
+        setEstimate((prevEstimate) => {
+            return prevEstimate.map((orange) => {
+                if (orange.elementId === orangeId) {
+                    const newSubItem = {
+                        elementId: Date.now().toString(),
+                        nodeId: `${orange.nodeId}.${orange.subSubWorkCategories.length + 1}`,
+                        subSubWorkCategoryName: '',
+                        workAmount: '',
+                        measureUnit: '',
+                        price: '',
+                    };
 
-        setEstimate(recalculateNodeIds(updatedEstimate));
-        const newSubItem = updatedEstimate
-            .find((o) => o.id === orangeId)
-            .subSubWorkCategories.slice(-1)[0];
-        trackChanges('add', '2', newSubItem.id, { ...newSubItem, agreementId }, orangeId);
+                    return {
+                        ...orange,
+                        subSubWorkCategories: [...orange.subSubWorkCategories, newSubItem],
+                    };
+                }
+                return orange;
+            });
+        });
     };
 
-    // Удаление белого элемента
     const handleRemoveSubItem = (orangeId, subItemId) => {
-        const updatedEstimate = estimate.map((orange) =>
-            orange.id === orangeId
-                ? {
-                      ...orange,
-                      subSubWorkCategories: orange.subSubWorkCategories.filter((subItem) => subItem.id !== subItemId),
-                  }
-                : orange
-        );
-
-        setEstimate(recalculateNodeIds(updatedEstimate));
-        trackChanges('delete', '2', subItemId, {}, orangeId);
-    };
-
-    // Обновление данных белого элемента
-    const handleSubItemChange = (orangeId, subItemId, field, value) => {
-        setEstimate(
-            estimate.map((orange) =>
-                orange.id === orangeId
+        setEstimate((prev) =>
+            prev.map((orange) =>
+                orange.elementId === orangeId
                     ? {
                           ...orange,
-                          subSubWorkCategories: orange.subSubWorkCategories.map((subItem) =>
-                              subItem.id === subItemId ? { ...subItem, [field]: value } : subItem
+                          subSubWorkCategories: orange.subSubWorkCategories.filter(
+                              (subItem) => subItem.elementId !== subItemId
                           ),
                       }
                     : orange
             )
         );
-        trackChanges('update', '2', subItemId, { [field]: value, agreementId }, orangeId);
     };
 
-    // Обновление имени рыжего элемента
+    const handleSubItemChange = (orangeId, subItemId, field, value) => {
+        setEstimate((prevEstimate) => {
+            return prevEstimate.map((orange) => {
+                if (orange.elementId === orangeId) {
+                    const updatedSubCategories = orange.subSubWorkCategories.map((subItem) =>
+                        subItem.elementId === subItemId
+                            ? { ...subItem, [field]: value }
+                            : subItem
+                    );
+
+                    return { ...orange, subSubWorkCategories: updatedSubCategories };
+                }
+                return orange;
+            });
+        });
+    };
+
     const handleOrangeTextChange = (orangeId, value) => {
-        setEstimate(
-            estimate.map((orange) => (orange.id === orangeId ? { ...orange, subWorkCategoryName: value } : orange))
+        setEstimate((prev) =>
+            prev.map((orange) => (orange.elementId === orangeId ? { ...orange, subWorkCategoryName: value } : orange))
         );
-        trackChanges('update', '1', orangeId, { subWorkCategoryName: value, agreementId });
     };
 
-    // Отправка данных
-    const handleSubmit = async () => {
+    const generateChanges = (original, updated) => {
+        const changes = [];
+    
+        // Добавленные элементы
+        const added = updated.filter(item => !original.some(orig => orig.elementId === item.elementId));
+        added.forEach(item => {
+            changes.push({
+                operation: 'add',
+                type: item.type,
+                updatedFields: {
+                    subWorkCategoryName: item.subWorkCategoryName,
+                    agreementId,
+                    nodeId: item.nodeId,
+                },
+                subSubCategories: item.subSubWorkCategories.map(sub => ({
+                    subSubWorkCategoryName: sub.subSubWorkCategoryName,
+                    workAmount: sub.workAmount,
+                    measureUnit: sub.measureUnit,
+                    price: sub.price,
+                    nodeId: sub.nodeId,
+                })),
+            });
+        });
+    
+        // Удалённые элементы
+        const removed = original.filter(item => !updated.some(upd => upd.elementId === item.elementId));
+        removed.forEach(item => {
+            changes.push({
+                operation: 'delete',
+                type: item.type,
+                elementId: item.elementId,
+            });
+        });
+    
+        // Обновлённые элементы
+        updated.forEach(item => {
+            const originalItem = original.find(orig => orig.elementId === item.elementId);
+            if (originalItem) {
+                const updatedFields = {};
+    
+                if (originalItem.subWorkCategoryName !== item.subWorkCategoryName) {
+                    updatedFields.subWorkCategoryName = item.subWorkCategoryName;
+                }
+    
+                if (Object.keys(updatedFields).length > 0) {
+                    updatedFields.agreementId = agreementId;
+                    updatedFields.nodeId = item.nodeId;
+                    changes.push({
+                        operation: 'update',
+                        type: item.type,
+                        elementId: item.elementId,
+                        updatedFields,
+                    });
+                }
+    
+                // Обработка вложенных subSubWorkCategories
+                const subChanges = generateSubCategoryChanges(originalItem.subSubWorkCategories, item.subSubWorkCategories, item.elementId);
+                changes.push(...subChanges);
+            }
+        });
+    
+        return changes;
+    };
+    
+    const generateSubCategoryChanges = (originalSub, updatedSub, parentId) => {
+        const subChanges = [];
+    
+        // Добавленные подкатегории
+        const added = updatedSub.filter(sub => !originalSub.some(orig => orig.elementId === sub.elementId));
+        added.forEach(sub => {
+            subChanges.push({
+                operation: 'add',
+                type: 2,
+                updatedFields: {
+                    subSubWorkCategoryName: sub.subSubWorkCategoryName,
+                    workAmount: sub.workAmount,
+                    measureUnit: sub.measureUnit,
+                    price: sub.price,
+                    nodeId: sub.nodeId,
+                },
+                parentId,
+            });
+        });
+    
+        // Удалённые подкатегории
+        const removed = originalSub.filter(sub => !updatedSub.some(upd => upd.elementId === sub.elementId));
+        removed.forEach(sub => {
+            subChanges.push({
+                operation: 'delete',
+                type: 2,
+                elementId: sub.elementId,
+            });
+        });
+    
+        // Обновлённые подкатегории
+        updatedSub.forEach(sub => {
+            const originalSubItem = originalSub.find(orig => orig.elementId === sub.elementId);
+            if (originalSubItem) {
+                const updatedFields = {};
+    
+                if (originalSubItem.subSubWorkCategoryName !== sub.subSubWorkCategoryName) {
+                    updatedFields.subSubWorkCategoryName = sub.subSubWorkCategoryName;
+                }
+                if (originalSubItem.workAmount !== sub.workAmount) {
+                    updatedFields.workAmount = sub.workAmount;
+                }
+                if (originalSubItem.measureUnit !== sub.measureUnit) {
+                    updatedFields.measureUnit = sub.measureUnit;
+                }
+                if (originalSubItem.price !== sub.price) {
+                    updatedFields.price = sub.price;
+                }
+    
+                if (Object.keys(updatedFields).length > 0) {
+                    updatedFields.nodeId = sub.nodeId;
+                    subChanges.push({
+                        operation: 'update',
+                        type: 2,
+                        elementId: sub.elementId,
+                        updatedFields,
+                    });
+                }
+            }
+        });
+    
+        return subChanges;
+    };
+    
+
+    const handleSave = async () => {
         try {
             if (isNewBuilder) {
-                // Если это новый билдер, отправляем весь объект через POST
                 const response = await fetch(`${url}/categories/estimate`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${authToken}`,
                     },
-                    body: JSON.stringify({estimate, agreementId}),
+                    body: JSON.stringify({ estimate, agreementId }),
                 });
 
-                if (response.ok) {
-                    alert('Билдер успешно сохранен!');
-                    setChanges([]); // Очищаем изменения
-                } else {
-                    alert('Ошибка сохранения билдера');
+                if (!response.ok) {
+                    throw new Error(`Ошибка сохранения сметы: ${response.status}`);
                 }
+
+                alert('Смета успешно сохранена!');
+                setOriginalEstimate([...estimate]);
+                setIsNewBuilder(false);
             } else {
-                // Если это существующий билдер, отправляем изменения через PUT
+                const changes = generateChanges(originalEstimate, estimate);
                 const response = await fetch(`${url}/categories/estimate`, {
                     method: 'PUT',
                     headers: {
@@ -198,111 +293,148 @@ const Builder = ({ agreementId }) => {
                     body: JSON.stringify(changes),
                 });
 
-                if (response.ok) {
-                    alert('Изменения успешно сохранены!');
-                    setChanges([]); // Очищаем изменения
-                } else {
-                    alert('Ошибка сохранения изменений');
+                if (!response.ok) {
+                    throw new Error(`Ошибка обновления сметы: ${response.status}`);
                 }
+
+                alert('Изменения успешно сохранены!');
+                setOriginalEstimate([...estimate]);
             }
         } catch (error) {
-            console.error('Ошибка при отправке данных:', error);
-            alert('Ошибка при отправке данных');
+            console.error('Ошибка сохранения изменений:', error);
+            alert('Не удалось сохранить изменения.');
         }
     };
 
     return (
-        <div>
-            {estimate.map((orange) => (
-                <div key={orange.id} style={styles.orangeBox}>
-                    <div style={styles.orangeHeader}>
-                        <IconButton color="error" onClick={() => handleRemoveOrangeItem(orange.id)}>
-                            <Remove />
-                        </IconButton>
-                        <TextField
-                            placeholder="Введите наименование категории"
-                            variant="outlined"
-                            size="small"
-                            style={styles.inputField}
-                            value={orange.subWorkCategoryName}
-                            onChange={(e) => handleOrangeTextChange(orange.id, e.target.value)}
-                        />
+        <>
+            <Button
+                variant="contained"
+                color="primary"
+                startIcon={<Menu />}
+                onClick={() => setDrawerOpen(true)}
+                style={{ marginBottom: '20px' }}
+            >
+                Открыть смету
+            </Button>
+    
+            {/* Шторка (Drawer) */}
+            <Drawer
+                anchor="right"
+                open={drawerOpen}
+                onClose={() => setDrawerOpen(false)}
+                PaperProps={{ style: { width: '100%' } }} // Шторка на всю ширину
+            >
+                <div style={{ padding: '20px' }}>
+                    <h2>Редактор сметы</h2>
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={() => setDrawerOpen(false)}
+                        style={{ marginBottom: '20px' }}
+                    >
+                        Закрыть
+                    </Button>
+    
+                    <div>
+                        {estimate.map((orange) => (
+                            <div key={orange.elementId} style={styles.orangeBox}>
+                                <div style={styles.orangeHeader}>
+                                    <IconButton color="error" onClick={() => handleRemoveOrangeItem(orange.elementId)}>
+                                        <Remove />
+                                    </IconButton>
+                                    <TextField
+                                        placeholder="Введите наименование категории"
+                                        variant="outlined"
+                                        size="small"
+                                        style={styles.inputField}
+                                        value={orange.subWorkCategoryName}
+                                        onChange={(e) => handleOrangeTextChange(orange.elementId, e.target.value)}
+                                    />
+                                    <Button
+                                        variant="contained"
+                                        style={styles.addButton}
+                                        onClick={() => handleAddSubItem(orange.elementId)}
+                                    >
+                                        <Add />
+                                    </Button>
+                                </div>
+                                <p>Node ID: {orange.nodeId}</p>
+                                {orange.subSubWorkCategories.map((subItem) => (
+                                    <div key={subItem.elementId} style={styles.whiteBox}>
+                                        <TextField
+                                            placeholder="Наименование подкатегории"
+                                            variant="outlined"
+                                            size="small"
+                                            style={styles.inputField}
+                                            value={subItem.subSubWorkCategoryName || ''}
+                                            onChange={(e) =>
+                                                handleSubItemChange(orange.elementId, subItem.elementId, 'subSubWorkCategoryName', e.target.value)
+                                            }
+                                        />
+                                        <TextField
+                                            placeholder="Объем работ"
+                                            variant="outlined"
+                                            size="small"
+                                            style={styles.inputField}
+                                            value={subItem.workAmount || ''}
+                                            onChange={(e) =>
+                                                handleSubItemChange(orange.elementId, subItem.elementId, 'workAmount', e.target.value)
+                                            }
+                                        />
+                                        <Select
+                                            value={subItem.measureUnit || ''}
+                                            onChange={(e) =>
+                                                handleSubItemChange(orange.elementId, subItem.elementId, 'measureUnit', e.target.value)
+                                            }
+                                            style={styles.select}
+                                        >
+                                            <MenuItem value="">Выбрать...</MenuItem>
+                                            <MenuItem value="option1">м2</MenuItem>
+                                            <MenuItem value="option2">м3</MenuItem>
+                                            <MenuItem value="option3">мп</MenuItem>
+                                        </Select>
+                                        <TextField
+                                            placeholder="Цена"
+                                            variant="outlined"
+                                            size="small"
+                                            style={styles.inputField}
+                                            value={subItem.price || ''}
+                                            onChange={(e) =>
+                                                handleSubItemChange(orange.elementId, subItem.elementId, 'price', e.target.value)
+                                            }
+                                        />
+                                        <p>Node ID: {subItem.nodeId}</p>
+                                        <IconButton color="error" onClick={() => handleRemoveSubItem(orange.elementId, subItem.elementId)}>
+                                            <Remove />
+                                        </IconButton>
+                                    </div>
+                                ))}
+                            </div>
+                        ))}
+                    </div>
+                    <div style={{ textAlign: 'center', marginTop: '20px' }}>
                         <Button
                             variant="contained"
-                            style={styles.addButton}
-                            onClick={() => handleAddSubItem(orange.id)}
+                            color="primary"
+                            onClick={() => handleAddOrangeItem('Новая категория')}
+                            style={{ backgroundColor: 'orange', marginRight: '10px' }}
                         >
-                            <Add />
+                            Добавить категорию
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="secondary"
+                            onClick={handleSave}
+                        >
+                            Сохранить
                         </Button>
                     </div>
-                    <p>Node ID: {orange.nodeId}</p>
-                    {orange.subSubWorkCategories.map((subItem) => (
-                        <div key={subItem.id} style={styles.whiteBox}>
-                            <TextField
-                                placeholder="Наименование подкатегории"
-                                variant="outlined"
-                                size="small"
-                                style={styles.inputField}
-                                value={subItem.subSubWorkCategoryName}
-                                onChange={(e) =>
-                                    handleSubItemChange(orange.id, subItem.id, 'subSubWorkCategoryName', e.target.value)
-                                }
-                            />
-                            <TextField
-                                placeholder="Объем работ"
-                                variant="outlined"
-                                size="small"
-                                style={styles.inputField}
-                                value={subItem.workAmount}
-                                onChange={(e) =>
-                                    handleSubItemChange(orange.id, subItem.id, 'workAmount', e.target.value)
-                                }
-                            />
-                            <Select
-                                value={subItem.measureUnit}
-                                onChange={(e) =>
-                                    handleSubItemChange(orange.id, subItem.id, 'measureUnit', e.target.value)
-                                }
-                                style={styles.select}
-                            >
-                                <MenuItem value="">Выбрать...</MenuItem>
-                                <MenuItem value="option1">м2</MenuItem>
-                                <MenuItem value="option2">м3</MenuItem>
-                                <MenuItem value="option3">мп</MenuItem>
-                            </Select>
-                            <TextField
-                                placeholder="Цена"
-                                variant="outlined"
-                                size="small"
-                                style={styles.inputField}
-                                value={subItem.price}
-                                onChange={(e) =>
-                                    handleSubItemChange(orange.id, subItem.id, 'price', e.target.value)
-                                }
-                            />
-                            <p>Node ID: {subItem.nodeId}</p>
-                            <IconButton color="error" onClick={() => handleRemoveSubItem(orange.id, subItem.id)}>
-                                <Remove />
-                            </IconButton>
-                        </div>
-                    ))}
                 </div>
-            ))}
-            <div style={{ textAlign: 'center', marginTop: '20px' }}>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleAddOrangeItem}
-                    style={{ backgroundColor: 'orange', marginRight: '10px' }}
-                >
-                    Добавить категорию
-                </Button>
-                <Button variant="contained" color="secondary" onClick={handleSubmit}>
-                    Сохранить изменения
-                </Button>
-            </div>
-        </div>
+            </Drawer>
+        </>
     );
+    
 };
 
 const styles = {

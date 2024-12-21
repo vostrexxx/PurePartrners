@@ -28,8 +28,6 @@ const ChatPage = () => {
             {/* Правая часть: билдер */}
             <div style={styles.rightPanel}>
                 <Builder agreementId={agreementId} />
-                {/* <h3>Билдер</h3>
-                <p>Здесь будут настройки или другие элементы</p> */}
             </div>
         </div>
     );
@@ -39,10 +37,11 @@ const styles = {
     container: {
         display: 'flex',
         height: '100vh', // Полная высота экрана
-        width: '100vw',  // Полная ширина экрана
+        width: '100%',   // Полная ширина экрана
+        flexWrap: 'nowrap', // Предотвращает перенос элементов
     },
     leftPanel: {
-        flex: '0 0 25%', // Фиксированная ширина 30%
+        flex: '1 1 25%', // Гибкость: 1, начальная ширина: 25%
         backgroundColor: 'black',
         color: 'white',
         borderRight: '1px solid #ddd',
@@ -50,18 +49,19 @@ const styles = {
         overflowY: 'auto',
     },
     middlePanel: {
-        flex: '0 0 30%', // Фиксированная ширина 30%
+        flex: '2 1 50%', // Гибкость: 2, начальная ширина: 50%
         backgroundColor: '#f4f4f4',
         padding: '20px',
         borderRight: '1px solid #ddd',
         overflowY: 'auto',
     },
     rightPanel: {
-        flex: '0 0 35%', // Фиксированная ширина 40%
+        flex: '1 1 25%', // Гибкость: 1, начальная ширина: 25%
         backgroundColor: 'black',
         padding: '20px',
         overflowY: 'auto',
     },
 };
+
 
 export default ChatPage;
