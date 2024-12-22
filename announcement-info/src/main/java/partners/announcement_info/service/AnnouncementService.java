@@ -11,10 +11,13 @@ import org.hibernate.search.mapper.orm.session.SearchSession;
 import org.modelmapper.ModelMapper;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import partners.announcement_info.config.Constants;
 import partners.announcement_info.dto.*;
+import partners.announcement_info.exception.CantDeleteAnnouncementException;
+import partners.announcement_info.exception.CantUpdateAnnouncementException;
 import partners.announcement_info.model.Announcement;
 import partners.announcement_info.repository.AnnouncementRepository;
 
@@ -59,6 +62,7 @@ public class AnnouncementService {
             repository.save(announcement);
             return new OperationStatusResponse(1);
         } catch (Exception e){
+            log.error(e.getMessage());
             throw new InternalServerErrorException(Constants.KEY_EXCEPTION_CANT_SAVE_CUSTOMER);
         }
     }
@@ -71,8 +75,10 @@ public class AnnouncementService {
             Files.createDirectories(Path.of(imagePath));
             imagePath += "/" + i + Constants.KEY_DEFAULT_IMAGE_EXTENSION;
             announcementImages[i].transferTo(Path.of(imagePath));
-            if (!Files.exists(Path.of(imagePath)))
-                return new OperationStatusResponse(0);
+            if (!Files.exists(Path.of(imagePath))) {
+                log.error(Constants.KEY_EXCEPTION_CANT_SAVE_CUSTOMER);
+                throw new InternalServerErrorException(Constants.KEY_EXCEPTION_CANT_SAVE_IMAGE);
+            }
         }
         return new OperationStatusResponse(1);
     }
@@ -98,32 +104,41 @@ public class AnnouncementService {
         String fullImagePath = Constants.KEY_DEFAULT_IMAGES_PATH + imagePath;
         if (Files.deleteIfExists(Path.of(fullImagePath)))
             return new OperationStatusResponse(1);
-        else
-            return new OperationStatusResponse(0);
+        else {
+            log.error(Constants.KEY_EXCEPTION_CANT_DELETE_IMAGE);
+            throw new InternalServerErrorException(Constants.KEY_EXCEPTION_CANT_DELETE_IMAGE);
+        }
     }
 
-    public OperationStatusResponse deleteAnnouncement(Long announcementId){
+    public OperationStatusResponse deleteAnnouncement(Long announcementId) throws CantDeleteAnnouncementException {
         if (repository.existsById(announcementId)) {
             repository.deleteById(announcementId);
             return new OperationStatusResponse(1);
-        } else
-            return new OperationStatusResponse(0);
+        } else {
+            log.error(Constants.KEY_EXCEPTION_NO_ANNOUNCEMENT);
+            throw new CantDeleteAnnouncementException(Constants.KEY_EXCEPTION_NO_ANNOUNCEMENT, HttpStatus.NOT_FOUND);
+        }
     }
 
-    public OperationStatusResponse updateAnnouncement(Long announcementId, AnnouncementInfo announcementInfo){
+    public OperationStatusResponse updateAnnouncement(Long announcementId, AnnouncementInfo announcementInfo) throws CantUpdateAnnouncementException {
         //TODO динамическое обновление полей (обновились ли поля или нет проверка нужна)
-        Announcement announcement = repository.getReferenceById(announcementId);
-        announcement.setTotalCost(announcementInfo.getTotalCost());
-        announcement.setWorkCategories(announcementInfo.getWorkCategories());
-        announcement.setMetro(announcementInfo.getMetro());
-        announcement.setHouse(announcementInfo.getHouse());
-        announcement.setHasOther(announcementInfo.getHasOther());
-        announcement.setOther(announcementInfo.getOther());
-        announcement.setObjectName(announcementInfo.getObjectName());
-        announcement.setStartDate(announcementInfo.getStartDate());
-        announcement.setFinishDate(announcementInfo.getFinishDate());
-        announcement.setComments(announcementInfo.getComments());
-        repository.save(announcement);
+        try {
+            Announcement announcement = repository.getReferenceById(announcementId);
+            announcement.setTotalCost(announcementInfo.getTotalCost());
+            announcement.setWorkCategories(announcementInfo.getWorkCategories());
+            announcement.setMetro(announcementInfo.getMetro());
+            announcement.setHouse(announcementInfo.getHouse());
+            announcement.setHasOther(announcementInfo.getHasOther());
+            announcement.setOther(announcementInfo.getOther());
+            announcement.setObjectName(announcementInfo.getObjectName());
+            announcement.setStartDate(announcementInfo.getStartDate());
+            announcement.setFinishDate(announcementInfo.getFinishDate());
+            announcement.setComments(announcementInfo.getComments());
+            repository.save(announcement);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new CantUpdateAnnouncementException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         return new OperationStatusResponse(1);
     }
 
@@ -133,13 +148,14 @@ public class AnnouncementService {
         try {
             return modelMapper.map(announcement, AnnouncementInfoPreview.class);
         } catch (Exception e){
+            log.error(e.getMessage());
             throw new InternalServerErrorException(e.getMessage());
         }
     }
 
     @Transactional
     public GetAllPreviews filterAnnouncement(Long userId, String text,
-                                             Integer minPrice, Integer maxPrice,
+                                             Double minPrice, Double maxPrice,
                                              Boolean hasOther, String startDate, String endDate){
         SearchSession session = Search.session(entityManager);
         List<AnnouncementInfoPreview> finalFilteredResult;

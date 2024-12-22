@@ -12,6 +12,7 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.InternalServerErrorException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,6 +27,7 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserAuthInfoService{
 
     private final UserAuthInfoRepository userAuthInfoRepository;
@@ -38,8 +40,10 @@ public class UserAuthInfoService{
 
     public OperationStatusResponse register(RegistrationInfo registrationInfo){
 
-        if (userAuthInfoRepository.existsByPhoneNumber(registrationInfo.getPhoneNumber()))
+        if (userAuthInfoRepository.existsByPhoneNumber(registrationInfo.getPhoneNumber())) {
+            log.error("Phone number already in use");
             throw new BadRequestException(Constants.KEY_EXCEPTION_PHONE_NUMBER_TAKEN);
+        }
 
         UserAuthInfo userAuthInfo = modelMapper.map(registrationInfo, UserAuthInfo.class);
         userAuthInfo.setPassword(passwordEncoder.encode(userAuthInfo.getPassword()));
@@ -49,7 +53,8 @@ public class UserAuthInfoService{
             userAuthInfoRepository.save(userAuthInfo);
             return new OperationStatusResponse(1);
         } catch (Exception e){
-            throw new InternalServerErrorException(Constants.KEY_EXCEPTION_CANT_SAVE_USER);
+            log.error(e.getMessage());
+            throw new InternalServerErrorException(e.getMessage());
         }
     }
 
@@ -62,16 +67,18 @@ public class UserAuthInfoService{
                     )
             );
         } catch (BadCredentialsException badCredentialsException){
-            throw new BadCredentialsException(Constants.KEY_EXCEPTION_BAD_CREDENTIALS);
+            log.error(badCredentialsException.getMessage());
+            throw new BadCredentialsException(badCredentialsException.getMessage());
         }
         UserAuthInfo user = userAuthInfoRepository.findByPhoneNumber(loginInfo.getPhoneNumber())
                 .orElseThrow(() -> new UsernameNotFoundException(Constants.KEY_EXCEPTION_USER_NOT_FOUND));
         String jwtToken = jwtService.generateToken(user);
-        return new AuthenticationResponse(jwtToken);
+        return new AuthenticationResponse(jwtToken, user.getId());
     }
 
     public TokenValidationResponse validateToken(String authHeader) throws InvalidTokenException {
         if (authHeader == null || !authHeader.startsWith(Constants.KEY_BEARER_HEADER)) {
+            log.error(Constants.KEY_EXCEPTION_INVALID_TOKEN);
             throw new InvalidTokenException(Constants.KEY_EXCEPTION_INVALID_TOKEN, HttpStatus.FORBIDDEN);
         }
 
@@ -80,7 +87,8 @@ public class UserAuthInfoService{
         try {
             phoneNumber = jwtService.extractPhoneNumber(token);
         } catch (Exception exception){
-            throw new InvalidTokenException(Constants.KEY_EXCEPTION_INVALID_TOKEN, HttpStatus.FORBIDDEN);
+            log.error(exception.getMessage());
+            throw new InvalidTokenException(exception.getMessage(), HttpStatus.FORBIDDEN);
         }
 
         if (phoneNumber != null) {
@@ -90,10 +98,14 @@ public class UserAuthInfoService{
                         orElseThrow(() -> new UsernameNotFoundException(Constants.KEY_EXCEPTION_USER_NOT_FOUND));
                 return new TokenValidationResponse(HttpStatus.OK, userAuthInfo.getId());
             }
-            else
+            else {
+                log.error(Constants.KEY_EXCEPTION_INVALID_TOKEN);
                 throw new InvalidTokenException(Constants.KEY_EXCEPTION_INVALID_TOKEN, HttpStatus.FORBIDDEN);
-        } else
-            throw new InvalidTokenException(Constants.KEY_EXCEPTION_INVALID_TOKEN, HttpStatus.FORBIDDEN);
+            }
+        } else {
+            log.error(Constants.KEY_EXCEPTION_INVALID_TOKEN);
+            throw new InvalidTokenException(Constants.KEY_EXCEPTION_NO_PHONE_NUMBER, HttpStatus.FORBIDDEN);
+        }
     }
 
     public OperationStatusResponse checkPhoneNumberPresence(String phoneNumber){
@@ -129,12 +141,15 @@ public class UserAuthInfoService{
         PasswordResetCode passwordResetCode = resetCodeRepository.findByUserAuthInfo(userAuthInfo)
                 .orElseThrow(() -> new UsernameNotFoundException(Constants.KEY_EXCEPTION_PASSWORD_RESET_CODE_NOT_FOUND));
 
-        if (!code.equals(passwordResetCode.getCode()))
+        if (!code.equals(passwordResetCode.getCode())) {
+            log.error(Constants.KEY_EXCEPTION_PASSWORD_RESET_CODE_INVALID);
             throw new ResetPasswordForbiddenException(Constants.KEY_EXCEPTION_PASSWORD_RESET_CODE_INVALID, HttpStatus.FORBIDDEN);
+        }
 
-        if (passwordResetCode.getExpiresAt().isBefore(LocalDateTime.now()))
+        if (passwordResetCode.getExpiresAt().isBefore(LocalDateTime.now())) {
+            log.error(Constants.KEY_EXCEPTION_PASSWORD_RESET_CODE_EXPIRED);
             throw new ResetPasswordForbiddenException(Constants.KEY_EXCEPTION_PASSWORD_RESET_CODE_EXPIRED, HttpStatus.FORBIDDEN);
-
+        }
         passwordResetCode.setIsVerified(true);
         resetCodeRepository.save(passwordResetCode);
         return new OperationStatusResponse(1);

@@ -17,6 +17,8 @@ public class AgreementInfo {
     private Long initiatorItemId;
     private Long receiverItemId;
 
+    private String localizedStatus;
+
     private String comment;
 
     private int mode;

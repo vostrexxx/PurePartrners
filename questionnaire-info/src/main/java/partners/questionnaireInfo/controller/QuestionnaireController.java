@@ -1,12 +1,16 @@
 package partners.questionnaireInfo.controller;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.Response;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import partners.questionnaireInfo.dto.*;
+import partners.questionnaireInfo.exception.CantDeleteImageException;
+import partners.questionnaireInfo.exception.CantDeleteQuestionnaireException;
+import partners.questionnaireInfo.exception.CantUpdateQuestionnaireException;
 import partners.questionnaireInfo.service.QuestionnaireService;
 
 import java.io.IOException;
@@ -15,6 +19,7 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/questionnaire")
+@Slf4j
 public class QuestionnaireController {
 
     private final QuestionnaireService questionnaireService;
@@ -32,13 +37,13 @@ public class QuestionnaireController {
     }
 
     @DeleteMapping("")
-    public ResponseEntity<OperationStatusResponse> deleteQuestionnaire(@RequestParam Long questionnaireId){
+    public ResponseEntity<OperationStatusResponse> deleteQuestionnaire(@RequestParam Long questionnaireId) throws CantDeleteQuestionnaireException {
         OperationStatusResponse response = questionnaireService.deleteQuestionnaire(questionnaireId);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{questionnaireId}")
-    public ResponseEntity<OperationStatusResponse> updateQuestionnaire(@PathVariable("questionnaireId") Long questionnaireId, @RequestBody QuestionnaireInfo questionnaire){
+    public ResponseEntity<OperationStatusResponse> updateQuestionnaire(@PathVariable("questionnaireId") Long questionnaireId, @RequestBody QuestionnaireInfo questionnaire) throws CantUpdateQuestionnaireException {
         OperationStatusResponse response = questionnaireService.updateQuestionnaire(questionnaireId, questionnaire);
         return ResponseEntity.ok(response);
     }
@@ -56,7 +61,7 @@ public class QuestionnaireController {
     }
 
     @DeleteMapping("/image")
-    public ResponseEntity<OperationStatusResponse> deleteImageByPath(@RequestParam String imagePath) throws IOException {
+    public ResponseEntity<OperationStatusResponse> deleteImageByPath(@RequestParam String imagePath) throws IOException, CantDeleteImageException {
         OperationStatusResponse response = questionnaireService.deleteImageByPath(imagePath);
         return ResponseEntity.ok(response);
     }

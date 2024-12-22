@@ -3,6 +3,7 @@ package partners.UserInfo.controller;
 
 import jakarta.servlet.ServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import partners.UserInfo.service.UserInfoService;
 
 import java.io.IOException;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/profile")
@@ -40,7 +42,9 @@ public class UserInfoController {
     }
 
     @PostMapping(value = "/avatar")
-    public ResponseEntity<OperationStatusResponse> saveAvatar (@RequestHeader Long userId, @RequestBody MultipartFile image) throws IOException, CantSaveImageException {
+    public ResponseEntity<OperationStatusResponse> saveAvatar (@RequestHeader Long userId, @RequestParam MultipartFile image) throws IOException, CantSaveImageException {
+        if (image == null)
+            log.info("нет изображения");
         OperationStatusResponse response = userInfoService.saveAvatar(image, userId);
         return ResponseEntity.ok(response);
     }

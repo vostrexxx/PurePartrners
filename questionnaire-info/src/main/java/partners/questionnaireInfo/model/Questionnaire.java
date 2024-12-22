@@ -27,7 +27,7 @@ public class Questionnaire {
 
     @FullTextField(analyzer = "autocomplete_indexing", searchAnalyzer = "autocomplete_search")
     @Column(nullable = false)
-    private String categoriesOfWork;
+    private String workCategories;
 
     @GenericField
     @Column(nullable = false)
@@ -44,4 +44,18 @@ public class Questionnaire {
     @GenericField
     @Column(nullable = false)
     private Double prices;
+
+    @GenericField
+    @Column(nullable = false)
+    private Boolean hasEdu;
+
+    @GenericField
+    @Column(nullable = false)
+    private Integer workExp;
+
+    @FullTextField(analyzer = "autocomplete_indexing", searchAnalyzer = "autocomplete_search")
+    private String eduEst;
+
+    private LocalDate eduDateStart;
+    private LocalDate eduDateEnd;
 }

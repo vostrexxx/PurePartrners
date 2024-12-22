@@ -1,14 +1,17 @@
 package partners.agreement_connection_info.service;
 
+import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.NotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import partners.agreement_connection_info.config.ChatIdGenerator;
 import partners.agreement_connection_info.config.ConnectionStatus;
 import partners.agreement_connection_info.dto.*;
+import partners.agreement_connection_info.exception.CantSaveAgreementException;
 import partners.agreement_connection_info.model.Agreement;
 import partners.agreement_connection_info.repository.AgreementRepository;
 
@@ -23,7 +26,7 @@ public class AgreementService {
     private final AgreementRepository agreementRepository;
     private final ModelMapper modelMapper;
 
-    public OperationStatusResponse createAgreement(Long userId, AgreementInfo agreementInfo) {
+    public OperationStatusResponse createAgreement(Long userId, AgreementInfo agreementInfo) throws CantSaveAgreementException {
         try {
             Agreement agreementForSave = modelMapper.map(agreementInfo, Agreement.class);
             agreementForSave.setInitiatorId(userId);
@@ -33,7 +36,7 @@ public class AgreementService {
             return new OperationStatusResponse(1);
         } catch (Exception e) {
             log.error(e.getMessage());
-            return new OperationStatusResponse(0);
+            throw new CantSaveAgreementException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -65,6 +68,7 @@ public class AgreementService {
         Agreement agreement = agreementRepository.findById(agreementId)
                 .orElseThrow(NotFoundException::new);
         AgreementInfo agreementInfo = modelMapper.map(agreement, AgreementInfo.class);
+        agreementInfo.setLocalizedStatus(ConnectionStatus.fromConnectionStatus(agreement.getStatus().name()));
         return new AgreementChatInfo(agreementInfo, userId);
     }
 }

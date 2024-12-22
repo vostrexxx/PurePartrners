@@ -5,6 +5,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import partners.announcement_info.dto.*;
+import partners.announcement_info.exception.CantDeleteAnnouncementException;
+import partners.announcement_info.exception.CantUpdateAnnouncementException;
 import partners.announcement_info.service.AnnouncementService;
 
 import java.io.IOException;
@@ -36,13 +38,13 @@ public class AnnouncementController {
     }
 
     @DeleteMapping("")
-    public ResponseEntity<OperationStatusResponse> deleteAnnouncement(@RequestParam Long announcementId){
+    public ResponseEntity<OperationStatusResponse> deleteAnnouncement(@RequestParam Long announcementId) throws CantDeleteAnnouncementException {
         OperationStatusResponse response = service.deleteAnnouncement(announcementId);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{announcementId}")
-    public ResponseEntity<OperationStatusResponse> updateAnnouncement(@PathVariable("announcementId") Long announcementId, @RequestBody AnnouncementInfo announcementInfo){
+    public ResponseEntity<OperationStatusResponse> updateAnnouncement(@PathVariable("announcementId") Long announcementId, @RequestBody AnnouncementInfo announcementInfo) throws CantUpdateAnnouncementException {
         OperationStatusResponse response = service.updateAnnouncement(announcementId, announcementInfo);
         return ResponseEntity.ok(response);
     }
@@ -73,7 +75,7 @@ public class AnnouncementController {
 
     @GetMapping("/filter")
     public ResponseEntity<GetAllPreviews> filter(@RequestHeader Long userId, @RequestParam(required = false) String text,
-                                                @RequestParam(required = false) Integer minPrice, @RequestParam(required = false) Integer maxPrice,
+                                                @RequestParam(required = false) Double minPrice, @RequestParam(required = false) Double maxPrice,
                                                  @RequestParam(required = false) Boolean hasOther, @RequestParam(required = false) String startDate,
                                                  @RequestParam(required = false) String endDate){
         GetAllPreviews allPreviews = service.filterAnnouncement(userId, text, minPrice, maxPrice,

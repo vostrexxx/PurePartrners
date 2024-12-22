@@ -15,7 +15,7 @@ import java.util.List;
 public class QuestionnaireInfo {
     private Long id;
 
-    private String categoriesOfWork;
+    private String workCategories;
 
     private Long userId;
 

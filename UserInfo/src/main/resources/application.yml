@@ -2,6 +2,11 @@ spring:
   application:
     name: user-info
 
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 10MB
+
   datasource:
     url: jdbc:postgresql://localhost:5432/user_info
     username: partners

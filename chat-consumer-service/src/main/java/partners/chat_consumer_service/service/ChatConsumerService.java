@@ -1,12 +1,15 @@
 package partners.chat_consumer_service.service;
 
+import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.NotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import partners.chat_consumer_service.dto.*;
+import partners.chat_consumer_service.exception.CantCreateNewChatException;
 import partners.chat_consumer_service.model.Attachment;
 import partners.chat_consumer_service.model.Chat;
 import partners.chat_consumer_service.model.Message;
@@ -56,11 +59,12 @@ public class ChatConsumerService {
             notifyMessageWebSockerService.sendMessage(chatMessage, message.getChatId());
         } catch (Exception e) {
             log.error(e.getMessage());
+            throw new InternalServerErrorException(e.getMessage());
         }
     }
 
     @KafkaListener(topics = "newChat", groupId = "new-chat-consumer", containerFactory = "newChatContainerFactory")
-    public void consumeNewChatRequest(NewChat newChat) {
+    public void consumeNewChatRequest(NewChat newChat) throws CantCreateNewChatException {
         log.info("Received new chat request: {}", newChat);
         newChat.setCreatedAt(LocalDateTime.now());
         try {
@@ -69,6 +73,7 @@ public class ChatConsumerService {
             log.info("Saved new chat: {}", newChat);
         } catch (Exception e) {
             log.error(e.getMessage());
+            throw new CantCreateNewChatException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

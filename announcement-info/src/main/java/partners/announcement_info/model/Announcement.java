@@ -13,7 +13,7 @@ import org.hibernate.search.mapper.pojo.mapping.definition.annotation.Indexed;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "announcement_info")
+@Table(name = "announcements")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data

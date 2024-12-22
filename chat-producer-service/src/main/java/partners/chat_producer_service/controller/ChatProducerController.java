@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import partners.chat_producer_service.dto.ChatMessage;
 import partners.chat_producer_service.dto.NewChat;
 import partners.chat_producer_service.dto.OperationStatusResponse;
+import partners.chat_producer_service.exception.CantSendMessageKafka;
 import partners.chat_producer_service.service.ChatProducerService;
 
 @RestController
@@ -24,7 +25,7 @@ public class ChatProducerController {
     }
 
     @PostMapping("/new-chat")
-    public ResponseEntity<OperationStatusResponse> createNewChat(@RequestBody NewChat newChat) {
+    public ResponseEntity<OperationStatusResponse> createNewChat(@RequestBody NewChat newChat) throws CantSendMessageKafka {
         OperationStatusResponse response = service.sendNewChat(newChat);
         return ResponseEntity.ok(response);
     }

@@ -13,27 +13,37 @@ public class ExceptionAPIHandler {
 
     @ExceptionHandler(CantSaveImageException.class)
     public ResponseEntity<String> handleCantSaveImageException(CantSaveImageException e) {
-        return new ResponseEntity<>(e.getMessage(), e.getStatus());
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(e.getMessage());
     }
 
     @ExceptionHandler(CantSaveUserException.class)
     public ResponseEntity<String> handleCantSaveUserException(CantSaveUserException e) {
-        return new ResponseEntity<>(e.getMessage(), e.getStatus());
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(e.getMessage());
     }
 
     @ExceptionHandler(NoImageException.class)
     public ResponseEntity<String> handleNoImageException(NoImageException e) {
-        return new ResponseEntity<>(e.getMessage(), e.getStatus());
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(e.getMessage());
     }
 
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<String> handleBadRequestException(BadRequestException e) {
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(e.getMessage());
     }
 
     @ExceptionHandler(InternalServerErrorException.class)
     public ResponseEntity<String> handleInternalServerErrorException(InternalServerErrorException e) {
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(e.getMessage());
     }
 
     @ExceptionHandler(NotFoundException.class)

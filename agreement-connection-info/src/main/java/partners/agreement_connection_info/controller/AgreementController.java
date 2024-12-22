@@ -6,6 +6,7 @@ import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import partners.agreement_connection_info.dto.*;
+import partners.agreement_connection_info.exception.CantSaveAgreementException;
 import partners.agreement_connection_info.service.AgreementService;
 
 @Slf4j
@@ -17,7 +18,7 @@ public class AgreementController {
 
     //TODO controller
     @PostMapping("")
-    public ResponseEntity<OperationStatusResponse> createNotConfirmedAgreement(@RequestHeader Long userId, @RequestBody AgreementInfo agreementInfo){
+    public ResponseEntity<OperationStatusResponse> createNotConfirmedAgreement(@RequestHeader Long userId, @RequestBody AgreementInfo agreementInfo) throws CantSaveAgreementException {
         OperationStatusResponse response = agreementService.createAgreement(userId, agreementInfo);
         return ResponseEntity.ok(response);
     }

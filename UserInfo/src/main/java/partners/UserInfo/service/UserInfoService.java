@@ -1,8 +1,10 @@
 package partners.UserInfo.service;
 
 import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.core.io.FileSystemResource;
@@ -30,6 +32,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserInfoService {
     private final UserInfoRepository userInfoRepository;
 
@@ -45,6 +48,7 @@ public class UserInfoService {
             userInfoRepository.save(userInfo);
             return new OperationStatusResponse(1);
         } catch (Exception e) {
+            log.error(e.getMessage());
             throw new CantSaveUserException(Constants.KEY_EXCEPTION_CANT_SAVE_USER_INFO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -89,8 +93,10 @@ public class UserInfoService {
         image.transferTo(Path.of(imagePath));
         if (Files.exists(Path.of(imagePath)))
             return new OperationStatusResponse(1);
-        else
+        else {
+            log.error(Constants.KEY_EXCEPTION_CANT_SAVE_IMAGE);
             throw new CantSaveImageException(Constants.KEY_EXCEPTION_CANT_SAVE_IMAGE, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     public OperationStatusResponse savePassportImages(Long userId, MultipartFile image, int page){
@@ -99,11 +105,14 @@ public class UserInfoService {
             Files.createDirectories(Path.of(imagePath));
             imagePath += "/" + page + Constants.KEY_DEFAULT_IMAGES_EXTENSION;
             image.transferTo(Path.of(imagePath));
-            if (!Files.exists(Path.of(imagePath)))
-                return new OperationStatusResponse(0);
+            if (!Files.exists(Path.of(imagePath))) {
+                log.error(Constants.KEY_EXCEPTION_CANT_SAVE_IMAGE);
+                throw new InternalServerErrorException(Constants.KEY_EXCEPTION_CANT_SAVE_IMAGE);
+            }
             return new OperationStatusResponse(1);
         } catch (Exception e) {
-            return new OperationStatusResponse(0);
+            log.error(Constants.KEY_EXCEPTION_CANT_SAVE_IMAGE);
+            throw new InternalServerErrorException(Constants.KEY_EXCEPTION_CANT_SAVE_IMAGE);
         }
     }
 
@@ -122,8 +131,10 @@ public class UserInfoService {
         boolean success = Files.deleteIfExists(file.toPath());
         if (success)
             return new OperationStatusResponse(1);
-        else
-            return new OperationStatusResponse(0);
+        else {
+            log.error(Constants.KEY_EXCEPTION_CANT_DELETE_IMAGE);
+            throw new InternalServerErrorException(Constants.KEY_EXCEPTION_CANT_DELETE_IMAGE);
+        }
     }
 
     public OtherProfilePreview getOtherProfilePreview(Long userId){

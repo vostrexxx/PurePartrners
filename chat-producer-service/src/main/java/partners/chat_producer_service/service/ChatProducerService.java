@@ -1,11 +1,13 @@
 package partners.chat_producer_service.service;
 
+import jakarta.ws.rs.InternalServerErrorException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,6 +16,7 @@ import partners.chat_producer_service.dto.ChatMessage;
 import partners.chat_producer_service.dto.NewChat;
 import partners.chat_producer_service.dto.OperationStatusResponse;
 import partners.chat_producer_service.dto.SendChatMessage;
+import partners.chat_producer_service.exception.CantSendMessageKafka;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -55,17 +58,18 @@ public class ChatProducerService {
             return new OperationStatusResponse(1);
         } catch (Exception e) {
             log.error(e.getMessage());
-            return new OperationStatusResponse(0);
+            throw new InternalServerErrorException(e.getMessage());
         }
     }
 
-    public OperationStatusResponse sendNewChat(NewChat newChat) {
+    public OperationStatusResponse sendNewChat(NewChat newChat) throws CantSendMessageKafka {
         try {
             newChatKafkaTemplate.send(newChatTopic, newChat);
             log.info("Message sent to" + newChatTopic + " {}", newChat);
             return new OperationStatusResponse(1);
         } catch (Exception e) {
-            return new OperationStatusResponse(0);
+            log.error(e.getMessage());
+            throw new CantSendMessageKafka(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

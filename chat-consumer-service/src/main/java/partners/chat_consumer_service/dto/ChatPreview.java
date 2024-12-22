@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class ChatPreview {
     private String chatId;
+    private String chatStatus;
     private String lastMessage;
     private String title;
     private LocalDateTime lastMessageTime;

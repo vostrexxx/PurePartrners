@@ -15,7 +15,10 @@ spring:
       globalcors:
         cors-configurations:
           '[/**]':
-            allowedOrigins: "http://localhost:5173"
+            allowedOrigins:
+              - "http://localhost:5173"
+              - "http://192.168.43.112:5173"
+              - "http://192.168.1.13:5173"
             allowedMethods: "*"
             allowedHeaders: "*"
             allowCredentials: true
@@ -68,6 +71,14 @@ spring:
           filters:
             - AuthenticationFilter
 
+        - id: categories-of-work-websocket-info
+          uri: lb://categories-of-work-info
+          predicates:
+            - Path=/ws/category/**
+          filters:
+            - name: DisableCorsFilter
+            - name: AuthenticationFilter
+
         - id: agreement-connection-info
           uri: lb://agreement-connection-info
           predicates:
@@ -93,10 +104,17 @@ spring:
         - id: chat-consumer-websocket-service
           uri: lb://chat-consumer-service
           predicates:
-            - Path=/ws/**
+            - Path=/ws/chat/**
           filters:
             - name: DisableCorsFilter
             - name: AuthenticationFilter
+
+        - id: documents-microservice
+          uri: lb://documents-microservice
+          predicates:
+            - Path=/document/**
+          filters:
+            - AuthenticationFilter
 
 #logging:
 #  level:

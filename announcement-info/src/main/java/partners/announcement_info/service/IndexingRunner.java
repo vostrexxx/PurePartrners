@@ -13,11 +13,11 @@ public class IndexingRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-//        log.info("Executing indexing on application startup");
-//        try {
-//            indexingService.indexAnnouncements();
-//        } catch (InterruptedException e) {
-//            log.error("Indexing was interrupted", e);
-//        }
+        log.info("Executing indexing on application startup");
+        try {
+            indexingService.indexAnnouncements();
+        } catch (InterruptedException e) {
+            log.error("Indexing was interrupted", e);
+        }
     }
 }

@@ -28,12 +28,13 @@ public enum ConnectionStatus {
         return null;
     }
 
-    public static ConnectionStatus fromConnectionStatus(String connectionStatus) {
+    public static String fromConnectionStatus(String connectionStatus) {
         for (ConnectionStatus status : ConnectionStatus.values()) {
-            if (status.name().equals(connectionStatus)) {
-                return status;
+            if (status.name().equalsIgnoreCase(connectionStatus)) { // Сравнение без учёта регистра
+                return status.russianName;
             }
         }
-        return null;
+        return null; // Или выбросьте исключение, если статус не найден
     }
+
 }

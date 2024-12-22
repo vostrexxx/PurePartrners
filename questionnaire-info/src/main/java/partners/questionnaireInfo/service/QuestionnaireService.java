@@ -14,11 +14,15 @@ import org.springframework.boot.context.config.ConfigDataResourceNotFoundExcepti
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 import partners.questionnaireInfo.config.Constants;
 import partners.questionnaireInfo.dto.*;
+import partners.questionnaireInfo.exception.CantDeleteImageException;
+import partners.questionnaireInfo.exception.CantDeleteQuestionnaireException;
+import partners.questionnaireInfo.exception.CantUpdateQuestionnaireException;
 import partners.questionnaireInfo.model.Questionnaire;
 import partners.questionnaireInfo.repository.QuestionnaireRepository;
 
@@ -47,6 +51,7 @@ public class QuestionnaireService {
             questionnaireRepository.save(questionnaire);
             return new OperationStatusResponse(1);
         } catch (Exception e){
+            log.error(e.getMessage());
             throw new InternalServerErrorException(Constants.KEY_EXCEPTION_CANT_SAVE_CONTRACTOR);
         }
     }
@@ -83,12 +88,14 @@ public class QuestionnaireService {
             return null;
     }
 
-    public OperationStatusResponse deleteImageByPath(String imagePath) throws IOException {
+    public OperationStatusResponse deleteImageByPath(String imagePath) throws IOException, CantDeleteImageException {
         String fullImagePath = Constants.KEY_DEFAULT_IMAGES_PATH + imagePath;
         if (Files.deleteIfExists(Path.of(fullImagePath)))
             return new OperationStatusResponse(1);
-        else
-            return new OperationStatusResponse(0);
+        else {
+            log.error(Constants.KEY_EXCEPTION_CANT_DELETE_IMAGE);
+            throw new CantDeleteImageException(Constants.KEY_EXCEPTION_CANT_DELETE_IMAGE, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     public OperationStatusResponse saveQuestionnaireImages(SaveQuestionnaireImages images) throws IOException {
@@ -101,8 +108,10 @@ public class QuestionnaireService {
             imagePath += "/" + i + Constants.KEY_DEFAULT_IMAGES_EXTENSION;
             Path anotherImagePath = Path.of(imagePath);
             questionnaireImages[i].transferTo(anotherImagePath);
-            if (!Files.exists(anotherImagePath))
-                return new OperationStatusResponse(0);
+            if (!Files.exists(anotherImagePath)) {
+                log.error(Constants.KEY_EXCEPTION_CANT_SAVE_IMAGE);
+                throw new InternalServerErrorException(Constants.KEY_EXCEPTION_CANT_SAVE_IMAGE);
+            }
         }
         return new OperationStatusResponse(1);
     }
@@ -121,26 +130,35 @@ public class QuestionnaireService {
         try {
             return modelMapper.map(questionnaire, QuestionnairePreview.class);
         } catch (Exception e){
+            log.error(e.getMessage());
             throw new InternalServerErrorException(e.getMessage());
         }
     }
 
-    public OperationStatusResponse deleteQuestionnaire(Long questionnaireId){
+    public OperationStatusResponse deleteQuestionnaire(Long questionnaireId) throws CantDeleteQuestionnaireException {
         if (questionnaireRepository.existsById(questionnaireId)) {
             questionnaireRepository.deleteById(questionnaireId);
             return new OperationStatusResponse(1);
-        } else
-            return new OperationStatusResponse(0);
+        } else {
+            log.error(Constants.KEY_EXCEPTION_NO_QUESTIONNAIRE);
+            throw new CantDeleteQuestionnaireException(Constants.KEY_EXCEPTION_NO_QUESTIONNAIRE, HttpStatus.NOT_FOUND);
+        }
     }
 
-    public OperationStatusResponse updateQuestionnaire(Long questionnaireId, QuestionnaireInfo questionnaireInfo){
-        Questionnaire questionnaire = questionnaireRepository.getReferenceById(questionnaireId);
-        questionnaire.setCategoriesOfWork(questionnaireInfo.getCategoriesOfWork());
-        questionnaire.setHasTeam(questionnaireInfo.getHasTeam());
-        questionnaire.setTeam(questionnaireInfo.getTeam());
-        questionnaire.setSelfInfo(questionnaireInfo.getSelfInfo());
-        questionnaire.setPrices(questionnaireInfo.getPrices());
-        questionnaireRepository.save(questionnaire);
+    public OperationStatusResponse updateQuestionnaire(Long questionnaireId, QuestionnaireInfo questionnaireInfo) throws CantUpdateQuestionnaireException {
+
+        try {
+            Questionnaire questionnaire = questionnaireRepository.getReferenceById(questionnaireId);
+            questionnaire.setWorkCategories(questionnaireInfo.getWorkCategories());
+            questionnaire.setHasTeam(questionnaireInfo.getHasTeam());
+            questionnaire.setTeam(questionnaireInfo.getTeam());
+            questionnaire.setSelfInfo(questionnaireInfo.getSelfInfo());
+            questionnaire.setPrices(questionnaireInfo.getPrices());
+            questionnaireRepository.save(questionnaire);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new CantUpdateQuestionnaireException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         return new OperationStatusResponse(1);
     }
 
@@ -159,7 +177,7 @@ public class QuestionnaireService {
                     // Проверка на полнотекстовый поиск
                     if (text != null && !text.isEmpty()) {
                         query.must(f.match()
-                                .fields("selfInfo", "eduEst", "team", "categoriesOfWork")
+                                .fields("selfInfo", "eduEst", "team", "workCategories")
                                 .matching(text));
                     }
 

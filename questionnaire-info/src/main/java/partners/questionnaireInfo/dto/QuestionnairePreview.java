@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class QuestionnairePreview {
     private Long id;
-    private String categoriesOfWork;
+    private String workCategories;
     private Long userId;
 }

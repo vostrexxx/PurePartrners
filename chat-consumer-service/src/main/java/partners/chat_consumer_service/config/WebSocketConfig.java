@@ -17,6 +17,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws").setAllowedOrigins("http://localhost:5173").withSockJS();
+        registry.addEndpoint("/ws/chat").setAllowedOrigins("http://localhost:5173", "http://192.168.43.112:5173", "http://192.168.1.13:5173").withSockJS();
     }
 }
