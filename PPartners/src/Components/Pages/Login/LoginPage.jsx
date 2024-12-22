@@ -39,9 +39,9 @@ const LoginPage = () => {
                 setErrorCode(null);
                 const data = await response.json();
                 const token = data.token;
-                
+                const userId = data.userId
                 localStorage.setItem('authToken', token);
-                
+                localStorage.setItem('userId', userId);
                 navigate('/main');
             } else {
                 setErrorMessage(response.message)

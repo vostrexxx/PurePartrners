@@ -1,14 +1,106 @@
-import React, { useState, useEffect } from 'react';
-import { TextField, Button, Select, MenuItem, IconButton, Drawer  } from '@mui/material';
+import React, { useState, useEffect, useRef } from 'react';
+import { TextField, Button, Select, MenuItem, IconButton, Drawer } from '@mui/material';
 import { Add, Remove, Menu } from '@mui/icons-material';
+import { Client } from '@stomp/stompjs';
+
+import SockJS from 'sockjs-client';
 
 const Builder = ({ agreementId }) => {
-    const [estimate, setEstimate] = useState([]); // Текущее состояние
-    const [originalEstimate, setOriginalEstimate] = useState([]); // Исходное состояние
-    const [isNewBuilder, setIsNewBuilder] = useState(false); // Флаг для определения нового билдера
-    const [drawerOpen, setDrawerOpen] = useState(false); // Состояние для управления шторкой
+    const [estimate, setEstimate] = useState([]);
+    const [originalEstimate, setOriginalEstimate] = useState([]);
+    const [isNewBuilder, setIsNewBuilder] = useState(false);
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [isEditing, setIsEditing] = useState(null);
+    // const [userId, setUserId] = useState('');
+
     const url = localStorage.getItem("url");
     const authToken = localStorage.getItem("authToken");
+    const userId = localStorage.getItem("userId");
+    const stompClientRef = useRef(null);
+
+    const [isStompConnected, setIsStompConnected] = useState(false);
+
+    useEffect(() => {
+        const fetchIsEditing = async () => {
+            try {
+                const response = await fetch(`${url}/categories/is-editing?agreementId=${agreementId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка получения состояния редактирования: ${response.status}`);
+                }
+
+                const data = await response.json();
+                setIsEditing(data.isEditing);
+
+                if (data.isEditing === false) {
+                    alert("Смета редактируется другим пользователем.");
+                }
+            } catch (error) {
+                console.error('Ошибка получения состояния редактирования:', error);
+            }
+        };
+
+        fetchIsEditing();
+    }, [agreementId, authToken, url]);
+
+    // Debug для isEditing
+    useEffect(() => {
+        console.log('isEditing updated:', isEditing);
+    }, [isEditing]);
+
+
+    // Функция для обработки кнопки "Редактировать"
+    const handleEdit = async () => {
+        try {
+            const response = await fetch(`${url}/categories/is-editing?agreementId=${agreementId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${authToken}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`Ошибка получения состояния редактирования: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (data.isEditing === false) {
+                alert("Смета редактируется другим пользователем.");
+                return;
+            }
+
+            // Если состояние null, отправляем запрос на изменение состояния
+            const postResponse = await fetch(`${url}/categories/is-editing`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${authToken}`,
+                },
+                body: JSON.stringify({
+                    agreementId,
+                    isEditing: true,
+                    initiatorId:userId
+                }),
+            });
+
+            if (!postResponse.ok) {
+                throw new Error(`Ошибка установки состояния редактирования: ${postResponse.status}`);
+            }
+
+            setIsEditing(true);
+        } catch (error) {
+            console.error('Ошибка обработки редактирования:', error);
+            alert('Не удалось переключить состояние редактирования.');
+        }
+    };
 
     useEffect(() => {
         const fetchEstimate = async () => {
@@ -101,11 +193,11 @@ const Builder = ({ agreementId }) => {
             prev.map((orange) =>
                 orange.elementId === orangeId
                     ? {
-                          ...orange,
-                          subSubWorkCategories: orange.subSubWorkCategories.filter(
-                              (subItem) => subItem.elementId !== subItemId
-                          ),
-                      }
+                        ...orange,
+                        subSubWorkCategories: orange.subSubWorkCategories.filter(
+                            (subItem) => subItem.elementId !== subItemId
+                        ),
+                    }
                     : orange
             )
         );
@@ -136,7 +228,7 @@ const Builder = ({ agreementId }) => {
 
     const generateChanges = (original, updated) => {
         const changes = [];
-    
+
         // Добавленные элементы
         const added = updated.filter(item => !original.some(orig => orig.elementId === item.elementId));
         added.forEach(item => {
@@ -157,7 +249,7 @@ const Builder = ({ agreementId }) => {
                 })),
             });
         });
-    
+
         // Удалённые элементы
         const removed = original.filter(item => !updated.some(upd => upd.elementId === item.elementId));
         removed.forEach(item => {
@@ -167,17 +259,17 @@ const Builder = ({ agreementId }) => {
                 elementId: item.elementId,
             });
         });
-    
+
         // Обновлённые элементы
         updated.forEach(item => {
             const originalItem = original.find(orig => orig.elementId === item.elementId);
             if (originalItem) {
                 const updatedFields = {};
-    
+
                 if (originalItem.subWorkCategoryName !== item.subWorkCategoryName) {
                     updatedFields.subWorkCategoryName = item.subWorkCategoryName;
                 }
-    
+
                 if (Object.keys(updatedFields).length > 0) {
                     updatedFields.agreementId = agreementId;
                     updatedFields.nodeId = item.nodeId;
@@ -188,19 +280,19 @@ const Builder = ({ agreementId }) => {
                         updatedFields,
                     });
                 }
-    
+
                 // Обработка вложенных subSubWorkCategories
                 const subChanges = generateSubCategoryChanges(originalItem.subSubWorkCategories, item.subSubWorkCategories, item.elementId);
                 changes.push(...subChanges);
             }
         });
-    
+
         return changes;
     };
-    
+
     const generateSubCategoryChanges = (originalSub, updatedSub, parentId) => {
         const subChanges = [];
-    
+
         // Добавленные подкатегории
         const added = updatedSub.filter(sub => !originalSub.some(orig => orig.elementId === sub.elementId));
         added.forEach(sub => {
@@ -217,7 +309,7 @@ const Builder = ({ agreementId }) => {
                 parentId,
             });
         });
-    
+
         // Удалённые подкатегории
         const removed = originalSub.filter(sub => !updatedSub.some(upd => upd.elementId === sub.elementId));
         removed.forEach(sub => {
@@ -227,13 +319,13 @@ const Builder = ({ agreementId }) => {
                 elementId: sub.elementId,
             });
         });
-    
+
         // Обновлённые подкатегории
         updatedSub.forEach(sub => {
             const originalSubItem = originalSub.find(orig => orig.elementId === sub.elementId);
             if (originalSubItem) {
                 const updatedFields = {};
-    
+
                 if (originalSubItem.subSubWorkCategoryName !== sub.subSubWorkCategoryName) {
                     updatedFields.subSubWorkCategoryName = sub.subSubWorkCategoryName;
                 }
@@ -246,7 +338,7 @@ const Builder = ({ agreementId }) => {
                 if (originalSubItem.price !== sub.price) {
                     updatedFields.price = sub.price;
                 }
-    
+
                 if (Object.keys(updatedFields).length > 0) {
                     updatedFields.nodeId = sub.nodeId;
                     subChanges.push({
@@ -258,11 +350,11 @@ const Builder = ({ agreementId }) => {
                 }
             }
         });
-    
+
         return subChanges;
     };
-    
 
+    // Функция для сохранения сметы
     const handleSave = async () => {
         try {
             if (isNewBuilder) {
@@ -299,6 +391,27 @@ const Builder = ({ agreementId }) => {
 
                 alert('Изменения успешно сохранены!');
                 setOriginalEstimate([...estimate]);
+
+                // Сбрасываем состояние редактирования
+                const postResponse = await fetch(`${url}/categories/is-editing`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                    body: JSON.stringify({
+                        agreementId,
+                        isEditing: null,
+                        initiatorId:userId
+
+                    }),
+                });
+
+                if (!postResponse.ok) {
+                    throw new Error(`Ошибка сброса состояния редактирования: ${postResponse.status}`);
+                }
+
+                setIsEditing(null);
             }
         } catch (error) {
             console.error('Ошибка сохранения изменений:', error);
@@ -317,7 +430,7 @@ const Builder = ({ agreementId }) => {
             >
                 Открыть смету
             </Button>
-    
+
             {/* Шторка (Drawer) */}
             <Drawer
                 anchor="right"
@@ -335,12 +448,25 @@ const Builder = ({ agreementId }) => {
                     >
                         Закрыть
                     </Button>
-    
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleEdit}
+                        style={{ marginBottom: '20px' }}
+                        // disabled={isEditing === false} // Блокировка кнопки, если редактирование недоступно
+                    >
+                        Редактировать
+                    </Button>
+
                     <div>
                         {estimate.map((orange) => (
                             <div key={orange.elementId} style={styles.orangeBox}>
                                 <div style={styles.orangeHeader}>
-                                    <IconButton color="error" onClick={() => handleRemoveOrangeItem(orange.elementId)}>
+                                    <IconButton
+                                        color="error"
+                                        onClick={() => handleRemoveOrangeItem(orange.elementId)}
+                                        disabled={isEditing !== true}
+                                    >
                                         <Remove />
                                     </IconButton>
                                     <TextField
@@ -350,11 +476,13 @@ const Builder = ({ agreementId }) => {
                                         style={styles.inputField}
                                         value={orange.subWorkCategoryName}
                                         onChange={(e) => handleOrangeTextChange(orange.elementId, e.target.value)}
+                                        disabled={isEditing !== true}
                                     />
                                     <Button
                                         variant="contained"
                                         style={styles.addButton}
                                         onClick={() => handleAddSubItem(orange.elementId)}
+                                        disabled={isEditing !== true}
                                     >
                                         <Add />
                                     </Button>
@@ -369,25 +497,43 @@ const Builder = ({ agreementId }) => {
                                             style={styles.inputField}
                                             value={subItem.subSubWorkCategoryName || ''}
                                             onChange={(e) =>
-                                                handleSubItemChange(orange.elementId, subItem.elementId, 'subSubWorkCategoryName', e.target.value)
+                                                handleSubItemChange(
+                                                    orange.elementId,
+                                                    subItem.elementId,
+                                                    'subSubWorkCategoryName',
+                                                    e.target.value
+                                                )
                                             }
+                                            disabled={isEditing !== true}
                                         />
                                         <TextField
                                             placeholder="Объем работ"
                                             variant="outlined"
                                             size="small"
-                                            style={styles.inputField}
+                                            style={styles.inputFieldSmall}
                                             value={subItem.workAmount || ''}
                                             onChange={(e) =>
-                                                handleSubItemChange(orange.elementId, subItem.elementId, 'workAmount', e.target.value)
+                                                handleSubItemChange(
+                                                    orange.elementId,
+                                                    subItem.elementId,
+                                                    'workAmount',
+                                                    e.target.value
+                                                )
                                             }
+                                            disabled={isEditing !== true}
                                         />
                                         <Select
                                             value={subItem.measureUnit || ''}
                                             onChange={(e) =>
-                                                handleSubItemChange(orange.elementId, subItem.elementId, 'measureUnit', e.target.value)
+                                                handleSubItemChange(
+                                                    orange.elementId,
+                                                    subItem.elementId,
+                                                    'measureUnit',
+                                                    e.target.value
+                                                )
                                             }
                                             style={styles.select}
+                                            disabled={isEditing !== true}
                                         >
                                             <MenuItem value="">Выбрать...</MenuItem>
                                             <MenuItem value="option1">м2</MenuItem>
@@ -398,14 +544,24 @@ const Builder = ({ agreementId }) => {
                                             placeholder="Цена"
                                             variant="outlined"
                                             size="small"
-                                            style={styles.inputField}
+                                            style={styles.inputFieldSmall}
                                             value={subItem.price || ''}
                                             onChange={(e) =>
-                                                handleSubItemChange(orange.elementId, subItem.elementId, 'price', e.target.value)
+                                                handleSubItemChange(
+                                                    orange.elementId,
+                                                    subItem.elementId,
+                                                    'price',
+                                                    e.target.value
+                                                )
                                             }
+                                            disabled={isEditing !== true}
                                         />
                                         <p>Node ID: {subItem.nodeId}</p>
-                                        <IconButton color="error" onClick={() => handleRemoveSubItem(orange.elementId, subItem.elementId)}>
+                                        <IconButton
+                                            color="error"
+                                            onClick={() => handleRemoveSubItem(orange.elementId, subItem.elementId)}
+                                            disabled={isEditing !== true}
+                                        >
                                             <Remove />
                                         </IconButton>
                                     </div>
@@ -419,6 +575,7 @@ const Builder = ({ agreementId }) => {
                             color="primary"
                             onClick={() => handleAddOrangeItem('Новая категория')}
                             style={{ backgroundColor: 'orange', marginRight: '10px' }}
+                            disabled={isEditing !== true}
                         >
                             Добавить категорию
                         </Button>
@@ -426,6 +583,7 @@ const Builder = ({ agreementId }) => {
                             variant="contained"
                             color="secondary"
                             onClick={handleSave}
+                            disabled={isEditing !== true}
                         >
                             Сохранить
                         </Button>
@@ -434,7 +592,7 @@ const Builder = ({ agreementId }) => {
             </Drawer>
         </>
     );
-    
+
 };
 
 const styles = {
@@ -461,8 +619,11 @@ const styles = {
     inputField: {
         flex: 1,
     },
+    inputFieldSmall: {
+        flex: 0.2,
+    },
     select: {
-        flex: 1,
+        flex: 0.2,
     },
     addButton: {
         backgroundColor: 'white',

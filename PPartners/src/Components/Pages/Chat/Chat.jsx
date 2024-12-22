@@ -28,6 +28,8 @@ const Chat = ({ chatId }) => {
 
                 const data = await response.json();
                 setUserId(data.userId);
+                // localStorage.setItem('userId', userId);
+                // console.log(localStorage.getItem('userId'))
                 if (data?.allMessages) {
                     const messagesWithImages = await loadAttachmentsForMessages(data.allMessages);
                     setMessages(messagesWithImages);
@@ -42,7 +44,7 @@ const Chat = ({ chatId }) => {
 
     // WebSocket для получения новых сообщений
     useEffect(() => {
-        const socket = new SockJS(`${url}/ws?token=${getAuthToken()}`);
+        const socket = new SockJS(`${url}/ws/chat?token=${getAuthToken()}`);
         const stompClient = new Client({
             webSocketFactory: () => socket,
             onConnect: () => {

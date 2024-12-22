@@ -36,12 +36,14 @@ const ChatPage = () => {
 const styles = {
     container: {
         display: 'flex',
-        height: '100vh', // Полная высота экрана
-        width: '100%',   // Полная ширина экрана
-        flexWrap: 'nowrap', // Предотвращает перенос элементов
+        height: '100vh', // Высота 100% от экрана
+        width: '100%',   // Ширина 100% от экрана
+        flexWrap: 'nowrap', // Предотвращение переноса
     },
     leftPanel: {
-        flex: '1 1 25%', // Гибкость: 1, начальная ширина: 25%
+        flex: '1 1 25%', // Панель будет занимать 25% ширины, но может адаптироваться
+        maxWidth: '25%', // Максимальная ширина для ограничений
+        minWidth: '200px', // Минимальная ширина панели
         backgroundColor: 'black',
         color: 'white',
         borderRight: '1px solid #ddd',
@@ -49,19 +51,24 @@ const styles = {
         overflowY: 'auto',
     },
     middlePanel: {
-        flex: '2 1 50%', // Гибкость: 2, начальная ширина: 50%
+        flex: '1 1 50%', // Панель будет занимать 50% ширины
+        maxWidth: '50%',
+        minWidth: '300px', // Минимальная ширина панели
         backgroundColor: '#f4f4f4',
         padding: '20px',
         borderRight: '1px solid #ddd',
         overflowY: 'auto',
     },
     rightPanel: {
-        flex: '1 1 25%', // Гибкость: 1, начальная ширина: 25%
+        flex: '1 1 25%', // Панель будет занимать 25% ширины
+        maxWidth: '25%',
+        minWidth: '200px', // Минимальная ширина панели
         backgroundColor: 'black',
         padding: '20px',
         overflowY: 'auto',
     },
 };
+
 
 
 export default ChatPage;
