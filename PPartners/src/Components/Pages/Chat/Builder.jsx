@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { TextField, Button, Select, MenuItem, IconButton, Drawer } from '@mui/material';
 import { Add, Remove, Menu } from '@mui/icons-material';
-import { Client } from '@stomp/stompjs';
-
-import SockJS from 'sockjs-client';
+import ChangeCard from './ChangeCard';
 
 const Builder = ({ agreementId }) => {
     const [estimate, setEstimate] = useState([]);
@@ -11,14 +9,42 @@ const Builder = ({ agreementId }) => {
     const [isNewBuilder, setIsNewBuilder] = useState(false);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(null);
-    // const [userId, setUserId] = useState('');
-
+    const [changes, setChanges] = useState([]); // Хранение изменений
+    
     const url = localStorage.getItem("url");
     const authToken = localStorage.getItem("authToken");
     const userId = localStorage.getItem("userId");
     const stompClientRef = useRef(null);
 
     const [isStompConnected, setIsStompConnected] = useState(false);
+
+    const [triggerGet, setTriggerGet] = useState(false);
+
+
+    useEffect(() => {
+        const fetchGetChanges = async () => {
+            try {
+                const response = await fetch(`${url}/categories/changes?agreementId=${agreementId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка получения изменений: ${response.status}`);
+                }
+
+                const data = await response.json();
+                setChanges(data.changes || []); // Устанавливаем изменения
+            } catch (error) {
+                console.error('Ошибка получения изменений:', error);
+            }
+        };
+
+        fetchGetChanges();
+    }, [agreementId, authToken, triggerGet]);
 
     useEffect(() => {
         const fetchIsEditing = async () => {
@@ -87,7 +113,7 @@ const Builder = ({ agreementId }) => {
                 body: JSON.stringify({
                     agreementId,
                     isEditing: true,
-                    initiatorId:userId
+                    initiatorId: userId
                 }),
             });
 
@@ -147,7 +173,7 @@ const Builder = ({ agreementId }) => {
         };
 
         fetchEstimate();
-    }, [agreementId, authToken, url]);
+    }, [agreementId, authToken, url, triggerGet]);
 
     const handleAddOrangeItem = (initialName = '') => {
         const newOrange = {
@@ -235,12 +261,14 @@ const Builder = ({ agreementId }) => {
             changes.push({
                 operation: 'add',
                 type: item.type,
+                elementId: item.elementId,
                 updatedFields: {
                     subWorkCategoryName: item.subWorkCategoryName,
                     agreementId,
                     nodeId: item.nodeId,
                 },
                 subSubCategories: item.subSubWorkCategories.map(sub => ({
+                    elementId: sub.elementId,
                     subSubWorkCategoryName: sub.subSubWorkCategoryName,
                     workAmount: sub.workAmount,
                     measureUnit: sub.measureUnit,
@@ -257,6 +285,19 @@ const Builder = ({ agreementId }) => {
                 operation: 'delete',
                 type: item.type,
                 elementId: item.elementId,
+                updatedFields: {
+                    subWorkCategoryName: item.subWorkCategoryName,
+                    agreementId,
+                    nodeId: item.nodeId,
+                },
+                subSubCategories: item.subSubWorkCategories.map(sub => ({
+                    elementId: sub.elementId,
+                    subSubWorkCategoryName: sub.subSubWorkCategoryName,
+                    workAmount: sub.workAmount,
+                    measureUnit: sub.measureUnit,
+                    price: sub.price,
+                    nodeId: sub.nodeId,
+                })),
             });
         });
 
@@ -316,7 +357,15 @@ const Builder = ({ agreementId }) => {
             subChanges.push({
                 operation: 'delete',
                 type: 2,
-                elementId: sub.elementId,
+                elementId:sub.elementId,
+                updatedFields: {
+                    subSubWorkCategoryName: sub.subSubWorkCategoryName,
+                    workAmount: sub.workAmount,
+                    measureUnit: sub.measureUnit,
+                    price: sub.price,
+                    nodeId: sub.nodeId,
+                },
+                parentId,
             });
         });
 
@@ -354,6 +403,18 @@ const Builder = ({ agreementId }) => {
         return subChanges;
     };
 
+
+    const handleFormated = async () => {
+        const response = await fetch(`${url}/document/estimate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({ estimate, agreementId }),
+        });
+    }
+
     // Функция для сохранения сметы
     const handleSave = async () => {
         try {
@@ -376,13 +437,13 @@ const Builder = ({ agreementId }) => {
                 setIsNewBuilder(false);
             } else {
                 const changes = generateChanges(originalEstimate, estimate);
-                const response = await fetch(`${url}/categories/estimate`, {
-                    method: 'PUT',
+                const response = await fetch(`${url}/categories/changes`, {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${authToken}`,
                     },
-                    body: JSON.stringify(changes),
+                    body: JSON.stringify({ changes, agreementId, initiatorId:userId }),
                 });
 
                 if (!response.ok) {
@@ -402,7 +463,7 @@ const Builder = ({ agreementId }) => {
                     body: JSON.stringify({
                         agreementId,
                         isEditing: null,
-                        initiatorId:userId
+                        initiatorId: userId
 
                     }),
                 });
@@ -412,6 +473,7 @@ const Builder = ({ agreementId }) => {
                 }
 
                 setIsEditing(null);
+                setTriggerGet(!triggerGet)
             }
         } catch (error) {
             console.error('Ошибка сохранения изменений:', error);
@@ -430,7 +492,7 @@ const Builder = ({ agreementId }) => {
             >
                 Открыть смету
             </Button>
-
+    
             {/* Шторка (Drawer) */}
             <Drawer
                 anchor="right"
@@ -453,122 +515,168 @@ const Builder = ({ agreementId }) => {
                         color="primary"
                         onClick={handleEdit}
                         style={{ marginBottom: '20px' }}
-                        // disabled={isEditing === false} // Блокировка кнопки, если редактирование недоступно
                     >
                         Редактировать
                     </Button>
-
+    
                     <div>
                         {estimate.map((orange) => (
-                            <div key={orange.elementId} style={styles.orangeBox}>
-                                <div style={styles.orangeHeader}>
-                                    <IconButton
-                                        color="error"
-                                        onClick={() => handleRemoveOrangeItem(orange.elementId)}
-                                        disabled={isEditing !== true}
-                                    >
-                                        <Remove />
-                                    </IconButton>
-                                    <TextField
-                                        placeholder="Введите наименование категории"
-                                        variant="outlined"
-                                        size="small"
-                                        style={styles.inputField}
-                                        value={orange.subWorkCategoryName}
-                                        onChange={(e) => handleOrangeTextChange(orange.elementId, e.target.value)}
-                                        disabled={isEditing !== true}
-                                    />
-                                    <Button
-                                        variant="contained"
-                                        style={styles.addButton}
-                                        onClick={() => handleAddSubItem(orange.elementId)}
-                                        disabled={isEditing !== true}
-                                    >
-                                        <Add />
-                                    </Button>
-                                </div>
-                                <p>Node ID: {orange.nodeId}</p>
-                                {orange.subSubWorkCategories.map((subItem) => (
-                                    <div key={subItem.elementId} style={styles.whiteBox}>
-                                        <TextField
-                                            placeholder="Наименование подкатегории"
-                                            variant="outlined"
-                                            size="small"
-                                            style={styles.inputField}
-                                            value={subItem.subSubWorkCategoryName || ''}
-                                            onChange={(e) =>
-                                                handleSubItemChange(
-                                                    orange.elementId,
-                                                    subItem.elementId,
-                                                    'subSubWorkCategoryName',
-                                                    e.target.value
-                                                )
-                                            }
-                                            disabled={isEditing !== true}
-                                        />
-                                        <TextField
-                                            placeholder="Объем работ"
-                                            variant="outlined"
-                                            size="small"
-                                            style={styles.inputFieldSmall}
-                                            value={subItem.workAmount || ''}
-                                            onChange={(e) =>
-                                                handleSubItemChange(
-                                                    orange.elementId,
-                                                    subItem.elementId,
-                                                    'workAmount',
-                                                    e.target.value
-                                                )
-                                            }
-                                            disabled={isEditing !== true}
-                                        />
-                                        <Select
-                                            value={subItem.measureUnit || ''}
-                                            onChange={(e) =>
-                                                handleSubItemChange(
-                                                    orange.elementId,
-                                                    subItem.elementId,
-                                                    'measureUnit',
-                                                    e.target.value
-                                                )
-                                            }
-                                            style={styles.select}
-                                            disabled={isEditing !== true}
-                                        >
-                                            <MenuItem value="">Выбрать...</MenuItem>
-                                            <MenuItem value="option1">м2</MenuItem>
-                                            <MenuItem value="option2">м3</MenuItem>
-                                            <MenuItem value="option3">мп</MenuItem>
-                                        </Select>
-                                        <TextField
-                                            placeholder="Цена"
-                                            variant="outlined"
-                                            size="small"
-                                            style={styles.inputFieldSmall}
-                                            value={subItem.price || ''}
-                                            onChange={(e) =>
-                                                handleSubItemChange(
-                                                    orange.elementId,
-                                                    subItem.elementId,
-                                                    'price',
-                                                    e.target.value
-                                                )
-                                            }
-                                            disabled={isEditing !== true}
-                                        />
-                                        <p>Node ID: {subItem.nodeId}</p>
+                            <React.Fragment key={orange.nodeId}>
+                                <div style={styles.orangeBox}>
+                                    <div style={styles.orangeHeader}>
                                         <IconButton
                                             color="error"
-                                            onClick={() => handleRemoveSubItem(orange.elementId, subItem.elementId)}
+                                            onClick={() => handleRemoveOrangeItem(orange.elementId)}
                                             disabled={isEditing !== true}
                                         >
                                             <Remove />
                                         </IconButton>
+                                        <TextField
+                                            placeholder="Введите наименование категории"
+                                            variant="outlined"
+                                            size="small"
+                                            style={styles.inputField}
+                                            value={orange.subWorkCategoryName}
+                                            onChange={(e) =>
+                                                handleOrangeTextChange(orange.elementId, e.target.value)
+                                            }
+                                            disabled={isEditing !== true}
+                                        />
+                                        <Button
+                                            variant="contained"
+                                            style={styles.addButton}
+                                            onClick={() => handleAddSubItem(orange.elementId)}
+                                            disabled={isEditing !== true}
+                                        >
+                                            <Add />
+                                        </Button>
                                     </div>
-                                ))}
-                            </div>
+                                    <p>Node ID: {orange.nodeId}</p>
+                                    {orange.subSubWorkCategories.map((subItem) => (
+                                        <div key={subItem.nodeId} style={styles.whiteBox}>
+                                            <TextField
+                                                placeholder="Наименование подкатегории"
+                                                variant="outlined"
+                                                size="small"
+                                                style={styles.inputField}
+                                                value={subItem.subSubWorkCategoryName || ''}
+                                                onChange={(e) =>
+                                                    handleSubItemChange(
+                                                        orange.elementId,
+                                                        subItem.elementId,
+                                                        'subSubWorkCategoryName',
+                                                        e.target.value
+                                                    )
+                                                }
+                                                disabled={isEditing !== true}
+                                            />
+                                            <TextField
+                                                placeholder="Объем работ"
+                                                variant="outlined"
+                                                size="small"
+                                                style={styles.inputFieldSmall}
+                                                value={subItem.workAmount || ''}
+                                                onChange={(e) =>
+                                                    handleSubItemChange(
+                                                        orange.elementId,
+                                                        subItem.elementId,
+                                                        'workAmount',
+                                                        e.target.value
+                                                    )
+                                                }
+                                                disabled={isEditing !== true}
+                                            />
+                                            <Select
+                                                value={subItem.measureUnit || ''}
+                                                onChange={(e) =>
+                                                    handleSubItemChange(
+                                                        orange.elementId,
+                                                        subItem.elementId,
+                                                        'measureUnit',
+                                                        e.target.value
+                                                    )
+                                                }
+                                                style={styles.select}
+                                                disabled={isEditing !== true}
+                                            >
+                                                <MenuItem value="">Выбрать...</MenuItem>
+                                                <MenuItem value="option1">м2</MenuItem>
+                                                <MenuItem value="option2">м3</MenuItem>
+                                                <MenuItem value="option3">мп</MenuItem>
+                                            </Select>
+                                            <TextField
+                                                placeholder="Цена"
+                                                variant="outlined"
+                                                size="small"
+                                                style={styles.inputFieldSmall}
+                                                value={subItem.price || ''}
+                                                onChange={(e) =>
+                                                    handleSubItemChange(
+                                                        orange.elementId,
+                                                        subItem.elementId,
+                                                        'price',
+                                                        e.target.value
+                                                    )
+                                                }
+                                                disabled={isEditing !== true}
+                                            />
+                                            <p>Node ID: {subItem.nodeId}</p>
+                                            <IconButton
+                                                color="error"
+                                                onClick={() =>
+                                                    handleRemoveSubItem(orange.elementId, subItem.elementId)
+                                                }
+                                                disabled={isEditing !== true}
+                                            >
+                                                <Remove />
+                                            </IconButton>
+                                        </div>
+                                    ))}
+                                </div>
+    
+                                {/* Карточки для изменений */}
+                                {changes
+                                    .filter(
+                                        (change) =>
+                                            change.updatedFields?.nodeId === orange.nodeId ||
+                                            change.updatedFields?.parentId === orange.elementId
+                                    )
+                                    .map((change, index) => (
+                                        <ChangeCard
+                                            key={`${orange.nodeId}-${index}`}
+                                            operation={change.operation}
+                                            data={change}
+                                            url={url}
+                                            authToken={authToken}
+                                            agreementId={agreementId}
+                                            userId={userId}
+                                            onTrigger={() => setTriggerGet(!triggerGet)} // Передаем функцию изменения триггера
+                                        />
+                                    ))}
+                            </React.Fragment>
                         ))}
+    
+                        {/* Карточки для добавления новых рыжих элементов */}
+                        {changes
+                            .filter(
+                                (change) =>
+                                    !change.updatedFields?.parentId &&
+                                    !estimate.some((orange) => orange.nodeId === change.updatedFields?.nodeId)
+                            )
+                            .map((change, index) => (
+                                <ChangeCard
+                                    key={`new-orange-${index}`}
+                                    operation={change.operation}
+                                    data={change}
+                                    url={url}
+                                    authToken={authToken}
+                                    agreementId={agreementId}
+                                    userId={userId}
+                                    onTrigger={() => setTriggerGet(!triggerGet)} // Передаем функцию изменения триггера
+                                />
+                            ))}
                     </div>
+    
                     <div style={{ textAlign: 'center', marginTop: '20px' }}>
                         <Button
                             variant="contained"
@@ -579,6 +687,7 @@ const Builder = ({ agreementId }) => {
                         >
                             Добавить категорию
                         </Button>
+
                         <Button
                             variant="contained"
                             color="secondary"
@@ -587,11 +696,20 @@ const Builder = ({ agreementId }) => {
                         >
                             Сохранить
                         </Button>
+
+                        <Button
+                            variant="contained"
+                            color="secondary"
+                            onClick={handleFormated}
+                        >
+                            Сформировать
+                        </Button>
                     </div>
                 </div>
             </Drawer>
         </>
     );
+    
 
 };
 
@@ -599,13 +717,14 @@ const styles = {
     orangeBox: {
         backgroundColor: 'orange',
         padding: '10px',
-        borderRadius: '5px',
-        marginBottom: '20px',
+        borderRadius: '8px',
+        marginBottom: '24px', // Увеличенный отступ между категориями
+        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)', // Легкая тень
     },
     orangeHeader: {
         display: 'flex',
         alignItems: 'center',
-        gap: '10px',
+        gap: '12px', // Чуть больше отступов между элементами
     },
     whiteBox: {
         backgroundColor: 'white',
