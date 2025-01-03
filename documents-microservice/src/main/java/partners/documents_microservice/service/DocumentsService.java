@@ -11,23 +11,22 @@ import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.springframework.stereotype.Service;
-import partners.documents_microservice.dto.EstimateDTO;
-import partners.documents_microservice.dto.OperationStatusResponse;
-import partners.documents_microservice.dto.SubSubWorkCategoryDTO;
-import partners.documents_microservice.dto.SubWorkCategoryDTO;
+import partners.documents_microservice.dto.*;
+import partners.documents_microservice.model.EstimateInfo;
+import partners.documents_microservice.repository.EstimateInfoRepository;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
-@Slf4j
 @Service
+@Slf4j
 @AllArgsConstructor
 public class DocumentsService {
+
+    private final EstimateInfoRepository estimateInfoRepository;
 
     public OperationStatusResponse generateDOCX(Long agreementId){
         try (XWPFDocument document = new XWPFDocument()) {
@@ -272,6 +271,16 @@ public class DocumentsService {
             }
 
             System.out.println("Файл успешно создан");
+
+            try {
+                EstimateInfo estimateInfo = new EstimateInfo();
+                estimateInfo.setEstimatePrice(resultPrice);
+                estimateInfo.setAgreementId(agreementId);
+                estimateInfoRepository.save(estimateInfo);
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                throw new InternalServerErrorException(e.getMessage());
+            }
         } catch (IOException e) {
             log.error(e.getMessage());
             throw new InternalServerErrorException(e.getMessage());
@@ -288,5 +297,15 @@ public class DocumentsService {
         } catch (NumberFormatException e) {
             return 0.0; // Если строка не является числом, возвращаем 0
         }
+    }
+
+//    public String getNewWord(String word){
+//        String API_URL = "https://ws3.morpher.ru/russian/declension";
+//        String API_KEY = "4b851e3a-5cf3-42d6-8dce-4ebde701f2ba";
+//
+//    }
+
+    public OperationStatusResponse generateDOCXContract(ContractData contractData){
+        return new OperationStatusResponse(1);
     }
 }

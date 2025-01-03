@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OperationStatusResponse {
-    private int success;
+public class ContractData {
+    private Contractor contractor;
+    private Customer customer;
+    private Project project;
 }
