@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ImageLoader from './ImageLoader'
+import AddEntityWindow from './AddEntityWindow'
+import { useProfile } from '../../Context/ProfileContext';
 
 const ImageUploader = ({ label, onUpload, imagePath }) => {
     const handleFileChange = async (e) => {
@@ -34,9 +36,130 @@ const FormField = ({ type, label, name, placeholder, value, onChange, disabled }
     );
 };
 
+const Entities = ({ onSelectEntity, triggerGet }) => {
+    const url = localStorage.getItem('url');
+    const authToken = localStorage.getItem('authToken');
+    const { isSpecialist } = useProfile();
+
+    const [legalEntities, setLegalEntities] = useState([]);
+    const [persons, setPersons] = useState([]);
+    const [selectedEntity, setSelectedEntity] = useState(null); // ID выбранного лица
+
+    useEffect(() => {
+        // onTrigger()
+        const fetchDataLegal = async () => {
+            try {
+                const response = await fetch(`${url}/${isSpecialist ? 'contractor' : 'customer'}/legal-entity`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка сети: ${response.status}`);
+                }
+
+                const data = await response.json();
+                setLegalEntities(data);
+            } catch (error) {
+                console.error('Ошибка при загрузке юрлиц:', error.message);
+            }
+        };
+
+        const fetchDataPerson = async () => {
+            try {
+                const response = await fetch(`${url}/${isSpecialist ? 'contractor' : 'customer'}/person`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка сети: ${response.status}`);
+                }
+
+                const data = await response.json();
+                setPersons(data);
+            } catch (error) {
+                console.error('Ошибка при загрузке физлиц:', error.message);
+            }
+        };
+
+        fetchDataLegal();
+        fetchDataPerson();
+    }, [isSpecialist, url, authToken, triggerGet]);
+
+    const handleSelectEntity = (id) => {
+        setSelectedEntity(id);
+        onSelectEntity(id); // Передаём выбранный ID в родительский компонент
+    };
+
+    return (
+        <div style={{ display: 'flex', gap: '20px' }}>
+            {/* Левый столбец - Юридические лица */}
+            <div style={{ flex: 1 }}>
+                <h3 style={{ textAlign: 'center', color: 'white' }}>Юридические лица</h3>
+                {legalEntities.length > 0 ? (
+                    legalEntities.map((entity) => (
+                        <div
+                            key={entity.id}
+                            onClick={() => handleSelectEntity(entity.id)}
+                            style={{
+                                padding: '10px',
+                                margin: '5px 0',
+                                backgroundColor: selectedEntity === entity.id ? '#4114f5' : '#bd0999',
+                                border: '1px solid blue',
+                                borderRadius: '5px',
+                                cursor: 'pointer',
+                            }}
+                        >
+                            <strong>{entity.firm}</strong>
+                            <p>ИНН: {entity.inn}</p>
+                        </div>
+                    ))
+                ) : (
+                    <p style={{ textAlign: 'center', color: 'white' }}>У вас нет зарегистрированных юридических лиц</p>
+                )}
+            </div>
+
+            {/* Правый столбец - Физические лица */}
+            <div style={{ flex: 1 }}>
+                <h3 style={{ textAlign: 'center', color: 'white' }}>Физические лица</h3>
+                {persons.length > 0 ? (
+                    persons.map((person) => (
+                        <div
+                            key={person.id}
+                            onClick={() => handleSelectEntity(person.id)}
+                            style={{
+                                padding: '10px',
+                                margin: '5px 0',
+                                backgroundColor: selectedEntity === person.id ? '#4114f5' : '#bd0999',
+                                border: '1px solid green',
+                                borderRadius: '5px',
+                                cursor: 'pointer',
+                            }}
+                        >
+                            <strong>{person.fullName}</strong>
+                            <p>ИНН: {person.inn}</p>
+                        </div>
+                    ))
+                ) : (
+                    <p style={{ textAlign: 'center', color: 'white' }}>У вас нет зарегистрированных физических лиц</p>
+                )}
+            </div>
+        </div>
+    );
+};
+
+
 const ProfilePage = () => {
     const [profileData, setProfileData] = useState({
         surname: '',
+        patronymic: '',
         name: '',
         birthday: '',
         email: '',
@@ -50,6 +173,22 @@ const ProfilePage = () => {
     const [error, setError] = useState(null);
     const url = localStorage.getItem('url');
     const authToken = localStorage.getItem('authToken');
+    const { isSpecialist } = useProfile();
+
+    const [fullName, setFullName] = useState("");
+    // Работа с модальным окном
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const openModal = () => setIsModalOpen(true);
+    const closeModal = () => setIsModalOpen(false);
+
+    const [legal, setLegal] = useState({});
+    const [person, setPerson] = useState({});
+
+    const [triggerGet, setTriggerGet] = useState(false);
+
+    const toggleTriggerGet = () => {
+        setTriggerGet((prev) => !prev);
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -69,6 +208,8 @@ const ProfilePage = () => {
                 const data = await response.json();
                 if (data.profile) {
                     setProfileData(data.profile);
+                    setFullName(data.profile.surname + ' ' + data.profile.name[0] + '.' + data.profile.patronymic[0] + '.')
+                    console.log(fullName)
                     setAvatarPath(data.profile.avatar || null);
                     const passportPath = data.profile.passport || [];
                     setPassportPhoto1(passportPath[0] || null);
@@ -86,12 +227,65 @@ const ProfilePage = () => {
         fetchData();
     }, []);
 
+    useEffect(() => {
+        const fetchDataLegal = async () => {
+            try {
+                const response = await fetch(`${url}/${isSpecialist ? 'contractor' : 'customer'}/legal-entity`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка сети: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Ю', data)
+                setLegal(data);
+            } catch (error) {
+                setError(`Ошибка при загрузке данных профиля: ${error.message}`);
+            }
+        };
+
+        const fetchDataPerson = async () => {
+            try {
+                const response = await fetch(`${url}/${isSpecialist ? 'contractor' : 'customer'}/person`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка сети: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Ф', data)
+                setPerson(data)
+            } catch (error) {
+                setError(`Ошибка при загрузке данных профиля: ${error.message}`);
+            }
+        };
+
+        fetchDataLegal();
+        fetchDataPerson();
+    }, [triggerGet]);
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setProfileData((prevData) => ({
             ...prevData,
             [name]: value,
         }));
+    };
+
+    const handleSelectEntity = (e) => {
+
     };
 
     const handleSave = async () => {
@@ -144,7 +338,7 @@ const ProfilePage = () => {
     const handlePassportUpload = async (file, index) => {
         const formData = new FormData();
         formData.append('image', file);
-        formData.append('page', index+1);
+        formData.append('page', index + 1);
         try {
             const response = await fetch(`${url}/profile/passport`, {
                 method: 'POST',
@@ -182,6 +376,16 @@ const ProfilePage = () => {
                 name="name"
                 placeholder="Имя"
                 value={profileData.name || ''}
+                onChange={handleInputChange}
+                disabled={!isEditable}
+            />
+
+            <FormField
+                type="text"
+                label="Отчество"
+                name="patronymic"
+                placeholder="Отчество"
+                value={profileData.patronymic || ''}
                 onChange={handleInputChange}
                 disabled={!isEditable}
             />
@@ -232,6 +436,12 @@ const ProfilePage = () => {
                 <button onClick={() => setIsEditable(true)}>Редактировать</button>
             )}
 
+            <div>
+                <button onClick={openModal}>Добавить новое лицо</button>
+                {/* Модальное окно */}
+                <AddEntityWindow isOpen={isModalOpen} onClose={closeModal} fullName={fullName} onTrigger={toggleTriggerGet} />
+            </div>
+
             <h3>Фото</h3>
             <ImageLoader imagePath={avatarPath} label={"Ваш аватар"} place={'profile'}></ImageLoader>
             <ImageUploader label="Загрузить аватар" imagePath={avatarPath} onUpload={handleAvatarUpload} />
@@ -243,19 +453,25 @@ const ProfilePage = () => {
                 onUpload={(file) => handlePassportUpload(file, 0)}
             />
 
-             <ImageLoader imagePath={passportPhoto2} label={"Вторая страница паспорта"} place={'profile'}></ImageLoader>
+            <ImageLoader imagePath={passportPhoto2} label={"Вторая страница паспорта"} place={'profile'}></ImageLoader>
             <ImageUploader
                 label="Загрузить фото паспорта 2"
                 imagePath={passportPhoto2}
                 onUpload={(file) => handlePassportUpload(file, 1)}
             />
 
-             <ImageLoader imagePath={passportPhoto3} label={"Третья страница паспорта"} place={'profile'}></ImageLoader>
+            <ImageLoader imagePath={passportPhoto3} label={"Третья страница паспорта"} place={'profile'}></ImageLoader>
             <ImageUploader
                 label="Загрузить фото паспорта 3"
                 imagePath={passportPhoto3}
                 onUpload={(file) => handlePassportUpload(file, 2)}
             />
+
+            <Entities onSelectEntity={handleSelectEntity} triggerGet={triggerGet} />
+
+
+
+
         </div>
     );
 };

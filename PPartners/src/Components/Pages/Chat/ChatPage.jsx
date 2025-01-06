@@ -4,7 +4,7 @@ import Chat from './Chat';
 import ChatContext from './ChatContext';
 import RejectButton from './RejectButton';
 import Builder from './Builder';
-
+import ContractButton from './CreateContractButton';
 const ChatPage = () => {
     const { chatId } = useParams();
     const location = useLocation();
@@ -18,6 +18,7 @@ const ChatPage = () => {
             <div style={styles.leftPanel}>
                 <ChatContext agreementId={agreementId} />
                 <RejectButton agreementId={agreementId} />
+                <ContractButton agreementId={agreementId} />
             </div>
 
             {/* Средняя часть: чат */}

@@ -13,6 +13,7 @@ const IdentificationPage = () => {
     localStorage.setItem('url', 'http://192.168.1.12:8887');
     // localStorage.setItem('url', 'http://192.168.43.68:8887');
     // localStorage.setItem('url', 'http://192.168.110.68:8887');
+    // localStorage.setItem('url', 'http://192.168.1.40:8887');
 
     localStorage.setItem('authToken', null);
     const url = localStorage.getItem('url');

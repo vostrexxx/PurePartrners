@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import ReactionWindow from '../Agreement/Reaction';
-
+import { useProfile } from '../../Context/ProfileContext';
+import TopBar from '../TopBar/TopBar';
 const AnnouncementDetails = () => {
     const { id } = useParams();
     const [announcement, setAnnouncement] = useState(null);
@@ -10,6 +11,7 @@ const AnnouncementDetails = () => {
     const [isEditable, setIsEditable] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const url = localStorage.getItem('url');
+    const { isSpecialist } = useProfile();
 
     const getAuthToken = () => {
         return localStorage.getItem('authToken');
@@ -20,33 +22,56 @@ const AnnouncementDetails = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            const params = new URLSearchParams({
-                announcementId: id,
-            });
-
             try {
+                // Шаг 1: Получение данных объявления
+                const params = new URLSearchParams({ announcementId: id });
                 const response = await fetch(`${url}/announcement?${params.toString()}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${getAuthToken()}`,
-                    }
+                    },
                 });
 
-
                 if (!response.ok) {
-                    throw new Error(`Ошибка сети: ${response.status}`);
+                    throw new Error(`Ошибка при получении объявления: ${response.status}`);
                 }
 
                 const data = await response.json();
 
                 if (data.success === 1 && data.announcementInfo) {
                     setAnnouncement(data.announcementInfo);
+
+                    // Шаг 2: Получение данных лица
+                    const entityId = data.announcementInfo.entityId; // Получаем ID лица из объявления
+                    if (entityId) {
+                        const fetchEntity = async (id) => {
+                            const entityParams = new URLSearchParams({ customerId: id });
+                            const entityResponse = await fetch(`${url}/customer?${entityParams.toString()}`, {
+                                method: 'GET',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${getAuthToken()}`,
+                                },
+                            });
+
+                            if (!entityResponse.ok) {
+                                throw new Error(`Ошибка при получении данных лица: ${entityResponse.status}`);
+                            }
+
+                            const entityData = await entityResponse.json();
+                            console.log('Данные лица:', entityData); // Логируем данные лица
+                        };
+
+                        await fetchEntity(entityId); // Выполняем запрос для получения данных лица
+                    } else {
+                        console.error('ID лица отсутствует в данных объявления');
+                    }
                 } else {
-                    setError('Информация об анкете не найдена');
+                    setError('Информация об объявлении не найдена');
                 }
             } catch (error) {
-                setError(`Ошибка при выполнении запроса: ${error.message}`);
+                setError(`Ошибка при выполнении запросов: ${error.message}`);
             } finally {
                 setLoading(false);
             }
@@ -55,13 +80,14 @@ const AnnouncementDetails = () => {
         fetchData();
     }, [id, url]);
 
+
     const handleEditClick = () => {
         setIsEditable(true);
     };
 
     const handleOpenReaction = () => {
         // тут открываем модульное окно
-        
+
         setIsModalOpen(true); // Открыть модальное окно
     };
 
@@ -110,7 +136,7 @@ const AnnouncementDetails = () => {
                 const params = new URLSearchParams({
                     announcementId: id,
                 });
-                
+
                 const response = await fetch(`${url}/announcement?${params.toString()}`, {
                     method: 'DELETE',
                     headers: {
@@ -139,171 +165,173 @@ const AnnouncementDetails = () => {
     if (error) return <div>Ошибка: {error}</div>;
 
     return (
-        <div style={styles.container}>
-    <h2>Детали объявления</h2>
-
-    <label htmlFor="workCategories">Категории работ</label>
-    <input
-        type="text"
-        name="workCategories"
-        id="workCategories"
-        value={announcement.workCategories}
-        onChange={handleInputChange}
-        disabled={!isEditable}
-        style={styles.input}
-    />
-
-    <label htmlFor="totalCost">Общая стоимость</label>
-    <input
-        type="text"
-        name="totalCost"
-        id="totalCost"
-        value={announcement.totalCost}
-        onChange={handleInputChange}
-        disabled={!isEditable}
-        style={styles.input}
-    />
-
-    <label>Цена по договору:</label>
-    <select
-        name="hasOther"
-        value={announcement.hasOther ? 'Да' : 'Нет'}
-        onChange={(e) =>
-            handleInputChange({ target: { name: 'hasOther', value: e.target.value === 'Да' } })
-        }
-        disabled={!isEditable}
-        style={styles.input}
-    >
-        <option>Да</option>
-        <option>Нет</option>
-    </select>
-
-    {announcement.hasOther && (
-        <>
-            <label htmlFor="other">Цена по договору</label>
-            <input
-                type="text"
-                name="other"
-                id="other"
-                value={announcement.other}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-                style={styles.input}
-            />
-        </>
-    )}
-
-    <label htmlFor="metro">Ближайшее метро</label>
-    <input
-        type="text"
-        name="metro"
-        id="metro"
-        value={announcement.metro}
-        onChange={handleInputChange}
-        disabled={!isEditable}
-        style={styles.input}
-    />
-
-    <label htmlFor="house">Дом</label>
-    <input
-        type="text"
-        name="house"
-        id="house"
-        value={announcement.house}
-        onChange={handleInputChange}
-        disabled={!isEditable}
-        style={styles.input}
-    />
-
-    <label htmlFor="objectName">Наименование объекта</label>
-    <input
-        type="text"
-        name="objectName"
-        id="objectName"
-        value={announcement.objectName}
-        onChange={handleInputChange}
-        disabled={!isEditable}
-        style={styles.input}
-    />
-
-    <label htmlFor="startDate">Дата начала</label>
-    <input
-        type="date"
-        name="startDate"
-        id="startDate"
-        value={announcement.startDate}
-        onChange={handleInputChange}
-        disabled={!isEditable}
-        style={styles.input}
-    />
-
-    <label htmlFor="finishDate">Дата окончания</label>
-    <input
-        type="date"
-        name="finishDate"
-        id="finishDate"
-        value={announcement.finishDate}
-        onChange={handleInputChange}
-        disabled={!isEditable}
-        style={styles.input}
-    />
-
-    <label htmlFor="comments">Комментарий</label>
-    <input
-        type="text"
-        name="comments"
-        id="comments"
-        value={announcement.comments}
-        onChange={handleInputChange}
-        disabled={!isEditable}
-        style={styles.input}
-    />
-
-    {announcement.announcementImages ? (
         <div>
-            <img
-                src={announcement.announcementImages}
-                alt="Фото объявления"
-                style={{ width: "300px", marginTop: "20px" }}
-            />
-        </div>
-    ) : (
-        <p>Изображение не предоставлено</p>
-    )}
+            <TopBar/>            
+            <div style={styles.container}>
+                <h2>Детали объявления</h2>
 
-    <div>
-    {location.state?.fromLk === null ? null : (
+                <label htmlFor="workCategories">Категории работ</label>
+                <input
+                    type="text"
+                    name="workCategories"
+                    id="workCategories"
+                    value={announcement.workCategories}
+                    onChange={handleInputChange}
+                    disabled={!isEditable}
+                    style={styles.input}
+                />
+
+                <label htmlFor="totalCost">Общая стоимость</label>
+                <input
+                    type="text"
+                    name="totalCost"
+                    id="totalCost"
+                    value={announcement.totalCost}
+                    onChange={handleInputChange}
+                    disabled={!isEditable}
+                    style={styles.input}
+                />
+
+                <label>Цена по договору:</label>
+                <select
+                    name="hasOther"
+                    value={announcement.hasOther ? 'Да' : 'Нет'}
+                    onChange={(e) =>
+                        handleInputChange({ target: { name: 'hasOther', value: e.target.value === 'Да' } })
+                    }
+                    disabled={!isEditable}
+                    style={styles.input}
+                >
+                    <option>Да</option>
+                    <option>Нет</option>
+                </select>
+
+                {announcement.hasOther && (
+                    <>
+                        <label htmlFor="other">Цена по договору</label>
+                        <input
+                            type="text"
+                            name="other"
+                            id="other"
+                            value={announcement.other}
+                            onChange={handleInputChange}
+                            disabled={!isEditable}
+                            style={styles.input}
+                        />
+                    </>
+                )}
+
+                <label htmlFor="metro">Ближайшее метро</label>
+                <input
+                    type="text"
+                    name="metro"
+                    id="metro"
+                    value={announcement.metro}
+                    onChange={handleInputChange}
+                    disabled={!isEditable}
+                    style={styles.input}
+                />
+
+                <label htmlFor="address">Полный адрес</label>
+                <input
+                    type="text"
+                    name="address"
+                    id="address"
+                    value={announcement.address}
+                    onChange={handleInputChange}
+                    disabled={!isEditable}
+                    style={styles.input}
+                />
+
+                <label htmlFor="objectName">Наименование объекта</label>
+                <input
+                    type="text"
+                    name="objectName"
+                    id="objectName"
+                    value={announcement.objectName}
+                    onChange={handleInputChange}
+                    disabled={!isEditable}
+                    style={styles.input}
+                />
+
+                <label htmlFor="startDate">Дата начала</label>
+                <input
+                    type="date"
+                    name="startDate"
+                    id="startDate"
+                    value={announcement.startDate}
+                    onChange={handleInputChange}
+                    disabled={!isEditable}
+                    style={styles.input}
+                />
+
+                <label htmlFor="finishDate">Дата окончания</label>
+                <input
+                    type="date"
+                    name="finishDate"
+                    id="finishDate"
+                    value={announcement.finishDate}
+                    onChange={handleInputChange}
+                    disabled={!isEditable}
+                    style={styles.input}
+                />
+
+                <label htmlFor="comments">Комментарий</label>
+                <input
+                    type="text"
+                    name="comments"
+                    id="comments"
+                    value={announcement.comments}
+                    onChange={handleInputChange}
+                    disabled={!isEditable}
+                    style={styles.input}
+                />
+
+                {announcement.announcementImages ? (
+                    <div>
+                        <img
+                            src={announcement.announcementImages}
+                            alt="Фото объявления"
+                            style={{ width: "300px", marginTop: "20px" }}
+                        />
+                    </div>
+                ) : (
+                    <p>Изображение не предоставлено</p>
+                )}
+
                 <div>
-                    {!isEditable && canEditOrDelete ? (
-                        <>
-                            <button onClick={handleEditClick} style={styles.button}>
-                                Редактировать
-                            </button>
-                            <button onClick={handleDeleteClick} style={styles.deleteButton}>
-                                Удалить
-                            </button>
-                        </>
-                    ) : isEditable ? (
-                        <button onClick={handleSaveClick} style={styles.button}>
-                            Сохранить
-                        </button>
-                    ) : (
-                        <button onClick={handleOpenReaction} style={styles.button}>
-                            Откликнуться
-                        </button>
+                    {location.state?.fromLk === null ? null : (
+                        <div>
+                            {!isEditable && canEditOrDelete ? (
+                                <>
+                                    <button onClick={handleEditClick} style={styles.button}>
+                                        Редактировать
+                                    </button>
+                                    <button onClick={handleDeleteClick} style={styles.deleteButton}>
+                                        Удалить
+                                    </button>
+                                </>
+                            ) : isEditable ? (
+                                <button onClick={handleSaveClick} style={styles.button}>
+                                    Сохранить
+                                </button>
+                            ) : (
+                                <button onClick={handleOpenReaction} style={styles.button}>
+                                    Откликнуться
+                                </button>
+                            )}
+                        </div>
                     )}
                 </div>
-            )}
-    </div>
 
-    <ReactionWindow
-        isOpen={isModalOpen} onClose={closeModal}
-        userId={announcement.userId}
-        id={announcement.id}
-        mode={0}
-    />
-</div>
-
+                <ReactionWindow
+                    isOpen={isModalOpen} onClose={closeModal}
+                    userId={announcement.userId}
+                    id={announcement.id}
+                    mode={0}
+                />
+            </div>
+        </div>
     );
 };
 
@@ -332,7 +360,7 @@ const styles = {
         border: 'none',
         cursor: 'pointer',
     },
-    
+
 };
 
 export default AnnouncementDetails;
