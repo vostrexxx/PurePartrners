@@ -18,7 +18,7 @@ const WorkStagesBuilder = ({ agreementId }) => {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${authToken}`,
+                    'Authorization': `Bearer ${authToken}`,
                 },
             });
 
@@ -34,31 +34,33 @@ const WorkStagesBuilder = ({ agreementId }) => {
             if ((fetchedStages && fetchedStages.length > 0) || (notUsedRawStages && notUsedRawStages.length > 0)) {
                 // Парсим данные из ответа и записываем в соответствующие состояния
                 setStages(
-                    fetchedStages.map((stage, index) => ({
-                        id: `stage-${index}`, // Генерируем уникальный ID
+                    data.stages.map((stage) => ({
+                        id: stage.id, // Постоянный ID с бэка
                         name: stage.stageTitle,
                         order: stage.stageOrder,
-                        children: stage.subStages.map((subStage, subIndex) => ({
+                        children: stage.subStages.map((subStage) => ({
+                            id: subStage.id, // Постоянный ID для подэтапов
                             subWorkCategoryName: subStage.subStageTitle,
                             totalPrice: subStage.subStagePrice,
                         })),
                     }))
                 );
-
+    
                 setRawStages(
-                    notUsedRawStages.map((rawStage, index) => ({
+                    data.notUsedRawStages.map((rawStage) => ({
+                        id: rawStage.id, // Постоянный ID с бэка
                         subWorkCategoryName: rawStage.subStageTitle,
                         totalPrice: rawStage.subStagePrice,
                     }))
                 );
             } else {
-                // Если списки пусты, выполняем уже существующий запрос к `/categories/raw-stages`
+                // Если списки пусты, выполняем уже существующий запрос к /categories/raw-stages
                 const params = new URLSearchParams({ agreementId });
                 const rawStagesResponse = await fetch(`${url}/categories/raw-stages?${params.toString()}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `Bearer ${authToken}`,
+                        'Authorization': `Bearer ${authToken}`,
                     },
                 });
 
@@ -68,7 +70,18 @@ const WorkStagesBuilder = ({ agreementId }) => {
 
                 const rawStagesData = await rawStagesResponse.json();
                 if (rawStagesData.rawStages) {
-                    setRawStages(rawStagesData.rawStages);
+                    if (rawStagesData.rawStages) {
+                        setRawStages(
+                            rawStagesData.rawStages.map((rawStage) => ({
+                                id: rawStage.elementId, // Используем elementId как id
+                                subWorkCategoryName: rawStage.subWorkCategoryName,
+                                totalPrice: rawStage.totalPrice,
+                            }))
+                        );
+                        
+                    } else {
+                        console.error('Ошибка: поле "rawStages" отсутствует в ответе сервера.');
+                    }
                 } else {
                     console.error('Ошибка: поле "rawStages" отсутствует в ответе сервера.');
                 }
@@ -101,66 +114,46 @@ const WorkStagesBuilder = ({ agreementId }) => {
     // Обработка перетаскивания
     const onDragEnd = (result) => {
         const { source, destination } = result;
-
+    
         if (!destination) return;
-
-        const sourceStageId = source.droppableId.startsWith('stage')
-            ? source.droppableId.split('-')[1]
-            : null;
-
-        const destinationStageId = destination.droppableId.startsWith('stage')
-            ? destination.droppableId.split('-')[1]
-            : null;
-
-        if (source.droppableId === 'rawStagesList' && destination.droppableId.startsWith('stage')) {
+    
+        // Перемещение внутри rawStages
+        if (source.droppableId === 'rawStagesList' && destination.droppableId === 'rawStagesList') {
+            const updatedRawStages = Array.from(rawStages);
+            const [movedItem] = updatedRawStages.splice(source.index, 1);
+            updatedRawStages.splice(destination.index, 0, movedItem);
+            setRawStages(updatedRawStages);
+        } else if (source.droppableId === 'rawStagesList' && destination.droppableId !== 'rawStagesList') {
             // Перемещение из rawStages в Stage
-            const [movedRawStage] = rawStages.splice(source.index, 1);
-
-            setRawStages([...rawStages]);
-            setStages(
-                stages.map((stage) =>
-                    stage.id === destinationStageId
-                        ? {
-                            ...stage,
-                            children: [
-                                ...stage.children.slice(0, destination.index),
-                                movedRawStage,
-                                ...stage.children.slice(destination.index),
-                            ],
-                        }
+            const movedRawStage = rawStages[source.index];
+            setRawStages((prev) => prev.filter((_, index) => index !== source.index));
+            setStages((prev) =>
+                prev.map((stage) =>
+                    stage.id === destination.droppableId
+                        ? { ...stage, children: [...stage.children, movedRawStage] }
                         : stage
                 )
             );
-        } else if (
-            source.droppableId.startsWith('stage') &&
-            destination.droppableId.startsWith('stage')
-        ) {
-            // Перемещение внутри одного этапа или между разными этапами
-            const sourceStage = stages.find((stage) => stage.id === sourceStageId);
-            const destinationStage = stages.find((stage) => stage.id === destinationStageId);
-
+        } else if (source.droppableId !== 'rawStagesList' && destination.droppableId !== 'rawStagesList') {
+            // Перемещение внутри или между этапами
+            const sourceStage = stages.find((stage) => stage.id === source.droppableId);
+            const destinationStage = stages.find((stage) => stage.id === destination.droppableId);
             const [movedRawStage] = sourceStage.children.splice(source.index, 1);
-
-            if (sourceStageId === destinationStageId) {
-                // Внутри одного этапа
+            if (sourceStage.id === destinationStage.id) {
                 sourceStage.children.splice(destination.index, 0, movedRawStage);
             } else {
-                // Между разными этапами
                 destinationStage.children.splice(destination.index, 0, movedRawStage);
             }
-
             setStages([...stages]);
-        } else if (source.droppableId.startsWith('stage') && destination.droppableId === 'rawStagesList') {
+        } else if (source.droppableId !== 'rawStagesList' && destination.droppableId === 'rawStagesList') {
             // Перемещение из Stage обратно в rawStages
-            const sourceStage = stages.find((stage) => stage.id === sourceStageId);
+            const sourceStage = stages.find((stage) => stage.id === source.droppableId);
             const [movedRawStage] = sourceStage.children.splice(source.index, 1);
-
-            setRawStages([...rawStages, movedRawStage]);
+            setRawStages((prev) => [...prev, movedRawStage]);
             setStages([...stages]);
         }
-
     };
-
+    
     const handleDeleteStage = (stageId) => {
         const stageToDelete = stages.find((stage) => stage.id === stageId);
         if (!stageToDelete) return;
@@ -212,7 +205,7 @@ const WorkStagesBuilder = ({ agreementId }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${authToken}`,
+                    'Authorization': `Bearer ${authToken}`,
                 },
                 body: JSON.stringify(payload),
             });
@@ -266,7 +259,7 @@ const WorkStagesBuilder = ({ agreementId }) => {
                                 const totalSum = stage.children.reduce((sum, child) => sum + (child.totalPrice || 0), 0); // Сумма всех totalPrice
 
                                 return (
-                                    <Droppable key={stage.id} droppableId={`stage-${stage.id}`}>
+                                    <Droppable key={stage.id} droppableId={stage.id}>
                                         {(provided) => (
                                             <div
                                                 ref={provided.innerRef}
@@ -294,11 +287,7 @@ const WorkStagesBuilder = ({ agreementId }) => {
                                                     <p>Вы не добавили виды работ в этот этап</p>
                                                 ) : (
                                                     stage.children.map((child, index) => (
-                                                        <Draggable
-                                                            key={child.subWorkCategoryName}
-                                                            draggableId={`${stage.id}-${child.subWorkCategoryName}`}
-                                                            index={index}
-                                                        >
+                                                        <Draggable key={child.id} draggableId={child.id} index={index}>
                                                             {(provided) => (
                                                                 <div
                                                                     ref={provided.innerRef}
@@ -345,11 +334,7 @@ const WorkStagesBuilder = ({ agreementId }) => {
                                         }}
                                     >
                                         {rawStages.map((rawStage, index) => (
-                                            <Draggable
-                                                key={rawStage.subWorkCategoryName}
-                                                draggableId={`raw-${rawStage.subWorkCategoryName}`}
-                                                index={index}
-                                            >
+                                            <Draggable key={rawStage.id} draggableId={rawStage.id} index={index}>
                                                 {(provided) => (
                                                     <div
                                                         ref={provided.innerRef}
