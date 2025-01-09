@@ -6,7 +6,7 @@ import RejectButton from './RejectButton';
 import Builder from './Builder';
 import ContractButton from './CreateContractButton';
 import DownloadCE from './DownloadCE';
-import Topbar from '../TopBar/TopBar'
+import WorkStagesBuilder from './WorkStagesBuilder';
 const ChatPage = () => {
     const { chatId } = useParams();
     const location = useLocation();
@@ -34,6 +34,8 @@ const ChatPage = () => {
             {/* Правая часть: билдер */}
             <div style={styles.rightPanel}>
                 <Builder agreementId={agreementId} />
+                <WorkStagesBuilder agreementId={agreementId} />
+
             </div>
         </div>
     );
