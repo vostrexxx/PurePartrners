@@ -66,7 +66,7 @@ const MainPage = () => {
     
             // Фильтр "Есть образование"
             if (appliedFilters.hasEdu) {
-                params.append('hasEdu', '1');
+                params.append('hasEdu', 'true');
             }
     
             // Фильтр команды
@@ -229,7 +229,7 @@ const MainPage = () => {
                                         name="hasEdu"
                                     />
                                 }
-                                label="Есть образование"
+                                label="Имеется профильное образование"
                             />
                             <h5>Минимальная опыт работы в годах</h5>
                             <Slider

@@ -33,6 +33,12 @@ const TopBar = () => {
                                 <ul style={styles.dropdownList}>
                                     <li style={styles.dropdownItem} onClick={() => navigate('/all-chats')}>Мои чаты</li>
                                 </ul>
+                                
+                                {!isSpecialist ? (
+                                    <ul style={styles.dropdownList}>
+                                        <li style={styles.dropdownItem} onClick={() => navigate('/balance')}>Баланс</li>
+                                    </ul>
+                                ):(<></>)}
                                 <ul style={styles.dropdownList}>
                                     <li style={styles.dropdownItem} onClick={() => navigate('/identification')}>Выйти</li>
                                 </ul>
@@ -50,13 +56,13 @@ const TopBar = () => {
                     </div>
                 </div>
             </div>
-            <div style={styles.mainContent}>
+            {/* <div style={styles.mainContent}>
                 {isSpecialist ? (
                     <div>Интерфейс Специалиста</div>
                 ) : (
                     <div>Интерфейс Заказчика</div>
                 )}
-            </div>
+            </div> */}
         </div>
     );
 };

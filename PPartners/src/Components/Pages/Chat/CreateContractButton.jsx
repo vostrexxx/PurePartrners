@@ -249,7 +249,7 @@ const ContractButton = ({ agreementId }) => {
 
     return (
         <div>
-            <button onClick={handleContract}>Составить договор</button>
+            <button onClick={handleContract} style={{marginTop:'10px', backgroundColor:"blue"}} >Сформировать договор</button>
             {/* <button onClick={handleSenfDataForContract}>Отправить данные</button> */}
         </div>
     );

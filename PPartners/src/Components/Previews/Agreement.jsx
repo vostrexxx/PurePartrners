@@ -158,8 +158,9 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
         }
     
         const bodyData = {
-            chatInitiatorId: initiatorId,
-            chatReceiverId: receiverId,
+            // Инициатор айди - тот кто откликнулся, Инициатор Чата - тот кто создал чат
+            chatInitiatorId: receiverId,
+            chatReceiverId: initiatorId,
             chatId: chatId,
             chatInitiatorName: initiatorChatName,
             chatReceiverName: receiverChatName,

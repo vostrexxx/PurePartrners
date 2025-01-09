@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import ReactionWindow from '../Agreement/Reaction';
 import { useProfile } from '../../Context/ProfileContext';
 import TopBar from '../TopBar/TopBar';
+import EntityCard from '../../Previews/EntityCard'
+
 const AnnouncementDetails = () => {
     const { id } = useParams();
     const [announcement, setAnnouncement] = useState(null);
@@ -10,15 +12,24 @@ const AnnouncementDetails = () => {
     const [error, setError] = useState(null);
     const [isEditable, setIsEditable] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const [entityId, setEntityId] = useState(null);
+    const [isLegalEntity, setIsLegalEntity] = useState(null);
+    const [entityData, setEntityData] = useState(null);
+    const [selectedEntityId, setSelectedEntityId] = useState(null)
+
     const url = localStorage.getItem('url');
     const { isSpecialist } = useProfile();
-
+    const navigate = useNavigate();
     const getAuthToken = () => {
         return localStorage.getItem('authToken');
     };
 
     const location = useLocation();
     const canEditOrDelete = location.state?.fromLk || false; // Показывать кнопки только если fromLk === true
+
+    const [trigger, setTrigger] = useState(false);
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -44,6 +55,7 @@ const AnnouncementDetails = () => {
 
                     // Шаг 2: Получение данных лица
                     const entityId = data.announcementInfo.entityId; // Получаем ID лица из объявления
+                    setEntityId(entityId);
                     if (entityId) {
                         const fetchEntity = async (id) => {
                             const entityParams = new URLSearchParams({ customerId: id });
@@ -60,6 +72,8 @@ const AnnouncementDetails = () => {
                             }
 
                             const entityData = await entityResponse.json();
+                            setIsLegalEntity(entityData.isLegalEntity)
+                            setEntityData(entityData)
                             console.log('Данные лица:', entityData); // Логируем данные лица
                         };
 
@@ -78,7 +92,7 @@ const AnnouncementDetails = () => {
         };
 
         fetchData();
-    }, [id, url]);
+    }, [id, url, trigger]);
 
 
     const handleEditClick = () => {
@@ -161,12 +175,62 @@ const AnnouncementDetails = () => {
         }
     };
 
+    const handleEventEntity = async (mode) => {
+        if (mode === "link") {//annId, mode, enityId
+            try {
+                const response = await fetch(`${url}/announcement/entity`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${getAuthToken()}`,
+                    },
+                    body: JSON.stringify({ announcementId: id, mode: "link", entityId: selectedEntityId }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка применения изменения: ${response.status}`);
+                }
+
+            } catch (error) {
+                console.error('Ошибка применения изменения:', error);
+                alert('Не удалось одобрить изменение.');
+            }
+        }
+        else if (mode === "unlink") {//
+            try {
+                const response = await fetch(`${url}/announcement/entity`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${getAuthToken()}`,
+                    },
+                    body: JSON.stringify({ announcementId: id, mode: "unlink" }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка применения изменения: ${response.status}`);
+                }
+
+                alert('Лицо успешно отвязано!');
+            } catch (error) {
+                console.error('Ошибка привязки лица:', error);
+                // alert('Не удалось одобрить изменение.');
+            }
+        }
+        setTrigger(!trigger)
+    }
+
+    const handleSelectEntity = (id) => {
+        setSelectedEntityId(id);
+        console.log(id)
+    };
+
     if (loading) return <div>Загрузка данных анкеты...</div>;
     if (error) return <div>Ошибка: {error}</div>;
 
     return (
         <div>
-            <TopBar/>            
+            <TopBar />
             <div style={styles.container}>
                 <h2>Детали объявления</h2>
 
@@ -299,11 +363,69 @@ const AnnouncementDetails = () => {
                     <p>Изображение не предоставлено</p>
                 )}
 
+
                 <div>
                     {location.state?.fromLk === null ? null : (
                         <div>
                             {!isEditable && canEditOrDelete ? (
                                 <>
+
+                                    <h3>Данные по лицу</h3>
+                                    {!entityId ?
+                                        (
+                                            <div>
+                                                <div>Лицо не привязано</div>
+                                                <EntityCard onSelectEntity={handleSelectEntity} />
+                                                <button onClick={() => handleEventEntity("link")}>Привязать лицо</button>
+
+                                            </div>
+                                        ) : (
+                                            <>
+                                                {entityData ? (
+                                                    isLegalEntity ? (
+                                                        <div>
+                                                            <h3 style={{ textAlign: 'center', color: 'white' }}>Ваше юридическое лицо</h3>
+                                                            <div
+                                                                style={{
+                                                                    padding: '10px',
+                                                                    margin: '5px 0',
+                                                                    backgroundColor: '#4114f5',
+                                                                    border: '1px solid green',
+                                                                    borderRadius: '5px',
+                                                                    cursor: 'pointer',
+                                                                }}
+                                                            >
+                                                                <strong>{entityData.firm}</strong>
+                                                                <p>ИНН: {entityData.inn}</p>
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <div>
+                                                            <h3 style={{ textAlign: 'center', color: 'white' }}>Ваше физическое лицо</h3>
+                                                            <div
+                                                                style={{
+                                                                    padding: '10px',
+                                                                    margin: '5px 0',
+                                                                    backgroundColor: '#4114f5',
+                                                                    border: '1px solid green',
+                                                                    borderRadius: '5px',
+                                                                    cursor: 'pointer',
+                                                                }}
+                                                            >
+                                                                <strong>{entityData.fullName}</strong>
+                                                                <p>ИНН: {entityData.inn}</p>
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                ) : (
+                                                    <div>Загрузка данных лица...</div>
+                                                )}
+
+                                                <button onClick={() => handleEventEntity("unlink")}>Отвязать лицо</button>
+                                            </>
+                                        )
+                                    }
+
                                     <button onClick={handleEditClick} style={styles.button}>
                                         Редактировать
                                     </button>

@@ -514,7 +514,7 @@ const Builder = ({ agreementId }) => {
                         variant="contained"
                         color="primary"
                         onClick={handleEdit}
-                        style={{ marginBottom: '20px' }}
+                        style={{ marginBottom: '20px', marginLeft: '10px' }}
                     >
                         Редактировать
                     </Button>
@@ -677,7 +677,8 @@ const Builder = ({ agreementId }) => {
                             ))}
                     </div>
     
-                    <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                    <div style={{ textAlign: 'center', marginTop: '20px'  }}>
+
                         <Button
                             variant="contained"
                             color="primary"
@@ -697,12 +698,12 @@ const Builder = ({ agreementId }) => {
                             Сохранить
                         </Button>
 
-                        <Button
+                        <Button style={{marginLeft: '10px'}}
                             variant="contained"
                             color="secondary"
                             onClick={handleFormated}
                         >
-                            Сформировать
+                            Сформировать смету
                         </Button>
                     </div>
                 </div>

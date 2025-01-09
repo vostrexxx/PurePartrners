@@ -62,6 +62,8 @@ const Entities = ({ onSelectEntity }) => {
     }, [isSpecialist, url, authToken]);
 
     const handleSelectEntity = (id) => {
+        console.log('Выбранное лицо с ID:', id);
+
         setSelectedEntity(id);
         onSelectEntity(id); // Передаём выбранный ID в родительский компонент
     };
@@ -378,6 +380,8 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log('Данные формы перед отправкой:', formData);
+    
         try {
             const authToken = getAuthToken();
             if (!authToken) {
@@ -389,20 +393,19 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
                 body: JSON.stringify(formData),
             });
-
+    
             if (response.ok) {
                 alert('Объявление успешно добавлено!');
-                // setTriggerGet(!triggerGet)
-
                 onSubmit(); // Успешное завершение, закрываем форму
             } else {
                 const errorMsg = await response.text();
                 alert(`Ошибка при добавлении объявления: ${errorMsg}`);
             }
         } catch (error) {
-            // alert('Произошла ошибка. Попробуйте снова.');
+            console.error('Ошибка при отправке данных:', error);
         }
     };
+    
 
     return (
         <div>
@@ -528,14 +531,7 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
                 />
 
                 <Entities onSelectEntity={handleSelectEntity} />
-
-                {/* {isEditable ? ( */}
-                    <button type="button" onClick={handleSubmit}>Сохранить объявление</button>
-                {/* ) : ( */}
-                    {/* <button type="button" onClick={handleEdit}>
-                        Редактировать
-                    </button>
-                )}*/}
+                <button type="button" onClick={handleSubmit}>Сохранить объявление</button>
                 <button type="button" onClick={onCancel}>Отмена</button>
             </form>
         </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ImageLoader from './ImageLoader'
 import AddEntityWindow from './AddEntityWindow'
 import { useProfile } from '../../Context/ProfileContext';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const ImageUploader = ({ label, onUpload, imagePath }) => {
     const handleFileChange = async (e) => {
@@ -44,6 +45,15 @@ const Entities = ({ onSelectEntity, triggerGet }) => {
     const [legalEntities, setLegalEntities] = useState([]);
     const [persons, setPersons] = useState([]);
     const [selectedEntity, setSelectedEntity] = useState(null); // ID выбранного лица
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (selectedEntity) {
+            navigate(`/entity/${selectedEntity}`);
+        }
+    }, [selectedEntity, navigate]);
+    
 
     useEffect(() => {
         // onTrigger()

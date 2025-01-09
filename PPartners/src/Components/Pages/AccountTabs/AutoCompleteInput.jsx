@@ -44,6 +44,7 @@ const AutoCompleteInput = ({ label, name, placeholder, onCategorySelect }) => {
     const handleInputChange = (e) => {
         const value = e.target.value;
         setInputValue(value);
+        onCategorySelect(value);
     };
 
     const replaceLastWord = (currentInput, newWord) => {

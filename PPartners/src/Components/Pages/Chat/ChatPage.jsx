@@ -5,6 +5,8 @@ import ChatContext from './ChatContext';
 import RejectButton from './RejectButton';
 import Builder from './Builder';
 import ContractButton from './CreateContractButton';
+import DownloadCE from './DownloadCE';
+import Topbar from '../TopBar/TopBar'
 const ChatPage = () => {
     const { chatId } = useParams();
     const location = useLocation();
@@ -14,11 +16,14 @@ const ChatPage = () => {
 
     return (
         <div style={styles.container}>
+            {/* <Topbar/> */}
             {/* Левая часть: контекст */}
             <div style={styles.leftPanel}>
                 <ChatContext agreementId={agreementId} />
                 <RejectButton agreementId={agreementId} />
                 <ContractButton agreementId={agreementId} />
+                <DownloadCE agreementId={agreementId} />
+
             </div>
 
             {/* Средняя часть: чат */}
@@ -40,6 +45,7 @@ const styles = {
         height: '100vh', // Высота 100% от экрана
         width: '100%',   // Ширина 100% от экрана
         flexWrap: 'nowrap', // Предотвращение переноса
+        // marginTop: '30px'
     },
     leftPanel: {
         flex: '1 1 25%', // Панель будет занимать 25% ширины, но может адаптироваться
