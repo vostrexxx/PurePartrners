@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TextField, Button, Drawer, List, ListItem, Divider } from '@mui/material';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { useProfile } from '../../Context/ProfileContext';
+import StageModalWnd from './StageModalWnd'
 
 const WorkStagesBuilder = ({ agreementId }) => {
     const [stages, setStages] = useState([]); // Список этапов работ
@@ -14,9 +15,13 @@ const WorkStagesBuilder = ({ agreementId }) => {
     const [isEditing, setIsEditing] = useState(null);
     const [trigger, setTrigger] = useState(false)
 
-    const [isCustomerApproved, setIsCustomerApproved] = useState(false)
-    const [isContractorApproved, setIsContractorApproved] = useState(false)
+    // const [isCustomerApproved, setIsCustomerApproved] = useState(false)
+    // const [isContractorApproved, setIsContractorApproved] = useState(false)
     const { isSpecialist } = useProfile();
+
+    const [modalOpen, setModalOpen] = useState(false); // Состояние открытия модального окна
+    const [modalData, setModalData] = useState({ mode: '', stage: null }); // Хранение mode и stage
+
 
     const mode = isSpecialist ? 'contractor' : 'customer';
 
@@ -50,6 +55,7 @@ const WorkStagesBuilder = ({ agreementId }) => {
                             id: stage.id, // Постоянный ID с бэка
                             name: stage.stageTitle,
                             order: stage.stageOrder,
+                            stageStatus: stage.stageStatus,
                             children: stage.subStages.map((subStage) => ({
                                 id: subStage.id, // Постоянный ID для подэтапов
                                 subWorkCategoryName: subStage.subStageTitle,
@@ -209,7 +215,7 @@ const WorkStagesBuilder = ({ agreementId }) => {
         }
         if (!destination) return;
 
-            // Находим этап, куда происходит перетаскивание
+        // Находим этап, куда происходит перетаскивание
         const destinationStage = stages.find((stage) => stage.id === destination.droppableId);
 
         // Если этап утвержден обоими сторонами, запретить любые изменения
@@ -275,12 +281,13 @@ const WorkStagesBuilder = ({ agreementId }) => {
     const handleSave = async () => {
         // Формируем список этапов
         const formattedStages = stages.map((stage) => ({
-            isCustomerApproved: stage.isCustomerApproved,
-            isContractorApproved: stage.isContractorApproved,
+            isCustomerApproved: !stage.isCustomerApproved ? false : stage.isCustomerApproved,
+            isContractorApproved: !stage.isContractorApproved ? false : stage.isContractorApproved,
+            stageStatus: !stage.stageStatus ? "Не начато" : stage.stageStatus,
             stageTitle: stage.name,
             totalPrice: stage.children.reduce((sum, child) => sum + (child.totalPrice || 0), 0),
             stageOrder: stage.order,
-            isCurrent: false,
+            // isCurrent: false,
             subStages: stage.children.map((child, index) => ({
                 subStageTitle: child.subWorkCategoryName,
                 subStagePrice: child.totalPrice || 0,
@@ -345,31 +352,47 @@ const WorkStagesBuilder = ({ agreementId }) => {
         }
     };
 
-    const handleApprove = async (elementId) => {
-        setTrigger(!trigger)
-        if (window.confirm("Вы уверены, что хотите утвердить этап?")) {
-            try {
-                const response = await fetch(`${url}/stages/approval`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`,
-                    },
-                    body: JSON.stringify({ elementId, agreementId, mode }),
-                });
+    const handleApprove = async (elementId, children) => {
 
-                if (!response.ok) {
-                    throw new Error(`Ошибка сети: ${response.status}`);
+        if (children.length === 0) {
+            alert('Нельзя утвердить этап без видов работ')
+        } else {
+            // if (window.confirm("Вы уверены, что хотите утвердить этап?")) {
+                try {
+                    const response = await fetch(`${url}/stages/approval`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`,
+                        },
+                        body: JSON.stringify({ elementId, agreementId, mode }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Ошибка сети: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    setTrigger(!trigger)
+
+                } catch (error) {
+                    // console.error('Ошибка при сохранении этапов:', error.message);
+                    alert('Ошибка при утверждении.');
                 }
-
-                const data = await response.json();
-                setTrigger(!trigger)
-
-            } catch (error) {
-                // console.error('Ошибка при сохранении этапов:', error.message);
-                alert('Ошибка при утверждении.');
-            }
+            // }
         }
+
+    };
+
+    const handleStageStatusModalWnd = (mode, stage) => {
+        console.log(mode, stage); // Логируем для проверки
+        setModalData({ mode, stage }); // Сохраняем mode и stage
+        setModalOpen(true); // Открываем модальное окно
+    };
+
+    const closeModal = () => {
+        setModalOpen(false); // Закрываем модальное окно
+        setModalData({ mode: '', stage: null }); // Сбрасываем данные
     };
 
     return (
@@ -407,8 +430,8 @@ const WorkStagesBuilder = ({ agreementId }) => {
 
                             <h4>Список этапов работ</h4>
                             {stages.map((stage) => {
-                                const totalSum = stage.children.reduce((sum, child) => sum + (child.totalPrice || 0), 0); // Сумма всех totalPrice
-                                const isApproved = mode === 'contractor' ? stage.isContractorApproved : stage.isCustomerApproved;
+                                const totalSum = stage.children.reduce((sum, child) => sum + (child.totalPrice || 0), 0);
+                                const isLocalApproved = mode === 'contractor' ? stage.isContractorApproved : stage.isCustomerApproved;
                                 const isBothApproved = stage.isContractorApproved & stage.isCustomerApproved ? true : false
                                 return (
                                     <Droppable key={stage.id} droppableId={stage.id} isDropDisabled={isBothApproved || isEditing !== true}>
@@ -428,7 +451,6 @@ const WorkStagesBuilder = ({ agreementId }) => {
                                                         {stage.order}. {stage.name} — Сумма: {totalSum} руб.
                                                     </h5>
 
-
                                                     {!isBothApproved ? <Button
                                                         variant="outlined"
                                                         color="error"
@@ -438,11 +460,7 @@ const WorkStagesBuilder = ({ agreementId }) => {
                                                         Удалить
                                                     </Button> : null}
 
-
-
                                                 </div>
-
-
 
                                                 {/* Утверждение */}
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -464,29 +482,37 @@ const WorkStagesBuilder = ({ agreementId }) => {
                                                     {isBothApproved ? (<Button
                                                         variant="outlined"
                                                         color="info"
-                                                        onClick={() => console.log("Этап открыт")}
-                                                    // disabled={isEditing !== true}
-                                                    > Открыть</Button>)
+                                                        onClick={() => handleStageStatusModalWnd(mode, stage)} // Передаем mode и stage
+                                                    >
+                                                        Открыть
+                                                    </Button>)
                                                         : (
-
                                                             <Button
                                                                 variant="outlined"
                                                                 color="success"
-                                                                onClick={() => handleApprove(stage.id)}
-                                                                disabled={isApproved || isEditing !== null}
+                                                                onClick={() => handleApprove(stage.id, stage.children)}
+                                                                disabled={isEditing !== null}
                                                             >
-                                                                {isApproved ? 'Утверждено' : 'Утвердить'}
+                                                                {isLocalApproved ? 'Отменить' : 'Утвердить'}
                                                             </Button>
                                                         )}
 
                                                 </div>
+
+                                                {/* Модальное окно  */}
+                                                <StageModalWnd
+                                                    isOpen={modalOpen}
+                                                    onClose={closeModal}
+                                                    mode={modalData.mode} // Передаем mode
+                                                    stage={modalData.stage} // Передаем stage
+                                                />
 
 
                                                 {stage.children.length === 0 ? (
                                                     <p>Вы не добавили виды работ в этот этап</p>
                                                 ) : (
                                                     stage.children.map((child, index) => (
-                                                        <Draggable key={child.id} draggableId={child.id} index={index}  isDragDisabled={isBothApproved || isEditing !== true}>
+                                                        <Draggable key={child.id} draggableId={child.id} index={index} isDragDisabled={isBothApproved || isLocalApproved || isEditing !== true}>
                                                             {(provided) => (
                                                                 <div
                                                                     ref={provided.innerRef}
@@ -586,6 +612,8 @@ const WorkStagesBuilder = ({ agreementId }) => {
                     </Button>
                 </div>
             </Drawer>
+
+
         </>
     );
 };
