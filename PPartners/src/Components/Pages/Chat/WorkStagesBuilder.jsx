@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TextField, Button, Drawer, List, ListItem, Divider } from '@mui/material';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { useProfile } from '../../Context/ProfileContext';
 
 const WorkStagesBuilder = ({ agreementId }) => {
     const [stages, setStages] = useState([]); // Список этапов работ
@@ -10,53 +11,20 @@ const WorkStagesBuilder = ({ agreementId }) => {
     const url = localStorage.getItem('url');
     const authToken = localStorage.getItem('authToken');
 
+    const [isEditing, setIsEditing] = useState(null);
+    const [trigger, setTrigger] = useState(false)
+
+    const [isCustomerApproved, setIsCustomerApproved] = useState(false)
+    const [isContractorApproved, setIsContractorApproved] = useState(false)
+    const { isSpecialist } = useProfile();
+
+    const mode = isSpecialist ? 'contractor' : 'customer';
+
     // Получение списка "rawStages" с сервера
     useEffect(() => {
-    const fetchStages = async () => {
-        try {
-            const response = await fetch(`${url}/stages?agreementId=${agreementId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`,
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error(`Ошибка сети: ${response.status}`);
-            }
-
-            const data = await response.json();
-
-            // Проверяем содержимое списков
-            const { stages: fetchedStages, notUsedRawStages } = data;
-
-            if ((fetchedStages && fetchedStages.length > 0) || (notUsedRawStages && notUsedRawStages.length > 0)) {
-                // Парсим данные из ответа и записываем в соответствующие состояния
-                setStages(
-                    data.stages.map((stage) => ({
-                        id: stage.id, // Постоянный ID с бэка
-                        name: stage.stageTitle,
-                        order: stage.stageOrder,
-                        children: stage.subStages.map((subStage) => ({
-                            id: subStage.id, // Постоянный ID для подэтапов
-                            subWorkCategoryName: subStage.subStageTitle,
-                            totalPrice: subStage.subStagePrice,
-                        })),
-                    }))
-                );
-    
-                setRawStages(
-                    data.notUsedRawStages.map((rawStage) => ({
-                        id: rawStage.id, // Постоянный ID с бэка
-                        subWorkCategoryName: rawStage.subStageTitle,
-                        totalPrice: rawStage.subStagePrice,
-                    }))
-                );
-            } else {
-                // Если списки пусты, выполняем уже существующий запрос к /categories/raw-stages
-                const params = new URLSearchParams({ agreementId });
-                const rawStagesResponse = await fetch(`${url}/categories/raw-stages?${params.toString()}`, {
+        const fetchStages = async () => {
+            try {
+                const response = await fetch(`${url}/stages?agreementId=${agreementId}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -64,36 +32,158 @@ const WorkStagesBuilder = ({ agreementId }) => {
                     },
                 });
 
-                if (!rawStagesResponse.ok) {
-                    throw new Error(`Ошибка сети: ${rawStagesResponse.status}`);
+                if (!response.ok) {
+                    throw new Error(`Ошибка сети: ${response.status}`);
                 }
 
-                const rawStagesData = await rawStagesResponse.json();
-                if (rawStagesData.rawStages) {
+                const data = await response.json();
+
+                // Проверяем содержимое списков
+                const { stages: fetchedStages, notUsedRawStages } = data;
+
+                if ((fetchedStages && fetchedStages.length > 0) || (notUsedRawStages && notUsedRawStages.length > 0)) {
+                    // Парсим данные из ответа и записываем в соответствующие состояния
+                    setStages(
+                        data.stages.map((stage) => ({
+                            isCustomerApproved: stage.isCustomerApproved,
+                            isContractorApproved: stage.isContractorApproved,
+                            id: stage.id, // Постоянный ID с бэка
+                            name: stage.stageTitle,
+                            order: stage.stageOrder,
+                            children: stage.subStages.map((subStage) => ({
+                                id: subStage.id, // Постоянный ID для подэтапов
+                                subWorkCategoryName: subStage.subStageTitle,
+                                totalPrice: subStage.subStagePrice,
+                            })),
+                        }))
+                    );
+
+                    setRawStages(
+                        data.notUsedRawStages.map((rawStage) => ({
+                            id: rawStage.id, // Постоянный ID с бэка
+                            subWorkCategoryName: rawStage.subStageTitle,
+                            totalPrice: rawStage.subStagePrice,
+                        }))
+                    );
+                } else {
+                    // Если списки пусты, выполняем уже существующий запрос к /categories/raw-stages
+                    const params = new URLSearchParams({ agreementId });
+                    const rawStagesResponse = await fetch(`${url}/categories/raw-stages?${params.toString()}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`,
+                        },
+                    });
+
+                    if (!rawStagesResponse.ok) {
+                        throw new Error(`Ошибка сети: ${rawStagesResponse.status}`);
+                    }
+
+                    const rawStagesData = await rawStagesResponse.json();
                     if (rawStagesData.rawStages) {
-                        setRawStages(
-                            rawStagesData.rawStages.map((rawStage) => ({
-                                id: rawStage.elementId, // Используем elementId как id
-                                subWorkCategoryName: rawStage.subWorkCategoryName,
-                                totalPrice: rawStage.totalPrice,
-                            }))
-                        );
-                        
+                        if (rawStagesData.rawStages) {
+                            setRawStages(
+                                rawStagesData.rawStages.map((rawStage) => ({
+                                    id: rawStage.elementId, // Используем elementId как id
+                                    subWorkCategoryName: rawStage.subWorkCategoryName,
+                                    totalPrice: rawStage.totalPrice,
+                                }))
+                            );
+
+                        } else {
+                            console.error('Ошибка: поле "rawStages" отсутствует в ответе сервера.');
+                        }
                     } else {
                         console.error('Ошибка: поле "rawStages" отсутствует в ответе сервера.');
                     }
-                } else {
-                    console.error('Ошибка: поле "rawStages" отсутствует в ответе сервера.');
                 }
+            } catch (error) {
+                console.error('Ошибка при загрузке этапов работ:', error.message);
             }
+        };
+
+        fetchStages();
+    }, [agreementId, authToken, url, trigger]);
+
+    useEffect(() => {
+        const fetchIsEditing = async () => {
+            try {
+                const response = await fetch(`${url}/stages/is-editing?agreementId=${agreementId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка получения состояния редактирования: ${response.status}`);
+                }
+
+                const data = await response.json();
+                setIsEditing(data.isEditing);
+
+                if (data.isEditing === false) {
+                    alert("Этапы работ редактируется другим пользователем.");
+                }
+            } catch (error) {
+                console.error('Ошибка получения состояния редактирования:', error);
+            }
+        };
+
+        fetchIsEditing();
+    }, [agreementId, authToken, url]);
+
+    useEffect(() => {
+        console.log('Stages: isEditing updated:', isEditing);
+    }, [isEditing]);
+
+    const handleEdit = async () => {
+        setTrigger(!trigger)
+        try {
+            const response = await fetch(`${url}/stages/is-editing?agreementId=${agreementId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${authToken}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`Ошибка получения состояния редактирования: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (data.isEditing === false) {
+                alert("Этапы работ редактируется другим пользователем.");
+                return;
+            }
+
+            // Если состояние null, отправляем запрос на изменение состояния
+            const postResponse = await fetch(`${url}/stages/is-editing`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${authToken}`,
+                },
+                body: JSON.stringify({
+                    agreementId,
+                    isEditing: true,
+                }),
+            });
+
+            if (!postResponse.ok) {
+                throw new Error(`Ошибка установки состояния редактирования: ${postResponse.status}`);
+            }
+
+            setIsEditing(true);
         } catch (error) {
-            console.error('Ошибка при загрузке этапов работ:', error.message);
+            console.error('Ошибка обработки редактирования:', error);
+            alert('Не удалось переключить состояние редактирования.');
         }
     };
-
-    fetchStages();
-}, [agreementId, authToken, url]);
-
 
     // Добавление нового этапа в список
     const handleAddStage = () => {
@@ -114,9 +204,19 @@ const WorkStagesBuilder = ({ agreementId }) => {
     // Обработка перетаскивания
     const onDragEnd = (result) => {
         const { source, destination } = result;
-    
+        if (isEditing !== true) {
+            return;
+        }
         if (!destination) return;
-    
+
+            // Находим этап, куда происходит перетаскивание
+        const destinationStage = stages.find((stage) => stage.id === destination.droppableId);
+
+        // Если этап утвержден обоими сторонами, запретить любые изменения
+        if (destinationStage && destinationStage.isCustomerApproved && destinationStage.isContractorApproved) {
+            return;
+        }
+
         // Перемещение внутри rawStages
         if (source.droppableId === 'rawStagesList' && destination.droppableId === 'rawStagesList') {
             const updatedRawStages = Array.from(rawStages);
@@ -153,7 +253,7 @@ const WorkStagesBuilder = ({ agreementId }) => {
             setStages([...stages]);
         }
     };
-    
+
     const handleDeleteStage = (stageId) => {
         const stageToDelete = stages.find((stage) => stage.id === stageId);
         if (!stageToDelete) return;
@@ -175,6 +275,8 @@ const WorkStagesBuilder = ({ agreementId }) => {
     const handleSave = async () => {
         // Формируем список этапов
         const formattedStages = stages.map((stage) => ({
+            isCustomerApproved: stage.isCustomerApproved,
+            isContractorApproved: stage.isContractorApproved,
             stageTitle: stage.name,
             totalPrice: stage.children.reduce((sum, child) => sum + (child.totalPrice || 0), 0),
             stageOrder: stage.order,
@@ -185,21 +287,21 @@ const WorkStagesBuilder = ({ agreementId }) => {
                 subStageOrder: index + 1,
             })),
         }));
-    
+
         // Формируем список неиспользуемых rawStages
         const notUsedRawStages = rawStages.map((rawStage, index) => ({
             subStageTitle: rawStage.subWorkCategoryName,
             subStagePrice: rawStage.totalPrice || 0,
             stageOrder: index + 1,
         }));
-    
+
         // Подготовка тела запроса
         const payload = {
             agreementId,
             stages: formattedStages,
             notUsedRawStages, // Добавляем список неиспользуемых rawStages
         };
-    
+
         try {
             const response = await fetch(`${url}/stages`, {
                 method: 'POST',
@@ -209,20 +311,67 @@ const WorkStagesBuilder = ({ agreementId }) => {
                 },
                 body: JSON.stringify(payload),
             });
-    
+
             if (!response.ok) {
                 throw new Error(`Ошибка сети: ${response.status}`);
             }
-    
+
             const data = await response.json();
+
+            const postResponse = await fetch(`${url}/stages/is-editing`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${authToken}`,
+                },
+                body: JSON.stringify({
+                    agreementId,
+                    isEditing: null,
+                }),
+            });
+
+            if (!postResponse.ok) {
+                throw new Error(`Ошибка сброса состояния редактирования: ${postResponse.status}`);
+            }
+
+            setIsEditing(null);
             alert('Этапы успешно сохранены!');
             console.log('Ответ сервера:', data);
+
+            setTrigger(!trigger)
         } catch (error) {
             console.error('Ошибка при сохранении этапов:', error.message);
             alert('Ошибка при сохранении этапов. Проверьте данные и попробуйте снова.');
         }
     };
-    
+
+    const handleApprove = async (elementId) => {
+        setTrigger(!trigger)
+        if (window.confirm("Вы уверены, что хотите утвердить этап?")) {
+            try {
+                const response = await fetch(`${url}/stages/approval`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`,
+                    },
+                    body: JSON.stringify({ elementId, agreementId, mode }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка сети: ${response.status}`);
+                }
+
+                const data = await response.json();
+                setTrigger(!trigger)
+
+            } catch (error) {
+                // console.error('Ошибка при сохранении этапов:', error.message);
+                alert('Ошибка при утверждении.');
+            }
+        }
+    };
+
     return (
         <>
             <Button onClick={() => setDrawerOpen(true)}>Открыть этапы работ</Button>
@@ -234,7 +383,7 @@ const WorkStagesBuilder = ({ agreementId }) => {
             >
                 <div style={{ padding: '20px', display: 'flex', height: '100%' }}>
                     {/* Левая панель */}
-                    <DragDropContext onDragEnd={onDragEnd}>
+                    <DragDropContext onDragEnd={onDragEnd} >
                         <div style={{ flex: 1, marginRight: '20px' }}>
                             <h3>Добавить этапы</h3>
                             <TextField
@@ -244,12 +393,14 @@ const WorkStagesBuilder = ({ agreementId }) => {
                                 value={newStageName}
                                 onChange={(e) => setNewStageName(e.target.value)}
                                 style={{ marginBottom: '10px' }}
+                                disabled={isEditing !== true}
                             />
                             <Button
                                 variant="contained"
                                 color="primary"
                                 onClick={handleAddStage}
                                 style={{ marginBottom: '20px' }}
+                                disabled={isEditing !== true}
                             >
                                 Добавить этап
                             </Button>
@@ -257,9 +408,10 @@ const WorkStagesBuilder = ({ agreementId }) => {
                             <h4>Список этапов работ</h4>
                             {stages.map((stage) => {
                                 const totalSum = stage.children.reduce((sum, child) => sum + (child.totalPrice || 0), 0); // Сумма всех totalPrice
-
+                                const isApproved = mode === 'contractor' ? stage.isContractorApproved : stage.isCustomerApproved;
+                                const isBothApproved = stage.isContractorApproved & stage.isCustomerApproved ? true : false
                                 return (
-                                    <Droppable key={stage.id} droppableId={stage.id}>
+                                    <Droppable key={stage.id} droppableId={stage.id} isDropDisabled={isBothApproved || isEditing !== true}>
                                         {(provided) => (
                                             <div
                                                 ref={provided.innerRef}
@@ -271,23 +423,70 @@ const WorkStagesBuilder = ({ agreementId }) => {
                                                     marginBottom: '10px',
                                                 }}
                                             >
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} disabled={isEditing !== true}>
                                                     <h5>
                                                         {stage.order}. {stage.name} — Сумма: {totalSum} руб.
                                                     </h5>
-                                                    <Button
+
+
+                                                    {!isBothApproved ? <Button
                                                         variant="outlined"
                                                         color="error"
                                                         onClick={() => handleDeleteStage(stage.id)}
+                                                        disabled={isEditing !== true}
                                                     >
                                                         Удалить
-                                                    </Button>
+                                                    </Button> : null}
+
+
+
                                                 </div>
+
+
+
+                                                {/* Утверждение */}
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <h5>
+                                                        Статус:
+                                                        {stage.isCustomerApproved && stage.isContractorApproved ? (
+                                                            ' Этап утвержден'
+                                                        ) : mode === 'contractor' ? (
+                                                            stage.isCustomerApproved ?
+                                                                ' Заказчик утвердил' :
+                                                                ' Заказчик еще не утвердил'
+                                                        ) : (
+                                                            stage.isContractorApproved ?
+                                                                ' Подрядчик утвердил' :
+                                                                ' Подрядчик еще не утвердил'
+                                                        )}
+                                                    </h5>
+
+                                                    {isBothApproved ? (<Button
+                                                        variant="outlined"
+                                                        color="info"
+                                                        onClick={() => console.log("Этап открыт")}
+                                                    // disabled={isEditing !== true}
+                                                    > Открыть</Button>)
+                                                        : (
+
+                                                            <Button
+                                                                variant="outlined"
+                                                                color="success"
+                                                                onClick={() => handleApprove(stage.id)}
+                                                                disabled={isApproved || isEditing !== null}
+                                                            >
+                                                                {isApproved ? 'Утверждено' : 'Утвердить'}
+                                                            </Button>
+                                                        )}
+
+                                                </div>
+
+
                                                 {stage.children.length === 0 ? (
                                                     <p>Вы не добавили виды работ в этот этап</p>
                                                 ) : (
                                                     stage.children.map((child, index) => (
-                                                        <Draggable key={child.id} draggableId={child.id} index={index}>
+                                                        <Draggable key={child.id} draggableId={child.id} index={index}  isDragDisabled={isBothApproved || isEditing !== true}>
                                                             {(provided) => (
                                                                 <div
                                                                     ref={provided.innerRef}
@@ -322,7 +521,7 @@ const WorkStagesBuilder = ({ agreementId }) => {
                         {/* Правая панель */}
                         <div style={{ flex: 1, marginLeft: '20px' }}>
                             <h3>Список видов работ</h3>
-                            <Droppable droppableId="rawStagesList">
+                            <Droppable droppableId="rawStagesList" disabled={isEditing !== true}>
                                 {(provided) => (
                                     <div
                                         ref={provided.innerRef}
@@ -334,7 +533,7 @@ const WorkStagesBuilder = ({ agreementId }) => {
                                         }}
                                     >
                                         {rawStages.map((rawStage, index) => (
-                                            <Draggable key={rawStage.id} draggableId={rawStage.id} index={index}>
+                                            <Draggable key={rawStage.id} draggableId={rawStage.id} index={index} disabled={isEditing !== true}>
                                                 {(provided) => (
                                                     <div
                                                         ref={provided.innerRef}
@@ -366,8 +565,19 @@ const WorkStagesBuilder = ({ agreementId }) => {
                     <Button
                         variant="contained"
                         color="primary"
+                        onClick={handleEdit}
+                        style={{ marginRight: '10px' }}
+                        disabled={isEditing === true}
+                    >
+                        Редактировать
+                    </Button>
+
+                    <Button
+                        variant="contained"
+                        color="primary"
                         onClick={handleSave}
                         style={{ marginRight: '10px' }}
+                        disabled={isEditing !== true}
                     >
                         Сохранить
                     </Button>

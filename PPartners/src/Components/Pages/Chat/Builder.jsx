@@ -49,7 +49,7 @@ const Builder = ({ agreementId }) => {
     useEffect(() => {
         const fetchIsEditing = async () => {
             try {
-                const response = await fetch(`${url}/categories/is-editing?agreementId=${agreementId}`, {
+                const response = await fetch(`${url}/stages/is-editing?agreementId=${agreementId}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -515,6 +515,7 @@ const Builder = ({ agreementId }) => {
                         color="primary"
                         onClick={handleEdit}
                         style={{ marginBottom: '20px', marginLeft: '10px' }}
+                        disabled={isEditing === true}
                     >
                         Редактировать
                     </Button>
