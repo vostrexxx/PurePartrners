@@ -462,6 +462,8 @@ const WorkStagesBuilder = ({ agreementId }) => {
 
                                                 </div>
 
+
+                                                
                                                 {/* Утверждение */}
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                     <h5>

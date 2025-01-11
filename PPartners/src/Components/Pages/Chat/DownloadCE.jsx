@@ -6,6 +6,7 @@ let url = localStorage.getItem('url');
 const DownloadCE = ({ agreementId }) => {
     const [isContractReady, setIsContractReady] = useState(false);
     const [isEstimateReady, setIsEstimateReady] = useState(false);
+    const [isActReady, setIsActReady] = useState(false);
 
     useEffect(() => {
         const params = new URLSearchParams({ agreementId: agreementId });
@@ -24,6 +25,7 @@ const DownloadCE = ({ agreementId }) => {
             .then((response) => {
                 setIsContractReady(response.isContractExists);
                 setIsEstimateReady(response.isEstimateExists);
+                setIsActReady(response.isActExists);
             })
             .catch((error) => {
                 console.error(`Ошибка при получении информации по соглашению: ${error.message}`);
@@ -42,17 +44,22 @@ const DownloadCE = ({ agreementId }) => {
                 if (!response.ok) {
                     throw new Error(`Ошибка при загрузке файла: ${response.status}`);
                 }
-                return response.blob(); // Получаем бинарные данные файла
+                return response.blob();
             })
             .then((blob) => {
-                const fileURL = URL.createObjectURL(blob); // Создаём ссылку на файл
-                const link = document.createElement('a'); // Создаём элемент <a> для загрузки
+                const fileURL = URL.createObjectURL(blob);
+                const link = document.createElement('a');
                 link.href = fileURL;
-                link.download = type === "contract" ? "Договор.docx" : "Смета.xlsx"; // Устанавливаем имя файла
+                link.download =
+                    type === "contract"
+                        ? "Договор.docx"
+                        : type === "estimate"
+                            ? "Смета.xlsx"
+                            : "Акт.pdf";
                 document.body.appendChild(link);
-                link.click(); // Кликаем по ссылке для скачивания
-                document.body.removeChild(link); // Удаляем ссылку
-                URL.revokeObjectURL(fileURL); // Освобождаем память
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(fileURL);
             })
             .catch((error) => {
                 console.error(`Ошибка при загрузке файла: ${error.message}`);
@@ -61,17 +68,25 @@ const DownloadCE = ({ agreementId }) => {
 
     return (
         <div>
+            <h3 style={{ color: 'white' }}>Смета:</h3>
+            {isEstimateReady ? (
+                <button onClick={() => handleDownload("estimate")}>Загрузить Смету</button>
+            ) : (
+                <div>Смета не сформирована</div>
+            )}
+
             <h3 style={{ color: 'white' }}>Договор:</h3>
             {isContractReady ? (
                 <button onClick={() => handleDownload("contract")}>Загрузить Договор</button>
             ) : (
                 <div>Договор не сформирован</div>
             )}
-            <h3 style={{ color: 'white' }}>Смета:</h3>
-            {isEstimateReady ? (
-                <button onClick={() => handleDownload("estimate")}>Загрузить Смету</button>
+
+            <h3 style={{ color: 'white' }}>Акт:</h3>
+            {isActReady ? (
+                <button onClick={() => handleDownload("act")}>Загрузить Акт</button>
             ) : (
-                <div>Смета не сформирована</div>
+                <div>Акт не сформирован</div>
             )}
         </div>
     );
