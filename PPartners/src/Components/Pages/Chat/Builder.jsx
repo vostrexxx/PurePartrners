@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { TextField, Button, Select, MenuItem, IconButton, Drawer } from '@mui/material';
 import { Add, Remove, Menu } from '@mui/icons-material';
 import ChangeCard from './ChangeCard';
+import BuilderModalWnd from './BuilderModalWnd';
 
 const Builder = ({ agreementId }) => {
     const [estimate, setEstimate] = useState([]);
@@ -10,7 +11,7 @@ const Builder = ({ agreementId }) => {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(null);
     const [changes, setChanges] = useState([]); // Хранение изменений
-    
+
     const url = localStorage.getItem("url");
     const authToken = localStorage.getItem("authToken");
     const userId = localStorage.getItem("userId");
@@ -20,6 +21,15 @@ const Builder = ({ agreementId }) => {
 
     const [triggerGet, setTriggerGet] = useState(false);
 
+    const [modalOpen, setModalOpen] = useState(false); // Состояние открытия модального окна
+    
+    const closeModal = () => {
+        setModalOpen(false); // Закрываем модальное окно
+    };
+
+    const handleOpenModal = () => {
+        setModalOpen(true); // Открываем модальное окно
+    };
 
     useEffect(() => {
         const fetchGetChanges = async () => {
@@ -357,7 +367,7 @@ const Builder = ({ agreementId }) => {
             subChanges.push({
                 operation: 'delete',
                 type: 2,
-                elementId:sub.elementId,
+                elementId: sub.elementId,
                 updatedFields: {
                     subSubWorkCategoryName: sub.subSubWorkCategoryName,
                     workAmount: sub.workAmount,
@@ -443,7 +453,7 @@ const Builder = ({ agreementId }) => {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${authToken}`,
                     },
-                    body: JSON.stringify({ changes, agreementId, initiatorId:userId }),
+                    body: JSON.stringify({ changes, agreementId, initiatorId: userId }),
                 });
 
                 if (!response.ok) {
@@ -492,7 +502,7 @@ const Builder = ({ agreementId }) => {
             >
                 Открыть смету
             </Button>
-    
+
             {/* Шторка (Drawer) */}
             <Drawer
                 anchor="right"
@@ -519,7 +529,25 @@ const Builder = ({ agreementId }) => {
                     >
                         Редактировать
                     </Button>
-    
+
+                    <Button
+                        variant="contained"
+                        color="submit"
+                        onClick={handleOpenModal}
+                        style={{ marginBottom: '20px', marginLeft: '10px' }}
+                    // disabled={isEditing === true}
+                    >
+                        Загрузить шаблон
+                    </Button>
+
+                    <BuilderModalWnd
+                        isOpen={modalOpen}
+                        onClose={closeModal}
+                        agreementId={agreementId}
+                        onTrigger={() => setTriggerGet(!triggerGet)}
+
+                    />
+
                     <div>
                         {estimate.map((orange) => (
                             <React.Fragment key={orange.nodeId}>
@@ -634,7 +662,7 @@ const Builder = ({ agreementId }) => {
                                         </div>
                                     ))}
                                 </div>
-    
+
                                 {/* Карточки для изменений */}
                                 {changes
                                     .filter(
@@ -656,7 +684,7 @@ const Builder = ({ agreementId }) => {
                                     ))}
                             </React.Fragment>
                         ))}
-    
+
                         {/* Карточки для добавления новых рыжих элементов */}
                         {changes
                             .filter(
@@ -677,8 +705,8 @@ const Builder = ({ agreementId }) => {
                                 />
                             ))}
                     </div>
-    
-                    <div style={{ textAlign: 'center', marginTop: '20px'  }}>
+
+                    <div style={{ textAlign: 'center', marginTop: '20px' }}>
 
                         <Button
                             variant="contained"
@@ -711,7 +739,7 @@ const Builder = ({ agreementId }) => {
             </Drawer>
         </>
     );
-    
+
 
 };
 

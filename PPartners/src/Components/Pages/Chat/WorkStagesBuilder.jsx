@@ -509,6 +509,7 @@ const WorkStagesBuilder = ({ agreementId }) => {
                                                     mode={modalData.mode} // Передаем mode
                                                     stage={modalData.stage} // Передаем stage
                                                     agreementId={agreementId}
+                                                    onTrigger={() => setTrigger(!trigger)}
                                                 />
 
 

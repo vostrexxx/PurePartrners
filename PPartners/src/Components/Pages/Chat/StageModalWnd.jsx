@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Modal, Box, Typography, Button } from '@mui/material';
 
-const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId }) => {
+const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, onTrigger }) => {
     if (!stage) return null; // Если stage не передан, ничего не рендерим
     const authToken = localStorage.getItem('authToken');
     const url = localStorage.getItem('url');
@@ -80,12 +80,28 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId }) => {
                 } else {
                     alert('Этап не оплачен, пополниите баланс');
                 }
+            } else {
+                const response = await fetch(`${url}/stages/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`,
+                    },
+                    body: JSON.stringify({ elementId: stage.id, stageStatus }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка сети: ${response.status}`);
+                }
+
+                const data = await response.json();
+                alert('Статус успешно изменём');
             }
 
 
 
 
-
+            onTrigger()
         } catch (error) {
             alert('Ошибка при смене статуса');
         }

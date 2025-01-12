@@ -203,31 +203,43 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+    
+        // Удаляем пробелы в конце строк в formData
+        const trimmedFormData = Object.fromEntries(
+            Object.entries(formData).map(([key, value]) =>
+                typeof value === 'string' ? [key, value.trim()] : [key, value]
+            )
+        );
+    
+        console.log('Данные формы после удаления пробелов:', trimmedFormData);
+    
         try {
             const authToken = getAuthToken();
             if (!authToken) {
                 alert('Токен не найден');
                 return;
             }
+    
             const response = await fetch(`${url}/questionnaire`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(trimmedFormData),
             });
-
+    
             if (response.ok) {
                 alert('Анкета успешно добавлена!');
-                // setTriggerGet(!triggerGet)
-
+                // setTriggerGet(!triggerGet);
+    
                 onSubmit();
             } else {
                 const errorMsg = await response.text();
                 alert(`Ошибка при добавлении анкеты: ${errorMsg}`);
             }
         } catch (error) {
-            // alert('Произошла ошибка. Попробуйте снова.');
+            console.error('Произошла ошибка при отправке анкеты:', error);
         }
     };
+    
 
     return (
         <div>
@@ -380,7 +392,16 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Данные формы перед отправкой:', formData);
+        console.log('Данные формы перед обработкой:', formData);
+    
+        // Удаляем пробелы в конце строк в formData
+        const trimmedFormData = Object.fromEntries(
+            Object.entries(formData).map(([key, value]) => 
+                typeof value === 'string' ? [key, value.trim()] : [key, value]
+            )
+        );
+    
+        console.log('Данные формы после удаления пробелов:', trimmedFormData);
     
         try {
             const authToken = getAuthToken();
@@ -388,10 +409,11 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
                 alert('Токен не найден');
                 return;
             }
+    
             const response = await fetch(`${url}/announcement`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(trimmedFormData),
             });
     
             if (response.ok) {
@@ -405,6 +427,7 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
             console.error('Ошибка при отправке данных:', error);
         }
     };
+    
     
 
     return (
