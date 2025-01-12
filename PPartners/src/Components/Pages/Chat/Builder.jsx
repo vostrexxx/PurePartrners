@@ -601,9 +601,9 @@ const Builder = ({ agreementId }) => {
                                                 disabled={isEditing !== true}
                                             >
                                                 <MenuItem value="">Выбрать...</MenuItem>
-                                                <MenuItem value="option1">м2</MenuItem>
-                                                <MenuItem value="option2">м3</MenuItem>
-                                                <MenuItem value="option3">мп</MenuItem>
+                                                <MenuItem value="Кв. метр">м2</MenuItem>
+                                                <MenuItem value="Куб. метр">м3</MenuItem>
+                                                <MenuItem value="Пог. метр">мп</MenuItem>
                                             </Select>
                                             <TextField
                                                 placeholder="Цена"
@@ -699,13 +699,13 @@ const Builder = ({ agreementId }) => {
                             Сохранить
                         </Button>
 
-                        <Button style={{marginLeft: '10px'}}
+                        {/* <Button style={{marginLeft: '10px'}}
                             variant="contained"
                             color="secondary"
                             onClick={handleFormated}
                         >
                             Сформировать смету
-                        </Button>
+                        </Button> */}
                     </div>
                 </div>
             </Drawer>

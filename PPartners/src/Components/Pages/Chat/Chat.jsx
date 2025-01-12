@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
@@ -9,8 +9,8 @@ const Chat = ({ chatId }) => {
     const getAuthToken = () => localStorage.getItem('authToken');
     const [userId, setUserId] = useState('');
     const [messages, setMessages] = useState([]);
+    const [selectedImage, setSelectedImage] = useState(null); // Выбранное изображение для просмотра
 
-    // Получение истории чата
     useEffect(() => {
         const fetchChatHistory = async () => {
             try {
@@ -28,8 +28,7 @@ const Chat = ({ chatId }) => {
 
                 const data = await response.json();
                 setUserId(data.userId);
-                // localStorage.setItem('userId', userId);
-                // console.log(localStorage.getItem('userId'))
+
                 if (data?.allMessages) {
                     const messagesWithImages = await loadAttachmentsForMessages(data.allMessages);
                     setMessages(messagesWithImages);
@@ -42,7 +41,6 @@ const Chat = ({ chatId }) => {
         fetchChatHistory();
     }, [chatId, url]);
 
-    // WebSocket для получения новых сообщений
     useEffect(() => {
         const socket = new SockJS(`${url}/ws/chat?token=${getAuthToken()}`);
         const stompClient = new Client({
@@ -66,7 +64,6 @@ const Chat = ({ chatId }) => {
         };
     }, [chatId]);
 
-    // Загрузка вложений
     const loadAttachmentsForMessages = async (messages) => {
         const updatedMessages = await Promise.all(
             messages.map(async (msg) => {
@@ -88,14 +85,14 @@ const Chat = ({ chatId }) => {
                                 }
 
                                 const blob = await response.blob();
-                                return URL.createObjectURL(blob); // Создаем объект URL для отображения изображения
+                                return URL.createObjectURL(blob);
                             } catch (error) {
                                 console.error('Ошибка загрузки изображения:', error);
-                                return null; // Если загрузка не удалась
+                                return null;
                             }
                         })
                     );
-                    return { ...msg, images }; // Добавляем загруженные изображения в сообщение
+                    return { ...msg, images };
                 }
                 return msg;
             })
@@ -103,7 +100,6 @@ const Chat = ({ chatId }) => {
         return updatedMessages;
     };
 
-    // Отправка сообщений
     const handleSendMessage = async () => {
         if (!newMessage.trim() && !attachment) return;
 
@@ -152,7 +148,13 @@ const Chat = ({ chatId }) => {
                                 <div style={styles.imageContainer}>
                                     {msg.images.map((img, i) =>
                                         img ? (
-                                            <img key={i} src={img} alt="attachment" style={styles.image} />
+                                            <img
+                                                key={i}
+                                                src={img}
+                                                alt="attachment"
+                                                style={styles.image}
+                                                onClick={() => setSelectedImage(img)} // Устанавливаем выбранное изображение
+                                            />
                                         ) : (
                                             <p key={i} style={styles.loadingText}>
                                                 Загрузка фото...
@@ -168,6 +170,17 @@ const Chat = ({ chatId }) => {
                     </div>
                 ))}
             </div>
+
+            {selectedImage && (
+                <div style={styles.modal}>
+                    <div style={styles.modalContent}>
+                        <span style={styles.closeButton} onClick={() => setSelectedImage(null)}>
+                            &times;
+                        </span>
+                        <img src={selectedImage} alt="Full size" style={styles.fullImage} />
+                    </div>
+                </div>
+            )}
 
             <div style={styles.inputContainer}>
                 <input
@@ -232,6 +245,7 @@ const styles = {
         maxWidth: '100px',
         maxHeight: '100px',
         margin: '5px',
+        cursor: 'pointer',
     },
     loadingText: {
         fontSize: '12px',
@@ -242,6 +256,36 @@ const styles = {
         fontSize: '12px',
         color: 'black',
         textAlign: 'right',
+    },
+    modal: {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1000,
+    },
+    modalContent: {
+        position: 'relative',
+        maxWidth: '80%',
+        maxHeight: '80%',
+    },
+    fullImage: {
+        width: '100%',
+        height: 'auto',
+        borderRadius: '8px',
+    },
+    closeButton: {
+        position: 'absolute',
+        top: '10px',
+        right: '10px',
+        fontSize: '24px',
+        color: '#fff',
+        cursor: 'pointer',
     },
     inputContainer: {
         display: 'flex',

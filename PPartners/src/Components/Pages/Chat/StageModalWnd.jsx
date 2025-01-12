@@ -1,30 +1,92 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Modal, Box, Typography, Button } from '@mui/material';
 
-const StageModalWnd = ({ isOpen, onClose, mode, stage }) => {
+const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId }) => {
     if (!stage) return null; // Если stage не передан, ничего не рендерим
     const authToken = localStorage.getItem('authToken');
     const url = localStorage.getItem('url');
 
-    const handleChangeStageStatus = async (stageStatus) => {
-        try {
-            const response = await fetch(`${url}/stages/status`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`,
-                },
-                body: JSON.stringify({ elementId: stage.id, stageStatus }),
-            });
+    useEffect(() => {
+        console.log(stage, agreementId)
+    }, []);
 
-            if (!response.ok) {
-                throw new Error(`Ошибка сети: ${response.status}`);
+    const handleChangeStageStatus = async (stageStatus) => {
+        // console.log(stagr)
+        try {
+            if (stage.stageStatus === "Подтверждено") {
+                const params = new URLSearchParams({ agreementId });
+
+                const agreementResponse = await fetch(`${url}/agreement?${params.toString()}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                });
+
+                if (!agreementResponse.ok) {
+                    throw new Error(`Ошибка получения соглашения: ${agreementResponse.status}`);
+                }
+
+                const agreementData = await agreementResponse.json();
+                const { mode, initiatorItemId, receiverItemId } = agreementData.agreementInfo;
+
+                const customerItemId = mode === 1 ? initiatorItemId : receiverItemId;
+
+                const announcementResponse = await fetch(`${url}/announcement?announcementId=${customerItemId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                });
+
+                if (!announcementResponse.ok) {
+                    throw new Error(`Ошибка получения объявления: ${announcementResponse.status}`);
+                }
+
+                const announcementData = await announcementResponse.json();
+                console.log(announcementData)
+                const response = await fetch(`${url}/balance/payment`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`,
+                    },
+                    body: JSON.stringify({ stagePrice: stage.totalPrice, workCategories: announcementData.announcementInfo.workCategories, address: announcementData.announcementInfo.address, stageTitle: stage.name}),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка сети: ${response.status}`);
+                }
+                const data = await response.json();
+                if (data.success) {
+
+                    const response = await fetch(`${url}/stages/status`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`,
+                        },
+                        body: JSON.stringify({ elementId: stage.id, stageStatus }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Ошибка сети: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    alert('Этап успешно оплачен');
+                } else {
+                    alert('Этап не оплачен, пополниите баланс');
+                }
             }
 
-            const data = await response.json();
+
+
+
 
         } catch (error) {
-            // console.error('Ошибка при сохранении этапов:', error.message);
             alert('Ошибка при смене статуса');
         }
     };
@@ -36,14 +98,14 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage }) => {
                 if (mode === 'contractor') {
                     return <div>
                         <Typography color="textSecondary">Статус: Вы еще не приступили к работам</Typography>
-                        <Button onClick={()=>handleChangeStageStatus("В процессе")} variant="contained" color="primary">
+                        <Button onClick={() => handleChangeStageStatus("В процессе")} variant="contained" color="primary">
                             Приступить
                         </Button>
-                    </div> 
+                    </div>
                 } else if (mode === 'customer') {
                     return <div>
                         <Typography color="textSecondary">Статус: Подрядчик еще не приступил к работам</Typography>
-                    </div> 
+                    </div>
                 } else {
                     return <div>
                         <Typography color="textSecondary">Ошибка!</Typography>
@@ -54,53 +116,71 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage }) => {
                 if (mode === 'contractor') {
                     return <div>
                         <Typography color="textSecondary">Статус: В работе</Typography>
-                        <Button onClick={()=>handleChangeStageStatus("В ожидании подтверждения")} variant="contained" color="primary">
+                        <Button onClick={() => handleChangeStageStatus("В ожидании подтверждения")} variant="contained" color="primary">
                             Подтвердить выполнение работ
                         </Button>
-                    </div> 
+                    </div>
                 } else if (mode === 'customer') {
                     return <div>
-                            <Typography color="textSecondary">Статус: В работе</Typography>
-                        </div> 
+                        <Typography color="textSecondary">Статус: В работе</Typography>
+                    </div>
                 } else {
                     return <div>
                         <Typography color="textSecondary">Ошибка!</Typography>
                     </div>
                 };
-            
+
             case 'В ожидании подтверждения':
                 if (mode === 'contractor') {
                     return <div>
                         <Typography color="textSecondary">Статус: Закачик еще не подтвердил выполненные работы</Typography>
-                    </div> 
+                    </div>
                 } else if (mode === 'customer') {
                     return <div>
-                            <Typography color="textSecondary">Статус: Подтвердите выполненные работы</Typography>
-                            <Button onClick={()=>handleChangeStageStatus("Подтверждено")} variant="contained" color="primary">
-                                Подтвердить выполнение работ
-                            </Button>
-                        </div> 
+                        <Typography color="textSecondary">Статус: Подтвердите выполненные работы</Typography>
+                        <Button onClick={() => handleChangeStageStatus("Подтверждено")} variant="contained" color="primary">
+                            Подтвердить выполнение работ
+                        </Button>
+                    </div>
                 } else {
                     return <div>
                         <Typography color="textSecondary">Ошибка!</Typography>
                     </div>
                 };
-                
+
             case 'Подтверждено':
                 if (mode === 'contractor') {
                     return <div>
-                        <Typography color="textSecondary">Статус: Выполнение всех работ подтверждено</Typography>
-                    </div> 
+                        <Typography color="textSecondary">Статус: Выполнение всех работ подтверждено, ожидайте оплаты!</Typography>
+                    </div>
                 } else if (mode === 'customer') {
                     return <div>
-                            <Typography color="textSecondary">Статус: Заказчик подтвердил умпешность выполнение всех работ</Typography>
-                        </div> 
+                        <Typography color="textSecondary">Статус: Заказчик подтвердил успешность выполнение всех работ и должен в скором времени оплатить работы</Typography>
+                        <Button onClick={() => handleChangeStageStatus("Оплачено")} variant="contained" color="primary">
+                            Оплатить
+                        </Button>
+                    </div>
                 } else {
                     return <div>
                         <Typography color="textSecondary">Ошибка!</Typography>
                     </div>
                 };
-        
+
+            case 'Оплачено':
+                if (mode === 'contractor') {
+                    return <div>
+                        <Typography color="textSecondary">Статус: Данный этап оплачен</Typography>
+                    </div>
+                } else if (mode === 'customer') {
+                    return <div>
+                        <Typography color="textSecondary">Статус: Данный этап оплачен</Typography>
+                    </div>
+                } else {
+                    return <div>
+                        <Typography color="textSecondary">Ошибка!</Typography>
+                    </div>
+                };
+
             default:
                 return <Typography color="error.main">Статус неизвестен</Typography>;
         }

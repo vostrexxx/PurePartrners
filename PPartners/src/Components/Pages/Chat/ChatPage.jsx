@@ -5,7 +5,7 @@ import ChatContext from './ChatContext';
 import RejectButton from './RejectButton';
 import Builder from './Builder';
 import ContractButton from './CreateContractButton';
-import DownloadCE from './DownloadCE';
+import DocumentManager from './DocumentManager';
 import WorkStagesBuilder from './WorkStagesBuilder';
 const ChatPage = () => {
     const { chatId } = useParams();
@@ -21,8 +21,7 @@ const ChatPage = () => {
             <div style={styles.leftPanel}>
                 <ChatContext agreementId={agreementId} />
                 <RejectButton agreementId={agreementId} />
-                <ContractButton agreementId={agreementId} />
-                <DownloadCE agreementId={agreementId} />
+                {/* <ContractButton agreementId={agreementId} /> */}
 
             </div>
 
@@ -35,6 +34,7 @@ const ChatPage = () => {
             <div style={styles.rightPanel}>
                 <Builder agreementId={agreementId} />
                 <WorkStagesBuilder agreementId={agreementId} />
+                <DocumentManager agreementId={agreementId} />
 
             </div>
         </div>

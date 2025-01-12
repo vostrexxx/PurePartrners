@@ -50,6 +50,7 @@ const WorkStagesBuilder = ({ agreementId }) => {
                     // Парсим данные из ответа и записываем в соответствующие состояния
                     setStages(
                         data.stages.map((stage) => ({
+                            totalPrice: stage.totalPrice,
                             isCustomerApproved: stage.isCustomerApproved,
                             isContractorApproved: stage.isContractorApproved,
                             id: stage.id, // Постоянный ID с бэка
@@ -507,6 +508,7 @@ const WorkStagesBuilder = ({ agreementId }) => {
                                                     onClose={closeModal}
                                                     mode={modalData.mode} // Передаем mode
                                                     stage={modalData.stage} // Передаем stage
+                                                    agreementId={agreementId}
                                                 />
 
 
