@@ -2,7 +2,7 @@ import React from 'react';
 import { IconButton, Box, Typography } from '@mui/material';
 import { Check, Close } from '@mui/icons-material';
 
-const ChangeCard = ({ operation, data, url, authToken, agreementId, userId, onTrigger  }) => {
+const ChangeCard = ({ operation, data, url, authToken, agreementId, userId }) => {
     const handleApprove = async () => {
         try {
             const response = await fetch(`${url}/categories/estimate`, {
@@ -19,7 +19,6 @@ const ChangeCard = ({ operation, data, url, authToken, agreementId, userId, onTr
             }
 
             alert('Изменение успешно одобрено!');
-            onTrigger()
         } catch (error) {
             console.error('Ошибка применения изменения:', error);
             alert('Не удалось одобрить изменение.');
@@ -42,7 +41,6 @@ const ChangeCard = ({ operation, data, url, authToken, agreementId, userId, onTr
             }
 
             alert('Изменение успешно отклонено!');
-            onTrigger()
         } catch (error) {
             console.error('Ошибка отклонения изменения:', error);
             alert('Не удалось отклонить изменение.');

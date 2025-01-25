@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Box, Typography, Button, TextField } from '@mui/material';
 
-const BuilderModalWnd = ({ isOpen, onClose, onTrigger, agreementId }) => {
+const BuilderModalWnd = ({ isOpen, onClose, agreementId, }) => {
     const authToken = localStorage.getItem('authToken');
     const url = localStorage.getItem('url');
     const [file, setFile] = useState(null); // Состояние для файла
@@ -49,7 +49,6 @@ const BuilderModalWnd = ({ isOpen, onClose, onTrigger, agreementId }) => {
             // Успешная отправка
             alert('Файл успешно отправлен');
             setFile(null); // Сбрасываем файл после успешной отправки
-            onTrigger()
             onClose(); // Закрываем модальное окно
             
         } catch (error) {

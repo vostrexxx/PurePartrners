@@ -21,7 +21,7 @@ const Builder = ({ agreementId }) => {
 
     const [isStompConnected, setIsStompConnected] = useState(false);
 
-    const [triggerGet, setTriggerGet] = useState(false);
+    // const [triggerGet, setTriggerGet] = useState(false);
 
     const [triggerEstimate, setTriggerEstimate] = useState(false);
     const [triggerChangeCards, setTriggerChangeCards] = useState(false);
@@ -37,15 +37,38 @@ const Builder = ({ agreementId }) => {
         setModalOpen(true); // Открываем модальное окно
     };
 
-    const triggerChangeCards_triggerEstimate = () => {
-        setTriggerChangeCards(!triggerChangeCards);
-        setTriggerEstimate(!triggerEstimate);
-    };
+    // const triggerChangeCards_triggerEstimate = () => {
+    //     setTriggerChangeCards(!triggerChangeCards);
+    //     // setTriggerEstimate(!triggerEstimate);
+    // };
 
-
-    const [events, setEvents] = useState([]);
-
+    const eventQueue = useRef([]); // Очередь для обработки событий
+    const isProcessingQueue = useRef(false); // Флаг для обработки очереди
+  
     useEffect(() => {
+        const processEventQueue = () => {
+            if (eventQueue.current.length > 0 && !isProcessingQueue.current) {
+                isProcessingQueue.current = true;
+                const event = eventQueue.current.shift();
+
+                console.log("Обрабатывается событие:", event);
+
+                if (event === 'triggerChangeCards') {
+                    setTriggerChangeCards((prev) => !prev);
+                }
+
+                if (event === 'triggerEstimate') {
+                    setTriggerEstimate((prev) => !prev);
+                }
+
+                // Устанавливаем задержку перед обработкой следующего события
+                setTimeout(() => {
+                    isProcessingQueue.current = false;
+                    processEventQueue(); // Обрабатываем следующее событие
+                }, 1000); // Задержка 1 секунда
+            }
+        };
+
         const eventSource = new EventSourcePolyfill(`${url}/categories/events/${agreementId}`, {
             headers: {
                 Authorization: `Bearer ${authToken}`,
@@ -53,19 +76,22 @@ const Builder = ({ agreementId }) => {
         });
 
         eventSource.onopen = () => {
-            console.log("SSE для сметы  соединение установлено");
+            console.log("1 - SSE соединение ДЛЯ СМЕТЫ установлено");
         };
 
         eventSource.onmessage = (event) => {
-            console.log("SSE msg: event.data - ", event.data)
-
-            if (event.data === 'triggerChangeCards') {
-                    setTriggerChangeCards(!triggerChangeCards)
+            if (event.data.trim() === ':ping') {
+                // Игнорируем пинг
+                return;
             }
 
-            if (event.data === 'triggerEstimate') {
-                setTriggerEstimate(!triggerEstimate)
-            }
+            console.log("SSE msg: event.data - ", event.data);
+
+            // Добавляем событие в очередь
+            eventQueue.current.push(event.data);
+
+            // Запускаем обработку очереди
+            processEventQueue();
         };
 
         eventSource.onerror = (error) => {
@@ -74,10 +100,10 @@ const Builder = ({ agreementId }) => {
         };
 
         return () => {
+            console.log("0 - SSE соединение ДЛЯ СМЕТЫ разорвано" );
             eventSource.close();
         };
     }, [agreementId, authToken, url]);
-
 
     useEffect(() => {
         const fetchGetChanges = async () => {
@@ -618,7 +644,6 @@ const Builder = ({ agreementId }) => {
                         color="submit"
                         onClick={handleOpenModal}
                         style={{ marginBottom: '20px', marginLeft: '10px' }}
-                    // disabled={isEditing === true}
                     >
                         Загрузить шаблон
                     </Button>
@@ -627,8 +652,7 @@ const Builder = ({ agreementId }) => {
                         isOpen={modalOpen}
                         onClose={closeModal}
                         agreementId={agreementId}
-                    // onTrigger={() => setTriggerGet(!triggerGet)}
-
+                    // onTrigger={() => setTriggerEstimate()}
                     />
 
                     <div>
@@ -762,7 +786,6 @@ const Builder = ({ agreementId }) => {
                                             authToken={authToken}
                                             agreementId={agreementId}
                                             userId={userId}
-                                            onTrigger={() => triggerChangeCards_triggerEstimate()} // Передаем функцию изменения триггера
                                         />
                                     ))}
                             </React.Fragment>
@@ -784,7 +807,6 @@ const Builder = ({ agreementId }) => {
                                     authToken={authToken}
                                     agreementId={agreementId}
                                     userId={userId}
-                                    onTrigger={() => triggerChangeCards_triggerEstimate()} // Передаем функцию изменения триггера
                                 />
                             ))}
                     </div>

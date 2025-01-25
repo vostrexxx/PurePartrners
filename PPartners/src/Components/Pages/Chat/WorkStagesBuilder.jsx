@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { TextField, Button, Drawer, List, ListItem, Divider } from '@mui/material';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { useProfile } from '../../Context/ProfileContext';
 import StageModalWnd from './StageModalWnd'
+import { EventSourcePolyfill } from 'event-source-polyfill';
 
 const WorkStagesBuilder = ({ agreementId }) => {
     const [stages, setStages] = useState([]); // Список этапов работ
@@ -13,18 +14,16 @@ const WorkStagesBuilder = ({ agreementId }) => {
     const authToken = localStorage.getItem('authToken');
 
     const [isEditing, setIsEditing] = useState(null);
-    const [trigger, setTrigger] = useState(false)
+    // const [trigger, setTrigger] = useState(false)
+    const [triggerStages, setTriggerStages] = useState(false);
 
-    // const [isCustomerApproved, setIsCustomerApproved] = useState(false)
-    // const [isContractorApproved, setIsContractorApproved] = useState(false)
     const { isSpecialist } = useProfile();
 
     const [modalOpen, setModalOpen] = useState(false); // Состояние открытия модального окна
     const [modalData, setModalData] = useState({ mode: '', stage: null }); // Хранение mode и stage
 
-    // const [isAvailable, setIsAvailable] = useState(false);
-
     const mode = isSpecialist ? 'contractor' : 'customer';
+
 
     // Получение списка "rawStages" с сервера
     useEffect(() => {
@@ -118,7 +117,7 @@ const WorkStagesBuilder = ({ agreementId }) => {
         };
 
         fetchStages();
-    }, [agreementId, authToken, url, trigger]);
+    }, [agreementId, authToken, url, triggerStages]);
 
     useEffect(() => {
         const fetchIsEditing = async () => {
@@ -149,12 +148,67 @@ const WorkStagesBuilder = ({ agreementId }) => {
         fetchIsEditing();
     }, [agreementId, authToken, url]);
 
-    // useEffect(() => {
-    //     console.log('Stages: isEditing updated:', isEditing);
-    // }, [isEditing]);
+    const eventQueue = useRef([]); // Очередь для обработки событий
+    const isProcessingQueue = useRef(false); // Флаг для обработки очереди
+
+
+    useEffect(() => {
+        const processEventQueue = () => {
+            if (eventQueue.current.length > 0 && !isProcessingQueue.current) {
+                isProcessingQueue.current = true;
+                const event = eventQueue.current.shift();
+
+                // console.log("Обрабатывается событие:", event);
+
+                if (event === 'triggerStages') {
+                    setTriggerStages((prev) => !prev);
+                }
+
+                setTimeout(() => {
+                    isProcessingQueue.current = false;
+                    processEventQueue();
+                }, 1000);
+            }
+        };
+
+        const eventSource = new EventSourcePolyfill(`${url}/stages/events/${agreementId}`, {
+            headers: {
+                Authorization: `Bearer ${authToken}`,
+            },
+        });
+
+        eventSource.onopen = () => {
+            console.log("1 - SSE соединение ДЛЯ ЭТАПОВ установлено");
+        };
+
+        eventSource.onmessage = (event) => {
+            if (event.data.trim() === ':ping') {
+                // Игнорируем пинг
+                return;
+            }
+
+            console.log("SSE msg: event.data - ", event.data);
+
+            eventQueue.current.push(event.data);
+
+            processEventQueue();
+        };
+
+        eventSource.onerror = (error) => {
+            console.error("Ошибка SSE:", error);
+            eventSource.close();
+        };
+
+        return () => {
+            console.log("0 - SSE соединение ДЛЯ ЭТАПОВ разорвано");
+            eventSource.close();
+        };
+    }, [agreementId, authToken, url]);
+
+
 
     const handleEdit = async () => {
-        setTrigger(!trigger)
+        // setTrigger(!trigger)
         try {
             const response = await fetch(`${url}/stages/is-editing?agreementId=${agreementId}`, {
                 method: 'GET',
@@ -218,7 +272,7 @@ const WorkStagesBuilder = ({ agreementId }) => {
                 const data = await response.json();
                 if (data.success) {
                     setStages([])
-                    setTrigger(!trigger)
+                    // setTrigger(!trigger)
 
                     alert('Этапы работ успешно сброшены')
                 } else {
@@ -323,7 +377,7 @@ const WorkStagesBuilder = ({ agreementId }) => {
         // Формируем список этапов
         const formattedStages = stages.map((stage) => {
             const isApproved = stage.isCustomerApproved && stage.isContractorApproved;
-            
+
             return {
                 isCustomerApproved: isApproved ? true : false,
                 isContractorApproved: isApproved ? true : false,
@@ -342,7 +396,7 @@ const WorkStagesBuilder = ({ agreementId }) => {
                 })),
             };
         });
-        
+
 
         // Формируем список неиспользуемых rawStages
         const notUsedRawStages = rawStages.map((rawStage, index) => ({
@@ -394,7 +448,7 @@ const WorkStagesBuilder = ({ agreementId }) => {
             alert('Этапы успешно сохранены!');
             // console.log('Ответ сервера:', data);
 
-            setTrigger(!trigger)
+            // setTrigger(!trigger)
         } catch (error) {
             console.error('Ошибка при сохранении этапов:', error.message);
             alert('Ошибка при сохранении этапов. Проверьте данные и попробуйте снова.');
@@ -422,7 +476,7 @@ const WorkStagesBuilder = ({ agreementId }) => {
                 }
 
                 const data = await response.json();
-                setTrigger(!trigger)
+                // setTrigger(!trigger)
 
             } catch (error) {
                 // console.error('Ошибка при сохранении этапов:', error.message);
@@ -616,15 +670,9 @@ const WorkStagesBuilder = ({ agreementId }) => {
                                                     />
                                                 </div>
 
-                                                {/* Модальное окно  */}
-                                                <StageModalWnd
-                                                    isOpen={modalOpen}
-                                                    onClose={closeModal}
-                                                    mode={modalData.mode} // Передаем mode
-                                                    stage={modalData.stage} // Передаем stage
-                                                    agreementId={agreementId}
-                                                    onTrigger={() => setTrigger(!trigger)}
-                                                />
+                                                {/* {console.log(modalData.stage.id || 'нема')} */}
+
+
 
 
                                                 {stage.children.length === 0 ? (
@@ -678,7 +726,7 @@ const WorkStagesBuilder = ({ agreementId }) => {
                                     color="error"
                                     onClick={handleResetStages}
                                     style={{ marginRight: '10px' }}
-                                // disabled={!isEditing}
+                                    disabled={!isEditing}
                                 >
                                     Сбросить этапы работ
                                 </Button>
@@ -749,6 +797,17 @@ const WorkStagesBuilder = ({ agreementId }) => {
                     </Button>
                 </div>
 
+                <StageModalWnd
+                    // key={stage?.id || Math.random()} // Используем ключ для принудительного перерендера
+                    isOpen={modalOpen}
+                    onClose={closeModal}
+                    mode={modalData.mode} // Передаем mode
+                    stage={modalData.stage} // Передаем stage
+                    agreementId={agreementId}
+                    triggerStages={triggerStages}
+                    setTriggerStages={setTriggerStages} // Пробрасываем функцию изменения
+                // id={stage.id} // Передаем stage
+                />
 
             </Drawer>
 

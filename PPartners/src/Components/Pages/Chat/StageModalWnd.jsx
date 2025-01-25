@@ -3,10 +3,11 @@ import { Modal, Box, Typography, Button, TextField } from '@mui/material';
 import { FaFileWord, FaFileExcel, FaFilePdf } from 'react-icons/fa';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, onTrigger }) => {
+const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStages, setTriggerStages, }) => {
     if (!stage) return null; // Если stage не передан, ничего не рендерим
     const authToken = localStorage.getItem('authToken');
     const url = localStorage.getItem('url');
+    const [stageData, setStageData] = useState(stage);
 
     const [account, setAccount] = useState(null);
 
@@ -21,6 +22,37 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, onTrigger })
     const [balance, setBalance] = useState(null);
     const navigate = useNavigate();
 
+    useEffect(() => {console.log(stageData)},[stageData]);
+
+    useEffect(() => {
+        const fetchStageData = async () => {
+            try {
+    
+                const response = await fetch(`${url}/stages/stage?elementId=${stageData.id}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                });
+    
+                if (!response.ok) {
+                    throw new Error(`Ошибка получения этапа для модульного окна'`);
+                }
+    
+                const data = await response.json();
+                // console.log(data.stageStatus);
+                setStageData(data)
+                
+            } catch (error) {
+                console.error('Ошибка получения состояния редактирования:', error.message);
+            }
+        };
+    
+        fetchStageData();
+        
+    }, [triggerStages]);
+    
 
     const checkContractPresence = (isDocsReady, stage) => {
         const stageFile = isDocsReady.areStageFilesPresent.find(
@@ -95,12 +127,8 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, onTrigger })
     }, [trigger]);
 
 
-    // useEffect(() => {
-    //     console.log(stage, agreementId)
-    // }, []);
-
     const handleDownload = (type) => {
-        const params = new URLSearchParams({ agreementId, type, order: stage.order });
+        const params = new URLSearchParams({ agreementId, type, order: stageData.order });
         fetch(`${url}/document?${params.toString()}`, {
             method: 'GET',
             headers: {
@@ -130,13 +158,13 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, onTrigger })
 
     useEffect(() => {
         if (!isLoading) {
-            const contractReady = checkContractPresence(isDocsReady, stage);
+            const contractReady = checkContractPresence(isDocsReady, stageData);
             setIsContractReady(contractReady);
 
-            const actReady = checkActPresence(isDocsReady, stage);
+            const actReady = checkActPresence(isDocsReady, stageData);
             setIsActReady(actReady);
         }
-    }, [isLoading, isDocsReady, stage]);
+    }, [isLoading, isDocsReady, stageData]);
 
 
     // Формирование договора или акта
@@ -229,13 +257,13 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, onTrigger })
             // Формируем данные для отправки
             const projectData = {
                 agreementId,
-                workCategories: stage.name,
+                workCategories: stageData.name || stageData.stageTitle,
                 address: announcementData.announcementInfo.address,
-                startDate: stage.startDate,
-                finishDate: stage.finishDate,
-                totalPrice: stage.totalPrice,
+                startDate: stageData.startDate,
+                finishDate: stageData.finishDate,
+                totalPrice: stageData.totalPrice,
                 guarantee: announcementData.announcementInfo.guarantee,
-                stageOrder: stage.order
+                stageOrder: stageData.order
             };
 
             const contractorData = {
@@ -332,7 +360,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, onTrigger })
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${authToken}`,
                 },
-                body: JSON.stringify({ balance: stage.totalPrice, elementId: stage.id }),
+                body: JSON.stringify({ balance: stageData.totalPrice, elementId: stageData.id }),
             });
 
             if (!response.ok) {
@@ -352,10 +380,10 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, onTrigger })
                         Authorization: `Bearer ${authToken}`,
                     },
                     body: JSON.stringify({
-                        stagePrice: stage.totalPrice,
+                        stagePrice: stageData.totalPrice,
                         workCategories: announcementData.announcementInfo.workCategories,
                         address: announcementData.announcementInfo.address,
-                        stageTitle: stage.name,
+                        stageTitle: stageData.name,
                         mode: 'Заморозка средств',
                     }),
                 });
@@ -382,7 +410,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, onTrigger })
 
     const handleChangeStageStatus = async (stageStatus) => {
         try {
-            if (stage.stageStatus === "Подтверждено") {
+            if (stageData.stageStatus === "Подтверждено") {
                 const params = new URLSearchParams({ agreementId });
 
                 const agreementResponse = await fetch(`${url}/agreement?${params.toString()}`, {
@@ -422,8 +450,8 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, onTrigger })
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${authToken}`,
                     },
-                    body: JSON.stringify({ stagePrice: stage.totalPrice, workCategories: announcementData.announcementInfo.workCategories,
-                         address: announcementData.announcementInfo.address, stageTitle: stage.name, mode: 'Списание замороженных средств' }),
+                    body: JSON.stringify({ stagePrice: stageData.totalPrice, workCategories: announcementData.announcementInfo.workCategories,
+                         address: announcementData.announcementInfo.address, stageTitle: stageData.name, mode: 'Списание замороженных средств' }),
                 });
 
                 if (!response.ok) {
@@ -438,7 +466,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, onTrigger })
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${authToken}`,
                         },
-                        body: JSON.stringify({ elementId: stage.id, stageStatus }),
+                        body: JSON.stringify({ elementId: stageData.id, stageStatus }),
                     });
 
                     if (!response.ok) {
@@ -457,7 +485,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, onTrigger })
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${authToken}`,
                     },
-                    body: JSON.stringify({ elementId: stage.id, stageStatus }),
+                    body: JSON.stringify({ elementId: stageData.id, stageStatus }),
                 });
 
                 if (!response.ok) {
@@ -554,9 +582,9 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, onTrigger })
                 } else if (mode === 'customer') {
                     return <div>
                         <Typography color="textSecondary">Ваш текущий баланс {balance}</Typography>
-                        <Typography color="textSecondary">Стоимость этапа: {stage.totalPrice}</Typography>
+                        <Typography color="textSecondary">Стоимость этапа: {stageData.totalPrice}</Typography>
 
-                        {balance > stage.totalPrice ? (
+                        {balance > stageData.totalPrice ? (
                             <Button onClick={() => handleTopUp()} variant="contained" color="primary">
                                 Заморозить средства
                             </Button>) : (
@@ -573,7 +601,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, onTrigger })
             case 'Не начато':
                 if (mode === 'contractor') {
                     return <div>
-                        <Typography color="textSecondary">Статус средств: замороженная сумма: {stage.stageBalance}</Typography>
+                        <Typography color="textSecondary">Статус средств: замороженная сумма: {stageData.stageBalance}</Typography>
 
                         <Typography color="textSecondary">Статус: Вы еще не приступили к работам</Typography>
                         <Button onClick={() => handleChangeStageStatus("В процессе")} variant="contained" color="primary">
@@ -582,7 +610,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, onTrigger })
                     </div>
                 } else if (mode === 'customer') {
                     return <div>
-                        <Typography color="textSecondary">Статус средств: замороженная сумма: {stage.stageBalance}</Typography>
+                        <Typography color="textSecondary">Статус средств: замороженная сумма: {stageData.stageBalance}</Typography>
 
                         <Typography color="textSecondary">Статус: Подрядчик еще не приступил к работам</Typography>
                     </div>
@@ -719,7 +747,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, onTrigger })
                 <Box sx={{ mt: 2 }}>
                     <div>
 
-                        {stage.stageStatus === 'В ожидании заморозки средств' ? (
+                        {stageData.stageStatus === 'В ожидании заморозки средств' ? (
                             <div
                                 style={{
                                     backgroundColor: '#1a1a1a',
@@ -816,7 +844,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, onTrigger })
                             </div>
                         ) : null}
 
-                        {stage.stageStatus === 'Подтверждено' ? (
+                        {stageData.stageStatus === 'Подтверждено' ? (
                             <div
                                 style={{
                                     backgroundColor: '#1a1a1a',
@@ -912,7 +940,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, onTrigger })
                             </div>
                         ) : null}
 
-                        {renderStatus(mode, stage.stageStatus)}
+                        {renderStatus(mode, stageData.stageStatus)}
                     </div>
                 </Box>
 
