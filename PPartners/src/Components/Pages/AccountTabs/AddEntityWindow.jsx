@@ -54,7 +54,7 @@ const Modal = ({ isOpen, onClose, children, fullName, onTrigger }) => {
   });
 
   const handleSelectOption = (option) => {
-    console.log(option)
+    // console.log(option)
     setEntity(option);
     // console.log(entity)
     option === "Юридическое лицо" ? setIsLegalEntity(true) : setIsLegalEntity(false);
@@ -84,9 +84,9 @@ const Modal = ({ isOpen, onClose, children, fullName, onTrigger }) => {
   const handleSave = async () => {
     try {
       const fullUrl = `${url}/${isSpecialist ? 'contractor' : 'customer'}`;
-      console.log(formData)
+      // console.log(formData)
       formData.isLegalEntity = isLegalEntity;
-      console.log(formData)
+      // console.log(formData)
 
       const response = await fetch(fullUrl, {
         method: 'POST',

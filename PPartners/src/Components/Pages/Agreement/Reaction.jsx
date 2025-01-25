@@ -25,9 +25,9 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode }) => {
     });
 
     useEffect(() => {
-        console.log("URL:", url);
-        console.log("AuthToken:", getAuthToken());
-        console.log("isSpecialist:", isSpecialist);
+        // console.log("URL:", url);
+        // console.log("AuthToken:", getAuthToken());
+        // console.log("isSpecialist:", isSpecialist);
     
         setAnnouncements([]);
         setQuestionnaires([]);
@@ -55,7 +55,7 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode }) => {
                         }
                     });
                     const data = await response.json();
-                    console.log("Объявления:", data.previews);
+                    // console.log("Объявления:", data.previews);
                     setPreviews(data.previews || []);
                 }
             } catch (error) {

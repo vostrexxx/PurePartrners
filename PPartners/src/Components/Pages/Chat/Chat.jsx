@@ -71,6 +71,7 @@ const Chat = ({ chatId }) => {
                 if (msg.attachments && msg.attachments.length > 0) {
                     const images = [];
                     const documents = [];
+                    const videos = [];
 
                     msg.attachments.forEach((attachment) => {
                         const extension = attachment.originalFileName.split('.').pop().toLowerCase();
@@ -78,6 +79,8 @@ const Chat = ({ chatId }) => {
                             images.push(attachment);
                         } else if (['pdf', 'doc', 'docx', 'xls', 'xlsx'].includes(extension)) {
                             documents.push(attachment);
+                        } else if (['mp4', 'avi', 'mov', 'mkv'].includes(extension)) {
+                            videos.push(attachment);
                         }
                     });
 
@@ -106,13 +109,14 @@ const Chat = ({ chatId }) => {
                         })
                     );
 
-                    return { ...msg, images: loadedImages, documents };
+                    return { ...msg, images: loadedImages, documents, videos };
                 }
                 return msg;
             })
         );
         return updatedMessages;
     };
+
 
     const handleDownloadFile = async (filePath, fileName) => {
         try {
@@ -139,6 +143,7 @@ const Chat = ({ chatId }) => {
             console.error('Ошибка скачивания файла:', error);
         }
     };
+
 
     const getFileIcon = (fileName) => {
         const extension = fileName.split('.').pop().toLowerCase();
@@ -292,6 +297,16 @@ const Chat = ({ chatId }) => {
                                             </span>
                                         </div>
                                     ))}
+                                {msg.videos &&
+                                    msg.videos.map((video, i) => (
+                                        <div
+                                            key={i}
+                                            style={{ marginTop: '5px', cursor: 'pointer', color: 'blue' }}
+                                            onClick={() => handleDownloadFile(video.filePath, video.originalFileName)}
+                                        >
+                                            {video.originalFileName}
+                                        </div>
+                                    ))}
                             </div>
                             <div
                                 style={{
@@ -343,9 +358,24 @@ const Chat = ({ chatId }) => {
                     type="file"
                     id="fileInput"
                     multiple
-                    onChange={(e) => setAttachments(Array.from(e.target.files))}
+                    onChange={(e) => {
+                        const files = Array.from(e.target.files);
+                        const validFormats = ['png', 'jpg', 'jpeg', 'gif', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'mp4', 'avi', 'mov', 'mkv'];
+
+                        const validFiles = files.filter((file) => {
+                            const extension = file.name.split('.').pop().toLowerCase();
+                            if (!validFormats.includes(extension)) {
+                                alert(`Некорректный формат файла: ${file.name}`);
+                                return false;
+                            }
+                            return true;
+                        });
+
+                        setAttachments(validFiles);
+                    }}
                     style={{ display: 'none' }}
                 />
+
                 {attachments.map((file, index) => (
                     <span
                         key={index}

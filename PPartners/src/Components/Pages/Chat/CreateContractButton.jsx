@@ -240,7 +240,7 @@ const ContractButton = ({ agreementId }) => {
             throw new Error(`Ошибка при сохранении данных: ${response.status}`);
           }
       
-          console.log('Данные успешно отправлены');
+          // console.log('Данные успешно отправлены');
         } catch (error) {
           console.error('Ошибка при составлении договора:', error.message);
         }
@@ -415,7 +415,7 @@ const ContractButton = ({ agreementId }) => {
           throw new Error(`Ошибка при сохранении данных: ${response.status}`);
         }
     
-        console.log('Данные успешно отправлены');
+        // console.log('Данные успешно отправлены');
       } catch (error) {
         console.error('Ошибка при составлении договора:', error.message);
       }

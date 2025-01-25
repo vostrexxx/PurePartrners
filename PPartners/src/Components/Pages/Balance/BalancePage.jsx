@@ -112,6 +112,8 @@ const BalancePage = () => {
                                 boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
                             }}
                         >
+                            <p><strong>Мод:</strong> {item.mode || 'Мод не определен'}</p>
+
                             <p><strong>Дата:</strong> {new Date(item.paymentTimestamp).toLocaleString()}</p>
                             <p><strong>Стоимость:</strong> {item.paycheck} руб.</p>
                             <p><strong>Наименование объявления:</strong> {item.workCategories}</p>

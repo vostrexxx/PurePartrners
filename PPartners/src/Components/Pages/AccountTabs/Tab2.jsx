@@ -62,7 +62,7 @@ const Entities = ({ onSelectEntity }) => {
     }, [isSpecialist, url, authToken]);
 
     const handleSelectEntity = (id) => {
-        console.log('Выбранное лицо с ID:', id);
+        // console.log('Выбранное лицо с ID:', id);
 
         setSelectedEntity(id);
         onSelectEntity(id); // Передаём выбранный ID в родительский компонент
@@ -179,6 +179,17 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
         guarantee: 12
     });
 
+    const [photos, setPhotos] = useState([]); // Хранение выбранных фотографий
+
+    const handlePhotoChange = (e) => {
+        const selectedPhotos = Array.from(e.target.files);
+        setPhotos((prevPhotos) => [...prevPhotos, ...selectedPhotos]);
+    };
+
+    const handleRemovePhoto = (index) => {
+        setPhotos((prevPhotos) => prevPhotos.filter((_, i) => i !== index));
+    };
+
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData((prevData) => ({
@@ -203,43 +214,47 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
-        // Удаляем пробелы в конце строк в formData
-        const trimmedFormData = Object.fromEntries(
-            Object.entries(formData).map(([key, value]) =>
-                typeof value === 'string' ? [key, value.trim()] : [key, value]
-            )
-        );
-    
-        console.log('Данные формы после удаления пробелов:', trimmedFormData);
-    
+
         try {
             const authToken = getAuthToken();
-            if (!authToken) {
-                alert('Токен не найден');
-                return;
-            }
-    
+            
+            const formDataToSend = new FormData();
+            
+            // Добавляем все текстовые данные
+            Object.entries(formData).forEach(([key, value]) => {
+                if (value !== null && value !== undefined) {
+                    // Проверяем, является ли значение строкой, и убираем пробелы в конце
+                    const trimmedValue = typeof value === 'string' ? value.trim() : value;
+                    formDataToSend.append(key, trimmedValue);
+                }
+            });
+
+            // Добавляем фотографии
+            photos.forEach((photo) => {
+                formDataToSend.append('images', photo);
+            });
+
             const response = await fetch(`${url}/questionnaire`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-                body: JSON.stringify(trimmedFormData),
+                headers: {
+                    Authorization: `Bearer ${authToken}`, // Заголовок авторизации
+                },
+                body: formDataToSend, // Отправляем FormData
             });
-    
+
             if (response.ok) {
                 alert('Анкета успешно добавлена!');
-                // setTriggerGet(!triggerGet);
-    
+                setPhotos([]); // Очистить фотографии после успешной отправки
                 onSubmit();
             } else {
                 const errorMsg = await response.text();
                 alert(`Ошибка при добавлении анкеты: ${errorMsg}`);
             }
         } catch (error) {
-            console.error('Произошла ошибка при отправке анкеты:', error);
+            console.error('Ошибка при отправке анкеты:', error);
         }
     };
-    
+
 
     return (
         <div>
@@ -325,14 +340,45 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
                     onChange={handleInputChange}
                 />
 
-                <FormField
+                {/* <FormField
                     type="text"
                     label="Гарантийный срок"
                     name="guarantee"
                     placeholder="Срок гарантии"
                     value={formData.guarantee}
                     onChange={handleInputChange}
-                />
+                /> */}
+
+                <div>
+                    <h4>Добавить фотографии:</h4>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handlePhotoChange}
+                    />
+                    <ul>
+                        {photos.map((photo, index) => (
+                            <li key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                                <span style={{ marginRight: '10px' }}>{photo.name}</span>
+                                <button
+                                    type="button"
+                                    onClick={() => handleRemovePhoto(index)}
+                                    style={{
+                                        background: 'red',
+                                        color: 'white',
+                                        border: 'none',
+                                        padding: '5px',
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    Удалить
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+
 
                 <Entities onSelectEntity={handleSelectEntity} />
 
@@ -343,92 +389,140 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
     );
 };
 
-
 // Компонент формы для объявления (Заказчик)
 const AnnouncementForm = ({ onSubmit, onCancel }) => {
     const [isEditable, setIsEditable] = useState(false);
 
     const [formData, setFormData] = useState({
-        totalCost: '', //
-        other: '',// 
-        hasOther: false,// o 
-        workCategories: '', // o  
-        metro: '', //
-        // house: '', //
-        objectName: '', // o
-        startDate: '', // 
-        finishDate: '', //
-        comments: '', // o
-        entityId: null, // Устанавливаем ID выбранного лица
+        totalCost: '',
+        isNonFixedPrice: false,
+        workCategories: '',
+        metro: '',
+        startDate: '',
+        finishDate: '',
+        comments: '',
+        entityId: null,
         guarantee: 12,
         address: '',
     });
 
+    const [images, setPhotos] = useState([]);
+    const [uploading, setUploading] = useState(false);
+
+    const [files, setFiles] = useState([]); // Для хранения загружаемых файлов
+
+
     const handleCategorySelect = (value) => {
         setFormData((prevData) => ({
             ...prevData,
-            workCategories: value, // Обновляем workCategories при выборе
+            workCategories: value,
         }));
     };
 
     const handleSelectEntity = (id) => {
         setFormData((prevData) => ({
             ...prevData,
-            entityId: id, // Устанавливаем ID выбранного лица
+            entityId: id,
         }));
-    };
-
-    const handleEdit = () => {
-        setIsEditable(true);
     };
 
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData({
             ...formData,
-            [name]: type === 'checkbox' ? checked : value // Если это чекбокс, то берем значение `checked`
+            [name]: type === 'checkbox' ? checked : value,
         });
     };
 
+    const handlePhotoChange = (e) => {
+        setPhotos([...images, ...e.target.files]);
+    };
+
+    const handleRemovePhoto = (index) => {
+        setPhotos((prevPhotos) => prevPhotos.filter((_, i) => i !== index));
+    };
+
+    const handleFileChange = (e) => {
+        const newFiles = Array.from(e.target.files);
+        setFiles((prevFiles) => [...prevFiles, ...newFiles]); // Добавляем новые файлы к уже выбранным
+    };
+
+    const handleRemoveFile = (index) => {
+        setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+    };
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Данные формы перед обработкой:', formData);
-    
-        // Удаляем пробелы в конце строк в formData
-        const trimmedFormData = Object.fromEntries(
-            Object.entries(formData).map(([key, value]) => 
-                typeof value === 'string' ? [key, value.trim()] : [key, value]
-            )
-        );
-    
-        console.log('Данные формы после удаления пробелов:', trimmedFormData);
-    
+
         try {
-            const authToken = getAuthToken();
+            setUploading(true);
+
+            const formDataToSend = new FormData();
+            
+            // Добавляем все текстовые данные
+            Object.entries(formData).forEach(([key, value]) => {
+                if (value !== null && value !== undefined) {
+                    // Проверяем, является ли значение строкой, и убираем пробелы в конце
+                    const trimmedValue = typeof value === 'string' ? value.trim() : value;
+                    formDataToSend.append(key, trimmedValue);
+                }
+            });
+            
+
+            // Добавляем изображения
+            images.forEach((file) => {
+                formDataToSend.append('images', file);
+            });
+
+            // Добавляем файлы
+            files.forEach((file) => {
+                formDataToSend.append('files', file); // Ключ `files` для загрузки документов
+            });
+
+            const authToken = localStorage.getItem('authToken');
             if (!authToken) {
                 alert('Токен не найден');
                 return;
             }
-    
-            const response = await fetch(`${url}/announcement`, {
+
+            const response = await fetch(`${localStorage.getItem('url')}/announcement`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-                body: JSON.stringify(trimmedFormData),
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                },
+                body: formDataToSend,
             });
-    
+
             if (response.ok) {
                 alert('Объявление успешно добавлено!');
-                onSubmit(); // Успешное завершение, закрываем форму
+                setFormData({
+                    totalCost: '',
+                    isNonFixedPrice: false,
+                    workCategories: '',
+                    metro: '',
+                    startDate: '',
+                    finishDate: '',
+                    comments: '',
+                    entityId: null,
+                    guarantee: 12,
+                    address: '',
+                });
+                setPhotos([]);
+                setFiles([]); // Очищаем файлы
+                onSubmit();
             } else {
                 const errorMsg = await response.text();
                 alert(`Ошибка при добавлении объявления: ${errorMsg}`);
             }
         } catch (error) {
             console.error('Ошибка при отправке данных:', error);
+            alert('Произошла ошибка при отправке данных.');
+        } finally {
+            setUploading(false);
         }
     };
-    
-    
+
 
     return (
         <div>
@@ -447,25 +541,12 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
                     placeholder="10000"
                     value={formData.totalCost}
                     onChange={handleInputChange}
-                    // disabled={!isEditable}
-                // hidden={!formData.hasTeam}
                 />
                 <CheckboxField
-                    label="Цена по договору?"
-                    name="hasOther"
-                    checked={formData.hasOther}
-                    // disabled={!isEditable}
+                    label="Нефиксированная цена по договору"
+                    name="isNonFixedPrice"
+                    checked={formData.isNonFixedPrice}
                     onChange={handleInputChange}
-                />
-                <FormField
-                    type="text"
-                    label="Цена по договору"
-                    name="other"
-                    placeholder="Цена по договору"
-                    value={formData.other}
-                    onChange={handleInputChange}
-                    // disabled={!isEditable}
-                    hidden={!formData.hasOther} // Управляем видимостью
                 />
                 <FormField
                     type="text"
@@ -474,54 +555,21 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
                     placeholder="Метро"
                     value={formData.metro}
                     onChange={handleInputChange}
-                    // disabled={!isEditable}
-                // hidden={!formData.hasEdu} // Управляем видимостью
                 />
-                {/* <FormField
-                    type="text"
-                    label="Дом"
-                    name="house"
-                    placeholder="Дом"
-                    value={formData.house}
-                    onChange={handleInputChange}
-                    // disabled={!isEditable}
-                // hidden={!formData.hasEdu} // Управляем видимостью
-                /> */}
-                {/* <CheckboxField
-                    label="Имеется ли команда?"
-                    name="hasTeam"
-                    checked={formData.}
-                    disabled={!isEditable}
-                    onChange={handleInputChange}
-                /> */}
-                <FormField
-                    type="text"
-                    label="Наименование объекта"
-                    name="objectName"
-                    placeholder="Наименование объекта"
-                    value={formData.objectName}
-                    onChange={handleInputChange}
-                    // disabled={!isEditable}
-                // hidden={!formData.hasTeam}
-                />
+
                 <FormField
                     type="date"
                     label="Дата начала"
                     name="startDate"
-                    placeholder="Дата начала"
                     value={formData.startDate}
                     onChange={handleInputChange}
-                    // disabled={!isEditable}
-                // hidden={!formData.hasEdu}
                 />
                 <FormField
                     type="date"
                     label="Дата окончания"
                     name="finishDate"
-                    placeholder="Дата окончания"
                     value={formData.finishDate}
                     onChange={handleInputChange}
-                    // disabled={!isEditable}
                 />
                 <FormField
                     type="text"
@@ -530,19 +578,15 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
                     placeholder="Комментарии"
                     value={formData.comments}
                     onChange={handleInputChange}
-                    // disabled={!isEditable}
                 />
-
-                <FormField
+                {/* <FormField
                     type="text"
                     label="Срок гарантии"
                     name="guarantee"
                     placeholder="Гарантийный срок"
                     value={formData.guarantee}
                     onChange={handleInputChange}
-                    // disabled={!isEditable}
-                />
-
+                /> */}
                 <FormField
                     type="text"
                     label="Адрес"
@@ -550,16 +594,73 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
                     placeholder="Адрес будущих работ"
                     value={formData.address}
                     onChange={handleInputChange}
-                    // disabled={!isEditable}
                 />
 
+                {/* Загрузка фотографий */}
+                <div>
+                    <h4>Добавить фотографии</h4>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handlePhotoChange}
+                        disabled={uploading}
+                    />
+                    <ul>
+                        {images.map((photo, index) => (
+                            <li key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                                <span style={{ marginRight: '10px' }}>{photo.name}</span>
+                                <button
+                                    type="button"
+                                    onClick={() => handleRemovePhoto(index)}
+                                    disabled={uploading}
+                                >
+                                    Удалить
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+
+                <div>
+                    <h4>Добавить документы</h4>
+                    <input
+                        type="file"
+                        accept=".doc,.docx,.xls,.xlsx,.pdf" // Допустимые типы файлов
+                        multiple
+                        onChange={handleFileChange}
+                        disabled={uploading}
+                    />
+                    <ul>
+                        {files.map((file, index) => (
+                            <li key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                                <span style={{ marginRight: '10px' }}>{file.name}</span>
+                                <button
+                                    type="button"
+                                    onClick={() => handleRemoveFile(index)}
+                                    disabled={uploading}
+                                >
+                                    Удалить
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+
+
                 <Entities onSelectEntity={handleSelectEntity} />
-                <button type="button" onClick={handleSubmit}>Сохранить объявление</button>
-                <button type="button" onClick={onCancel}>Отмена</button>
+                <button type="submit" disabled={uploading}>
+                    {uploading ? 'Сохранение...' : 'Сохранить объявление'}
+                </button>
+                <button type="button" onClick={onCancel} disabled={uploading}>
+                    Отмена
+                </button>
             </form>
         </div>
     );
 };
+
+
 
 // Основной компонент
 
@@ -612,7 +713,7 @@ const MainPage = () => {
                     setAnnouncements(data.previews || []);
                 }
 
-                           
+
             } catch (error) {
                 setError('Ошибка при загрузке данных');
             } finally {
@@ -628,7 +729,7 @@ const MainPage = () => {
     };
 
     const handleFormSubmit = (formData) => {
-        console.log('Данные формы:', formData);
+        // console.log('Данные формы:', formData);
 
         setIsCreating(false); // Скрываем форму после отправки
         setTriggerGet(!triggerGet)

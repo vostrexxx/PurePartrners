@@ -38,7 +38,7 @@ const EntityDetails = () => {
                 setIsLegalEntity(entityData.isLegalEntity);
                 setEntityData(entityData);
                 setOriginalData(entityData); // Сохраняем исходные данные
-                console.log('Данные лица:', entityData);
+                // console.log('Данные лица:', entityData);
             } catch (error) {
                 console.error(`Ошибка при выполнении запросов: ${error.message}`);
             }
@@ -110,7 +110,7 @@ const EntityDetails = () => {
             const data = await response.json();
             setOriginalData(entityData); // Обновляем исходные данные
             setIsEditable(false); // Отключаем режим редактирования
-            console.log('Данные успешно сохранены:', data);
+            // console.log('Данные успешно сохранены:', data);
         } catch (error) {
             console.error(`Ошибка при сохранении данных: ${error.message}`);
         }

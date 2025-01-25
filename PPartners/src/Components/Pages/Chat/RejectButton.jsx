@@ -12,26 +12,28 @@ const RejectButton = ({ agreementId }) => {
             newStatus: "Отклонено",
             agreementId,
         };
-        // console.log(bodyData)
-        try {
-            const response = await fetch(`${url}/agreement`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${getAuthToken()}`,
-                },
-                body: JSON.stringify(bodyData),
-            });
+        if (window.confirm("Вы уверены, что хотите отклонить соглашение?")) {
+            try {
+                const response = await fetch(`${url}/agreement`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getAuthToken()}`,
+                    },
+                    body: JSON.stringify(bodyData),
+                });
 
-            if (!response.ok) {
-                throw new Error(`Ошибка при отклонении: ${response.status}`);
+                if (!response.ok) {
+                    throw new Error(`Ошибка при отклонении: ${response.status}`);
+                }
+                navigate(`/agreement`)
+                const data = await response.json();
+                // console.log(data)
+
+            } catch (error) {
             }
-            navigate(`/agreement`)
-            const data = await response.json();
-            console.log(data)
-            
-        } catch (error) {
         }
+
     };
 
     return (

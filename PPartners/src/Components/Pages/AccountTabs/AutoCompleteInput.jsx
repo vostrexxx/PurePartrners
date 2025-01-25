@@ -37,7 +37,7 @@ const AutoCompleteInput = ({ label, name, placeholder, onCategorySelect }) => {
         } else {
             const lastWord = inputValue.trim().split(" ").pop();
             fetchSearchSuggestions(lastWord);
-            console.log(lastWord)
+            // console.log(lastWord)
         }
     }, [inputValue]);
 

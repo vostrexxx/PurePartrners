@@ -22,6 +22,7 @@ const WorkStagesBuilder = ({ agreementId }) => {
     const [modalOpen, setModalOpen] = useState(false); // Состояние открытия модального окна
     const [modalData, setModalData] = useState({ mode: '', stage: null }); // Хранение mode и stage
 
+    // const [isAvailable, setIsAvailable] = useState(false);
 
     const mode = isSpecialist ? 'contractor' : 'customer';
 
@@ -47,23 +48,31 @@ const WorkStagesBuilder = ({ agreementId }) => {
                 const { stages: fetchedStages, notUsedRawStages } = data;
 
                 if ((fetchedStages && fetchedStages.length > 0) || (notUsedRawStages && notUsedRawStages.length > 0)) {
+
+                    // setIsAvailable(false)
                     // Парсим данные из ответа и записываем в соответствующие состояния
                     setStages(
                         data.stages.map((stage) => ({
                             totalPrice: stage.totalPrice,
                             isCustomerApproved: stage.isCustomerApproved,
                             isContractorApproved: stage.isContractorApproved,
-                            id: stage.id, // Постоянный ID с бэка
+                            id: stage.id,
                             name: stage.stageTitle,
                             order: stage.stageOrder,
                             stageStatus: stage.stageStatus,
+
+                            stageBalance: stage.stageBalance,
+
+                            startDate: stage.startDate || null,
+                            finishDate: stage.finishDate || null,
                             children: stage.subStages.map((subStage) => ({
-                                id: subStage.id, // Постоянный ID для подэтапов
+                                id: subStage.id,
                                 subWorkCategoryName: subStage.subStageTitle,
                                 totalPrice: subStage.subStagePrice,
                             })),
                         }))
                     );
+
 
                     setRawStages(
                         data.notUsedRawStages.map((rawStage) => ({
@@ -89,21 +98,19 @@ const WorkStagesBuilder = ({ agreementId }) => {
 
                     const rawStagesData = await rawStagesResponse.json();
                     if (rawStagesData.rawStages) {
-                        if (rawStagesData.rawStages) {
-                            setRawStages(
-                                rawStagesData.rawStages.map((rawStage) => ({
-                                    id: rawStage.elementId, // Используем elementId как id
-                                    subWorkCategoryName: rawStage.subWorkCategoryName,
-                                    totalPrice: rawStage.totalPrice,
-                                }))
-                            );
+                        // setIsAvailable(false)
+                        setRawStages(
+                            rawStagesData.rawStages.map((rawStage) => ({
+                                id: rawStage.elementId, // Используем elementId как id
+                                subWorkCategoryName: rawStage.subWorkCategoryName,
+                                totalPrice: rawStage.totalPrice,
+                            }))
+                        );
 
-                        } else {
-                            console.error('Ошибка: поле "rawStages" отсутствует в ответе сервера.');
-                        }
                     } else {
                         console.error('Ошибка: поле "rawStages" отсутствует в ответе сервера.');
                     }
+
                 }
             } catch (error) {
                 console.error('Ошибка при загрузке этапов работ:', error.message);
@@ -142,9 +149,9 @@ const WorkStagesBuilder = ({ agreementId }) => {
         fetchIsEditing();
     }, [agreementId, authToken, url]);
 
-    useEffect(() => {
-        console.log('Stages: isEditing updated:', isEditing);
-    }, [isEditing]);
+    // useEffect(() => {
+    //     console.log('Stages: isEditing updated:', isEditing);
+    // }, [isEditing]);
 
     const handleEdit = async () => {
         setTrigger(!trigger)
@@ -190,6 +197,39 @@ const WorkStagesBuilder = ({ agreementId }) => {
             console.error('Ошибка обработки редактирования:', error);
             alert('Не удалось переключить состояние редактирования.');
         }
+    };
+
+    const handleResetStages = async () => {
+        if (window.confirm("Вы уверены, что хотите сбросить все этапы работ?")) {
+            try {
+                const params = new URLSearchParams({ agreementId });
+                const response = await fetch(`${url}/stages?${params.toString()}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка сброса: ${response.status}`);
+                }
+
+                const data = await response.json();
+                if (data.success) {
+                    setStages([])
+                    setTrigger(!trigger)
+
+                    alert('Этапы работ успешно сброшены')
+                } else {
+                    alert('Не удалось сбросить этапы, так как по некоторым из них уже ведутся работы')
+                }
+                // console.log(data)
+            } catch (error) {
+                console.error('Ошибка обработки редактирования:', error);
+            }
+        }
+
     };
 
     // Добавление нового этапа в список
@@ -281,20 +321,28 @@ const WorkStagesBuilder = ({ agreementId }) => {
 
     const handleSave = async () => {
         // Формируем список этапов
-        const formattedStages = stages.map((stage) => ({
-            isCustomerApproved: !stage.isCustomerApproved ? false : stage.isCustomerApproved,
-            isContractorApproved: !stage.isContractorApproved ? false : stage.isContractorApproved,
-            stageStatus: !stage.stageStatus ? "Не начато" : stage.stageStatus,
-            stageTitle: stage.name,
-            totalPrice: stage.children.reduce((sum, child) => sum + (child.totalPrice || 0), 0),
-            stageOrder: stage.order,
-            // isCurrent: false,
-            subStages: stage.children.map((child, index) => ({
-                subStageTitle: child.subWorkCategoryName,
-                subStagePrice: child.totalPrice || 0,
-                subStageOrder: index + 1,
-            })),
-        }));
+        const formattedStages = stages.map((stage) => {
+            const isApproved = stage.isCustomerApproved && stage.isContractorApproved;
+            
+            return {
+                isCustomerApproved: isApproved ? true : false,
+                isContractorApproved: isApproved ? true : false,
+                // stageStatus: isApproved ? stage.stageStatus || "Не начато" : "В ожидании заморозки средств",
+                stageStatus: "В ожидании заморозки средств",
+
+                stageTitle: stage.name,
+                totalPrice: stage.children.reduce((sum, child) => sum + (child.totalPrice || 0), 0),
+                stageOrder: stage.order,
+                startDate: stage.startDate,
+                finishDate: stage.finishDate,
+                subStages: stage.children.map((child, index) => ({
+                    subStageTitle: child.subWorkCategoryName,
+                    subStagePrice: child.totalPrice || 0,
+                    subStageOrder: index + 1,
+                })),
+            };
+        });
+        
 
         // Формируем список неиспользуемых rawStages
         const notUsedRawStages = rawStages.map((rawStage, index) => ({
@@ -344,7 +392,7 @@ const WorkStagesBuilder = ({ agreementId }) => {
 
             setIsEditing(null);
             alert('Этапы успешно сохранены!');
-            console.log('Ответ сервера:', data);
+            // console.log('Ответ сервера:', data);
 
             setTrigger(!trigger)
         } catch (error) {
@@ -359,34 +407,34 @@ const WorkStagesBuilder = ({ agreementId }) => {
             alert('Нельзя утвердить этап без видов работ')
         } else {
             // if (window.confirm("Вы уверены, что хотите утвердить этап?")) {
-                try {
-                    const response = await fetch(`${url}/stages/approval`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${authToken}`,
-                        },
-                        body: JSON.stringify({ elementId, agreementId, mode }),
-                    });
+            try {
+                const response = await fetch(`${url}/stages/approval`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`,
+                    },
+                    body: JSON.stringify({ elementId, agreementId, mode }),
+                });
 
-                    if (!response.ok) {
-                        throw new Error(`Ошибка сети: ${response.status}`);
-                    }
-
-                    const data = await response.json();
-                    setTrigger(!trigger)
-
-                } catch (error) {
-                    // console.error('Ошибка при сохранении этапов:', error.message);
-                    alert('Ошибка при утверждении.');
+                if (!response.ok) {
+                    throw new Error(`Ошибка сети: ${response.status}`);
                 }
+
+                const data = await response.json();
+                setTrigger(!trigger)
+
+            } catch (error) {
+                // console.error('Ошибка при сохранении этапов:', error.message);
+                alert('Ошибка при утверждении.');
+            }
             // }
         }
 
     };
 
     const handleStageStatusModalWnd = (mode, stage) => {
-        console.log(mode, stage); // Логируем для проверки
+        // console.log(mode, stage); // Логируем для проверки
         setModalData({ mode, stage }); // Сохраняем mode и stage
         setModalOpen(true); // Открываем модальное окно
     };
@@ -434,6 +482,7 @@ const WorkStagesBuilder = ({ agreementId }) => {
                                 const totalSum = stage.children.reduce((sum, child) => sum + (child.totalPrice || 0), 0);
                                 const isLocalApproved = mode === 'contractor' ? stage.isContractorApproved : stage.isCustomerApproved;
                                 const isBothApproved = stage.isContractorApproved & stage.isCustomerApproved ? true : false
+                                // console.log(stages,'asdasdadassd')
                                 return (
                                     <Droppable key={stage.id} droppableId={stage.id} isDropDisabled={isBothApproved || isEditing !== true}>
                                         {(provided) => (
@@ -463,8 +512,8 @@ const WorkStagesBuilder = ({ agreementId }) => {
 
                                                 </div>
 
+                                                {/* {console.log('asdasdadasdasdasdasd', stage)} */}
 
-                                                
                                                 {/* Утверждение */}
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                     <h5>
@@ -500,6 +549,71 @@ const WorkStagesBuilder = ({ agreementId }) => {
                                                             </Button>
                                                         )}
 
+
+
+                                                </div>
+
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        gap: '15px',
+                                                        backgroundColor: '#f9f9f9',
+                                                        padding: '10px',
+                                                        borderRadius: '8px',
+                                                        boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+                                                        marginTop: '10px',
+                                                        alignItems: 'center', // Для выравнивания полей по вертикали
+                                                    }}
+                                                >
+                                                    <TextField
+                                                        label="Дата начала"
+                                                        type="date"
+                                                        value={stage.startDate ? stage.startDate.split('T')[0] : ''}
+                                                        onChange={(e) => {
+                                                            if (isEditing === true) {
+                                                                const newStartDate = e.target.value;
+                                                                setStages((prevStages) =>
+                                                                    prevStages.map((s) =>
+                                                                        s.id === stage.id ? { ...s, startDate: newStartDate } : s
+                                                                    )
+                                                                );
+                                                            }
+                                                        }}
+                                                        InputLabelProps={{
+                                                            shrink: true,
+                                                        }}
+                                                        style={{
+                                                            backgroundColor: 'white',
+                                                            borderRadius: '5px',
+                                                            flex: 1, // Растягиваем поле ввода равномерно
+                                                        }}
+                                                        disabled={isEditing !== true}
+                                                    />
+
+                                                    <TextField
+                                                        label="Дата окончания"
+                                                        type="date"
+                                                        value={stage.finishDate ? stage.finishDate.split('T')[0] : ''}
+                                                        onChange={(e) => {
+                                                            if (isEditing === true) {
+                                                                const newFinishDate = e.target.value;
+                                                                setStages((prevStages) =>
+                                                                    prevStages.map((s) =>
+                                                                        s.id === stage.id ? { ...s, finishDate: newFinishDate } : s
+                                                                    )
+                                                                );
+                                                            }
+                                                        }}
+                                                        InputLabelProps={{
+                                                            shrink: true,
+                                                        }}
+                                                        style={{
+                                                            backgroundColor: 'white',
+                                                            borderRadius: '5px',
+                                                            flex: 1, // Растягиваем поле ввода равномерно
+                                                        }}
+                                                        disabled={isEditing !== true}
+                                                    />
                                                 </div>
 
                                                 {/* Модальное окно  */}
@@ -551,7 +665,25 @@ const WorkStagesBuilder = ({ agreementId }) => {
 
                         {/* Правая панель */}
                         <div style={{ flex: 1, marginLeft: '20px' }}>
-                            <h3>Список видов работ</h3>
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between', // Размещаем элементы по краям
+                                alignItems: 'center', // Выравниваем элементы по вертикали
+                                gap: '15px', // Для выравнивания полей по вертикали
+                            }}
+                            >
+                                <h3>Список видов работ</h3>
+                                <Button
+                                    variant="contained"
+                                    color="error"
+                                    onClick={handleResetStages}
+                                    style={{ marginRight: '10px' }}
+                                // disabled={!isEditing}
+                                >
+                                    Сбросить этапы работ
+                                </Button>
+                            </div>
+
                             <Droppable droppableId="rawStagesList" disabled={isEditing !== true}>
                                 {(provided) => (
                                     <div
@@ -616,6 +748,8 @@ const WorkStagesBuilder = ({ agreementId }) => {
                         Закрыть
                     </Button>
                 </div>
+
+
             </Drawer>
 
 

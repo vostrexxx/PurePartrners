@@ -219,7 +219,7 @@ const ProfilePage = () => {
                 if (data.profile) {
                     setProfileData(data.profile);
                     setFullName(data.profile.surname + ' ' + data.profile.name[0] + '.' + data.profile.patronymic[0] + '.')
-                    console.log(fullName)
+                    // console.log(fullName)
                     setAvatarPath(data.profile.avatar || null);
                     const passportPath = data.profile.passport || [];
                     setPassportPhoto1(passportPath[0] || null);
@@ -253,7 +253,7 @@ const ProfilePage = () => {
                 }
 
                 const data = await response.json();
-                console.log('Ю', data)
+                // console.log('Ю', data)
                 setLegal(data);
             } catch (error) {
                 setError(`Ошибка при загрузке данных профиля: ${error.message}`);
@@ -275,7 +275,7 @@ const ProfilePage = () => {
                 }
 
                 const data = await response.json();
-                console.log('Ф', data)
+                // console.log('Ф', data)
                 setPerson(data)
             } catch (error) {
                 setError(`Ошибка при загрузке данных профиля: ${error.message}`);

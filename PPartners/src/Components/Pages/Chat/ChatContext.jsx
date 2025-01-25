@@ -14,7 +14,7 @@ const ChatContext = ({ agreementId }) => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        console.log('Agreement ID in ChatContext:', agreementId);
+        // console.log('Agreement ID in ChatContext:', agreementId);
 
         // Проверка наличия `agreementId`
         if (!agreementId) {

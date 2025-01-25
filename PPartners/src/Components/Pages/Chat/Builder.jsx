@@ -3,6 +3,8 @@ import { TextField, Button, Select, MenuItem, IconButton, Drawer } from '@mui/ma
 import { Add, Remove, Menu } from '@mui/icons-material';
 import ChangeCard from './ChangeCard';
 import BuilderModalWnd from './BuilderModalWnd';
+import DocumentManager from './DocumentManager';
+import { EventSourcePolyfill } from 'event-source-polyfill';
 
 const Builder = ({ agreementId }) => {
     const [estimate, setEstimate] = useState([]);
@@ -21,8 +23,12 @@ const Builder = ({ agreementId }) => {
 
     const [triggerGet, setTriggerGet] = useState(false);
 
+    const [triggerEstimate, setTriggerEstimate] = useState(false);
+    const [triggerChangeCards, setTriggerChangeCards] = useState(false);
+
+
     const [modalOpen, setModalOpen] = useState(false); // Состояние открытия модального окна
-    
+
     const closeModal = () => {
         setModalOpen(false); // Закрываем модальное окно
     };
@@ -30,6 +36,48 @@ const Builder = ({ agreementId }) => {
     const handleOpenModal = () => {
         setModalOpen(true); // Открываем модальное окно
     };
+
+    const triggerChangeCards_triggerEstimate = () => {
+        setTriggerChangeCards(!triggerChangeCards);
+        setTriggerEstimate(!triggerEstimate);
+    };
+
+
+    const [events, setEvents] = useState([]);
+
+    useEffect(() => {
+        const eventSource = new EventSourcePolyfill(`${url}/categories/events/${agreementId}`, {
+            headers: {
+                Authorization: `Bearer ${authToken}`,
+            },
+        });
+
+        eventSource.onopen = () => {
+            console.log("SSE для сметы  соединение установлено");
+        };
+
+        eventSource.onmessage = (event) => {
+            console.log("SSE msg: event.data - ", event.data)
+
+            if (event.data === 'triggerChangeCards') {
+                    setTriggerChangeCards(!triggerChangeCards)
+            }
+
+            if (event.data === 'triggerEstimate') {
+                setTriggerEstimate(!triggerEstimate)
+            }
+        };
+
+        eventSource.onerror = (error) => {
+            console.error("Ошибка SSE:", error);
+            eventSource.close();
+        };
+
+        return () => {
+            eventSource.close();
+        };
+    }, [agreementId, authToken, url]);
+
 
     useEffect(() => {
         const fetchGetChanges = async () => {
@@ -54,12 +102,12 @@ const Builder = ({ agreementId }) => {
         };
 
         fetchGetChanges();
-    }, [agreementId, authToken, triggerGet]);
+    }, [agreementId, authToken, triggerChangeCards]);
 
     useEffect(() => {
         const fetchIsEditing = async () => {
             try {
-                const response = await fetch(`${url}/stages/is-editing?agreementId=${agreementId}`, {
+                const response = await fetch(`${url}/categories/is-editing?agreementId=${agreementId}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -86,9 +134,9 @@ const Builder = ({ agreementId }) => {
     }, [agreementId, authToken, url]);
 
     // Debug для isEditing
-    useEffect(() => {
-        console.log('isEditing updated:', isEditing);
-    }, [isEditing]);
+    // useEffect(() => {
+    //     console.log('isEditing updated:', isEditing);
+    // }, [isEditing]);
 
 
     // Функция для обработки кнопки "Редактировать"
@@ -183,7 +231,7 @@ const Builder = ({ agreementId }) => {
         };
 
         fetchEstimate();
-    }, [agreementId, authToken, url, triggerGet]);
+    }, [agreementId, authToken, url, triggerEstimate]);
 
     const handleAddOrangeItem = (initialName = '') => {
         const newOrange = {
@@ -415,14 +463,26 @@ const Builder = ({ agreementId }) => {
 
 
     const handleFormated = async () => {
-        const response = await fetch(`${url}/document/estimate`, {
-            method: 'POST',
+
+        const params = new URLSearchParams({ agreementId });
+        fetch(`${url}/document/presence?${params.toString()}`, {
+            method: 'GET',
             headers: {
-                'Content-Type': 'application/json',
                 Authorization: `Bearer ${authToken}`,
             },
-            body: JSON.stringify({ estimate, agreementId }),
-        });
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Ошибка при получении информации по документам: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((data) => {
+            })
+            .catch((error) => {
+                console.error(`Ошибка при получении информации по документам: ${error.message}`);
+            });
+
     }
 
     // Функция для сохранения сметы
@@ -445,6 +505,29 @@ const Builder = ({ agreementId }) => {
                 alert('Смета успешно сохранена!');
                 setOriginalEstimate([...estimate]);
                 setIsNewBuilder(false);
+
+                // Сбрасываем состояние редактирования
+                const postResponse = await fetch(`${url}/categories/is-editing`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                    body: JSON.stringify({
+                        agreementId,
+                        isEditing: null,
+                        initiatorId: userId
+
+                    }),
+                });
+
+                if (!postResponse.ok) {
+                    throw new Error(`Ошибка сброса состояния редактирования: ${postResponse.status}`);
+                }
+
+                setIsEditing(null);
+                // setTriggerGet(!triggerGet)
+
             } else {
                 const changes = generateChanges(originalEstimate, estimate);
                 const response = await fetch(`${url}/categories/changes`, {
@@ -483,7 +566,7 @@ const Builder = ({ agreementId }) => {
                 }
 
                 setIsEditing(null);
-                setTriggerGet(!triggerGet)
+                // setTriggerGet(!triggerGet)
             }
         } catch (error) {
             console.error('Ошибка сохранения изменений:', error);
@@ -544,7 +627,7 @@ const Builder = ({ agreementId }) => {
                         isOpen={modalOpen}
                         onClose={closeModal}
                         agreementId={agreementId}
-                        onTrigger={() => setTriggerGet(!triggerGet)}
+                    // onTrigger={() => setTriggerGet(!triggerGet)}
 
                     />
 
@@ -679,7 +762,7 @@ const Builder = ({ agreementId }) => {
                                             authToken={authToken}
                                             agreementId={agreementId}
                                             userId={userId}
-                                            onTrigger={() => setTriggerGet(!triggerGet)} // Передаем функцию изменения триггера
+                                            onTrigger={() => triggerChangeCards_triggerEstimate()} // Передаем функцию изменения триггера
                                         />
                                     ))}
                             </React.Fragment>
@@ -701,7 +784,7 @@ const Builder = ({ agreementId }) => {
                                     authToken={authToken}
                                     agreementId={agreementId}
                                     userId={userId}
-                                    onTrigger={() => setTriggerGet(!triggerGet)} // Передаем функцию изменения триггера
+                                    onTrigger={() => triggerChangeCards_triggerEstimate()} // Передаем функцию изменения триггера
                                 />
                             ))}
                     </div>
@@ -711,7 +794,7 @@ const Builder = ({ agreementId }) => {
                         <Button
                             variant="contained"
                             color="primary"
-                            onClick={() => handleAddOrangeItem('Новая категория')}
+                            onClick={() => handleAddOrangeItem()}
                             style={{ backgroundColor: 'orange', marginRight: '10px' }}
                             disabled={isEditing !== true}
                         >
@@ -727,13 +810,9 @@ const Builder = ({ agreementId }) => {
                             Сохранить
                         </Button>
 
-                        {/* <Button style={{marginLeft: '10px'}}
-                            variant="contained"
-                            color="secondary"
-                            onClick={handleFormated}
-                        >
-                            Сформировать смету
-                        </Button> */}
+                        {/* console.log('Estimate:', estimate); */}
+                        {Array.isArray(estimate) && estimate.length > 0 ? <DocumentManager agreementId={agreementId} /> : null}
+
                     </div>
                 </div>
             </Drawer>

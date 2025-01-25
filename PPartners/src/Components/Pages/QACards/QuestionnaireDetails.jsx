@@ -28,6 +28,10 @@ const QuestionnaireDetails = () => {
 
     const [trigger, setTrigger] = useState(false);
 
+    const [images, setImages] = useState([]);
+    const [newImages, setNewImages] = useState([]);
+    const [selectedImage, setSelectedImage] = useState(null);
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -49,7 +53,7 @@ const QuestionnaireDetails = () => {
 
                 if (data.success === 1 && data.questionnaireInfo) {
                     setQuestionnaire(data.questionnaireInfo);
-                    
+
                     //шаг2
                     const entityId = data.questionnaireInfo.entityId; // Получаем ID лица из объявления
                     setEntityId(entityId);
@@ -71,7 +75,7 @@ const QuestionnaireDetails = () => {
                             const entityData = await entityResponse.json();
                             setIsLegalEntity(entityData.isLegalEntity)
                             setEntityData(entityData)
-                            console.log('Данные лица:', entityData); // Логируем данные лица
+                            // console.log('Данные лица:', entityData); // Логируем данные лица
                         };
 
                         await fetchEntity(entityId); // Выполняем запрос для получения данных лица
@@ -91,10 +95,120 @@ const QuestionnaireDetails = () => {
         fetchData();
     }, [id, url, trigger]);
 
+    useEffect(() => {
+        const fetchImages = async () => {
+            if (questionnaire?.questionnaireImages) {
+                const loadedImages = await Promise.all(
+                    questionnaire.questionnaireImages.map(async (imagePath) => {
+                        const params = new URLSearchParams({ imagePath });
+                        const response = await fetch(`${url}/questionnaire/image?${params.toString()}`, {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${getAuthToken()}`,
+                            },
+                        });
+
+                        if (!response.ok) {
+                            console.error(`Ошибка загрузки изображения: ${imagePath}`);
+                            return null;
+                        }
+
+                        const blob = await response.blob();
+                        return URL.createObjectURL(blob); // Создаем объект URL для изображения
+                    })
+                );
+
+                setImages(loadedImages.filter((img) => img !== null)); // Исключаем неудачные загрузки
+            }
+        };
+
+        if (questionnaire) {
+            fetchImages();
+        }
+    }, [questionnaire, url]);
 
     const handleEditClick = () => setIsEditable(true);
     const handleOpenReaction = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
+
+    const handleImageClick = (image) => {
+        setSelectedImage(image); // Устанавливаем выбранное изображение
+    };
+
+    const handleCloseImageModal = () => {
+        setSelectedImage(null); // Закрываем модальное окно
+    };
+
+    const handleAddImages = (e) => {
+        const files = Array.from(e.target.files);
+        setNewImages((prev) => [...prev, ...files]); // Добавляем новые файлы к уже выбранным
+    };
+
+    const handleCancelUpload = () => {
+        setNewImages([]); // Очищаем список новых фотографий
+    };
+
+    const handleUploadImages = async () => {
+        if (newImages.length === 0) {
+            alert('Вы не выбрали фотографии для загрузки.');
+            return;
+        }
+
+        try {
+            const formData = new FormData();
+            newImages.forEach((file) => formData.append('files', file)); // Добавляем все выбранные файлы
+            formData.append('questionnaireId', id); // Добавляем ID объявления
+            formData.append('type', 'image');
+            const response = await fetch(`${url}/questionnaire/files`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${getAuthToken()}`, // Заголовок авторизации
+                },
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error(`Ошибка при загрузке фотографий: ${response.status}`);
+            }
+
+            alert('Фотографии успешно загружены.');
+            setNewImages([]); // Очищаем локальное состояние после успешной отправки
+            setTrigger(!trigger); // Обновляем данные объявления
+        } catch (error) {
+            console.error('Ошибка при загрузке фотографий:', error);
+            alert('Не удалось загрузить фотографии.');
+        }
+    };
+
+    const handleDeleteImage = async (filePath) => {
+        if (window.confirm('Вы уверены, что хотите удалить это фото?')) {
+            try {
+                const params = new URLSearchParams({ filePath });
+                const response = await fetch(`${url}/questionnaire/file?${params.toString()}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${getAuthToken()}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка при удалении изображения: ${response.status}`);
+                }
+
+                alert('Изображение успешно удалено.');
+
+                // Удаляем изображение из локального состояния после успешного удаления
+                setImages((prevImages) => prevImages.filter((img) => img !== filePath));
+                setQuestionnaire((prev) => ({
+                    ...prev,
+                    questionnaireImages: prev.questionnaireImages.filter((img) => img !== filePath),
+                }));
+            } catch (error) {
+                console.error('Ошибка при удалении изображения:', error);
+                alert('Не удалось удалить изображение.');
+            }
+        }
+    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -205,7 +319,7 @@ const QuestionnaireDetails = () => {
 
     const handleSelectEntity = (id) => {
         setSelectedEntityId(id);
-        console.log(id)
+        // console.log(id)
     };
 
 
@@ -327,7 +441,7 @@ const QuestionnaireDetails = () => {
                     style={styles.input}
                 />
 
-                <label htmlFor="prices">Стоимость услуг</label>
+                <label htmlFor="prices">Расценки</label>
                 <input
                     type="text"
                     name="prices"
@@ -338,97 +452,189 @@ const QuestionnaireDetails = () => {
                     style={styles.input}
                 />
 
-                {questionnaire.questionnaireImages ? (
+                <div>
                     <div>
-                        <img
-                            src={questionnaire.questionnaireImages}
-                            alt="Фото анкеты"
-                            style={{ width: '300px', marginTop: '20px' }}
-                        />
+                        <h4>Прикрепленные фотографии:</h4>
+                        {images.length > 0 ? (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                                {questionnaire.questionnaireImages.map((imagePath, index) => (
+                                    <div key={index} style={{ position: 'relative', display: 'inline-block' }}>
+                                        <img
+                                            src={images[index]}
+                                            alt={`Фото ${index + 1}`}
+                                            style={{
+                                                width: '150px',
+                                                height: '150px',
+                                                objectFit: 'cover',
+                                                borderRadius: '8px',
+                                                cursor: 'pointer',
+                                            }}
+                                            onClick={() => handleImageClick(images[index])} // Открытие модального окна
+                                        />
+                                        {isEditable && (
+                                            <button
+                                                onClick={() => handleDeleteImage(imagePath)}
+                                                style={{
+                                                    position: 'absolute',
+                                                    top: '5px',
+                                                    right: '5px',
+                                                    background: 'red',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '50%',
+                                                    width: '20px',
+                                                    height: '20px',
+                                                    cursor: 'pointer',
+                                                }}
+                                            >
+                                                ×
+                                            </button>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p>Фотографии отсутствуют</p>
+                        )}
                     </div>
-                ) : (
-                    <p>Изображение не предоставлено</p>
-                )}
 
-{location.state?.fromLk === null ? null : (
-                        <div>
-                            {!isEditable && canEditOrDelete ? (
-                                <>
-
-                                    <h3>Данные по лицу</h3>
-                                    {!entityId ?
-                                        (
-                                            <div>
-                                                <div>Лицо не привязано</div>
-                                                <EntityCard onSelectEntity={handleSelectEntity} />
-                                                <button onClick={() => handleEventEntity("link")}>Привязать лицо</button>
-
-                                            </div>
-                                        ) : (
-                                            <>
-                                                {entityData ? (
-                                                    isLegalEntity ? (
-                                                        <div>
-                                                            <h3 style={{ textAlign: 'center', color: 'white' }}>Ваше юридическое лицо</h3>
-                                                            <div
-                                                                style={{
-                                                                    padding: '10px',
-                                                                    margin: '5px 0',
-                                                                    backgroundColor: '#4114f5',
-                                                                    border: '1px solid green',
-                                                                    borderRadius: '5px',
-                                                                    cursor: 'pointer',
-                                                                }}
-                                                            >
-                                                                <strong>{entityData.firm}</strong>
-                                                                <p>ИНН: {entityData.inn}</p>
-                                                            </div>
-                                                        </div>
-                                                    ) : (
-                                                        <div>
-                                                            <h3 style={{ textAlign: 'center', color: 'white' }}>Ваше физическое лицо</h3>
-                                                            <div
-                                                                style={{
-                                                                    padding: '10px',
-                                                                    margin: '5px 0',
-                                                                    backgroundColor: '#4114f5',
-                                                                    border: '1px solid green',
-                                                                    borderRadius: '5px',
-                                                                    cursor: 'pointer',
-                                                                }}
-                                                            >
-                                                                <strong>{entityData.fullName}</strong>
-                                                                <p>ИНН: {entityData.inn}</p>
-                                                            </div>
-                                                        </div>
-                                                    )
-                                                ) : (
-                                                    <div>Загрузка данных лица...</div>
-                                                )}
-
-                                                <button onClick={() => handleEventEntity("unlink")}>Отвязать лицо</button>
-                                            </>
-                                        )
-                                    }
-
-                                    <button onClick={handleEditClick} style={styles.button}>
-                                        Редактировать
+                    {isEditable && (
+                        <div style={{ marginTop: '20px' }}>
+                            <h4>Добавить новые фотографии:</h4>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                onChange={handleAddImages}
+                            />
+                            {newImages.length > 0 && (
+                                <div>
+                                    <h5>Выбранные фотографии:</h5>
+                                    <ul>
+                                        {newImages.map((file, index) => (
+                                            <li key={index}>{file.name}</li>
+                                        ))}
+                                    </ul>
+                                    <button onClick={handleUploadImages} style={{ marginRight: '10px', background: 'green', color: 'white', padding: '10px' }}>
+                                        Отправить
                                     </button>
-                                    <button onClick={handleDeleteClick} style={styles.deleteButton}>
-                                        Удалить
+                                    <button onClick={handleCancelUpload} style={{ background: 'red', color: 'white', padding: '10px' }}>
+                                        Отменить
                                     </button>
-                                </>
-                            ) : isEditable ? (
-                                <button onClick={handleSaveClick} style={styles.button}>
-                                    Сохранить
-                                </button>
-                            ) : (
-                                <button onClick={handleOpenReaction} style={styles.button}>
-                                    Откликнуться
-                                </button>
+                                </div>
                             )}
                         </div>
                     )}
+
+                    {selectedImage && (
+                        <div
+                            onClick={handleCloseImageModal}
+                            style={{
+                                position: 'fixed',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                zIndex: 1000,
+                                cursor: 'pointer',
+                            }}
+                        >
+                            <img
+                                src={selectedImage}
+                                alt="Просмотр изображения"
+                                style={{
+                                    maxWidth: '90%',
+                                    maxHeight: '90%',
+                                    borderRadius: '10px',
+                                }}
+                            />
+                        </div>
+                    )}
+                </div>
+
+                {location.state?.fromLk === null ? null : (
+                    <div>
+                        {!isEditable && canEditOrDelete ? (
+                            <>
+
+                                <h3>Данные по лицу</h3>
+                                {!entityId ?
+                                    (
+                                        <div>
+                                            <div>Лицо не привязано</div>
+                                            <EntityCard onSelectEntity={handleSelectEntity} />
+                                            <button onClick={() => handleEventEntity("link")}>Привязать лицо</button>
+
+                                        </div>
+                                    ) : (
+                                        <>
+                                            {entityData ? (
+                                                isLegalEntity ? (
+                                                    <div>
+                                                        <h3 style={{ textAlign: 'center', color: 'white' }}>Ваше юридическое лицо</h3>
+                                                        <div
+                                                            style={{
+                                                                padding: '10px',
+                                                                margin: '5px 0',
+                                                                backgroundColor: '#4114f5',
+                                                                border: '1px solid green',
+                                                                borderRadius: '5px',
+                                                                cursor: 'pointer',
+                                                            }}
+                                                        >
+                                                            <strong>{entityData.firm}</strong>
+                                                            <p>ИНН: {entityData.inn}</p>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div>
+                                                        <h3 style={{ textAlign: 'center', color: 'white' }}>Ваше физическое лицо</h3>
+                                                        <div
+                                                            style={{
+                                                                padding: '10px',
+                                                                margin: '5px 0',
+                                                                backgroundColor: '#4114f5',
+                                                                border: '1px solid green',
+                                                                borderRadius: '5px',
+                                                                cursor: 'pointer',
+                                                            }}
+                                                        >
+                                                            <strong>{entityData.fullName}</strong>
+                                                            <p>ИНН: {entityData.inn}</p>
+                                                        </div>
+                                                    </div>
+                                                )
+                                            ) : (
+                                                <div>Загрузка данных лица...</div>
+                                            )}
+
+                                            <button onClick={() => handleEventEntity("unlink")}>Отвязать лицо</button>
+                                        </>
+                                    )
+                                }
+
+                                <button onClick={handleEditClick} style={styles.button}>
+                                    Редактировать
+                                </button>
+                                <button onClick={handleDeleteClick} style={styles.deleteButton}>
+                                    Удалить
+                                </button>
+                            </>
+                        ) : isEditable ? (
+                            <button onClick={handleSaveClick} style={styles.button}>
+                                Сохранить
+                            </button>
+                        ) : (
+                            <button onClick={handleOpenReaction} style={styles.button}>
+                                Откликнуться
+                            </button>
+                        )}
+                    </div>
+                )}
 
                 <ReactionWindow
                     isOpen={isModalOpen}

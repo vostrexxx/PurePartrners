@@ -12,7 +12,7 @@ const ChatPage = () => {
     const location = useLocation();
     const agreementId = location.state?.agreementId;
 
-    console.log(agreementId);
+    // console.log(agreementId);
 
     return (
         <div style={styles.container}>
@@ -34,7 +34,7 @@ const ChatPage = () => {
             <div style={styles.rightPanel}>
                 <Builder agreementId={agreementId} />
                 <WorkStagesBuilder agreementId={agreementId} />
-                <DocumentManager agreementId={agreementId} />
+                {/* <DocumentManager agreementId={agreementId} /> */}
 
             </div>
         </div>

@@ -37,7 +37,7 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
         })
         .then((data) => {
             setIsChatExists(data.isChatExists);
-            console.log("Обновлено isChatExists:", data.isChatExists);
+            // console.log("Обновлено isChatExists:", data.isChatExists);
         })
         .catch((error) => {
             console.error("Ошибка:", error);
@@ -80,7 +80,7 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log("data", data)
+                    // console.log("data", data)
 
                     if (type === 'questionnaire') {
                         setQuestionnaireData(data);
@@ -101,7 +101,7 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
 
     const renderCard = (data, type) => {
         if (!data) return <p>Данные не загружены</p>;
-        console.log(data)
+        // console.log(data)
         return (
             <Card
                 title={type === 'questionnaire' ? data.workCategories : data.workCategories}
@@ -202,7 +202,7 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
                         return response.json();
                     })
                     .then((data) => {
-                        console.log('Успешный ответ:', data);
+                        // console.log('Успешный ответ:', data);
                     })
                     .catch((error) => {
                         console.error('Ошибка:', error.message);
@@ -235,7 +235,7 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
                 navigate(`/chat/${chatId}`, { state: { agreementId: response.agreementId } });
             })
             .catch((error) => {
-                console.log(`Ошибка при получении информации по соглашению: ${error.message}`);
+                console.error(`Ошибка при получении информации по соглашению: ${error.message}`);
             });
     };
     

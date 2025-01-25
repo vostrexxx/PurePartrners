@@ -79,7 +79,7 @@ const FormPage = () => {
                 const customerData = await customerResponse.json();
     
                 if (customerData.success === 0) {
-                    console.log('Ответ success: 0, устанавливаем значения по умолчанию');
+                    // console.log('Ответ success: 0, устанавливаем значения по умолчанию');
                     setFormData({
                         totalCost: '', //
                         other: '',// 
@@ -106,7 +106,7 @@ const FormPage = () => {
                     const errorMessage = await imageResponse.text();
                     if (errorMessage.includes("Image not found")) {
                         // Изображение не найдено, не выводим ошибку, оставляем форму для загрузки фото
-                        console.log('Изображение не найдено. Показать форму для загрузки фото.');
+                        // console.log('Изображение не найдено. Показать форму для загрузки фото.');
                     } else {
                         throw new Error('Ошибка сети при загрузке изображения');
                     }
@@ -273,17 +273,6 @@ const FormPage = () => {
                 disabled={!isEditable}
             />
             
-            {/* totalCost: '',
-        workCategories: '',
-        metro: '',
-        house: '',
-        other: '',
-        hasOther: false,
-        objectName: '',
-        startDate: '',
-        finishDate: '',
-        comments: '' */}
-
             <FormField
                 type="text"
                 label="Категории ваших работ"

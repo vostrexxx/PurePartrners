@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaUserCircle } from 'react-icons/fa';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { format } from 'date-fns';
 import Card from '../../Previews/Card';
 import SearchComponent from '../SearchComponent/SearchComponent';
 import TopBar from '../TopBar/TopBar';
@@ -19,14 +20,14 @@ const MainPage = () => {
     const [error, setError] = useState(null);
     const [filterParams, setFilterParams] = useState({
         minPrice: 0,
-        maxPrice: 100000,
+        maxPrice: 10000000,
         experience: 0,
-        totalCost: [0, 500000],
+        totalCost: [0, 10000000],
         startDate: null,
         finishDate: null,
         hasTeam: 'any', // "any" (по умолчанию), "yes", или "no"
         hasEdu: false,
-        hasOther: false,
+        isNonFixedPrice: false,
         workCategories: ''
     });
     const [appliedFilters, setAppliedFilters] = useState({ ...filterParams });
@@ -38,19 +39,19 @@ const MainPage = () => {
 
     const handleSearch = async (searchText) => {
         setLoading(true);
-    
+
         try {
             const params = new URLSearchParams();
-    
+
             // Поисковый текст
             params.append('text', searchText || '');
-    
+
             // Общая стоимость: разбиваем на minPrice и maxPrice
             if (appliedFilters.totalCost && appliedFilters.totalCost.length === 2) {
                 params.append('minPrice', appliedFilters.totalCost[0]);
                 params.append('maxPrice', appliedFilters.totalCost[1]);
             }
-    
+
             // Минимальная и максимальная цена
             if (appliedFilters.minPrice > 0) {
                 params.append('minPrice', appliedFilters.minPrice);
@@ -58,17 +59,17 @@ const MainPage = () => {
             if (appliedFilters.maxPrice < 100000) {
                 params.append('maxPrice', appliedFilters.maxPrice);
             }
-    
+
             // Опыт работы
             if (appliedFilters.experience > 0) {
                 params.append('minWorkExp', appliedFilters.experience);
             }
-    
+
             // Фильтр "Есть образование"
             if (appliedFilters.hasEdu) {
                 params.append('hasEdu', 'true');
             }
-    
+
             // Фильтр команды
             if (appliedFilters.hasTeam === 'yes') {
                 params.append('hasTeam', 'true');
@@ -76,25 +77,26 @@ const MainPage = () => {
             if (appliedFilters.hasTeam === 'no') {
                 params.append('hasTeam', 'false');
             }
-    
+
             // Если пользователь не специалист
-            if (!isSpecialist) {
-                if (appliedFilters.hasOther) {
-                    params.append('hasOther', '1');
-                }
-                if (appliedFilters.startDate) {
-                    params.append('startDate', appliedFilters.startDate.toISOString());
-                }
-                if (appliedFilters.finishDate) {
-                    params.append('finishDate', appliedFilters.finishDate.toISOString());
-                }
+            // if (!isSpecialist) {
+            if (appliedFilters.isNonFixedPrice) {
+                params.append('isNonFixedPrice', '1');
             }
-    
+            if (appliedFilters.startDate) {
+                params.append('startDate', formatDate(appliedFilters.startDate));
+            }
+            if (appliedFilters.finishDate) {
+                params.append('finishDate', formatDate(appliedFilters.finishDate));
+            }
+            
+            // }
+
             // Формируем URL с параметрами
             const urlWithParams = isSpecialist
                 ? `${url}/announcement/filter?${params.toString()}`
                 : `${url}/questionnaire/filter?${params.toString()}`;
-    
+
             // Выполняем запрос
             const response = await fetch(urlWithParams, {
                 method: 'GET',
@@ -103,9 +105,9 @@ const MainPage = () => {
                     Authorization: `Bearer ${getAuthToken()}`,
                 },
             });
-    
+
             const data = await response.json();
-    
+
             // Обновляем состояние на основе роли пользователя
             if (isSpecialist) {
                 setAnnouncements(data.previews || []);
@@ -118,6 +120,12 @@ const MainPage = () => {
             setLoading(false);
         }
     };
+
+
+    const formatDate = (date) => {
+        if (!date) return '';
+        return format(date, 'yyyy-MM-dd');
+    };
     
 
     const handleFilterChange = (e, newValue) => {
@@ -127,6 +135,14 @@ const MainPage = () => {
             [name]: type === 'checkbox' ? checked : newValue || value
         });
     };
+
+    const handleDateChange = (name, date) => {
+        setFilterParams((prev) => ({
+            ...prev,
+            [name]: date, // Сохраняем дату в состояние
+        }));
+    };
+
 
     const handleHasTeamChange = (event) => {
         setFilterParams({
@@ -148,7 +164,7 @@ const MainPage = () => {
         const fetchData = async () => {
             setLoading(true);
             setError(null);
-    
+
             try {
                 let response;
                 const params = new URLSearchParams({ text: "" });
@@ -180,16 +196,16 @@ const MainPage = () => {
                 setLoading(false);
             }
         };
-    
-            fetchData();
-        
+
+        fetchData();
+
     }, [isSpecialist]);
-    
-    
+
+
 
     return (
         <div>
-            <TopBar></TopBar>
+            <TopBar />
 
             <div style={styles.mainContent}>
                 {isSpecialist ? <div>Поиск объявлений</div> : <div>Поиск анкет</div>}
@@ -240,14 +256,14 @@ const MainPage = () => {
                                 max={50}
                                 name="experience"
                                 label="Опыт работы (лет)"
-                            /> 
+                            />
                             <h5>Минимальная цена</h5>
                             <Slider
                                 value={filterParams.minPrice}
                                 onChange={(e, newValue) => handleFilterChange(e, newValue)}
                                 valueLabelDisplay="auto"
                                 min={0}
-                                max={100000}
+                                max={10000000}
                                 name="minPrice"
                                 label="Минимальная цена"
                             />
@@ -258,34 +274,25 @@ const MainPage = () => {
                                 <DatePicker
                                     label="Дата начала"
                                     value={filterParams.startDate}
-                                    onChange={(date) => handleFilterChange({ target: { name: 'startDate', value: date } })}
+                                    onChange={(date) => handleDateChange('startDate', date)}
                                     renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
                                 />
                                 <DatePicker
                                     label="Дата окончания"
                                     value={filterParams.finishDate}
-                                    onChange={(date) => handleFilterChange({ target: { name: 'finishDate', value: date } })}
+                                    onChange={(date) => handleDateChange('finishDate', date)}
                                     renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
                                 />
+
                             </LocalizationProvider>
-                            
-                            {/* <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={filterParams.hasOther}
-                                        onChange={handleFilterChange}
-                                        name="hasOther"
-                                    />
-                                }
-                                label="Цена под договору"
-                            /> */}
+
                             <h5>Общая стоимость</h5>
                             <Slider
                                 value={filterParams.totalCost}
                                 onChange={(e, newValue) => handleFilterChange(e, newValue)}
                                 valueLabelDisplay="auto"
                                 min={0}
-                                max={1000000}
+                                max={10000000}
                                 name="totalCost"
                                 label="Общая стоимость"
                             />

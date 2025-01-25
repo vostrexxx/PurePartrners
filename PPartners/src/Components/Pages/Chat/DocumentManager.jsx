@@ -195,6 +195,7 @@ const DocumentManager = ({ agreementId }) => {
                 currAcc: contractorEntityData.currAcc,
                 bik: contractorEntityData.bik,
                 bank: contractorEntityData.bank,
+                account: contractorEntityData.account
             };
 
             const customerData = {
@@ -287,11 +288,11 @@ const DocumentManager = ({ agreementId }) => {
             }}
         >
             <h3 style={{ textAlign: 'center', marginBottom: '20px' }}>Управление документами</h3>
-    
+
             {[
-                { label: 'Договор', isReady: isContractReady, type: 'contract', icon: <FaFileWord size={24} /> },
+                // { label: 'Договор', isReady: isContractReady, type: 'contract', icon: <FaFileWord size={24} /> },
                 { label: 'Смета', isReady: isEstimateReady, type: 'estimate', icon: <FaFileExcel size={24} /> },
-                { label: 'Акт', isReady: isActReady, type: 'act', icon: <FaFilePdf size={24} /> },
+                // { label: 'Акт', isReady: isActReady, type: 'act', icon: <FaFilePdf size={24} /> },
             ].map((doc) => (
                 <div
                     key={doc.type}
@@ -375,7 +376,7 @@ const DocumentManager = ({ agreementId }) => {
             ))}
         </div>
     );
-    
+
 };
 
 export default DocumentManager;

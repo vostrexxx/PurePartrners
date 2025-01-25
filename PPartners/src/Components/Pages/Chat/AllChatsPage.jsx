@@ -62,7 +62,7 @@ const AllChatsPage = () => {
                 navigate(`/chat/${chatId}`, { state: { agreementId: response.agreementId } });
             })
             .catch((error) => {
-                console.log(`Ошибка при получении информации по соглашению: ${error.message}`);
+                console.error(`Ошибка при получении информации по соглашению: ${error.message}`);
             });
     };
         
