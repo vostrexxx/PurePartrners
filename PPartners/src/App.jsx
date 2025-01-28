@@ -20,32 +20,45 @@ import AC from './Components/Pages/AccountTabs/AutoCompleteInput';
 // import BT from './Components/Pages/Chat/BuilderTest';
 import EntityDetailes from './Components/Previews/EntityDetails'
 import BalancePage from './Components/Pages/Balance/BalancePage';
+import { requestPermission } from '../firebase'; // Убедитесь, что путь правильный
 
-global.global = global;  
+global.global = global;
 const App = () => {
-    return (
-        <Router>
-            <Routes>
-                <Route path="/" element={<NonAuthMainPage />} />
-                <Route path="/identification" element={<IdentificationPage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegistrationPage />} />
-                <Route path="/main" element={<MainPage />} />
-                <Route path="/personal-information" element={<ProfilePage />} />
-                <Route path="/phone-enter" element={<PhoneNumberEnteringPage />} />
-                <Route path="/passcode-enter" element={<EnterCodePage />} />
-                <Route path="/password-reset" element={<PasswordResetPage />} />
-                <Route path="/account-actions" element={<PageWTabs />} />
-                <Route path="/questionnaire/:id" element={<QuestionnaireDetails />} />
-                <Route path="/announcement/:id" element={<AnnouncementDetails />} />
-                <Route path="/agreement" element={<AgreementPage />} />
-                <Route path="/chat/:chatId" element={<ChatPage />} />
-                <Route path="/all-chats" element={<AllChatsPage />} />
-                <Route path="/entity/:id" element={< EntityDetailes/>} />
-                <Route path="/balance" element={< BalancePage/>} />
-            </Routes>
-        </Router>
-    );
+
+  useEffect(() => {
+    const getFCMToken = async () => {
+      const token = await requestPermission();
+      if (token) {
+        console.log('FCM токен получен и отправлен на сервер:', token);
+      }
+    };
+
+    getFCMToken();
+  }, []);
+
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<NonAuthMainPage />} />
+        <Route path="/identification" element={<IdentificationPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegistrationPage />} />
+        <Route path="/main" element={<MainPage />} />
+        <Route path="/personal-information" element={<ProfilePage />} />
+        <Route path="/phone-enter" element={<PhoneNumberEnteringPage />} />
+        <Route path="/passcode-enter" element={<EnterCodePage />} />
+        <Route path="/password-reset" element={<PasswordResetPage />} />
+        <Route path="/account-actions" element={<PageWTabs />} />
+        <Route path="/questionnaire/:id" element={<QuestionnaireDetails />} />
+        <Route path="/announcement/:id" element={<AnnouncementDetails />} />
+        <Route path="/agreement" element={<AgreementPage />} />
+        <Route path="/chat/:chatId" element={<ChatPage />} />
+        <Route path="/all-chats" element={<AllChatsPage />} />
+        <Route path="/entity/:id" element={< EntityDetailes />} />
+        <Route path="/balance" element={< BalancePage />} />
+      </Routes>
+    </Router>
+  );
 };
 
 export default App;
