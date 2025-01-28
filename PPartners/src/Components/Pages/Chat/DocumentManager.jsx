@@ -4,13 +4,16 @@ import { FaFileWord, FaFileExcel, FaFilePdf } from 'react-icons/fa';
 const getAuthToken = () => localStorage.getItem('authToken');
 let url = localStorage.getItem('url');
 
-const DocumentManager = ({ agreementId }) => {
+const DocumentManager = ({ agreementId, firstId, secondId }) => {
     const [isContractReady, setIsContractReady] = useState(false);
     const [isEstimateReady, setIsEstimateReady] = useState(false);
     const [isActReady, setIsActReady] = useState(false);
     // const [estimateData, setEstimateData] = useState({});
     const [trigger, setTrigger] = useState(false)
     // Проверка состояния документов
+
+    // useEffect(() => {console.log( 'айдишники',firstId, secondId)},[ firstId, secondId])
+
     useEffect(() => {
         const params = new URLSearchParams({ agreementId });
         fetch(`${url}/document/presence?${params.toString()}`, {
@@ -220,7 +223,7 @@ const DocumentManager = ({ agreementId }) => {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${getAuthToken()}`,
                 },
-                body: JSON.stringify({ project: projectData, contractor: contractorData, customer: customerData }),
+                body: JSON.stringify({ project: projectData, contractor: contractorData, customer: customerData}),
             });
 
             if (!response.ok) {
@@ -260,7 +263,7 @@ const DocumentManager = ({ agreementId }) => {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${getAuthToken()}`,
                 },
-                body: JSON.stringify({ estimate: data.estimate, agreementId }),
+                body: JSON.stringify({ estimate: data.estimate, agreementId,  firstId, secondId  }),
             });
 
             if (!generateResponse.ok) {

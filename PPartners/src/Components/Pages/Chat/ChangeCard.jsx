@@ -2,7 +2,7 @@ import React from 'react';
 import { IconButton, Box, Typography } from '@mui/material';
 import { Check, Close } from '@mui/icons-material';
 
-const ChangeCard = ({ operation, data, url, authToken, agreementId, userId }) => {
+const ChangeCard = ({ operation, data, url, authToken, agreementId, userId, firstId, secondId}) => {
     const handleApprove = async () => {
         try {
             const response = await fetch(`${url}/categories/estimate`, {
@@ -11,7 +11,7 @@ const ChangeCard = ({ operation, data, url, authToken, agreementId, userId }) =>
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${authToken}`,
                 },
-                body: JSON.stringify({ changes: data, agreementId }),
+                body: JSON.stringify({ changes: data, agreementId, firstId, secondId }),
             });
 
             if (!response.ok) {
@@ -27,7 +27,7 @@ const ChangeCard = ({ operation, data, url, authToken, agreementId, userId }) =>
 
     const handleReject = async () => {
         try {
-            const params = new URLSearchParams({ id: data.id });
+            const params = new URLSearchParams({ id: data.id, firstId, secondId });
             const response = await fetch(`${url}/categories/changes?${params.toString()}`, {
                 method: 'DELETE',
                 headers: {

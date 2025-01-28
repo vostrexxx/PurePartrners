@@ -5,7 +5,7 @@ import { useProfile } from '../../Context/ProfileContext';
 import StageModalWnd from './StageModalWnd'
 import { EventSourcePolyfill } from 'event-source-polyfill';
 
-const WorkStagesBuilder = ({ agreementId }) => {
+const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId}) => {
     const [stages, setStages] = useState([]); // Список этапов работ
     const [drawerOpen, setDrawerOpen] = useState(false); // Открытие/закрытие шторки
     const [rawStages, setRawStages] = useState([]); // Исходный список
@@ -256,7 +256,7 @@ const WorkStagesBuilder = ({ agreementId }) => {
     const handleResetStages = async () => {
         if (window.confirm("Вы уверены, что хотите сбросить все этапы работ?")) {
             try {
-                const params = new URLSearchParams({ agreementId });
+                const params = new URLSearchParams({ agreementId, firstId: initiatorId, secondId: receiverId});
                 const response = await fetch(`${url}/stages?${params.toString()}`, {
                     method: 'DELETE',
                     headers: {
@@ -405,13 +405,6 @@ const WorkStagesBuilder = ({ agreementId }) => {
             stageOrder: index + 1,
         }));
 
-        // Подготовка тела запроса
-        const payload = {
-            agreementId,
-            stages: formattedStages,
-            notUsedRawStages, // Добавляем список неиспользуемых rawStages
-        };
-
         try {
             const response = await fetch(`${url}/stages`, {
                 method: 'POST',
@@ -419,7 +412,7 @@ const WorkStagesBuilder = ({ agreementId }) => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${authToken}`,
                 },
-                body: JSON.stringify(payload),
+                body: JSON.stringify({agreementId, stages: formattedStages, notUsedRawStages, firstId: initiatorId, secondId: receiverId}),
             });
 
             if (!response.ok) {
@@ -468,7 +461,7 @@ const WorkStagesBuilder = ({ agreementId }) => {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${authToken}`,
                     },
-                    body: JSON.stringify({ elementId, agreementId, mode }),
+                    body: JSON.stringify({ elementId, agreementId, mode, firstId: initiatorId, secondId: receiverId }),
                 });
 
                 if (!response.ok) {
@@ -806,6 +799,8 @@ const WorkStagesBuilder = ({ agreementId }) => {
                     agreementId={agreementId}
                     triggerStages={triggerStages}
                     setTriggerStages={setTriggerStages} // Пробрасываем функцию изменения
+                    firstId={initiatorId}
+                    secondId={receiverId}
                 // id={stage.id} // Передаем stage
                 />
 

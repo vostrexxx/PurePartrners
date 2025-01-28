@@ -642,7 +642,10 @@ const QuestionnaireDetails = () => {
                     userId={questionnaire.userId}
                     id={questionnaire.id}
                     mode={1}
+                    receiverItemName={questionnaire.workCategories}
                 />
+
+                {/* {console.log(questionnaire.workCategories)} */}
             </div>
         </div>
     );

@@ -6,7 +6,7 @@ import BuilderModalWnd from './BuilderModalWnd';
 import DocumentManager from './DocumentManager';
 import { EventSourcePolyfill } from 'event-source-polyfill';
 
-const Builder = ({ agreementId }) => {
+const Builder = ({ agreementId, initiatorId, receiverId }) => {
     const [estimate, setEstimate] = useState([]);
     const [originalEstimate, setOriginalEstimate] = useState([]);
     const [isNewBuilder, setIsNewBuilder] = useState(false);
@@ -29,6 +29,7 @@ const Builder = ({ agreementId }) => {
 
     const [modalOpen, setModalOpen] = useState(false); // Состояние открытия модального окна
 
+
     const closeModal = () => {
         setModalOpen(false); // Закрываем модальное окно
     };
@@ -44,7 +45,7 @@ const Builder = ({ agreementId }) => {
 
     const eventQueue = useRef([]); // Очередь для обработки событий
     const isProcessingQueue = useRef(false); // Флаг для обработки очереди
-  
+
     useEffect(() => {
         const processEventQueue = () => {
             if (eventQueue.current.length > 0 && !isProcessingQueue.current) {
@@ -100,7 +101,7 @@ const Builder = ({ agreementId }) => {
         };
 
         return () => {
-            console.log("0 - SSE соединение ДЛЯ СМЕТЫ разорвано" );
+            console.log("0 - SSE соединение ДЛЯ СМЕТЫ разорвано");
             eventSource.close();
         };
     }, [agreementId, authToken, url]);
@@ -521,7 +522,7 @@ const Builder = ({ agreementId }) => {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${authToken}`,
                     },
-                    body: JSON.stringify({ estimate, agreementId }),
+                    body: JSON.stringify({ estimate, agreementId, firstId: initiatorId, secondId: receiverId }),
                 });
 
                 if (!response.ok) {
@@ -556,21 +557,25 @@ const Builder = ({ agreementId }) => {
 
             } else {
                 const changes = generateChanges(originalEstimate, estimate);
-                const response = await fetch(`${url}/categories/changes`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${authToken}`,
-                    },
-                    body: JSON.stringify({ changes, agreementId, initiatorId: userId }),
-                });
 
-                if (!response.ok) {
-                    throw new Error(`Ошибка обновления сметы: ${response.status}`);
+                if (changes.length > 0) {
+                    const response = await fetch(`${url}/categories/changes`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${authToken}`,
+                        },
+                        body: JSON.stringify({ changes, agreementId, initiatorId: userId, firstId: initiatorId, secondId: receiverId }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Ошибка обновления сметы: ${response.status}`);
+                    }
+
+                    alert('Изменения успешно сохранены!');
+                    setOriginalEstimate([...estimate]);
+
                 }
-
-                alert('Изменения успешно сохранены!');
-                setOriginalEstimate([...estimate]);
 
                 // Сбрасываем состояние редактирования
                 const postResponse = await fetch(`${url}/categories/is-editing`, {
@@ -786,6 +791,8 @@ const Builder = ({ agreementId }) => {
                                             authToken={authToken}
                                             agreementId={agreementId}
                                             userId={userId}
+                                            firstId={initiatorId}
+                                            secondId={receiverId}
                                         />
                                     ))}
                             </React.Fragment>
@@ -807,6 +814,8 @@ const Builder = ({ agreementId }) => {
                                     authToken={authToken}
                                     agreementId={agreementId}
                                     userId={userId}
+                                    firstId={initiatorId}
+                                    secondId={receiverId}
                                 />
                             ))}
                     </div>
@@ -833,7 +842,7 @@ const Builder = ({ agreementId }) => {
                         </Button>
 
                         {/* console.log('Estimate:', estimate); */}
-                        {Array.isArray(estimate) && estimate.length > 0 ? <DocumentManager agreementId={agreementId} /> : null}
+                        {Array.isArray(estimate) && estimate.length > 0 ? <DocumentManager agreementId={agreementId}  firstId={initiatorId}  secondId={receiverId} /> : null}
 
                     </div>
                 </div>

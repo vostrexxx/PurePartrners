@@ -3,10 +3,8 @@ import { Button, TextField, Radio, RadioGroup, FormControlLabel, FormControl, Fo
 import { useProfile } from '../../Context/ProfileContext';
 import Card from '../../Previews/Card';
 import { useNavigate, useLocation } from 'react-router-dom';
-const ReactionWindow = ({ isOpen, onClose, userId, id, mode }) => {
+const ReactionWindow = ({ isOpen, onClose, userId, id, mode, receiverItemName }) => {
     const [selectedPreviewId, setSelectedPreviewId] = useState(null); // Выбранное превью
-    // const [comment, setComment] = useState(""); // Комментарий
-    // const [mode, setMode] = useState("default"); // Режим
     const [announcements, setAnnouncements] = useState([]);
     const [questionnaires, setQuestionnaires] = useState([]);
     const [previews, setPreviews] = useState([]);
@@ -15,23 +13,26 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode }) => {
     const url = localStorage.getItem('url');
 
     const navigate = useNavigate();
-
     const [agreementData, setAgreementData] = useState({
         receiverId: userId,
         receiverItemId: id,
         mode: mode,
         initiatorItemId: null,
-        comment: ""
+        comment: "",
+        receiverItemName: receiverItemName,
+
     });
 
+
+
     useEffect(() => {
-        // console.log("URL:", url);
+        // console.log("URL:", agreementData);
         // console.log("AuthToken:", getAuthToken());
         // console.log("isSpecialist:", isSpecialist);
-    
+
         setAnnouncements([]);
         setQuestionnaires([]);
-    
+
         const fetchData = async () => {
             try {
                 let response;
@@ -63,12 +64,12 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode }) => {
                 alert("Ошибка при загрузке данных");
             }
         };
-        
+
         fetchData();
 
-        
+
     }, [isSpecialist]);
-    
+
 
 
     const handleSubmit = async () => {
@@ -107,10 +108,11 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode }) => {
                         {previews.length > 0 ? (
                             previews.map((preview) => (
                                 <Card
-                                    title={isSpecialist ? preview.workCategories : preview.workCategories}
+                                    title={preview.workCategories}
                                     onClick={() => setAgreementData((prevData) => ({
                                         ...prevData, // Сохраняем остальные данные
-                                        initiatorItemId: preview.id, // Обновляем initiatorItemId
+                                        initiatorItemId: preview.id,
+                                        initiatorItemName: preview.workCategories,
                                     }))}
                                     key={preview.id}
                                 />

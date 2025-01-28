@@ -3,7 +3,7 @@ import { Modal, Box, Typography, Button, TextField } from '@mui/material';
 import { FaFileWord, FaFileExcel, FaFilePdf } from 'react-icons/fa';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStages, setTriggerStages, }) => {
+const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStages, setTriggerStages, firstId, secondId }) => {
     if (!stage) return null; // Если stage не передан, ничего не рендерим
     const authToken = localStorage.getItem('authToken');
     const url = localStorage.getItem('url');
@@ -22,7 +22,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
     const [balance, setBalance] = useState(null);
     const navigate = useNavigate();
 
-    useEffect(() => {console.log(stageData)},[stageData]);
+    // useEffect(() => {console.log(stageData)},[stageData]);
 
     useEffect(() => {
         const fetchStageData = async () => {
@@ -303,7 +303,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${authToken}`,
                 },
-                body: JSON.stringify({ project: projectData, contractor: contractorData, customer: customerData }),
+                body: JSON.stringify({ project: projectData, contractor: contractorData, customer: customerData, firstId, secondId }),
             });
 
             if (!response.ok) {
@@ -385,6 +385,8 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                         address: announcementData.announcementInfo.address,
                         stageTitle: stageData.name,
                         mode: 'Заморозка средств',
+                        firstId,
+                        secondId
                     }),
                 });
 
@@ -451,7 +453,8 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                         'Authorization': `Bearer ${authToken}`,
                     },
                     body: JSON.stringify({ stagePrice: stageData.totalPrice, workCategories: announcementData.announcementInfo.workCategories,
-                         address: announcementData.announcementInfo.address, stageTitle: stageData.name, mode: 'Списание замороженных средств' }),
+                         address: announcementData.announcementInfo.address, stageTitle: stageData.name, mode: 'Списание замороженных средств',
+                        firstId, secondId }),
                 });
 
                 if (!response.ok) {
@@ -466,7 +469,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${authToken}`,
                         },
-                        body: JSON.stringify({ elementId: stageData.id, stageStatus }),
+                        body: JSON.stringify({ elementId: stageData.id, stageStatus, firstId, secondId }),
                     });
 
                     if (!response.ok) {
@@ -485,7 +488,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${authToken}`,
                     },
-                    body: JSON.stringify({ elementId: stageData.id, stageStatus }),
+                    body: JSON.stringify({ elementId: stageData.id, stageStatus, firstId, secondId }),
                 });
 
                 if (!response.ok) {
@@ -552,7 +555,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${authToken}`,
                 },
-                body: JSON.stringify({ entityId, account }),
+                body: JSON.stringify({ entityId, account, firstId, secondId }),
             });
 
             if (!response.ok) {
