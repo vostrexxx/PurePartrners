@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { FaFileWord, FaFileExcel, FaFilePdf, FaFileAlt } from 'react-icons/fa';
@@ -11,6 +11,21 @@ const Chat = ({ chatId }) => {
     const getAuthToken = () => localStorage.getItem('authToken');
     const [userId, setUserId] = useState('');
     const [messages, setMessages] = useState([]);
+    const chatRef = useRef(null); // Создаём ссылку на контейнер чата
+
+    useEffect(() => {
+        if (chatRef.current) {
+            chatRef.current.scrollTop = chatRef.current.scrollHeight;
+        }
+    }, [messages]);
+
+    useEffect(() => {
+        setTimeout(() => {
+            if (chatRef.current) {
+                chatRef.current.scrollTop = chatRef.current.scrollHeight;
+            }
+        }, 100); 
+    }, [messages]); 
 
     useEffect(() => {
         const fetchChatHistory = async () => {
@@ -224,7 +239,7 @@ const Chat = ({ chatId }) => {
                 </div>
             )}
 
-            <div style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
+            <div  ref={chatRef} style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
                 {messages.map((msg, index) => (
                     <div
                         key={index}
@@ -324,6 +339,7 @@ const Chat = ({ chatId }) => {
             </div>
 
             <div
+    
                 style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -335,6 +351,7 @@ const Chat = ({ chatId }) => {
                     type="text"
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()} // Вызов по Enter
                     placeholder="Введите сообщение..."
                     style={{
                         flex: 1,

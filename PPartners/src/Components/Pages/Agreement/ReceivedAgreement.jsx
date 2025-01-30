@@ -9,6 +9,7 @@ const ReceivedAgreement = () => {
     const [agreements, setAgreements] = useState([]);
     const { isSpecialist } = useProfile();
 
+    const [trigger, setTrigger] = useState(false);
     
     useEffect(() => {
         const fetchData = async () => {
@@ -37,8 +38,11 @@ const ReceivedAgreement = () => {
         };
 
         fetchData();
-    }, [isSpecialist]);
+    }, [isSpecialist, trigger]);
 
+    const toggleTrigger = () => {
+        setTrigger((prev) => !prev);
+    };
 
     return (
         <div>
@@ -59,6 +63,7 @@ const ReceivedAgreement = () => {
                         isReceiver={true}
                         chatId={item.chatId}
                         isSpecialist={isSpecialist}
+                        onTrigger={toggleTrigger}
                     />
                 ))
             ) : (

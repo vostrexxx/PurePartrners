@@ -149,7 +149,7 @@ const EntityDetails = () => {
 
                             <label>ИНН</label>
                             <input
-                                type="text"
+                                type="number"
                                 name="inn"
                                 value={entityData.inn || ''}
                                 onChange={handleInputChange}
@@ -167,7 +167,7 @@ const EntityDetails = () => {
 
                             <label>КПП</label>
                             <input
-                                type="text"
+                                type="number"
                                 name="kpp"
                                 value={entityData.kpp || ''}
                                 onChange={handleInputChange}
@@ -176,7 +176,7 @@ const EntityDetails = () => {
 
                             <label>Банк</label>
                             <input
-                                type="text"
+                                type="number"
                                 name="bank"
                                 value={entityData.bank || ''}
                                 onChange={handleInputChange}
@@ -185,7 +185,7 @@ const EntityDetails = () => {
 
                             <label>Корреспондентский счет</label>
                             <input
-                                type="text"
+                                type="number"
                                 name="corrAcc"
                                 value={entityData.corrAcc || ''}
                                 onChange={handleInputChange}
@@ -194,7 +194,7 @@ const EntityDetails = () => {
 
                             <label>Расчетный счет</label>
                             <input
-                                type="text"
+                                type="number"
                                 name="currAcc"
                                 value={entityData.currAcc || ''}
                                 onChange={handleInputChange}
@@ -203,7 +203,7 @@ const EntityDetails = () => {
 
                             <label>БИК</label>
                             <input
-                                type="text"
+                                type="number"
                                 name="bik"
                                 value={entityData.bik || ''}
                                 onChange={handleInputChange}

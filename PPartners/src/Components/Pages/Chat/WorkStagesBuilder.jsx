@@ -5,7 +5,7 @@ import { useProfile } from '../../Context/ProfileContext';
 import StageModalWnd from './StageModalWnd'
 import { EventSourcePolyfill } from 'event-source-polyfill';
 
-const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId}) => {
+const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
     const [stages, setStages] = useState([]); // Список этапов работ
     const [drawerOpen, setDrawerOpen] = useState(false); // Открытие/закрытие шторки
     const [rawStages, setRawStages] = useState([]); // Исходный список
@@ -256,7 +256,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId}) => {
     const handleResetStages = async () => {
         if (window.confirm("Вы уверены, что хотите сбросить все этапы работ?")) {
             try {
-                const params = new URLSearchParams({ agreementId, firstId: initiatorId, secondId: receiverId});
+                const params = new URLSearchParams({ agreementId, firstId: initiatorId, secondId: receiverId });
                 const response = await fetch(`${url}/stages?${params.toString()}`, {
                     method: 'DELETE',
                     headers: {
@@ -412,7 +412,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId}) => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${authToken}`,
                 },
-                body: JSON.stringify({agreementId, stages: formattedStages, notUsedRawStages, firstId: initiatorId, secondId: receiverId}),
+                body: JSON.stringify({ agreementId, stages: formattedStages, notUsedRawStages, firstId: initiatorId, secondId: receiverId }),
             });
 
             if (!response.ok) {
@@ -595,8 +595,6 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId}) => {
                                                                 {isLocalApproved ? 'Отменить' : 'Утвердить'}
                                                             </Button>
                                                         )}
-
-
 
                                                 </div>
 

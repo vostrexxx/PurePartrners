@@ -168,7 +168,7 @@ const Modal = ({ isOpen, onClose, children, fullName, onTrigger }) => {
             <label>
               ИНН:
               <input
-                type="text"
+                type="number"
                 name="inn"
                 value={formData.inn}
                 onChange={handleInputChange}
@@ -178,7 +178,7 @@ const Modal = ({ isOpen, onClose, children, fullName, onTrigger }) => {
             <label>
               КПП:
               <input
-                type="text"
+                type="number"
                 name="kpp"
                 value={formData.kpp}
                 onChange={handleInputChange}
@@ -188,7 +188,7 @@ const Modal = ({ isOpen, onClose, children, fullName, onTrigger }) => {
             <label>
               Банк:
               <input
-                type="text"
+                type="number"
                 name="bank"
                 value={formData.bank}
                 onChange={handleInputChange}
@@ -198,7 +198,7 @@ const Modal = ({ isOpen, onClose, children, fullName, onTrigger }) => {
             <label>
               Расчетный счет:
               <input
-                type="text"
+                type="number"
                 name="currAcc"
                 value={formData.currAcc}
                 onChange={handleInputChange}
@@ -208,7 +208,7 @@ const Modal = ({ isOpen, onClose, children, fullName, onTrigger }) => {
             <label>
               Корреспондентский счет:
               <input
-                type="text"
+                type="number"
                 name="corrAcc"
                 value={formData.corrAcc}
                 onChange={handleInputChange}
@@ -218,7 +218,7 @@ const Modal = ({ isOpen, onClose, children, fullName, onTrigger }) => {
             <label>
               БИК:
               <input
-                type="text"
+                type="number"
                 name="bik"
                 value={formData.bik}
                 onChange={handleInputChange}
@@ -263,7 +263,7 @@ const Modal = ({ isOpen, onClose, children, fullName, onTrigger }) => {
             <label>
               КПП:
               <input
-                type="text"
+                type="number"
                 name="kpp"
                 value={formData.kpp}
                 onChange={handleInputChange}
@@ -273,7 +273,7 @@ const Modal = ({ isOpen, onClose, children, fullName, onTrigger }) => {
             <label>
               Банк:
               <input
-                type="text"
+                type="number"
                 name="bank"
                 value={formData.bank}
                 onChange={handleInputChange}
@@ -283,7 +283,7 @@ const Modal = ({ isOpen, onClose, children, fullName, onTrigger }) => {
             <label>
               Расчетный счет:
               <input
-                type="text"
+                type="number"
                 name="currAcc"
                 value={formData.currAcc}
                 onChange={handleInputChange}
@@ -293,7 +293,7 @@ const Modal = ({ isOpen, onClose, children, fullName, onTrigger }) => {
             <label>
               Корреспондентский счет:
               <input
-                type="text"
+                type="number"
                 name="corrAcc"
                 value={formData.corrAcc}
                 onChange={handleInputChange}
@@ -303,7 +303,7 @@ const Modal = ({ isOpen, onClose, children, fullName, onTrigger }) => {
             <label>
               БИК:
               <input
-                type="text"
+                type="number"
                 name="bik"
                 value={formData.bik}
                 onChange={handleInputChange}

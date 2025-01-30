@@ -20,21 +20,21 @@ import AC from './Components/Pages/AccountTabs/AutoCompleteInput';
 // import BT from './Components/Pages/Chat/BuilderTest';
 import EntityDetailes from './Components/Previews/EntityDetails'
 import BalancePage from './Components/Pages/Balance/BalancePage';
-import { requestPermission } from '../firebase'; // Убедитесь, что путь правильный
+// import { requestPermission } from '../firebase'; // Убедитесь, что путь правильный
 
 global.global = global;
 const App = () => {
 
-  useEffect(() => {
-    const getFCMToken = async () => {
-      const token = await requestPermission();
-      if (token) {
-        console.log('FCM токен получен и отправлен на сервер:', token);
-      }
-    };
+  // useEffect(() => {
+  //   const getFCMToken = async () => {
+  //     const token = await requestPermission();
+  //     if (token) {
+  //       console.log('FCM токен получен и отправлен на сервер:', token);
+  //     }
+  //   };
 
-    getFCMToken();
-  }, []);
+  //   getFCMToken();
+  // }, []);
 
   return (
     <Router>

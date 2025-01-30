@@ -11,7 +11,6 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode, receiverItemName })
     const { isSpecialist } = useProfile();
     const getAuthToken = () => localStorage.getItem('authToken');
     const url = localStorage.getItem('url');
-
     const navigate = useNavigate();
     const [agreementData, setAgreementData] = useState({
         receiverId: userId,
@@ -48,7 +47,8 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode, receiverItemName })
                     // console.log("Анкеты:", data.previews);
                     setPreviews(data.previews || []);
                 } else {
-                    response = await fetch(url + '/announcement/previews', {
+                    const params = new URLSearchParams({ isInWork: true });
+                    response = await fetch(url + `/announcement/previews?${params.toString()}`, {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
@@ -109,13 +109,19 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode, receiverItemName })
                             previews.map((preview) => (
                                 <Card
                                     title={preview.workCategories}
-                                    onClick={() => setAgreementData((prevData) => ({
-                                        ...prevData, // Сохраняем остальные данные
-                                        initiatorItemId: preview.id,
-                                        initiatorItemName: preview.workCategories,
-                                    }))}
+                                    onClick={() => {
+                                        setSelectedPreviewId(preview.id); // Устанавливаем выбранную карточку
+                                        setAgreementData((prevData) => ({
+                                            ...prevData,
+                                            initiatorItemId: preview.id,
+                                            initiatorItemName: preview.workCategories,
+                                        }));
+                                    }}
+                                    isSelected={selectedPreviewId === preview.id} // Передаём флаг выбора
                                     key={preview.id}
                                 />
+
+
                             ))
                         ) : (
                             <p>Нет доступных превью</p>
@@ -182,11 +188,7 @@ const styles = {
         overflowY: 'auto',
         border: '1px solid #ddd',
         marginBottom: '20px',
-    },
-    previewItem: {
         padding: '10px',
-        cursor: 'pointer',
-        borderBottom: '1px solid #ddd',
     },
     buttons: {
         marginTop: '20px',

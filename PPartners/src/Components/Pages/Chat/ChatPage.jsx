@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import Chat from './Chat';
 import ChatContext from './ChatContext';
-import RejectButton from './RejectButton';
+
+
 import Builder from './Builder';
 import ContractButton from './CreateContractButton';
 import DocumentManager from './DocumentManager';
@@ -16,6 +17,7 @@ const ChatPage = () => {
 
     const [initiatorId, setInitiatorId] = useState(null);
     const [receiverId, setReceiverId] = useState(null);
+    const [localizedStatus, setLocalizedStatus] = useState(null);
 
     useEffect(() => {
         const fetchAgreement = async () => {
@@ -37,6 +39,7 @@ const ChatPage = () => {
                     console.log('Инфа по соглашению', data)
                     setInitiatorId(data.agreementInfo.initiatorId)
                     setReceiverId(data.agreementInfo.receiverId)
+                    setLocalizedStatus(data.agreementInfo.localizedStatus)
                 })
                 .catch((error) => {
                     console.error(`Ошибка при получении информации по соглашению: ${error.message}`);
@@ -58,28 +61,30 @@ const ChatPage = () => {
             {/* Левая часть: контекст */}
             <div style={styles.leftPanel}>
                 <ChatContext agreementId={agreementId} />
-                <RejectButton agreementId={agreementId} />
-                {/* <ContractButton agreementId={agreementId} /> */}
+
+
 
             </div>
 
-            {/* Средняя часть: чат */}
-            <div style={styles.middlePanel}>
-                <Chat chatId={chatId} />
-            </div>
 
-            {/* Правая часть: билдер */}
-            <div style={styles.rightPanel}>
-                <Builder agreementId={agreementId}
-                    receiverId={receiverId}
-                    initiatorId={initiatorId} />
+            {localizedStatus !== 'Отклонено' ? (
+                <div style={styles.container}>
+                    <div style={styles.middlePanel}>
+                        <Chat chatId={chatId} />
+                    </div>
 
-                <WorkStagesBuilder agreementId={agreementId}
-                    receiverId={receiverId}
-                    initiatorId={initiatorId} />
-                {/* <DocumentManager agreementId={agreementId} /> */}
+                    <div style={styles.rightPanel}>
+                        <Builder agreementId={agreementId} receiverId={receiverId} initiatorId={initiatorId} />
+                        <WorkStagesBuilder agreementId={agreementId} receiverId={receiverId} initiatorId={initiatorId} />
+                    </div>
+                </div>
+            ) : (
+                <div style={styles.rejectedMessage}>
+                    Соглашение отклонено одним из пользователей
+                </div>
+            )}
 
-            </div>
+
         </div>
     );
 };
@@ -87,15 +92,14 @@ const ChatPage = () => {
 const styles = {
     container: {
         display: 'flex',
-        height: '100vh', // Высота 100% от экрана
-        width: '100%',   // Ширина 100% от экрана
-        flexWrap: 'nowrap', // Предотвращение переноса
-        // marginTop: '30px'
+        height: '100vh',
+        width: '100%',
+        flexWrap: 'nowrap',
     },
     leftPanel: {
-        flex: '1 1 25%', // Панель будет занимать 25% ширины, но может адаптироваться
-        maxWidth: '25%', // Максимальная ширина для ограничений
-        minWidth: '200px', // Минимальная ширина панели
+        flex: '1 1 25%',
+        maxWidth: '25%',
+        minWidth: '200px',
         backgroundColor: 'black',
         color: 'white',
         borderRight: '1px solid #ddd',
@@ -103,21 +107,33 @@ const styles = {
         overflowY: 'auto',
     },
     middlePanel: {
-        flex: '1 1 50%', // Панель будет занимать 50% ширины
+        flex: '1 1 50%',
         maxWidth: '50%',
-        minWidth: '300px', // Минимальная ширина панели
+        minWidth: '300px',
         backgroundColor: '#f4f4f4',
         padding: '20px',
         borderRight: '1px solid #ddd',
         overflowY: 'auto',
     },
     rightPanel: {
-        flex: '1 1 25%', // Панель будет занимать 25% ширины
+        flex: '1 1 25%',
         maxWidth: '25%',
-        minWidth: '200px', // Минимальная ширина панели
+        minWidth: '200px',
         backgroundColor: 'black',
         padding: '20px',
         overflowY: 'auto',
+    },
+    rejectedMessage: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        width: '100%',
+        fontSize: '24px',
+        fontWeight: 'bold',
+        color: 'red',
+        backgroundColor: '#fff',
+        textAlign: 'center',
     },
 };
 

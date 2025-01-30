@@ -5,6 +5,7 @@ import ChangeCard from './ChangeCard';
 import BuilderModalWnd from './BuilderModalWnd';
 import DocumentManager from './DocumentManager';
 import { EventSourcePolyfill } from 'event-source-polyfill';
+import MeasureUnitAutocomplete from '../SearchComponent/MeasureUnitAutocomplete';
 
 const Builder = ({ agreementId, initiatorId, receiverId }) => {
     const [estimate, setEstimate] = useState([]);
@@ -717,50 +718,64 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                                                 size="small"
                                                 style={styles.inputFieldSmall}
                                                 value={subItem.workAmount || ''}
-                                                onChange={(e) =>
+                                                onChange={(e) => {
+                                                    const newValue = e.target.value.replace(/[^0-9.,]/g, ''); // Оставляем только цифры, точку и запятую
                                                     handleSubItemChange(
                                                         orange.elementId,
                                                         subItem.elementId,
                                                         'workAmount',
-                                                        e.target.value
-                                                    )
-                                                }
+                                                        newValue
+                                                    );
+                                                }}
                                                 disabled={isEditing !== true}
+                                                InputProps={{
+                                                    inputMode: 'decimal', // Показывает цифровую клавиатуру с десятичной точкой на мобильных устройствах
+                                                    pattern: '[0-9]*', // Ограничение на ввод только цифр (основное для валидации)
+                                                }}
                                             />
-                                            <Select
-                                                value={subItem.measureUnit || ''}
-                                                onChange={(e) =>
+
+                                            <MeasureUnitAutocomplete
+                                                onSelect={(value) =>
                                                     handleSubItemChange(
                                                         orange.elementId,
                                                         subItem.elementId,
                                                         'measureUnit',
-                                                        e.target.value
+                                                        value
                                                     )
                                                 }
-                                                style={styles.select}
+                                                value={subItem.measureUnit || ''}
                                                 disabled={isEditing !== true}
-                                            >
-                                                <MenuItem value="">Выбрать...</MenuItem>
-                                                <MenuItem value="Кв. метр">м2</MenuItem>
-                                                <MenuItem value="Куб. метр">м3</MenuItem>
-                                                <MenuItem value="Пог. метр">мп</MenuItem>
-                                            </Select>
+                                                style={styles.select}
+                                            />
+
                                             <TextField
                                                 placeholder="Цена"
                                                 variant="outlined"
                                                 size="small"
                                                 style={styles.inputFieldSmall}
                                                 value={subItem.price || ''}
-                                                onChange={(e) =>
+                                                onChange={(e) => {
+                                                    let newValue = e.target.value.replace(/[^0-9.,]/g, ''); // Оставляем только цифры, точку и запятую
+                                                    newValue = newValue.replace(/,/g, '.'); // Заменяем запятую на точку (единый формат)
+
+                                                    // Проверка: только одна десятичная точка
+                                                    if ((newValue.match(/\./g) || []).length > 1) {
+                                                        return; // Не даём ввести вторую точку
+                                                    }
+
                                                     handleSubItemChange(
                                                         orange.elementId,
                                                         subItem.elementId,
                                                         'price',
-                                                        e.target.value
-                                                    )
-                                                }
+                                                        newValue
+                                                    );
+                                                }}
                                                 disabled={isEditing !== true}
+                                                InputProps={{
+                                                    inputMode: 'decimal', // Мобильные устройства показывают цифровую клавиатуру с точкой
+                                                }}
                                             />
+
                                             <p>Node ID: {subItem.nodeId}</p>
                                             <IconButton
                                                 color="error"
@@ -842,7 +857,7 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                         </Button>
 
                         {/* console.log('Estimate:', estimate); */}
-                        {Array.isArray(estimate) && estimate.length > 0 ? <DocumentManager agreementId={agreementId}  firstId={initiatorId}  secondId={receiverId} /> : null}
+                        {Array.isArray(estimate) && estimate.length > 0 ? <DocumentManager agreementId={agreementId} firstId={initiatorId} secondId={receiverId} /> : null}
 
                     </div>
                 </div>
@@ -855,39 +870,48 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
 
 const styles = {
     orangeBox: {
-        backgroundColor: 'orange',
-        padding: '10px',
+        backgroundColor: '#ffa726',
+        padding: '15px',
         borderRadius: '8px',
-        marginBottom: '24px', // Увеличенный отступ между категориями
-        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)', // Легкая тень
+        marginBottom: '20px',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
     },
     orangeHeader: {
         display: 'flex',
         alignItems: 'center',
-        gap: '12px', // Чуть больше отступов между элементами
+        gap: '10px',
+        marginBottom: '10px',
     },
     whiteBox: {
-        backgroundColor: 'white',
+        backgroundColor: '#fff',
         padding: '10px',
-        borderRadius: '5px',
+        borderRadius: '6px',
         marginTop: '10px',
         display: 'flex',
         alignItems: 'center',
         gap: '10px',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
     },
     inputField: {
         flex: 1,
+        backgroundColor: '#fff',
     },
     inputFieldSmall: {
         flex: 0.2,
+        backgroundColor: '#fff',
     },
     select: {
         flex: 0.2,
+        backgroundColor: '#fff',
     },
     addButton: {
-        backgroundColor: 'white',
-        color: 'orange',
-        border: '1px solid orange',
+        backgroundColor: '#fff',
+        color: '#ffa726',
+        border: '1px solid #ffa726',
+        '&:hover': {
+            backgroundColor: '#ffa726',
+            color: '#fff',
+        },
     },
 };
 

@@ -89,7 +89,7 @@ const MainPage = () => {
             if (appliedFilters.finishDate) {
                 params.append('finishDate', formatDate(appliedFilters.finishDate));
             }
-            
+
             // }
 
             // Формируем URL с параметрами
@@ -126,7 +126,7 @@ const MainPage = () => {
         if (!date) return '';
         return format(date, 'yyyy-MM-dd');
     };
-    
+
 
     const handleFilterChange = (e, newValue) => {
         const { name, type, checked, value } = e.target || {};
@@ -315,6 +315,18 @@ const MainPage = () => {
                                     title={item.workCategories}
                                     onClick={() => navigate(`/questionnaire/${item.id}`, { state: { fromLk: false } })}
                                     key={item.id}
+
+                                    totalCost={item.totalCost}
+                                    address={item.address}
+                                    workExp={item.workExp}
+                                    hasTeam={item.hasTeam}
+                                    hasEdu={item.hasEdu}
+                                    // onClick={() => navigate(`/${type}/${data.id}`, { state: { fromLk: null } })}
+                                    type={"questionnaire"}
+
+
+
+
                                 />
                             ))
                         ) : (
@@ -330,6 +342,13 @@ const MainPage = () => {
                                     title={item.workCategories}
                                     onClick={() => navigate(`/announcement/${item.id}`, { state: { fromLk: false } })}
                                     key={item.id}
+                                    totalCost={item.totalCost}
+                                    address={item.address}
+                                    workExp={item.workExp}
+                                    hasTeam={item.hasTeam}
+                                    hasEdu={item.hasEdu}
+                                    // onClick={() => navigate(`/${type}/${data.id}`, { state: { fromLk: null } })}
+                                    type={"announcement"}
                                 />
                             ))
                         ) : (

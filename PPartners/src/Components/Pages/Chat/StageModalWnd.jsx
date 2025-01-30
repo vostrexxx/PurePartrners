@@ -27,7 +27,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
     useEffect(() => {
         const fetchStageData = async () => {
             try {
-    
+
                 const response = await fetch(`${url}/stages/stage?elementId=${stageData.id}`, {
                     method: 'GET',
                     headers: {
@@ -35,30 +35,32 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                         Authorization: `Bearer ${authToken}`,
                     },
                 });
-    
+
                 if (!response.ok) {
                     throw new Error(`Ошибка получения этапа для модульного окна'`);
                 }
-    
+
                 const data = await response.json();
                 // console.log(data.stageStatus);
                 setStageData(data)
-                
+
             } catch (error) {
                 console.error('Ошибка получения состояния редактирования:', error.message);
             }
         };
-    
+
         fetchStageData();
-        
+
     }, [triggerStages]);
-    
+
 
     const checkContractPresence = (isDocsReady, stage) => {
         const stageFile = isDocsReady.areStageFilesPresent.find(
-            (file) => file.order === stage.order
+            (file) => file.order === stage.stageOrder
         );
+        console.log(isDocsReady, stage)
 
+        console.log("Найденный файл:", stageFile);
         return stageFile ? stageFile.isContractPresent : false;
     };
 
@@ -89,7 +91,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
 
     const checkActPresence = (isDocsReady, stage) => {
         const stageFile = isDocsReady.areStageFilesPresent.find(
-            (file) => file.order === stage.order
+            (file) => file.order === stage.stageOrder
         );
 
         return stageFile ? stageFile.isActPresent : false;
@@ -128,7 +130,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
 
 
     const handleDownload = (type) => {
-        const params = new URLSearchParams({ agreementId, type, order: stageData.order });
+        const params = new URLSearchParams({ agreementId, type, order: stageData.stageOrder });
         fetch(`${url}/document?${params.toString()}`, {
             method: 'GET',
             headers: {
@@ -160,7 +162,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
         if (!isLoading) {
             const contractReady = checkContractPresence(isDocsReady, stageData);
             setIsContractReady(contractReady);
-
+            // console.log(contractReady)
             const actReady = checkActPresence(isDocsReady, stageData);
             setIsActReady(actReady);
         }
@@ -263,7 +265,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                 finishDate: stageData.finishDate,
                 totalPrice: stageData.totalPrice,
                 guarantee: announcementData.announcementInfo.guarantee,
-                stageOrder: stageData.order
+                stageOrder: stageData.stageOrder
             };
 
             const contractorData = {
@@ -311,7 +313,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
             }
 
             alert(`${type === 'contract' ? 'Договор' : 'Акт'} успешно сформирован`);
-            setTrigger(!trigger)
+            setTrigger(prev => !prev);
         } catch (error) {
             console.error(`Ошибка при формировании ${type}:`, error.message);
         }
@@ -452,9 +454,11 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${authToken}`,
                     },
-                    body: JSON.stringify({ stagePrice: stageData.totalPrice, workCategories: announcementData.announcementInfo.workCategories,
-                         address: announcementData.announcementInfo.address, stageTitle: stageData.name, mode: 'Списание замороженных средств',
-                        firstId, secondId }),
+                    body: JSON.stringify({
+                        stagePrice: stageData.totalPrice, workCategories: announcementData.announcementInfo.workCategories,
+                        address: announcementData.announcementInfo.address, stageTitle: stageData.name, mode: 'Списание замороженных средств',
+                        firstId, secondId
+                    }),
                 });
 
                 if (!response.ok) {
@@ -496,6 +500,25 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                 }
 
                 const data = await response.json();
+
+                if (stageData.stageStatus === "Не начато") {
+                    const newStatus = await fetch(`${url}/agreement`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`,
+                        },
+                        body: JSON.stringify({ agreementId, newStatus: "В работе" }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Ошибка сети: ${response.status}`);
+                    }
+
+                    const newStatusData = await response.json();
+
+                }
+
                 alert('Статус успешно изменём');
             }
 
@@ -668,9 +691,16 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                             label="Номер счета"
                             variant="outlined"
                             value={account}
-                            onChange={(e) => setAccount(e.target.value)}
+                            onChange={(e) => {
+                                const onlyNumbers = e.target.value.replace(/\D/g, ""); // Удаляем все нецифровые символы
+                                setAccount(onlyNumbers);
+                            }}
                             multiline
                             rows={1}
+                            InputProps={{
+                                inputMode: "numeric",
+                                pattern: "[0-9]*"
+                            }}
                         />
 
                         <Button onClick={() => handlePostAccount()} variant="contained" color="primary">

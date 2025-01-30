@@ -4,6 +4,7 @@ import { ImTextColor } from 'react-icons/im';
 import Card from '../../Previews/Card.jsx';
 import { useNavigate, useLocation } from 'react-router-dom';
 import AutoCompleteInput from './AutoCompleteInput.jsx';
+import MetroAutocomplete from '../SearchComponent/AutoCompleteMetro.jsx';
 
 const Entities = ({ onSelectEntity }) => {
     const url = localStorage.getItem('url');
@@ -217,9 +218,9 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
 
         try {
             const authToken = getAuthToken();
-            
+
             const formDataToSend = new FormData();
-            
+
             // Добавляем все текстовые данные
             Object.entries(formData).forEach(([key, value]) => {
                 if (value !== null && value !== undefined) {
@@ -332,22 +333,13 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
                     onChange={handleInputChange}
                 />
                 <FormField
-                    type="text"
+                    type="number"
                     label="Опыт работы"
                     name="workExp"
                     placeholder="Опыт работы"
                     value={formData.workExp}
                     onChange={handleInputChange}
                 />
-
-                {/* <FormField
-                    type="text"
-                    label="Гарантийный срок"
-                    name="guarantee"
-                    placeholder="Срок гарантии"
-                    value={formData.guarantee}
-                    onChange={handleInputChange}
-                /> */}
 
                 <div>
                     <h4>Добавить фотографии:</h4>
@@ -459,7 +451,7 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
             setUploading(true);
 
             const formDataToSend = new FormData();
-            
+
             // Добавляем все текстовые данные
             Object.entries(formData).forEach(([key, value]) => {
                 if (value !== null && value !== undefined) {
@@ -468,7 +460,7 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
                     formDataToSend.append(key, trimmedValue);
                 }
             });
-            
+
 
             // Добавляем изображения
             images.forEach((file) => {
@@ -523,7 +515,6 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
         }
     };
 
-
     return (
         <div>
             <h3>Создать Объявление (Заказчик)</h3>
@@ -535,7 +526,7 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
                     onCategorySelect={handleCategorySelect}
                 />
                 <FormField
-                    type="text"
+                    type="number"
                     label="Общая стоимость"
                     name="totalCost"
                     placeholder="10000"
@@ -548,13 +539,15 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
                     checked={formData.isNonFixedPrice}
                     onChange={handleInputChange}
                 />
-                <FormField
-                    type="text"
-                    label="Метро"
-                    name="metro"
-                    placeholder="Метро"
+
+                <MetroAutocomplete
+                    onSelect={(value) => {
+                        setFormData((prev) => ({
+                            ...prev,
+                            metro: value,
+                        }));
+                    }}
                     value={formData.metro}
-                    onChange={handleInputChange}
                 />
 
                 <FormField
@@ -700,8 +693,8 @@ const MainPage = () => {
                     // Устанавливаем данные под анкеты
                     setQuestionnaires(data.previews || []);
                 } else {
-                    // Запрос на объявления для заказчика
-                    response = await fetch(url + '/announcement/previews', {
+                    const params = new URLSearchParams({ isInWork: false });
+                    response = await fetch(url + `/announcement/previews?${params.toString()}`, {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
@@ -774,7 +767,18 @@ const MainPage = () => {
                             {questionnaires.length > 0 ? (
                                 questionnaires.map((item) =>
                                 (
-                                    <Card title={item.workCategories} onClick={() => handleQueCardClick(item.id)} key={item.id}></Card>
+                                    <Card title={item.workCategories}
+                                        onClick={() => handleQueCardClick(item.id)}
+                                        key={item.id}
+
+                                        totalCost={item.totalCost}
+                                        address={item.address}
+                                        workExp={item.workExp}
+                                        hasTeam={item.hasTeam}
+                                        hasEdu={item.hasEdu}
+                                        type={'questionnaire'}
+
+                                    ></Card>
                                 ))
                             ) : (
                                 <p>Нет анкет</p>
@@ -785,7 +789,17 @@ const MainPage = () => {
                             <h2>Объявления</h2>
                             {announcements.length > 0 ? (
                                 announcements.map((item) => (
-                                    <Card title={item.workCategories} onClick={() => handleAnnCardClick(item.id)} key={item.id}></Card>
+                                    <Card title={item.workCategories}
+                                        onClick={() => handleAnnCardClick(item.id)}
+                                        key={item.id}
+                                        totalCost={item.totalCost}
+                                        address={item.address}
+                                        workExp={item.workExp}
+                                        hasTeam={item.hasTeam}
+                                        hasEdu={item.hasEdu}
+                                        type={'announcement'}
+
+                                    ></Card>
 
                                     // <div key={item.id} style={styles.card}>
                                     //     <h3>{item.workCategories}</h3>

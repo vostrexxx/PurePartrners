@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ErrorMessage from '../../ErrorHandling/ErrorMessage';
+import { requestPermission } from '../../../../firebase';
 
 const LoginPage = () => {
     const [errorMessage, setErrorMessage] = useState(null);
@@ -24,6 +25,14 @@ const LoginPage = () => {
         // }
         
     };
+
+    const getFCMToken = async () => {
+        const token = await requestPermission();
+        if (token) {
+          console.log('FCM токен получен и отправлен на сервер:', token);
+        }
+    };
+
     const handleLogin = async () => {
         try {
             const response = await fetch(url + '/auth/login', {
@@ -42,7 +51,34 @@ const LoginPage = () => {
                 const userId = data.userId
                 localStorage.setItem('authToken', token);
                 localStorage.setItem('userId', userId);
+
+                getFCMToken();
+
                 navigate('/main');
+
+                const fetchGetBalance = async () => {
+                    try {
+                        const response = await fetch(`${url}/balance`, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`,
+                            },
+                        });
+                        if (!response.ok) {
+                            throw new Error(`Ошибка загрузки баланса: ${response.status}`);
+                        }
+        
+                        const data = await response.json();
+                    } catch (error) {
+                        setError(`Не удалось загрузить баланс: ${error.message}`);
+                    }
+                };
+        
+                fetchGetBalance();
+        
+
+
             } else {
                 setErrorMessage(response.message)
                 setErrorCode(response.status)

@@ -4,7 +4,8 @@ import AddEntityWindow from './AddEntityWindow'
 import { useProfile } from '../../Context/ProfileContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-const ImageUploader = ({ label, onUpload, imagePath }) => {
+const ImageUploader = ({ label, onUpload, imagePath, onTrigger}) => {
+
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -15,7 +16,6 @@ const ImageUploader = ({ label, onUpload, imagePath }) => {
     return (
         <div>
             <label>{label}</label>
-            {/* {imagePath && <img src={imagePath}  style={{ width: '100px', height: '100px', display: 'block' }} />} */}
             <input type="file" accept="image/*" onChange={handleFileChange} />
         </div>
     );
@@ -53,7 +53,7 @@ const Entities = ({ onSelectEntity, triggerGet }) => {
             navigate(`/entity/${selectedEntity}`);
         }
     }, [selectedEntity, navigate]);
-    
+
 
     useEffect(() => {
         // onTrigger()
@@ -339,6 +339,8 @@ const ProfilePage = () => {
 
             const data = await response.json();
             setAvatarPath(data.avatar);
+            setTriggerGet(!triggerGet)
+
             alert('Аватар успешно загружен!');
         } catch (error) {
             setError(`Ошибка загрузки аватара: ${error.message}`);
@@ -382,11 +384,24 @@ const ProfilePage = () => {
 
             <FormField
                 type="text"
+                label="Номер телефона"
+                name="phoneNumber"
+                placeholder="Номер телефона"
+                value={localStorage.getItem('phoneNumber')}
+                // onChange={handleInputChange}
+                disabled={true}
+            />
+
+            <FormField
+                type="text"
                 label="Имя"
                 name="name"
                 placeholder="Имя"
                 value={profileData.name || ''}
-                onChange={handleInputChange}
+                onChange={(e) => {
+                    const onlyLetters = e.target.value.replace(/[^a-zA-Zа-яА-ЯёЁ\s-]/g, ""); // Разрешаем буквы, пробелы и дефис
+                    handleInputChange({ target: { name: e.target.name, value: onlyLetters } });
+                }}
                 disabled={!isEditable}
             />
 
@@ -396,7 +411,10 @@ const ProfilePage = () => {
                 name="patronymic"
                 placeholder="Отчество"
                 value={profileData.patronymic || ''}
-                onChange={handleInputChange}
+                onChange={(e) => {
+                    const onlyLetters = e.target.value.replace(/[^a-zA-Zа-яА-ЯёЁ\s-]/g, "");
+                    handleInputChange({ target: { name: e.target.name, value: onlyLetters } });
+                }}
                 disabled={!isEditable}
             />
 
@@ -406,7 +424,10 @@ const ProfilePage = () => {
                 name="surname"
                 placeholder="Фамилия"
                 value={profileData.surname || ''}
-                onChange={handleInputChange}
+                onChange={(e) => {
+                    const onlyLetters = e.target.value.replace(/[^a-zA-Zа-яА-ЯёЁ\s-]/g, "");
+                    handleInputChange({ target: { name: e.target.name, value: onlyLetters } });
+                }}
                 disabled={!isEditable}
             />
 
@@ -416,16 +437,6 @@ const ProfilePage = () => {
                 name="email"
                 placeholder="Почта"
                 value={profileData.email || ''}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-            />
-
-            <FormField
-                type="text"
-                label="Номер телефона"
-                name="phoneNumber"
-                placeholder="Номер телефона"
-                value={profileData.phoneNumber || ''}
                 onChange={handleInputChange}
                 disabled={!isEditable}
             />
@@ -454,9 +465,9 @@ const ProfilePage = () => {
 
             <h3>Фото</h3>
             <ImageLoader imagePath={avatarPath} label={"Ваш аватар"} place={'profile'}></ImageLoader>
-            <ImageUploader label="Загрузить аватар" imagePath={avatarPath} onUpload={handleAvatarUpload} />
+            <ImageUploader label="Загрузить аватар" imagePath={avatarPath} onUpload={handleAvatarUpload}/>
 
-            <ImageLoader imagePath={passportPhoto1} label={"Первая страница паспорта"} place={'profile'}></ImageLoader>
+            {/* <ImageLoader imagePath={passportPhoto1} label={"Первая страница паспорта"} place={'profile'}></ImageLoader>
             <ImageUploader
                 label="Загрузить фото паспорта 1"
                 imagePath={passportPhoto1}
@@ -475,13 +486,9 @@ const ProfilePage = () => {
                 label="Загрузить фото паспорта 3"
                 imagePath={passportPhoto3}
                 onUpload={(file) => handlePassportUpload(file, 2)}
-            />
+            /> */}
 
             <Entities onSelectEntity={handleSelectEntity} triggerGet={triggerGet} />
-
-
-
-
         </div>
     );
 };

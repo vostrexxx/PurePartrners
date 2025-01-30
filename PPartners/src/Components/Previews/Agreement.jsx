@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import Card from '../Previews/Card';
 import { useNavigate } from 'react-router-dom';
 
-const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localizedStatus, isReceiver, initiatorId , receiverId, chatId, isSpecialist }) => {
+const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localizedStatus,
+     isReceiver, initiatorId , receiverId, chatId, isSpecialist, onTrigger }) => {
+
     const [questionnaireId, setQuestionnaireId] = useState(null);
     const [announcementId, setAnnouncementId] = useState(null);
 
@@ -16,6 +18,8 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
     const url = localStorage.getItem('url');
     const getAuthToken = () => localStorage.getItem('authToken');
     const navigate = useNavigate();
+    const [trigger, setTrigger] = useState(false);
+
 
     useEffect(() => {
         const params = new URLSearchParams({
@@ -42,7 +46,7 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
         .catch((error) => {
             console.error("Ошибка:", error);
         });
-    }, [chatId]);
+    }, [chatId, trigger]);
     
 
     useEffect(() => {
@@ -104,10 +108,14 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
         // console.log(data)
         return (
             <Card
-                title={type === 'questionnaire' ? data.workCategories : data.workCategories}
-                description={data.description || 'Описание отсутствует'}
-                date={data.date || 'Дата отсутствует'}
+                title={data.workCategories}
+                totalCost={data.totalCost}
+                address={data.address}
+                workExp={data.workExp}
+                hasTeam={data.hasTeam}
+                hasEdu={data.hasEdu}
                 onClick={() => navigate(`/${type}/${data.id}`, { state: { fromLk: null } })}
+                type={type}
             />
         );
     };
@@ -134,7 +142,7 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
 
             const data = await response.json();
             if (data.success === 1) {
-                // setIsEditable(false);
+                onTrigger()
             } else {
                 // setError('Не удалось отклонить соглашение');
             }
@@ -183,6 +191,8 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
                 return response.json();
             })
             .then(() => {
+
+                setTrigger(!trigger) 
                 const bodyData = {
                     newStatus: 'Переговоры',
                     agreementId: id,
@@ -202,7 +212,7 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
                         return response.json();
                     })
                     .then((data) => {
-                        // console.log('Успешный ответ:', data);
+                        onTrigger()
                     })
                     .catch((error) => {
                         console.error('Ошибка:', error.message);
@@ -238,25 +248,7 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
                 console.error(`Ошибка при получении информации по соглашению: ${error.message}`);
             });
     };
-    
-
-    // { r ? (
-    //     <div>
-    //         <button onClick={handleReject} style={styles.button}>
-    //                 Отклонить
-    //         </button>
-    //         {isChatExists ? 
-    //             (<button onClick={handleOpenChat} style={styles.button}>Открыть чат</button>)
-    //             :
-    //             (<button onClick={handleStartChat} style={styles.button}>Создать чат</button>)
-    //         }
-            
-    //     </div>
-    // ) : (
-    //     !isRejected && isConversation && isChatExists ? (<button onClick={handleOpenChat} style={styles.button}>Открыть чат</button>) : null
-    // )}
-
-    
+        
     let bottomEl;
 
     if (!isRejected) {
@@ -285,10 +277,10 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
         <div style={styles.agreement}>
             {mode ? (
                 <div>
-                    <h4>Анкета:</h4>
+                    {isSpecialist ? (<h4>Ваша анкета:</h4>): (<h4>Анкета:</h4>)}
                     {renderCard(questionnaireData, 'questionnaire')}
 
-                    <h4>Объявление:</h4>
+                    {!isSpecialist ? (<h4>Ваше объявление:</h4>): (<h4>Обновление:</h4>)}
                     {renderCard(announcementData, 'announcement')}
 
                     <h4>Комментарий откликнувшегося:</h4>
@@ -298,10 +290,10 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
                 </div>
             ) : (
                 <div>
-                    <h4>Объявление:</h4>
+                    {!isSpecialist ? (<h4>Ваше объявление:</h4>): (<h4>Обновление:</h4>)}
                     {renderCard(announcementData, 'announcement')}
 
-                        <h4>Анкета:</h4>
+                    {isSpecialist ? (<h4>Ваша анкета:</h4>): (<h4>Анкета:</h4>)}
                     {renderCard(questionnaireData, 'questionnaire')}
 
                     <h4>Комментарий откликнувшегося:</h4>
