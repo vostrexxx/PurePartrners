@@ -1,8 +1,8 @@
 import React from 'react';
-import { IconButton, Box, Typography } from '@mui/material';
+import { IconButton, Box, Typography, List, ListItem, ListItemText } from '@mui/material';
 import { Check, Close } from '@mui/icons-material';
 
-const ChangeCard = ({ operation, data, url, authToken, agreementId, userId, firstId, secondId}) => {
+const ChangeCard = ({ operation, data, url, authToken, agreementId, userId, firstId, secondId }) => {
     const handleApprove = async () => {
         try {
             const response = await fetch(`${url}/categories/estimate`, {
@@ -49,7 +49,7 @@ const ChangeCard = ({ operation, data, url, authToken, agreementId, userId, firs
 
     const renderContent = () => {
         if (data.type === 1) {
-            // Отображаем только название для рыжиков
+            // Отображаем название категории и подкатегории, если они есть
             return (
                 <Box
                     sx={{
@@ -62,6 +62,41 @@ const ChangeCard = ({ operation, data, url, authToken, agreementId, userId, firs
                     <Typography variant="body2" sx={{ color: '#ffa726' }}>
                         Название: {data.updatedFields?.subWorkCategoryName || 'Не указано'}
                     </Typography>
+
+                    {/* Отображение подкатегорий, если они есть */}
+                    {data.subSubCategories && data.subSubCategories.length > 0 && (
+                        <Box sx={{ marginTop: '8px' }}>
+                            <Typography variant="body2" sx={{ color: '#ffa726' }}>
+                                Подкатегории:
+                            </Typography>
+                            <List sx={{ padding: '0' }}>
+                                {data.subSubCategories.map((subCategory) => (
+                                    <ListItem key={subCategory.elementId} sx={{ padding: '0', marginLeft: '16px' }}>
+                                        <ListItemText
+                                            primary={subCategory.subSubWorkCategoryName}
+                                            secondary={
+                                                <>
+                                                    <Typography variant="body2" sx={{ color: '#fff' }}>
+                                                        Объем работ: {subCategory.workAmount || 'Не указано'}
+                                                    </Typography>
+                                                    <Typography variant="body2" sx={{ color: '#fff' }}>
+                                                        Единица измерения: {subCategory.measureUnit || 'Не указано'}
+                                                    </Typography>
+                                                    <Typography variant="body2" sx={{ color: '#fff' }}>
+                                                        Цена: {subCategory.price || 'Не указано'}
+                                                    </Typography>
+                                                    <Typography variant="body2" sx={{ color: '#fff' }}>
+                                                        Node ID: {subCategory.nodeId || 'Не указано'}
+                                                    </Typography>
+                                                </>
+                                            }
+                                            sx={{ color: '#fff' }}
+                                        />
+                                    </ListItem>
+                                ))}
+                            </List>
+                        </Box>
+                    )}
                 </Box>
             );
         } else if (data.type === 2) {

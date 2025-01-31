@@ -161,12 +161,6 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
         fetchIsEditing();
     }, [agreementId, authToken, url]);
 
-    // Debug для isEditing
-    // useEffect(() => {
-    //     console.log('isEditing updated:', isEditing);
-    // }, [isEditing]);
-
-
     // Функция для обработки кнопки "Редактировать"
     const handleEdit = async () => {
         try {
@@ -233,19 +227,22 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                 const data = await response.json();
 
                 if (data.estimate.length === 0) {
-                    setEstimate([]); // Новый билдер
+                    setEstimate([]);
                     setOriginalEstimate([]);
                     setIsNewBuilder(true);
                 } else {
                     const parsedEstimate = data.estimate.map((item, index) => ({
-                        nodeId: `${index + 1}`,
+                        // nodeId: `${index + 1}`,
+                        nodeId: item.nodeId,
                         elementId: item.elementId,
                         type: 1,
                         subWorkCategoryName: item.subWorkCategoryName,
                         subSubWorkCategories: item.subSubWorkCategories.map((subItem, subIndex) => ({
                             ...subItem,
                             elementId: subItem.elementId,
-                            nodeId: `${index + 1}.${subIndex + 1}`,
+                            // nodeId: `${index + 1}.${subIndex + 1}`,
+                            nodeId: subItem.nodeId,
+
                         })),
                     }));
 
@@ -338,6 +335,157 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
         );
     };
 
+    // const generateChanges = (original, updated) => {
+    //     const changes = [];
+
+    //     // Добавленные элементы
+    //     const added = updated.filter(item => !original.some(orig => orig.elementId === item.elementId));
+    //     added.forEach(item => {
+    //         changes.push({
+    //             operation: 'add',
+    //             type: item.type,
+    //             elementId: item.elementId,
+    //             updatedFields: {
+    //                 subWorkCategoryName: item.subWorkCategoryName,
+    //                 agreementId,
+    //                 nodeId: item.nodeId,
+    //             },
+    //             subSubCategories: item.subSubWorkCategories.map(sub => ({
+    //                 elementId: sub.elementId,
+    //                 subSubWorkCategoryName: sub.subSubWorkCategoryName,
+    //                 workAmount: sub.workAmount,
+    //                 measureUnit: sub.measureUnit,
+    //                 price: sub.price,
+    //                 nodeId: sub.nodeId,
+    //             })),
+    //         });
+    //     });
+
+    //     // Удалённые элементы
+    //     const removed = original.filter(item => !updated.some(upd => upd.elementId === item.elementId));
+    //     removed.forEach(item => {
+    //         changes.push({
+    //             operation: 'delete',
+    //             type: item.type,
+    //             elementId: item.elementId,
+    //             updatedFields: {
+    //                 subWorkCategoryName: item.subWorkCategoryName,
+    //                 agreementId,
+    //                 nodeId: item.nodeId,
+    //             },
+    //             subSubCategories: item.subSubWorkCategories.map(sub => ({
+    //                 elementId: sub.elementId,
+    //                 subSubWorkCategoryName: sub.subSubWorkCategoryName,
+    //                 workAmount: sub.workAmount,
+    //                 measureUnit: sub.measureUnit,
+    //                 price: sub.price,
+    //                 nodeId: sub.nodeId,
+    //             })),
+    //         });
+    //     });
+
+    //     // Обновлённые элементы
+    //     updated.forEach(item => {
+    //         const originalItem = original.find(orig => orig.elementId === item.elementId);
+    //         if (originalItem) {
+    //             const updatedFields = {};
+
+    //             if (originalItem.subWorkCategoryName !== item.subWorkCategoryName) {
+    //                 updatedFields.subWorkCategoryName = item.subWorkCategoryName;
+    //             }
+
+    //             if (Object.keys(updatedFields).length > 0) {
+    //                 updatedFields.agreementId = agreementId;
+    //                 updatedFields.nodeId = item.nodeId;
+    //                 changes.push({
+    //                     operation: 'update',
+    //                     type: item.type,
+    //                     elementId: item.elementId,
+    //                     updatedFields,
+    //                 });
+    //             }
+
+    //             // Обработка вложенных subSubWorkCategories
+    //             const subChanges = generateSubCategoryChanges(originalItem.subSubWorkCategories, item.subSubWorkCategories, item.elementId);
+    //             changes.push(...subChanges);
+    //         }
+    //     });
+
+    //     return changes;
+    // };
+
+    // const generateSubCategoryChanges = (originalSub, updatedSub, parentId) => {
+    //     const subChanges = [];
+
+    //     // Добавленные подкатегории
+    //     const added = updatedSub.filter(sub => !originalSub.some(orig => orig.elementId === sub.elementId));
+    //     added.forEach(sub => {
+    //         subChanges.push({
+    //             operation: 'add',
+    //             type: 2,
+    //             updatedFields: {
+    //                 subSubWorkCategoryName: sub.subSubWorkCategoryName,
+    //                 workAmount: sub.workAmount,
+    //                 measureUnit: sub.measureUnit,
+    //                 price: sub.price,
+    //                 nodeId: sub.nodeId,
+    //             },
+    //             parentId,
+    //         });
+    //     });
+
+    //     // Удалённые подкатегории
+    //     const removed = originalSub.filter(sub => !updatedSub.some(upd => upd.elementId === sub.elementId));
+    //     removed.forEach(sub => {
+    //         subChanges.push({
+    //             operation: 'delete',
+    //             type: 2,
+    //             elementId: sub.elementId,
+    //             updatedFields: {
+    //                 subSubWorkCategoryName: sub.subSubWorkCategoryName,
+    //                 workAmount: sub.workAmount,
+    //                 measureUnit: sub.measureUnit,
+    //                 price: sub.price,
+    //                 nodeId: sub.nodeId,
+    //             },
+    //             parentId,
+    //         });
+    //     });
+
+    //     // Обновлённые подкатегории
+    //     updatedSub.forEach(sub => {
+    //         const originalSubItem = originalSub.find(orig => orig.elementId === sub.elementId);
+    //         if (originalSubItem) {
+    //             const updatedFields = {};
+
+    //             if (originalSubItem.subSubWorkCategoryName !== sub.subSubWorkCategoryName) {
+    //                 updatedFields.subSubWorkCategoryName = sub.subSubWorkCategoryName;
+    //             }
+    //             if (originalSubItem.workAmount !== sub.workAmount) {
+    //                 updatedFields.workAmount = sub.workAmount;
+    //             }
+    //             if (originalSubItem.measureUnit !== sub.measureUnit) {
+    //                 updatedFields.measureUnit = sub.measureUnit;
+    //             }
+    //             if (originalSubItem.price !== sub.price) {
+    //                 updatedFields.price = sub.price;
+    //             }
+
+    //             if (Object.keys(updatedFields).length > 0) {
+    //                 updatedFields.nodeId = sub.nodeId;
+    //                 subChanges.push({
+    //                     operation: 'update',
+    //                     type: 2,
+    //                     elementId: sub.elementId,
+    //                     updatedFields,
+    //                 });
+    //             }
+    //         }
+    //     });
+
+    //     return subChanges;
+    // };
+
     const generateChanges = (original, updated) => {
         const changes = [];
 
@@ -409,7 +557,12 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                 }
 
                 // Обработка вложенных subSubWorkCategories
-                const subChanges = generateSubCategoryChanges(originalItem.subSubWorkCategories, item.subSubWorkCategories, item.elementId);
+                const subChanges = generateSubCategoryChanges(
+                    originalItem.subSubWorkCategories,
+                    item.subSubWorkCategories,
+                    item.elementId,
+                    item.nodeId // Передаем nodeId родительского элемента
+                );
                 changes.push(...subChanges);
             }
         });
@@ -417,7 +570,7 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
         return changes;
     };
 
-    const generateSubCategoryChanges = (originalSub, updatedSub, parentId) => {
+    const generateSubCategoryChanges = (originalSub, updatedSub, parentId, parentNodeId) => {
         const subChanges = [];
 
         // Добавленные подкатегории
@@ -434,6 +587,7 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                     nodeId: sub.nodeId,
                 },
                 parentId,
+                parentNodeId, // Добавляем nodeId родительского элемента
             });
         });
 
@@ -452,6 +606,7 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                     nodeId: sub.nodeId,
                 },
                 parentId,
+                parentNodeId, // Добавляем nodeId родительского элемента
             });
         });
 
@@ -481,6 +636,8 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                         type: 2,
                         elementId: sub.elementId,
                         updatedFields,
+                        parentId,
+                        parentNodeId, // Добавляем nodeId родительского элемента
                     });
                 }
             }
@@ -488,7 +645,6 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
 
         return subChanges;
     };
-
 
     const handleFormated = async () => {
 
@@ -662,10 +818,13 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                     />
 
                     <div>
+
                         {estimate.map((orange) => (
                             <React.Fragment key={orange.nodeId}>
+                                {/* Блок категории */}
                                 <div style={styles.orangeBox}>
                                     <div style={styles.orangeHeader}>
+                                    <p>{orange.nodeId}</p>
                                         <IconButton
                                             color="error"
                                             onClick={() => handleRemoveOrangeItem(orange.elementId)}
@@ -693,9 +852,37 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                                             <Add />
                                         </Button>
                                     </div>
-                                    <p>Node ID: {orange.nodeId}</p>
-                                    {orange.subSubWorkCategories.map((subItem) => (
-                                        <div key={subItem.nodeId} style={styles.whiteBox}>
+                                    
+
+                                    {/* <p>Здесь должны отображаться карточки изменения и удаления рыжих</p> */}
+
+                                    {changes
+                                        .filter(
+                                            (change) =>
+                                                (change.operation === 'update' || change.operation === 'delete') &&
+                                                change.parentNodeId === null &&
+                                                change.updatedFields.nodeId === orange.nodeId
+                                                                                    )
+                                        .map((change, index) => (
+                                            <ChangeCard
+                                                key={`${change.nodeId}-add-${index}`}
+                                                operation={change.operation}
+                                                data={change}
+                                                url={url}
+                                                authToken={authToken}
+                                                agreementId={agreementId}
+                                                userId={userId}
+                                                firstId={initiatorId}
+                                                secondId={receiverId}
+                                            />
+                                        ))}
+                                </div>
+
+                                {orange.subSubWorkCategories.map((subItem) => (
+                                    <div key={subItem.nodeId}>
+                                        {/* Блок подкатегории */}
+                                        <div style={styles.whiteBox}>
+                                        <p>{subItem.nodeId}</p>
                                             <TextField
                                                 placeholder="Наименование подкатегории"
                                                 variant="outlined"
@@ -733,7 +920,6 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                                                     pattern: '[0-9]*', // Ограничение на ввод только цифр (основное для валидации)
                                                 }}
                                             />
-
                                             <MeasureUnitAutocomplete
                                                 onSelect={(value) =>
                                                     handleSubItemChange(
@@ -747,7 +933,6 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                                                 disabled={isEditing !== true}
                                                 style={styles.select}
                                             />
-
                                             <TextField
                                                 placeholder="Цена"
                                                 variant="outlined"
@@ -775,8 +960,7 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                                                     inputMode: 'decimal', // Мобильные устройства показывают цифровую клавиатуру с точкой
                                                 }}
                                             />
-
-                                            <p>Node ID: {subItem.nodeId}</p>
+                                            
                                             <IconButton
                                                 color="error"
                                                 onClick={() =>
@@ -787,19 +971,44 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                                                 <Remove />
                                             </IconButton>
                                         </div>
-                                    ))}
-                                </div>
 
-                                {/* Карточки для изменений */}
+                                        {/* Карточки изменений для подкатегории */}
+                                        {changes
+                                            .filter(
+                                                (change) =>
+                                                    (change.updatedFields?.nodeId === subItem.nodeId || // Для изменений подкатегории
+                                                        change.parentId === subItem.elementId) && // Для изменений, связанных с конкретной подкатегорией
+                                                    change.elementId !== null // Исключаем карточки на добавление
+                                            )
+                                            .map((change, index) => (
+                                                <ChangeCard
+                                                    key={`${subItem.nodeId}-${index}`}
+                                                    operation={change.operation}
+                                                    data={change}
+                                                    url={url}
+                                                    authToken={authToken}
+                                                    agreementId={agreementId}
+                                                    userId={userId}
+                                                    firstId={initiatorId}
+                                                    secondId={receiverId}
+                                                />
+                                            ))}
+
+                                    </div>
+
+                                ))}
+
+                                {/* Карточки изменений на добавление подкатегорий */}
                                 {changes
                                     .filter(
                                         (change) =>
-                                            change.updatedFields?.nodeId === orange.nodeId ||
-                                            change.updatedFields?.parentId === orange.elementId
+                                            change.operation === 'add' && // Только карточки на добавление
+                                            change.elementId === null && // Карточки без elementId
+                                            change.parentNodeId === orange.nodeId // Карточки для текущей категории
                                     )
                                     .map((change, index) => (
                                         <ChangeCard
-                                            key={`${orange.nodeId}-${index}`}
+                                            key={`${orange.nodeId}-add-${index}`}
                                             operation={change.operation}
                                             data={change}
                                             url={url}
@@ -810,19 +1019,20 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                                             secondId={receiverId}
                                         />
                                     ))}
+
                             </React.Fragment>
                         ))}
-
-                        {/* Карточки для добавления новых рыжих элементов */}
+                        {/* проблемный Блок */}
                         {changes
                             .filter(
                                 (change) =>
-                                    !change.updatedFields?.parentId &&
-                                    !estimate.some((orange) => orange.nodeId === change.updatedFields?.nodeId)
+                                    change.operation === 'add' &&
+                                    change.parentNodeId === null && // Карточки без elementId
+                                    change.parentNodeId === null // Карточки для новых элементов (без родителя)
                             )
                             .map((change, index) => (
                                 <ChangeCard
-                                    key={`new-orange-${index}`}
+                                    key={`${change.nodeId}-add-${index}`}
                                     operation={change.operation}
                                     data={change}
                                     url={url}
@@ -869,49 +1079,86 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
 };
 
 const styles = {
+    // Стиль для контейнера категории (оранжевый блок)
     orangeBox: {
         backgroundColor: '#ffa726',
-        padding: '15px',
-        borderRadius: '8px',
+        padding: '20px',
+        borderRadius: '12px',
         marginBottom: '20px',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+        border: '1px solid #e65100',
     },
+    // Заголовок категории
     orangeHeader: {
         display: 'flex',
         alignItems: 'center',
         gap: '10px',
-        marginBottom: '10px',
+        marginBottom: '15px',
     },
+    // Стиль для подкатегории (белый блок)
     whiteBox: {
         backgroundColor: '#fff',
-        padding: '10px',
-        borderRadius: '6px',
-        marginTop: '10px',
+        padding: '15px',
+        borderRadius: '8px',
+        marginTop: '15px',
         display: 'flex',
         alignItems: 'center',
         gap: '10px',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+        border: '1px solid #e0e0e0',
     },
+    // Стиль для текстовых полей
     inputField: {
         flex: 1,
         backgroundColor: '#fff',
+        borderRadius: '4px',
+        border: '1px solid #ccc',
     },
+    // Стиль для маленьких текстовых полей (например, объём работ, цена)
     inputFieldSmall: {
         flex: 0.2,
         backgroundColor: '#fff',
+        borderRadius: '4px',
+        border: '1px solid #ccc',
     },
+    // Стиль для выпадающего списка (единицы измерения)
     select: {
         flex: 0.2,
         backgroundColor: '#fff',
+        borderRadius: '4px',
+        border: '1px solid #ccc',
     },
+    // Стиль для кнопки добавления
     addButton: {
         backgroundColor: '#fff',
         color: '#ffa726',
         border: '1px solid #ffa726',
+        borderRadius: '4px',
         '&:hover': {
             backgroundColor: '#ffa726',
             color: '#fff',
         },
+    },
+    // Стиль для заголовков (например, Node ID)
+    headerText: {
+        fontSize: '16px',
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: '10px',
+    },
+    // Стиль для разделителя между элементами
+    divider: {
+        borderBottom: '1px solid #e0e0e0',
+        margin: '15px 0',
+    },
+    // Стиль для карточек изменений
+    changeCard: {
+        backgroundColor: '#f5f5f5',
+        padding: '10px',
+        borderRadius: '6px',
+        marginTop: '10px',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+        border: '1px solid #e0e0e0',
     },
 };
 
