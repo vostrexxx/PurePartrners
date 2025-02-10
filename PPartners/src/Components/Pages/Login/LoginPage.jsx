@@ -1,135 +1,166 @@
-import React, { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import ErrorMessage from '../../ErrorHandling/ErrorMessage';
-import { requestPermission } from '../../../../firebase';
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Button, Container, Row, Col, Form, Card } from "react-bootstrap";
+import NotAuthTopBar from "../TopBar/NotAuthTopBar";
+import ErrorMessage from "../../ErrorHandling/ErrorMessage";
+import { requestPermission } from "../../../../firebase";
 
 const LoginPage = () => {
     const [errorMessage, setErrorMessage] = useState(null);
-    const [errorCode, setErrorCode] = useState(null);
-    
-    const location = useLocation();
-    const navigate = useNavigate();
-    const [phoneNumber, setPhoneNumber] = useState(localStorage.getItem('phoneNumber'));
-    const [password, setPassword] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState(localStorage.getItem("phoneNumber"));
+    const [password, setPassword] = useState("");
     const [rememberMe, setRememberMe] = useState(false);
-
-    let url = localStorage.getItem('url')
-
-    const ChangePhoneNumber = async () => {
-  
-        // const simulateResponse = () => 1;
-        // if (simulateResponse() === 1) {
-            navigate('/identification');
-        // } else {
-        //     console.error('Ошибка входа');
-        // }
-        
-    };
-
-    const getFCMToken = async () => {
-        const token = await requestPermission();
-        if (token) {
-          console.log('FCM токен получен и отправлен на сервер:', token);
-        }
-    };
+    const navigate = useNavigate();
+    const url = localStorage.getItem("url");
 
     const handleLogin = async () => {
         try {
-            const response = await fetch(url + '/auth/login', {
-                method: 'POST',
+            const response = await fetch(`${url}/auth/login`, {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
                 },
                 body: JSON.stringify({ phoneNumber, password }),
             });
-    
-            if (response.ok) {
-                setErrorMessage(null);
-                setErrorCode(null);
-                const data = await response.json();
-                const token = data.token;
-                const userId = data.userId
-                localStorage.setItem('authToken', token);
-                localStorage.setItem('userId', userId);
 
-                getFCMToken();
-
-                navigate('/main');
-
-                const fetchGetBalance = async () => {
-                    try {
-                        const response = await fetch(`${url}/balance`, {
-                            method: 'GET',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${token}`,
-                            },
-                        });
-                        if (!response.ok) {
-                            throw new Error(`Ошибка загрузки баланса: ${response.status}`);
-                        }
-        
-                        const data = await response.json();
-                    } catch (error) {
-                        setError(`Не удалось загрузить баланс: ${error.message}`);
-                    }
-                };
-        
-                fetchGetBalance();
-        
-
-
-            } else {
-                setErrorMessage(response.message)
-                setErrorCode(response.status)
-
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText || `Ошибка ${response.status}`);
             }
+
+            const data = await response.json();
+            const token = data.token;
+            const userId = data.userId;
+
+            localStorage.setItem("authToken", token);
+            localStorage.setItem("userId", userId);
+            navigate("/main");
         } catch (error) {
-            setErrorMessage(error.message)
-            setErrorCode(null)
+            setErrorMessage(error.message);
         }
     };
 
-    const handlePasswordReset = async () => {
-        // const simulateResponse = () => 1;
-        // if (simulateResponse() === 1) {
-            navigate('/phone-enter');
-        // } else {
-        //     console.error('Ошибка входа');
-        // }
+    const handlePasswordReset = () => navigate("/phone-enter");
+    const ChangePhoneNumber = () => navigate("/identification");
+
+    const handleEnterPhoneNumber = async () => {
+        try {
+            const response = await fetch(url + "/auth/password/code", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ phoneNumber }),
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                try {
+                    const errorData = JSON.parse(errorText);
+                    throw new Error(errorData.message || `Ошибка ${response.status}`);
+                } catch (parseError) {
+                    throw new Error(errorText || `Ошибка ${response.status}`);
+                }
+            }
+
+            navigate("/passcode-enter");
+        } catch (error) {
+            setErrorMessage(error.message);
+        }
     };
 
     return (
-        <div>
-            <label>Ваш номер телефона:</label>
-            <input
-                type="text"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="+1234567890"
-                disabled
-            />
-            <label>Введите пароль:</label>
-            <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-            />
-            <label>
-                <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                />
-                Запомнить меня
-            </label>
-            <button onClick={handleLogin}>Войти</button>
-            <button onClick={handlePasswordReset}>Забыли пароль?</button>
-            <button onClick={ChangePhoneNumber}>
-                Изменить номер телефона
-            </button>
-            <ErrorMessage message={errorMessage} errorCode={errorCode} />
-
+        <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+            <NotAuthTopBar />
+            <Container
+                fluid
+                className="d-flex align-items-center justify-content-center"
+                style={{
+                    backgroundColor: "#242582",
+                    flex: 1,
+                }}
+            >
+                <Row className="w-100">
+                    <Col xs={12} md={8} lg={4} className="mx-auto">
+                        <Card className="p-4 shadow-lg">
+                            <Card.Body>
+                                <h2 className="text-center mb-4">Вход</h2>
+                                <Form>
+                                    <Form.Group controlId="formPhoneNumber" className="mb-3">
+                                        {/* <Form.Label>Ваш номер телефона</Form.Label> */}
+                                        <Form.Control
+                                            type="text"
+                                            value={phoneNumber}
+                                            placeholder="+7 (***) ***-**-**"
+                                            disabled
+                                            className="rounded-pill p-3"
+                                            style={{
+                                                backgroundColor: "#e9ecef",
+                                                border: "none",
+                                                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                                            }}
+                                        />
+                                    </Form.Group>
+                                    <Form.Group controlId="formPassword" className="mb-3">
+                                        {/* <Form.Label>Введите пароль</Form.Label> */}
+                                        <Form.Control
+                                            type="password"
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            placeholder="Введите пароль"
+                                            className="rounded-pill p-3"
+                                            style={{
+                                                backgroundColor: "#ffffff",
+                                                border: "none",
+                                                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                                            }}
+                                        />
+                                    </Form.Group>
+                                    <Form.Group controlId="formRememberMe" className="mb-3">
+                                        <Form.Check
+                                            type="checkbox"
+                                            label="Запомнить меня"
+                                            checked={rememberMe}
+                                            onChange={(e) => setRememberMe(e.target.checked)}
+                                        />
+                                    </Form.Group>
+                                    <ErrorMessage message={errorMessage} />
+                                    <div className="d-grid gap-2">
+                                        <Button
+                                            variant="primary"
+                                            className="rounded-pill"
+                                            style={{
+                                                backgroundColor: "#ff7101",
+                                                border: "none",
+                                                fontSize: "18px",
+                                            }}
+                                            onClick={handleLogin}
+                                        >
+                                            Войти
+                                        </Button>
+                                        <Button
+                                            variant="link"
+                                            className="text-decoration-none text-center"
+                                            style={{ color: "#ff7101" }}
+                                            onClick={handleEnterPhoneNumber}
+                                        >
+                                            Забыли пароль?
+                                        </Button>
+                                        <Button
+                                            variant="link"
+                                            className="text-decoration-none text-center"
+                                            style={{ color: "#ff7101" }}
+                                            onClick={ChangePhoneNumber}
+                                        >
+                                            Изменить номер телефона
+                                        </Button>
+                                    </div>
+                                </Form>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                </Row>
+            </Container>
         </div>
     );
 };

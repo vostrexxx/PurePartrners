@@ -1,838 +1,1178 @@
 import React, { useState, useEffect } from 'react';
 import { useProfile } from '../../Context/ProfileContext'; // Импорт профиля
 import { ImTextColor } from 'react-icons/im';
-import Card from '../../Previews/Card.jsx';
+import Card_ from '../../Previews/Card.jsx';
 import { useNavigate, useLocation } from 'react-router-dom';
 import AutoCompleteInput from './AutoCompleteInput.jsx';
 import MetroAutocomplete from '../SearchComponent/AutoCompleteMetro.jsx';
+import { Button, Card, Container, Form, ListGroup, Row, Col, Spinner } from "react-bootstrap";
+import './global.css'
 
 const Entities = ({ onSelectEntity }) => {
-    const url = localStorage.getItem('url');
-    const authToken = localStorage.getItem('authToken');
-    const { isSpecialist } = useProfile();
+  const url = localStorage.getItem("url");
+  const authToken = localStorage.getItem("authToken");
+  const { isSpecialist } = useProfile();
 
-    const [legalEntities, setLegalEntities] = useState([]);
-    const [persons, setPersons] = useState([]);
-    const [selectedEntity, setSelectedEntity] = useState(null); // ID выбранного лица
+  const [legalEntities, setLegalEntities] = useState([]);
+  const [persons, setPersons] = useState([]);
+  const [selectedEntity, setSelectedEntity] = useState(null);
 
-    useEffect(() => {
-        const fetchDataLegal = async () => {
-            try {
-                const response = await fetch(`${url}/${isSpecialist ? 'contractor' : 'customer'}/legal-entity`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${authToken}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Ошибка сети: ${response.status}`);
-                }
-
-                const data = await response.json();
-                setLegalEntities(data);
-            } catch (error) {
-                console.error('Ошибка при загрузке юрлиц:', error.message);
-            }
-        };
-
-        const fetchDataPerson = async () => {
-            try {
-                const response = await fetch(`${url}/${isSpecialist ? 'contractor' : 'customer'}/person`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${authToken}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Ошибка сети: ${response.status}`);
-                }
-
-                const data = await response.json();
-                setPersons(data);
-            } catch (error) {
-                console.error('Ошибка при загрузке физлиц:', error.message);
-            }
-        };
-
-        fetchDataLegal();
-        fetchDataPerson();
-    }, [isSpecialist, url, authToken]);
-
-    const handleSelectEntity = (id) => {
-        // console.log('Выбранное лицо с ID:', id);
-
-        setSelectedEntity(id);
-        onSelectEntity(id); // Передаём выбранный ID в родительский компонент
-    };
-
-    return (
-        <div style={{ display: 'flex', gap: '20px' }}>
-            {/* Левый столбец - Юридические лица */}
-            <div style={{ flex: 1 }}>
-                <h3 style={{ textAlign: 'center', color: 'white' }}>Юридические лица</h3>
-                {legalEntities.map((entity) => (
-                    <div
-                        key={entity.id}
-                        onClick={() => handleSelectEntity(entity.id)}
-                        style={{
-                            padding: '10px',
-                            margin: '5px 0',
-                            backgroundColor: selectedEntity === entity.id ? '#4114f5' : '#bd0999',
-                            border: '1px solid blue',
-                            borderRadius: '5px',
-                            cursor: 'pointer',
-                        }}
-                    >
-                        <strong>{entity.firm}</strong>
-                        <p>ИНН: {entity.inn}</p>
-                    </div>
-                ))}
-            </div>
-
-            {/* Правый столбец - Физические лица */}
-            <div style={{ flex: 1 }}>
-                <h3 style={{ textAlign: 'center', color: 'white' }}>Физические лица</h3>
-                {persons.map((person) => (
-                    <div
-                        key={person.id}
-                        onClick={() => handleSelectEntity(person.id)}
-                        style={{
-                            padding: '10px',
-                            margin: '5px 0',
-                            backgroundColor: selectedEntity === person.id ? '#4114f5' : '#bd0999',
-                            border: '1px solid green',
-                            borderRadius: '5px',
-                            cursor: 'pointer',
-                        }}
-                    >
-                        <strong>{person.fullName}</strong>
-                        <p>ИНН: {person.inn}</p>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-};
-
-
-
-const FormField = ({ type, label, name, placeholder, value, onChange, disabled, hidden }) => {
-    if (hidden) {
-        return null
-    }
-    else {
-        return (
-            <div>
-                <label>{label}</label>
-                <input
-                    type={type}
-                    name={name}
-                    placeholder={placeholder}
-                    value={value}
-                    onChange={onChange}
-                    disabled={disabled}
-                />
-            </div>
+  useEffect(() => {
+    const fetchDataLegal = async () => {
+      try {
+        const response = await fetch(
+          `${url}/${isSpecialist ? "contractor" : "customer"}/legal-entity`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
         );
 
-    }
+        if (!response.ok) {
+          throw new Error(`Ошибка сети: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setLegalEntities(data);
+      } catch (error) {
+        console.error("Ошибка при загрузке юрлиц:", error.message);
+      }
+    };
+
+    const fetchDataPerson = async () => {
+      try {
+        const response = await fetch(
+          `${url}/${isSpecialist ? "contractor" : "customer"}/person`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Ошибка сети: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setPersons(data);
+      } catch (error) {
+        console.error("Ошибка при загрузке физлиц:", error.message);
+      }
+    };
+
+    fetchDataLegal();
+    fetchDataPerson();
+  }, [isSpecialist, url, authToken]);
+
+  const handleSelectEntity = (id) => {
+    setSelectedEntity(id);
+    onSelectEntity(id);
+  };
+
+  return (
+    <Container fluid>
+      <h3 className="text-center mb-4" style={{ color: "#ff7f00" }}>
+        Выберите лицо
+      </h3>
+
+      <Row className="g-4">
+        {/* Юридические лица */}
+        <Col xs={12} md={6}>
+          <Card
+            style={{
+              backgroundColor: "#222",
+              color: "white",
+              borderRadius: "12px",
+              padding: "10px",
+              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.5)",
+            }}
+          >
+            <Card.Body>
+              <h4 className="text-center" style={{ color: "white" }}>
+                Юридические лица
+              </h4>
+              <ListGroup variant="flush">
+                {legalEntities.length > 0 ? (
+                  legalEntities.map((entity) => (
+                    <ListGroup.Item
+                      key={entity.id}
+                      onClick={() => handleSelectEntity(entity.id)}
+                      className="d-flex flex-column"
+                      style={{
+                        cursor: "pointer",
+                        borderRadius: "8px",
+                        padding: "12px",
+                        marginBottom: "5px",
+                        backgroundColor: selectedEntity === entity.id ? "#ff7f00" : "#333",
+                        color: selectedEntity === entity.id ? "white" : "#bbb",
+                        transition: "background-color 0.3s, color 0.3s",
+                        border: "1px solid #555",
+                      }}
+                    >
+                      <strong
+                        style={{
+                          color: selectedEntity === entity.id ? "white" : "inherit",
+                        }}
+                      >
+                        {entity.firm}
+                      </strong>
+                      <span
+                        style={{
+                          color: selectedEntity === entity.id ? "white" : "#bbb",
+                        }}
+                      >
+                        ИНН: {entity.inn}
+                      </span>
+                    </ListGroup.Item>
+                  ))
+                ) : (
+                  <p className="text-center mt-3">
+                    Нет зарегистрированных юридических лиц
+                  </p>
+                )}
+              </ListGroup>
+            </Card.Body>
+          </Card>
+        </Col>
+
+        {/* Физические лица */}
+        <Col xs={12} md={6}>
+          <Card
+            style={{
+              backgroundColor: "#222",
+              color: "white",
+              borderRadius: "12px",
+              padding: "10px",
+              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.5)",
+            }}
+          >
+            <Card.Body>
+              <h4 className="text-center" style={{ color: "white" }}>
+                Физические лица
+              </h4>
+              <ListGroup variant="flush">
+                {persons.length > 0 ? (
+                  persons.map((person) => (
+                    <ListGroup.Item
+                      key={person.id}
+                      onClick={() => handleSelectEntity(person.id)}
+                      className="d-flex flex-column"
+                      style={{
+                        cursor: "pointer",
+                        borderRadius: "8px",
+                        padding: "12px",
+                        marginBottom: "5px",
+                        backgroundColor: selectedEntity === person.id ? "#ff7f00" : "#333",
+                        color: selectedEntity === person.id ? "white" : "#bbb",
+                        transition: "background-color 0.3s, color 0.3s",
+                        border: "1px solid #555",
+                      }}
+                    >
+                      <strong
+                        style={{
+                          color: selectedEntity === person.id ? "white" : "inherit",
+                        }}
+                      >
+                        {person.fullName}
+                      </strong>
+                      <span
+                        style={{
+                          color: selectedEntity === person.id ? "white" : "#bbb",
+                        }}
+                      >
+                        ИНН: {person.inn}
+                      </span>
+                    </ListGroup.Item>
+                  ))
+                ) : (
+                  <p className="text-center mt-3">
+                    Нет зарегистрированных физических лиц
+                  </p>
+                )}
+              </ListGroup>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
+  );
+};
+
+const FormField = ({ type, label, name, placeholder, value, onChange, disabled, hidden }) => {
+  if (hidden) {
+    return null
+  }
+  else {
+    return (
+      <div>
+        <label>{label}</label>
+        <input
+          type={type}
+          name={name}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange}
+          disabled={disabled}
+        />
+      </div>
+    );
+
+  }
 };
 
 const CheckboxField = ({ label, name, checked, onChange }) => {
-    return (
-        <div>
-            <label>
-                <input
-                    type="checkbox"
-                    name={name}
-                    checked={checked}
-                    onChange={onChange}
-                />
-                {label}
-            </label>
-        </div>
-    );
+  return (
+    <div>
+      <label>
+        <input
+          type="checkbox"
+          name={name}
+          checked={checked}
+          onChange={onChange}
+        />
+        {label}
+      </label>
+    </div>
+  );
 };
 
 const getAuthToken = () => {
-    return localStorage.getItem('authToken');
+  return localStorage.getItem('authToken');
 };
 
 let url = localStorage.getItem('url')
 
 const QuestionnaireForm = ({ onSubmit, onCancel }) => {
-    const [formData, setFormData] = useState({
-        workCategories: '',
-        hasEdu: false,
-        eduEst: "",
-        eduDateStart: '',
-        eduDateEnd: '',
-        hasTeam: false,
-        team: '',
-        prices: '',
-        selfInfo: '',
-        workExp: '',
-        entityId: null, // ID выбранного лица
-        guarantee: 12
-    });
+  const [formData, setFormData] = useState({
+    workCategories: "",
+    hasEdu: false,
+    eduEst: "",
+    eduDateStart: "",
+    eduDateEnd: "",
+    hasTeam: false,
+    team: "",
+    prices: "",
+    selfInfo: "",
+    workExp: "",
+    entityId: null,
+    guarantee: 12,
+  });
 
-    const [photos, setPhotos] = useState([]); // Хранение выбранных фотографий
+  const [photos, setPhotos] = useState([]); // Хранение выбранных фотографий
 
-    const handlePhotoChange = (e) => {
-        const selectedPhotos = Array.from(e.target.files);
-        setPhotos((prevPhotos) => [...prevPhotos, ...selectedPhotos]);
-    };
+  const handlePhotoChange = (e) => {
+    const selectedPhotos = Array.from(e.target.files);
+    setPhotos((prevPhotos) => [...prevPhotos, ...selectedPhotos]);
+  };
 
-    const handleRemovePhoto = (index) => {
-        setPhotos((prevPhotos) => prevPhotos.filter((_, i) => i !== index));
-    };
+  const handleRemovePhoto = (index) => {
+    setPhotos((prevPhotos) => prevPhotos.filter((_, i) => i !== index));
+  };
 
-    const handleInputChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData((prevData) => ({
-            ...prevData,
-            [name]: type === 'checkbox' ? checked : value,
-        }));
-    };
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
 
-    const handleSelectEntity = (id) => {
-        setFormData((prevData) => ({
-            ...prevData,
-            entityId: id, // Устанавливаем ID выбранного лица
-        }));
-    };
+  const handleSelectEntity = (id) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      entityId: id, // Устанавливаем ID выбранного лица
+    }));
+  };
 
-    const handleCategorySelect = (value) => {
-        setFormData((prevData) => ({
-            ...prevData,
-            workCategories: value, // Обновляем workCategories при выборе
-        }));
-    };
+  const handleCategorySelect = (value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      workCategories: value, // Обновляем workCategories при выборе
+    }));
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        try {
-            const authToken = getAuthToken();
+    try {
+      const authToken = getAuthToken();
 
-            const formDataToSend = new FormData();
+      const formDataToSend = new FormData();
 
-            // Добавляем все текстовые данные
-            Object.entries(formData).forEach(([key, value]) => {
-                if (value !== null && value !== undefined) {
-                    // Проверяем, является ли значение строкой, и убираем пробелы в конце
-                    const trimmedValue = typeof value === 'string' ? value.trim() : value;
-                    formDataToSend.append(key, trimmedValue);
-                }
-            });
-
-            // Добавляем фотографии
-            photos.forEach((photo) => {
-                formDataToSend.append('images', photo);
-            });
-
-            const response = await fetch(`${url}/questionnaire`, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${authToken}`, // Заголовок авторизации
-                },
-                body: formDataToSend, // Отправляем FormData
-            });
-
-            if (response.ok) {
-                alert('Анкета успешно добавлена!');
-                setPhotos([]); // Очистить фотографии после успешной отправки
-                onSubmit();
-            } else {
-                const errorMsg = await response.text();
-                alert(`Ошибка при добавлении анкеты: ${errorMsg}`);
-            }
-        } catch (error) {
-            console.error('Ошибка при отправке анкеты:', error);
+      // Добавляем все текстовые данные
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          const trimmedValue = typeof value === "string" ? value.trim() : value;
+          formDataToSend.append(key, trimmedValue);
         }
-    };
+      });
 
+      // Добавляем фотографии
+      photos.forEach((photo) => {
+        formDataToSend.append("images", photo);
+      });
 
-    return (
-        <div>
-            <h3>Создать анкету (Специалист)</h3>
-            <form onSubmit={handleSubmit}>
-                <AutoCompleteInput
-                    label="Категории ваших работ"
+      const response = await fetch(`${url}/questionnaire`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: formDataToSend,
+      });
+
+      if (response.ok) {
+        alert("Анкета успешно добавлена!");
+        setPhotos([]); // Очистить фотографии после успешной отправки
+        onSubmit();
+      } else {
+        const errorMsg = await response.text();
+        alert(`Ошибка при добавлении анкеты: ${errorMsg}`);
+      }
+    } catch (error) {
+      console.error("Ошибка при отправке анкеты:", error);
+    }
+  };
+
+  return (
+    <Container fluid className="mt-4">
+      <Row className="justify-content-center">
+        <Col md={8}>
+          <Card
+            style={{
+              backgroundColor: "#222",
+              color: "white",
+              borderRadius: "12px",
+              padding: "20px",
+              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.5)",
+            }}
+          >
+            <Card.Body>
+              <h2
+                className="text-center mb-4"
+                style={{ color: "#ff7f00", fontWeight: "bold" }}
+              >
+                Создание анкеты
+              </h2>
+              <Form onSubmit={handleSubmit}>
+                {/* Категории */}
+                <Form.Group className="mb-3">
+                  <AutoCompleteInput
                     name="workCategories"
                     placeholder="Введите категорию"
-                    onCategorySelect={handleCategorySelect} // Передаем функцию для обновления formData
-                />
-
-                <CheckboxField
+                    onCategorySelect={handleCategorySelect}
+                  />
+                </Form.Group>
+  
+                {/* Образование */}
+                <Form.Group className="mb-3">
+                  <Form.Check
+                    type="checkbox"
                     label="Имеется профильное образование?"
                     name="hasEdu"
                     checked={formData.hasEdu}
                     onChange={handleInputChange}
-                />
-                <FormField
-                    type="text"
-                    label="Образовательное учреждение"
-                    name="eduEst"
-                    placeholder="МИРЭА"
-                    value={formData.eduEst}
-                    onChange={handleInputChange}
-                    hidden={!formData.hasEdu} // Управляем видимостью
-                />
-                <FormField
-                    type="date"
-                    label="Дата начала обучения"
-                    name="eduDateStart"
-                    placeholder="Дата старта"
-                    value={formData.eduDateStart}
-                    onChange={handleInputChange}
-                    hidden={!formData.hasEdu}
-                />
-                <FormField
-                    type="date"
-                    label="Дата окончания обучения"
-                    name="eduDateEnd"
-                    placeholder="Дата окончания"
-                    value={formData.eduDateEnd}
-                    onChange={handleInputChange}
-                    hidden={!formData.hasEdu}
-                />
-                <CheckboxField
+                    style={{ color: "white" }}
+                  />
+                </Form.Group>
+  
+                {formData.hasEdu && (
+                  <>
+                    <Form.Group className="mb-3">
+                      <Form.Label style={{ color: "white" }}>
+                        Образовательное учреждение
+                      </Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="eduEst"
+                        placeholder="Введите образовательное учреждение"
+                        value={formData.eduEst}
+                        onChange={handleInputChange}
+                        style={{
+                          backgroundColor: "#333",
+                          color: "white",
+                          border: "1px solid #555",
+                        }}
+                        className="form-control-placeholder"
+                      />
+                    </Form.Group>
+  
+                    <Row className="g-3">
+                      <Col xs={12} md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label style={{ color: "white" }}>
+                            Дата начала обучения
+                          </Form.Label>
+                          <Form.Control
+                            type="date"
+                            name="eduDateStart"
+                            value={formData.eduDateStart}
+                            onChange={handleInputChange}
+                            style={{
+                              backgroundColor: "#333",
+                              color: "white",
+                              border: "1px solid #555",
+                            }}
+                            className="form-control-placeholder"
+                          />
+                        </Form.Group>
+                      </Col>
+                      <Col xs={12} md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label style={{ color: "white" }}>
+                            Дата окончания обучения
+                          </Form.Label>
+                          <Form.Control
+                            type="date"
+                            name="eduDateEnd"
+                            value={formData.eduDateEnd}
+                            onChange={handleInputChange}
+                            style={{
+                              backgroundColor: "#333",
+                              color: "white",
+                              border: "1px solid #555",
+                            }}
+                            className="form-control-placeholder"
+                          />
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                  </>
+                )}
+  
+                {/* Команда */}
+                <Form.Group className="mb-3">
+                  <Form.Check
+                    type="checkbox"
                     label="Имеется ли команда?"
                     name="hasTeam"
                     checked={formData.hasTeam}
                     onChange={handleInputChange}
-                />
-                <FormField
+                    style={{ color: "white" }}
+                  />
+                </Form.Group>
+  
+                {formData.hasTeam && (
+                  <Form.Group className="mb-3">
+                    <Form.Label style={{ color: "white" }}>Команда</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="team"
+                      placeholder="Введите название команды"
+                      value={formData.team}
+                      onChange={handleInputChange}
+                      style={{
+                        backgroundColor: "#333",
+                        color: "white",
+                        border: "1px solid #555",
+                      }}
+                      className="form-control-placeholder"
+                    />
+                  </Form.Group>
+                )}
+  
+                {/* Другие поля */}
+                <Row className="g-3 mb-3">
+                  <Col xs={12} md={6}>
+                    <Form.Group>
+                      <Form.Label style={{ color: "white" }}>Расценки</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="prices"
+                        placeholder="Например, 50к"
+                        value={formData.prices}
+                        onChange={handleInputChange}
+                        style={{
+                          backgroundColor: "#333",
+                          color: "white",
+                          border: "1px solid #555",
+                        }}
+                        className="form-control-placeholder"
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col xs={12} md={6}>
+                    <Form.Group>
+                      <Form.Label style={{ color: "white" }}>
+                        Опыт работы (лет)
+                      </Form.Label>
+                      <Form.Control
+                        type="number"
+                        name="workExp"
+                        placeholder="Введите опыт работы"
+                        value={formData.workExp}
+                        onChange={handleInputChange}
+                        style={{
+                          backgroundColor: "#333",
+                          color: "white",
+                          border: "1px solid #555",
+                        }}
+                        className="form-control-placeholder"
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+  
+                {/* Информация о себе */}
+                <Form.Group className="mb-3">
+                  <Form.Label style={{ color: "white" }}>
+                    Информация о себе
+                  </Form.Label>
+                  <Form.Control
                     type="text"
-                    label="Команда"
-                    name="team"
-                    placeholder="Команда"
-                    value={formData.team}
-                    onChange={handleInputChange}
-                    hidden={!formData.hasTeam}
-                />
-                <FormField
-                    type="text"
-                    label="Расценки"
-                    name="prices"
-                    placeholder="50к баксов"
-                    value={formData.prices}
-                    onChange={handleInputChange}
-                />
-                <FormField
-                    type="text"
-                    label="Информация о себе"
                     name="selfInfo"
-                    placeholder="Информация о себе"
+                    placeholder="Опишите свои навыки и достижения"
                     value={formData.selfInfo}
                     onChange={handleInputChange}
-                />
-                <FormField
-                    type="number"
-                    label="Опыт работы"
-                    name="workExp"
-                    placeholder="Опыт работы"
-                    value={formData.workExp}
-                    onChange={handleInputChange}
-                />
-
-                <div>
-                    <h4>Добавить фотографии:</h4>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handlePhotoChange}
-                    />
-                    <ul>
-                        {photos.map((photo, index) => (
-                            <li key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                                <span style={{ marginRight: '10px' }}>{photo.name}</span>
-                                <button
-                                    type="button"
-                                    onClick={() => handleRemovePhoto(index)}
-                                    style={{
-                                        background: 'red',
-                                        color: 'white',
-                                        border: 'none',
-                                        padding: '5px',
-                                        cursor: 'pointer',
-                                    }}
-                                >
-                                    Удалить
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-
-
+                    style={{
+                      backgroundColor: "#333",
+                      color: "white",
+                      border: "1px solid #555",
+                    }}
+                    className="form-control-placeholder"
+                  />
+                </Form.Group>
+  
+                {/* Фото */}
+                <h5 className="mt-4" style={{ color: "#ff7f00" }}>
+                  Добавить фотографии
+                </h5>
+                <Form.Group className="mb-3">
+                  <Form.Control
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handlePhotoChange}
+                    style={{
+                      backgroundColor: "#333",
+                      color: "white",
+                      border: "1px solid #555",
+                    }}
+                  />
+                </Form.Group>
+  
+                {/* Выбор лица */}
                 <Entities onSelectEntity={handleSelectEntity} />
+  
+                {/* Кнопки */}
+                <div className="d-flex justify-content-between mt-4">
+                  
+                  <Button
+                    style={{
+                      width: "48%",
+                      backgroundColor: "#ffb300",
+                      border: "none",
+                      color: "black",
+                      fontWeight: "bold",
+                      padding: "10px",
+                      borderRadius: "8px",
+                      transition: "background-color 0.3s",
+                    }}
+                    onClick={onCancel}
+                  >
+                    Отмена
+                  </Button>
+                  <Button
+                    style={{
+                      width: "48%",
+                      backgroundColor: "#ff7f00",
+                      border: "none",
+                      color: "white",
+                      fontWeight: "bold",
+                      padding: "10px",
+                      borderRadius: "8px",
+                      transition: "background-color 0.3s",
+                    }}
+                    type="submit"
+                  >
+                    Сохранить
+                  </Button>
+                </div>
+              </Form>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+  
+      {/* Стили для серого плейсхолдера */}
+      <style>
+        {`
+          .form-control-placeholder::placeholder {
+            color: #bbb; /* Серый цвет для плейсхолдера */
+          }
+        `}
+      </style>
+    </Container>
+  );
+  
 
-                <button type="submit">Сохранить анкету</button>
-                <button type="button" onClick={onCancel}>Отмена</button>
-            </form>
-        </div>
-    );
+
 };
 
-// Компонент формы для объявления (Заказчик)
 const AnnouncementForm = ({ onSubmit, onCancel }) => {
-    const [isEditable, setIsEditable] = useState(false);
+  const [formData, setFormData] = useState({
+    totalCost: "",
+    isNonFixedPrice: false,
+    workCategories: "",
+    metro: "",
+    startDate: "",
+    finishDate: "",
+    comments: "",
+    entityId: null,
+    guarantee: 12,
+    address: "",
+  });
 
-    const [formData, setFormData] = useState({
-        totalCost: '',
-        isNonFixedPrice: false,
-        workCategories: '',
-        metro: '',
-        startDate: '',
-        finishDate: '',
-        comments: '',
-        entityId: null,
-        guarantee: 12,
-        address: '',
+  const [images, setPhotos] = useState([]);
+  const [uploading, setUploading] = useState(false);
+  const [files, setFiles] = useState([]);
+
+  const handleCategorySelect = (value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      workCategories: value,
+    }));
+  };
+
+  const handleSelectEntity = (id) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      entityId: id,
+    }));
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === "checkbox" ? checked : value,
     });
+  };
 
-    const [images, setPhotos] = useState([]);
-    const [uploading, setUploading] = useState(false);
+  const handlePhotoChange = (e) => {
+    setPhotos([...images, ...e.target.files]);
+  };
 
-    const [files, setFiles] = useState([]); // Для хранения загружаемых файлов
+  const handleRemovePhoto = (index) => {
+    setPhotos((prevPhotos) => prevPhotos.filter((_, i) => i !== index));
+  };
 
+  const handleFileChange = (e) => {
+    const newFiles = Array.from(e.target.files);
+    setFiles((prevFiles) => [...prevFiles, ...newFiles]);
+  };
 
-    const handleCategorySelect = (value) => {
-        setFormData((prevData) => ({
-            ...prevData,
-            workCategories: value,
-        }));
-    };
+  const handleRemoveFile = (index) => {
+    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+  };
 
-    const handleSelectEntity = (id) => {
-        setFormData((prevData) => ({
-            ...prevData,
-            entityId: id,
-        }));
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    const handleInputChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData({
-            ...formData,
-            [name]: type === 'checkbox' ? checked : value,
-        });
-    };
+    try {
+      setUploading(true);
 
-    const handlePhotoChange = (e) => {
-        setPhotos([...images, ...e.target.files]);
-    };
+      const formDataToSend = new FormData();
 
-    const handleRemovePhoto = (index) => {
-        setPhotos((prevPhotos) => prevPhotos.filter((_, i) => i !== index));
-    };
-
-    const handleFileChange = (e) => {
-        const newFiles = Array.from(e.target.files);
-        setFiles((prevFiles) => [...prevFiles, ...newFiles]); // Добавляем новые файлы к уже выбранным
-    };
-
-    const handleRemoveFile = (index) => {
-        setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
-    };
-
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        try {
-            setUploading(true);
-
-            const formDataToSend = new FormData();
-
-            // Добавляем все текстовые данные
-            Object.entries(formData).forEach(([key, value]) => {
-                if (value !== null && value !== undefined) {
-                    // Проверяем, является ли значение строкой, и убираем пробелы в конце
-                    const trimmedValue = typeof value === 'string' ? value.trim() : value;
-                    formDataToSend.append(key, trimmedValue);
-                }
-            });
-
-
-            // Добавляем изображения
-            images.forEach((file) => {
-                formDataToSend.append('images', file);
-            });
-
-            // Добавляем файлы
-            files.forEach((file) => {
-                formDataToSend.append('files', file); // Ключ `files` для загрузки документов
-            });
-
-            const authToken = localStorage.getItem('authToken');
-            if (!authToken) {
-                alert('Токен не найден');
-                return;
-            }
-
-            const response = await fetch(`${localStorage.getItem('url')}/announcement`, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${authToken}`,
-                },
-                body: formDataToSend,
-            });
-
-            if (response.ok) {
-                alert('Объявление успешно добавлено!');
-                setFormData({
-                    totalCost: '',
-                    isNonFixedPrice: false,
-                    workCategories: '',
-                    metro: '',
-                    startDate: '',
-                    finishDate: '',
-                    comments: '',
-                    entityId: null,
-                    guarantee: 12,
-                    address: '',
-                });
-                setPhotos([]);
-                setFiles([]); // Очищаем файлы
-                onSubmit();
-            } else {
-                const errorMsg = await response.text();
-                alert(`Ошибка при добавлении объявления: ${errorMsg}`);
-            }
-        } catch (error) {
-            console.error('Ошибка при отправке данных:', error);
-            alert('Произошла ошибка при отправке данных.');
-        } finally {
-            setUploading(false);
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          const trimmedValue = typeof value === "string" ? value.trim() : value;
+          formDataToSend.append(key, trimmedValue);
         }
-    };
+      });
 
-    return (
-        <div>
-            <h3>Создать Объявление (Заказчик)</h3>
-            <form onSubmit={handleSubmit}>
-                <AutoCompleteInput
-                    label="Категории ваших работ"
+      images.forEach((file) => {
+        formDataToSend.append("images", file);
+      });
+
+      files.forEach((file) => {
+        formDataToSend.append("files", file);
+      });
+
+      const authToken = localStorage.getItem("authToken");
+      const response = await fetch(`${localStorage.getItem("url")}/announcement`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: formDataToSend,
+      });
+
+      if (response.ok) {
+        alert("Объявление успешно добавлено!");
+        setFormData({
+          totalCost: "",
+          isNonFixedPrice: false,
+          workCategories: "",
+          metro: "",
+          startDate: "",
+          finishDate: "",
+          comments: "",
+          entityId: null,
+          guarantee: 12,
+          address: "",
+        });
+        setPhotos([]);
+        setFiles([]);
+        onSubmit();
+      } else {
+        const errorMsg = await response.text();
+        alert(`Ошибка при добавлении объявления: ${errorMsg}`);
+      }
+    } catch (error) {
+      console.error("Ошибка при отправке данных:", error);
+      alert("Произошла ошибка при отправке данных.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <Container fluid className="mt-4">
+      <Row className="justify-content-center">
+        <Col md={8}>
+          <Card
+            style={{
+              backgroundColor: "#222",
+              color: "white",
+              borderRadius: "12px",
+              padding: "20px",
+              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.5)",
+            }}
+          >
+            <Card.Body>
+              <h2 className="text-center mb-4" style={{ color: "#ff7f00", fontWeight: "bold" }}>
+                Создание объявления
+              </h2>
+
+              <Form onSubmit={handleSubmit}>
+                {/* Категории */}
+                <Form.Group className="mb-3">
+                  <AutoCompleteInput
                     name="workCategories"
                     placeholder="Введите категорию"
                     onCategorySelect={handleCategorySelect}
-                />
-                <FormField
+                  />
+                </Form.Group>
+
+                {/* Стоимость */}
+                <Form.Group className="mb-3">
+                  <Form.Label style={{ color: "white" }}>Общая стоимость</Form.Label>
+                  <Form.Control
                     type="number"
-                    label="Общая стоимость"
                     name="totalCost"
                     placeholder="10000"
                     value={formData.totalCost}
                     onChange={handleInputChange}
-                />
-                <CheckboxField
+                    style={{
+                      backgroundColor: "#333",
+                      color: "white",
+                      border: "1px solid #555",
+                    }}
+                    className="form-control-placeholder"
+                  />
+                  <style>
+                    {`
+      .form-control-placeholder::placeholder {
+        color: #bbb; /* Серый цвет для плейсхолдера */
+      }
+    `}
+                  </style>
+                </Form.Group>
+
+
+                {/* Чекбокс: Нефиксированная цена
+                <Form.Group className="mb-3">
+                  <Form.Check
+                    type="checkbox"
                     label="Нефиксированная цена по договору"
                     name="isNonFixedPrice"
                     checked={formData.isNonFixedPrice}
                     onChange={handleInputChange}
-                />
+                    style={{ color: "white" }}
+                  />
+                </Form.Group> */}
 
-                <MetroAutocomplete
-                    onSelect={(value) => {
-                        setFormData((prev) => ({
-                            ...prev,
-                            metro: value,
-                        }));
-                    }}
+                {/* Метро */}
+                <Form.Group className="mb-3">
+                  <MetroAutocomplete
+                    onSelect={(value) =>
+                      setFormData((prev) => ({ ...prev, metro: value }))
+                    }
                     value={formData.metro}
-                />
+                  />
+                </Form.Group>
 
-                <FormField
-                    type="date"
-                    label="Дата начала"
-                    name="startDate"
-                    value={formData.startDate}
-                    onChange={handleInputChange}
-                />
-                <FormField
-                    type="date"
-                    label="Дата окончания"
-                    name="finishDate"
-                    value={formData.finishDate}
-                    onChange={handleInputChange}
-                />
-                <FormField
+                <Row className="g-3 mb-3">
+                  <Col xs={12} md={6}>
+                    <Form.Group>
+                      <Form.Label style={{ color: "white" }}>Дата начала</Form.Label>
+                      <Form.Control
+                        type="date"
+                        name="startDate"
+                        value={formData.startDate}
+                        onChange={handleInputChange}
+                        style={{
+                          backgroundColor: "#333",
+                          color: "white",
+                          border: "1px solid #555",
+                        }}
+                        className="form-control-placeholder"
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col xs={12} md={6}>
+                    <Form.Group>
+                      <Form.Label style={{ color: "white" }}>Дата окончания</Form.Label>
+                      <Form.Control
+                        type="date"
+                        name="finishDate"
+                        value={formData.finishDate}
+                        onChange={handleInputChange}
+                        style={{
+                          backgroundColor: "#333",
+                          color: "white",
+                          border: "1px solid #555",
+                        }}
+                        className="form-control-placeholder"
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+
+
+                {/* Комментарии */}
+                <Form.Group className="mb-3">
+                  <Form.Label style={{ color: "white" }}>Комментарии</Form.Label>
+                  <Form.Control
                     type="text"
-                    label="Комментарии"
                     name="comments"
                     placeholder="Комментарии"
                     value={formData.comments}
                     onChange={handleInputChange}
-                />
-                {/* <FormField
+                    style={{
+                      backgroundColor: "#333",
+                      color: "white",
+                      border: "1px solid #555",
+                    }}
+                    className="form-control-placeholder"
+                  />
+                </Form.Group>
+
+                {/* Адрес */}
+                <Form.Group className="mb-3">
+                  <Form.Label style={{ color: "white" }}>Адрес</Form.Label>
+                  <Form.Control
                     type="text"
-                    label="Срок гарантии"
-                    name="guarantee"
-                    placeholder="Гарантийный срок"
-                    value={formData.guarantee}
-                    onChange={handleInputChange}
-                /> */}
-                <FormField
-                    type="text"
-                    label="Адрес"
                     name="address"
                     placeholder="Адрес будущих работ"
                     value={formData.address}
                     onChange={handleInputChange}
-                />
+                    style={{
+                      backgroundColor: "#333",
+                      color: "white",
+                      border: "1px solid #555",
+                    }}
+                    className="form-control-placeholder"
+                  />
+                </Form.Group>
 
-                {/* Загрузка фотографий */}
-                <div>
-                    <h4>Добавить фотографии</h4>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handlePhotoChange}
-                        disabled={uploading}
-                    />
-                    <ul>
-                        {images.map((photo, index) => (
-                            <li key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                                <span style={{ marginRight: '10px' }}>{photo.name}</span>
-                                <button
-                                    type="button"
-                                    onClick={() => handleRemovePhoto(index)}
-                                    disabled={uploading}
-                                >
-                                    Удалить
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
+                {/* Стили для серого плейсхолдера */}
+                <style>
+                  {`
+    .form-control-placeholder::placeholder {
+      color: #bbb; /* Серый цвет для плейсхолдера */
+    }
+  `}
+                </style>
 
-                <div>
-                    <h4>Добавить документы</h4>
-                    <input
-                        type="file"
-                        accept=".doc,.docx,.xls,.xlsx,.pdf" // Допустимые типы файлов
-                        multiple
-                        onChange={handleFileChange}
-                        disabled={uploading}
-                    />
-                    <ul>
-                        {files.map((file, index) => (
-                            <li key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                                <span style={{ marginRight: '10px' }}>{file.name}</span>
-                                <button
-                                    type="button"
-                                    onClick={() => handleRemoveFile(index)}
-                                    disabled={uploading}
-                                >
-                                    Удалить
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
+                {/* Фотографии */}
+                <h5 className="mt-4 mb-2" style={{ color: "#ff7f00" }}>
+                  Добавить фотографии
+                </h5>
+                <Form.Group className="mb-3">
+                  <Form.Control
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handlePhotoChange}
+                    disabled={uploading}
+                    style={{
+                      backgroundColor: "#333",
+                      color: "white",
+                      border: "1px solid #555",
+                    }}
+                  />
+                  <ListGroup className="mt-2">
+                    {images.map((photo, index) => (
+                      <ListGroup.Item
+                        key={index}
+                        className="d-flex justify-content-between align-items-center"
+                        style={{ backgroundColor: "#333", color: "white", border: "1px solid #555" }}
+                      >
+                        {photo.name}
+                        <Button variant="danger" size="sm" onClick={() => handleRemovePhoto(index)}>
+                          Удалить
+                        </Button>
+                      </ListGroup.Item>
+                    ))}
+                  </ListGroup>
+                </Form.Group>
 
+                {/* Документы */}
+                <h5 className="mt-4 mb-2" style={{ color: "#ff7f00" }}>
+                  Добавить документы
+                </h5>
+                <Form.Group className="mb-3">
+                  <Form.Control
+                    type="file"
+                    accept=".doc,.docx,.xls,.xlsx,.pdf"
+                    multiple
+                    onChange={handleFileChange}
+                    disabled={uploading}
+                    style={{
+                      backgroundColor: "#333",
+                      color: "white",
+                      border: "1px solid #555",
+                    }}
+                  />
+                  <ListGroup className="mt-2">
+                    {files.map((file, index) => (
+                      <ListGroup.Item
+                        key={index}
+                        className="d-flex justify-content-between align-items-center"
+                        style={{ backgroundColor: "#333", color: "white", border: "1px solid #555" }}
+                      >
+                        {file.name}
+                        <Button variant="danger" size="sm" onClick={() => handleRemoveFile(index)}>
+                          Удалить
+                        </Button>
+                      </ListGroup.Item>
+                    ))}
+                  </ListGroup>
+                </Form.Group>
 
-                <Entities onSelectEntity={handleSelectEntity} />
-                <button type="submit" disabled={uploading}>
-                    {uploading ? 'Сохранение...' : 'Сохранить объявление'}
-                </button>
-                <button type="button" onClick={onCancel} disabled={uploading}>
+                {/* Выбор лица */}
+                <Form.Group className="mb-3">
+                  <Entities onSelectEntity={handleSelectEntity} />
+                </Form.Group>
+
+                {/* Кнопки */}
+                <div className="d-flex justify-content-between mt-4">
+
+                  <Button
+                    style={{
+                      width: "48%",
+                      backgroundColor: "#ffb300",
+                      border: "none",
+                      color: "black",
+                      fontWeight: "bold",
+                      padding: "10px",
+                      borderRadius: "8px",
+                      transition: "background-color 0.3s",
+                    }}
+                    onClick={onCancel}
+                    disabled={uploading}
+                  >
                     Отмена
-                </button>
-            </form>
-        </div>
-    );
+                  </Button>
+                  <Button
+                    style={{
+                      width: "48%",
+                      backgroundColor: "#ff7f00",
+                      border: "none",
+                      color: "white",
+                      fontWeight: "bold",
+                      padding: "10px",
+                      borderRadius: "8px",
+                      transition: "background-color 0.3s",
+                    }}
+                    type="submit"
+                    disabled={uploading}
+                  >
+                    {uploading ? <Spinner animation="border" size="sm" /> : "Сохранить"}
+                  </Button>
+                </div>
+              </Form>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
+
+  );
+
 };
-
-
 
 // Основной компонент
 
 const MainPage = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const { isSpecialist } = useProfile();
+  const [isCreating, setIsCreating] = useState(false);
+  const [announcements, setAnnouncements] = useState([]);
+  const [questionnaires, setQuestionnaires] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [triggerGet, setTriggerGet] = useState(false);
 
-    const { isSpecialist } = useProfile(); // Получаем профиль
-    const [isCreating, setIsCreating] = useState(false);
-    const [announcements, setAnnouncements] = useState([]);
-    const [questionnaires, setQuestionnaires] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+  useEffect(() => {
+    setAnnouncements([]);
+    setQuestionnaires([]);
+    setLoading(true);
+    setError(null);
 
-    const [triggerGet, setTriggerGet] = useState(false);
+    const fetchData = async () => {
+      try {
+        const authToken = localStorage.getItem("authToken");
+        const url = localStorage.getItem("url");
 
-
-    useEffect(() => {
-        // Чистим данные при переключении
-        setAnnouncements([]);
-        setQuestionnaires([]);
-        setLoading(true);
-        setError(null);
-
-        const fetchData = async () => {
-            try {
-                let response;
-                if (isSpecialist) {
-                    // Запрос на анкеты для специалиста
-                    response = await fetch(url + '/questionnaire/previews', {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${getAuthToken()}`,
-                        }
-                    });
-                    const data = await response.json();
-                    // Устанавливаем данные под анкеты
-                    setQuestionnaires(data.previews || []);
-                } else {
-                    const params = new URLSearchParams({ isInWork: false });
-                    response = await fetch(url + `/announcement/previews?${params.toString()}`, {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${getAuthToken()}`,
-                        }
-                    });
-                    const data = await response.json();
-                    // Устанавливаем данные под объявления
-                    setAnnouncements(data.previews || []);
-                }
-
-
-            } catch (error) {
-                setError('Ошибка при загрузке данных');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, [isSpecialist, triggerGet]);
-
-    const handleCreateClick = () => {
-        setIsCreating(true); // Отображаем форму
+        let response;
+        if (isSpecialist) {
+          response = await fetch(`${url}/questionnaire/previews`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+          });
+          const data = await response.json();
+          setQuestionnaires(data.previews || []);
+        } else {
+          const params = new URLSearchParams({ isInWork: false });
+          response = await fetch(`${url}/announcement/previews?${params.toString()}`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+          });
+          const data = await response.json();
+          setAnnouncements(data.previews || []);
+        }
+      } catch (error) {
+        setError("Ошибка при загрузке данных");
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const handleFormSubmit = (formData) => {
-        // console.log('Данные формы:', formData);
+    fetchData();
+  }, [isSpecialist, triggerGet]);
 
-        setIsCreating(false); // Скрываем форму после отправки
-        setTriggerGet(!triggerGet)
+  const handleCreateClick = () => {
+    setIsCreating(true);
+  };
 
-    };
+  const handleFormSubmit = () => {
+    setIsCreating(false);
+    setTriggerGet(!triggerGet);
+  };
 
-    const handleAnnCardClick = async (id) => {
-        // console.log('id:', id);
-        navigate(`/announcement/${id}`, { state: { fromLk: true } });
-    };
+  const handleAnnCardClick = (id) => {
+    navigate(`/announcement/${id}`, { state: { fromLk: true } });
+  };
 
-    const handleQueCardClick = async (id) => {
-        // console.log('id:', id);
-        navigate(`/questionnaire/${id}`, { state: { fromLk: true } });
-    };
+  const handleQueCardClick = (id) => {
+    navigate(`/questionnaire/${id}`, { state: { fromLk: true } });
+  };
 
+  const handleCancel = () => {
+    setIsCreating(false);
+  };
 
-    const handleCancel = () => {
-        setIsCreating(false); // Отмена создания
-    };
-
-    if (loading) {
-        return <div>Загрузка...</div>;
-    }
-
-    if (error) {
-        return <div>{error}</div>;
-    }
-
+  if (loading) {
     return (
-        <div>
-            {!isCreating ? (
-                <div>
-                    <button onClick={handleCreateClick}>
-                        {isSpecialist ? 'Создать анкету' : 'Создать объявление'}
-                    </button>
-
-                    {/* Отображаем карточки */}
-                    {isSpecialist ? (
-                        <div>
-                            <h2>Анкеты</h2>
-                            {questionnaires.length > 0 ? (
-                                questionnaires.map((item) =>
-                                (
-                                    <Card title={item.workCategories}
-                                        onClick={() => handleQueCardClick(item.id)}
-                                        key={item.id}
-
-                                        totalCost={item.totalCost}
-                                        address={item.address}
-                                        workExp={item.workExp}
-                                        hasTeam={item.hasTeam}
-                                        hasEdu={item.hasEdu}
-                                        type={'questionnaire'}
-
-                                    ></Card>
-                                ))
-                            ) : (
-                                <p>Нет анкет</p>
-                            )}
-                        </div>
-                    ) : (
-                        <div>
-                            <h2>Объявления</h2>
-                            {announcements.length > 0 ? (
-                                announcements.map((item) => (
-                                    <Card title={item.workCategories}
-                                        onClick={() => handleAnnCardClick(item.id)}
-                                        key={item.id}
-                                        totalCost={item.totalCost}
-                                        address={item.address}
-                                        workExp={item.workExp}
-                                        hasTeam={item.hasTeam}
-                                        hasEdu={item.hasEdu}
-                                        type={'announcement'}
-
-                                    ></Card>
-
-                                    // <div key={item.id} style={styles.card}>
-                                    //     <h3>{item.workCategories}</h3>
-                                    //     {/* <p>ID: {item.id}</p> */}
-                                    // </div>
-                                ))
-                            ) : (
-                                <p>Нет объявлений</p>
-                            )}
-                        </div>
-                    )}
-                </div>
-            ) : (
-                isSpecialist ? (
-                    <QuestionnaireForm onSubmit={handleFormSubmit} onCancel={handleCancel} />
-                ) : (
-                    <AnnouncementForm onSubmit={handleFormSubmit} onCancel={handleCancel} />
-                )
-            )}
-        </div>
+      <Container className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+        <Spinner animation="border" variant="primary" />
+      </Container>
     );
-};
+  }
 
-// Простой стиль карточек для отображения
-const styles = {
-    card: {
-        color: 'black',
-        border: '1px solid #ccc',
-        padding: '16px',
-        margin: '8px 0',
-        borderRadius: '4px',
-        backgroundColor: '#f9f9f9',
-    },
+  if (error) {
+    return (
+      <Container className="text-center">
+        <p className="text-danger">{error}</p>
+      </Container>
+    );
+  }
+
+  return (
+    <Container fluid>
+      {!isCreating ? (
+        <div>
+          <Row className="align-items-center mb-4">
+            <Col>
+              <h2 className="text-white mb-0">{(isSpecialist ? "Анкеты" : "Объявления")}</h2>
+            </Col>
+            <Col xs="auto">
+              <Button
+                className="plus-button"
+                onClick={handleCreateClick}
+                style={{ backgroundColor: '#ff7f00', border: 'none', color: 'white' }}
+              >
+                <i className="bi bi-plus-lg"></i>
+              </Button>
+
+            </Col>
+          </Row>
+
+          <Row className="g-4">
+            {isSpecialist ? (
+              questionnaires.length > 0 ? (
+                questionnaires.map((item) => (
+                  <Col xs={12} md={6} lg={4} key={item.id}>
+                    <Card_
+                      title={item.workCategories}
+                      onClick={() => handleQueCardClick(item.id)}
+                      totalCost={item.totalCost}
+                      address={item.address}
+                      workExp={item.workExp}
+                      hasTeam={item.hasTeam}
+                      hasEdu={item.hasEdu}
+                      type={"questionnaire"}
+                    />
+                  </Col>
+                ))
+              ) : (
+                <Col>
+                  <p className="text-center text-muted">Нет анкет</p>
+                </Col>
+              )
+            ) : announcements.length > 0 ? (
+              announcements.map((item) => (
+                <Col xs={12} md={6} lg={4} key={item.id}>
+                  <Card_
+                    title={item.workCategories}
+                    onClick={() => handleAnnCardClick(item.id)}
+                    totalCost={item.totalCost}
+                    address={item.address}
+                    workExp={item.workExp}
+                    hasTeam={item.hasTeam}
+                    hasEdu={item.hasEdu}
+                    type={"announcement"}
+                  />
+                </Col>
+              ))
+            ) : (
+              <Col>
+                <p className="text-center text-muted">Нет объявлений</p>
+              </Col>
+            )}
+          </Row>
+        </div>
+      ) : isSpecialist ? (
+        <QuestionnaireForm onSubmit={handleFormSubmit} onCancel={handleCancel} />
+      ) : (
+        <AnnouncementForm onSubmit={handleFormSubmit} onCancel={handleCancel} />
+      )}
+    </Container>
+  );
 };
 
 export default MainPage;

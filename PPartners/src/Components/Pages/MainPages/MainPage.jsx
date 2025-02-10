@@ -9,6 +9,8 @@ import { format } from 'date-fns';
 import Card from '../../Previews/Card';
 import SearchComponent from '../SearchComponent/SearchComponent';
 import TopBar from '../TopBar/TopBar';
+import ErrorMessage from '../../ErrorHandling/ErrorMessage';
+
 const MainPage = () => {
     const { isSpecialist, toggleProfile } = useProfile();
     const navigate = useNavigate();
@@ -17,7 +19,7 @@ const MainPage = () => {
     const [announcements, setAnnouncements] = useState([]);
     const [questionnaires, setQuestionnaires] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [cardsError, setCardsError] = useState(null);
     const [filterParams, setFilterParams] = useState({
         minPrice: 0,
         maxPrice: 10000000,
@@ -115,12 +117,11 @@ const MainPage = () => {
                 setQuestionnaires(data.previews || []);
             }
         } catch (error) {
-            setError('Ошибка загрузки данных');
+            setCardsError('Ошибка загрузки данных');
         } finally {
             setLoading(false);
         }
     };
-
 
     const formatDate = (date) => {
         if (!date) return '';
@@ -143,7 +144,6 @@ const MainPage = () => {
         }));
     };
 
-
     const handleHasTeamChange = (event) => {
         setFilterParams({
             ...filterParams,
@@ -163,44 +163,57 @@ const MainPage = () => {
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
-            setError(null);
-
+            setCardsError(null);
             try {
                 let response;
                 const params = new URLSearchParams({ text: "" });
+
                 if (isSpecialist) {
                     response = await fetch(`${url}/announcement/filter?${params.toString()}`, {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${getAuthToken()}`,
-                        }
+                        },
                     });
-                    const data = await response.json();
-                    setAnnouncements(data.previews || []);
-
                 } else {
                     response = await fetch(`${url}/questionnaire/filter?${params.toString()}`, {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${getAuthToken()}`,
-                        }
+                        },
                     });
-                    const data = await response.json();
+                }
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+
+                    try {
+                        const errorData = JSON.parse(errorText); 
+                        throw new Error(errorData.message || `Ошибка ${response.status}`);
+                    } catch (parseError) {
+
+                        throw new Error(errorText || `Ошибка ${response.status}`);
+                    }
+                }
+
+                const data = await response.json();
+                if (isSpecialist) {
+                    setAnnouncements(data.previews || []);
+                } else {
                     setQuestionnaires(data.previews || []);
                 }
             } catch (error) {
-                setError('Ошибка загрузки данных');
+                setCardsError(error.message);
+                console.error('Произошла ошибка:', error);
             } finally {
                 setLoading(false);
             }
         };
 
         fetchData();
-
     }, [isSpecialist]);
-
 
 
     return (
@@ -211,6 +224,8 @@ const MainPage = () => {
                 {isSpecialist ? <div>Поиск объявлений</div> : <div>Поиск анкет</div>}
             </div>
 
+            <ErrorMessage message={cardsError} errorCode={null} />
+            
             <div style={{ marginTop: '20px' }}>
                 <SearchComponent onSearch={handleSearch} />
                 <Button variant="outlined" onClick={toggleFilterDrawer} style={{ marginTop: '20px' }}>

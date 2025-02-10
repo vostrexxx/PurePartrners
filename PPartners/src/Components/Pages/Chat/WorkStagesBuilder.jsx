@@ -161,8 +161,10 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                 // console.log("Обрабатывается событие:", event);
 
                 if (event === 'triggerStages') {
+                    setStages([])
                     setTriggerStages((prev) => !prev);
                 }
+
 
                 setTimeout(() => {
                     isProcessingQueue.current = false;
@@ -438,7 +440,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
             }
 
             setIsEditing(null);
-            alert('Этапы успешно сохранены!');
+            // alert('Этапы успешно сохранены!');
             // console.log('Ответ сервера:', data);
 
             // setTrigger(!trigger)
@@ -448,34 +450,45 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
         }
     };
 
-    const handleApprove = async (elementId, children) => {
+    const handleApprove = async (elementId, children, stage) => {
+
 
         if (children.length === 0) {
             alert('Нельзя утвердить этап без видов работ')
         } else {
-            // if (window.confirm("Вы уверены, что хотите утвердить этап?")) {
-            try {
-                const response = await fetch(`${url}/stages/approval`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`,
-                    },
-                    body: JSON.stringify({ elementId, agreementId, mode, firstId: initiatorId, secondId: receiverId }),
-                });
 
-                if (!response.ok) {
-                    throw new Error(`Ошибка сети: ${response.status}`);
+            if (!(stage.startDate && stage.finishDate)) {
+                alert('Нельзя утвердить этап без установленных дат')
+            } else {
+                if (window.confirm(mode === "contractor"
+                    ? (stage.isContractorApproved ? "Вы уверены, что хотите снять утверждение?" : "Вы уверены, что хотите утвердить этап?")
+                    : (stage.isCustomerApproved ? "Вы уверены, что хотите снять утверждение?" : "Вы уверены, что хотите утвердить этап?")
+                )) {
+                    try {
+                        const response = await fetch(`${url}/stages/approval`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${authToken}`,
+                            },
+                            body: JSON.stringify({ elementId, agreementId, mode, firstId: initiatorId, secondId: receiverId }),
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`Ошибка сети: ${response.status}`);
+                        }
+
+                        const data = await response.json();
+                        // setTrigger(!trigger)
+
+                    } catch (error) {
+                        // console.error('Ошибка при сохранении этапов:', error.message);
+                        alert('Ошибка при утверждении.');
+                    }
                 }
-
-                const data = await response.json();
-                // setTrigger(!trigger)
-
-            } catch (error) {
-                // console.error('Ошибка при сохранении этапов:', error.message);
-                alert('Ошибка при утверждении.');
             }
-            // }
+
+
         }
 
     };
@@ -589,7 +602,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                                                             <Button
                                                                 variant="outlined"
                                                                 color="success"
-                                                                onClick={() => handleApprove(stage.id, stage.children)}
+                                                                onClick={() => handleApprove(stage.id, stage.children, stage)}
                                                                 disabled={isEditing !== null}
                                                             >
                                                                 {isLocalApproved ? 'Отменить' : 'Утвердить'}
@@ -632,7 +645,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                                                             borderRadius: '5px',
                                                             flex: 1, // Растягиваем поле ввода равномерно
                                                         }}
-                                                        disabled={isEditing !== true}
+                                                        disabled={isEditing !== true || (stage.isCustomerApproved && stage.isContractorApproved)}
                                                     />
 
                                                     <TextField
@@ -657,7 +670,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                                                             borderRadius: '5px',
                                                             flex: 1, // Растягиваем поле ввода равномерно
                                                         }}
-                                                        disabled={isEditing !== true}
+                                                        disabled={isEditing !== true || (stage.isCustomerApproved && stage.isContractorApproved)}
                                                     />
                                                 </div>
 

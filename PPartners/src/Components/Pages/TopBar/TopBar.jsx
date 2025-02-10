@@ -1,140 +1,122 @@
-import React, { useState } from 'react'; // Добавляем импорт useState
-import { Switch } from '@mui/material';
-import { useProfile } from '../../Context/ProfileContext'; // Импортируем хук профиля
-import { useNavigate } from 'react-router-dom';
-import { FaUserCircle } from 'react-icons/fa';
+import React, { useState } from "react";
+import { Switch } from "@mui/material";
+import { useProfile } from "../../Context/ProfileContext"; // Импортируем хук профиля
+import { useNavigate } from "react-router-dom";
+import { Navbar, Dropdown, Container } from "react-bootstrap";
+import { MdPerson } from "react-icons/md"; // Импортируем нужные иконки
+import { MdBusinessCenter } from "react-icons/md"; // Импортируем нужные иконки
+import { FaHardHat } from "react-icons/fa"; // Импортируем нужные иконки
 
-const TopBar = () => {
-    const { isSpecialist, toggleProfile } = useProfile(); // Доступ к состоянию профиля
-    const navigate = useNavigate();
-    const [dropdownOpen, setDropdownOpen] = useState(false);
+import logo from "../../../Images/logo.png";
+import smallLogo from "../../../Images/small-logo.png";
+import './TopBar.css'
 
-    const toggleDropdown = () => {
-        setDropdownOpen(!dropdownOpen);
-    };
+const NotAuthTopBar = () => {
+  const { isSpecialist, toggleProfile } = useProfile(); // Доступ к состоянию профиля
+  const navigate = useNavigate();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
-    return (
-        <div>
-            <div style={styles.topBar}>
-                <div style={styles.topBarContent}>
-                    <div style={styles.profileContainer}>
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
+  };
 
-                        <button onClick={() => navigate(`/main`)}>Главная страница</button>
-                        
-                        <FaUserCircle size={30} style={styles.profileIcon} onClick={toggleDropdown} />
-                        {dropdownOpen && (
-                            <div style={styles.dropdownMenu}>
-                                <ul style={styles.dropdownList}>
-                                    <li style={styles.dropdownItem} onClick={() => navigate('/account-actions')}>Работа с аккаунтом</li>
-                                </ul>
-                                <ul style={styles.dropdownList}>
-                                    <li style={styles.dropdownItem} onClick={() => navigate('/agreement')}>Отклики</li>
-                                </ul>
-                                <ul style={styles.dropdownList}>
-                                    <li style={styles.dropdownItem} onClick={() => navigate('/all-chats')}>Мои чаты</li>
-                                </ul>
-                                
-                                {!isSpecialist ? (
-                                    <ul style={styles.dropdownList}>
-                                        <li style={styles.dropdownItem} onClick={() => navigate('/balance')}>Баланс</li>
-                                    </ul>
-                                ):(<></>)}
-                                <ul style={styles.dropdownList}>
-                                    <li style={styles.dropdownItem} onClick={() => navigate('/identification')}>Выйти</li>
-                                </ul>
-                            </div>
-                        )}
-                        <div style={styles.profileSwitchContainer}>
-                            <span>Заказчик</span>
-                            <Switch
-                                checked={isSpecialist}
-                                onChange={toggleProfile}
-                                color="primary"
-                            />
-                            <span>Специалист</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {/* <div style={styles.mainContent}>
-                {isSpecialist ? (
-                    <div>Интерфейс Специалиста</div>
-                ) : (
-                    <div>Интерфейс Заказчика</div>
-                )}
-            </div> */}
+  return (
+    <Navbar
+      expand="lg"
+      className="shadow-sm"
+      style={{
+        backgroundColor: "#1a1a5b",
+      }}
+    >
+      <Container className="d-flex justify-content-between align-items-center">
+        {/* Логотип */}
+        <Navbar.Brand onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
+          {/* Большое лого */}
+          <img
+            src={logo}
+            alt="Логотип"
+            className="default-logo"
+            style={{ width: "200px", height: "auto", objectFit: "contain" }}
+          />
+          {/* Маленькое лого */}
+          <img
+            src={smallLogo}
+            alt="Маленькое Логотип"
+            className="small-logo"
+            style={{ width: "50px", height: "auto", objectFit: "contain" }}
+          />
+        </Navbar.Brand>
+
+        {/* Центр: Переключатель */}
+        <div className="d-flex align-items-center">
+          {/* Иконка заказчика */}
+          <span className="me-2 d-none d-md-block text-white">Заказчик</span>
+          <span className="me-2 d-md-none">
+            <MdBusinessCenter size={30} color="#ffffff" />
+          </span>
+
+          <Switch
+            checked={isSpecialist}
+            onChange={toggleProfile}
+            sx={{
+              "& .MuiSwitch-switchBase": {
+                color: "#ff7101",
+              },
+              "& .MuiSwitch-switchBase.Mui-checked": {
+                color: "#ff7101",
+              },
+              "& .MuiSwitch-track": {
+                backgroundColor: "#ff7101",
+              },
+              "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+                backgroundColor: "#ff7101",
+              },
+            }}
+          />
+
+          {/* Иконка специалиста */}
+          <span className="ms-2 d-none d-md-block text-white">Специалист</span>
+          <span className="ms-2 d-md-none">
+            <FaHardHat size={26} color="#ffffff" />
+          </span>
         </div>
-    );
+
+        {/* Иконка профиля */}
+        <Dropdown>
+          <Dropdown.Toggle
+            variant="light"
+            className="p-0 border-0 d-flex align-items-center dropdown-toggle-custom"
+            style={{
+              backgroundColor: "transparent",
+            }}
+          >
+            <MdPerson
+              size={40} // Размер иконки
+              color="#ff6600" // Оранжевый цвет
+              style={{ marginRight: "8px" }}
+            />
+          </Dropdown.Toggle>
+
+          <Dropdown.Menu align="end" className="custom-dropdown-menu">
+            <Dropdown.Item onClick={() => navigate("/account-actions")}>
+              Работа с аккаунтом
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => navigate("/agreement")}>
+              Отклики
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => navigate("/all-chats")}>
+              Мои чаты
+            </Dropdown.Item>
+            {!isSpecialist && (
+              <Dropdown.Item onClick={() => navigate("/balance")}>
+                Баланс
+              </Dropdown.Item>
+            )}
+          </Dropdown.Menu>
+        </Dropdown>
+      </Container>
+    </Navbar>
+  );
 };
 
-const styles = {
-    topBar: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '5%',
-        width: '100%',
-        padding: '0 20px',
-        backgroundColor: '#f8f8f8',
-        borderBottom: '1px solid #ddd',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        zIndex: 1000,
-    },
-    topBarContent: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        width: '100%',
-        maxWidth: '1200px',
-    },
-    profileContainer: {
-        position: 'relative',
-        display: 'flex',
-        alignItems: 'center',
-    },
-    profileIcon: {
-        cursor: 'pointer',
-        color: '#333',
-    },
-    dropdownMenu: {
-        position: 'absolute',
-        top: '35px',
-        right: 0,
-        backgroundColor: 'white',
-        border: '1px solid #ccc',
-        boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.1)',
-        borderRadius: '4px',
-        zIndex: 1000,
-        minWidth: '150px',
-        visibility: 'visible',
-        opacity: 1, // Делаем меню полностью видимым
-        transition: 'opacity 0.3s ease', // Плавный переход
-    },
-    dropdownList: {
-        listStyle: 'none',
-        padding: '0',
-        margin: '0',
-    },
-    dropdownItem: {
-        padding: '10px 20px',
-        cursor: 'pointer',
-        backgroundColor: 'black',
-        color: 'white', // Цвет текста для лучшей видимости
-    },
-    dropdownItemHover: {
-        backgroundColor: '#f0f0f0',
-    },
-    profileSwitchContainer: {
-        display: 'flex',
-        alignItems: 'center',
-        color: 'black',
-        marginLeft: '20px', // Добавляем отступ между переключателем и иконкой профиля
-    },
-    mainContent: {
-        padding: '70px 20px 20px',
-    },
-};
-
-export default TopBar;
+export default NotAuthTopBar;

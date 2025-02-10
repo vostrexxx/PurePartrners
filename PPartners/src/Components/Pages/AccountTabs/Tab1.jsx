@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import ImageLoader from './ImageLoader'
-import AddEntityWindow from './AddEntityWindow'
+import EntityModal from './AddEntityWindow'
 import { useProfile } from '../../Context/ProfileContext';
 import { useNavigate, useLocation } from 'react-router-dom';
-
-const ImageUploader = ({ label, onUpload, imagePath, onTrigger}) => {
+import { Container, Row, Col, Form, Button, Card, ListGroup } from "react-bootstrap";
+const ImageUploader = ({ label, onUpload, imagePath, onTrigger }) => {
 
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
@@ -38,8 +38,8 @@ const FormField = ({ type, label, name, placeholder, value, onChange, disabled }
 };
 
 const Entities = ({ onSelectEntity, triggerGet }) => {
-    const url = localStorage.getItem('url');
-    const authToken = localStorage.getItem('authToken');
+    const url = localStorage.getItem("url");
+    const authToken = localStorage.getItem("authToken");
     const { isSpecialist } = useProfile();
 
     const [legalEntities, setLegalEntities] = useState([]);
@@ -54,15 +54,13 @@ const Entities = ({ onSelectEntity, triggerGet }) => {
         }
     }, [selectedEntity, navigate]);
 
-
     useEffect(() => {
-        // onTrigger()
         const fetchDataLegal = async () => {
             try {
-                const response = await fetch(`${url}/${isSpecialist ? 'contractor' : 'customer'}/legal-entity`, {
-                    method: 'GET',
+                const response = await fetch(`${url}/${isSpecialist ? "contractor" : "customer"}/legal-entity`, {
+                    method: "GET",
                     headers: {
-                        'Content-Type': 'application/json',
+                        "Content-Type": "application/json",
                         Authorization: `Bearer ${authToken}`,
                     },
                 });
@@ -74,16 +72,16 @@ const Entities = ({ onSelectEntity, triggerGet }) => {
                 const data = await response.json();
                 setLegalEntities(data);
             } catch (error) {
-                console.error('Ошибка при загрузке юрлиц:', error.message);
+                console.error("Ошибка при загрузке юрлиц:", error.message);
             }
         };
 
         const fetchDataPerson = async () => {
             try {
-                const response = await fetch(`${url}/${isSpecialist ? 'contractor' : 'customer'}/person`, {
-                    method: 'GET',
+                const response = await fetch(`${url}/${isSpecialist ? "contractor" : "customer"}/person`, {
+                    method: "GET",
                     headers: {
-                        'Content-Type': 'application/json',
+                        "Content-Type": "application/json",
                         Authorization: `Bearer ${authToken}`,
                     },
                 });
@@ -95,7 +93,7 @@ const Entities = ({ onSelectEntity, triggerGet }) => {
                 const data = await response.json();
                 setPersons(data);
             } catch (error) {
-                console.error('Ошибка при загрузке физлиц:', error.message);
+                console.error("Ошибка при загрузке физлиц:", error.message);
             }
         };
 
@@ -105,66 +103,79 @@ const Entities = ({ onSelectEntity, triggerGet }) => {
 
     const handleSelectEntity = (id) => {
         setSelectedEntity(id);
-        onSelectEntity(id); // Передаём выбранный ID в родительский компонент
+        onSelectEntity(id);
     };
 
     return (
-        <div style={{ display: 'flex', gap: '20px' }}>
-            {/* Левый столбец - Юридические лица */}
-            <div style={{ flex: 1 }}>
-                <h3 style={{ textAlign: 'center', color: 'white' }}>Юридические лица</h3>
-                {legalEntities.length > 0 ? (
-                    legalEntities.map((entity) => (
-                        <div
-                            key={entity.id}
-                            onClick={() => handleSelectEntity(entity.id)}
-                            style={{
-                                padding: '10px',
-                                margin: '5px 0',
-                                backgroundColor: selectedEntity === entity.id ? '#4114f5' : '#bd0999',
-                                border: '1px solid blue',
-                                borderRadius: '5px',
-                                cursor: 'pointer',
-                            }}
-                        >
-                            <strong>{entity.firm}</strong>
-                            <p>ИНН: {entity.inn}</p>
-                        </div>
-                    ))
-                ) : (
-                    <p style={{ textAlign: 'center', color: 'white' }}>У вас нет зарегистрированных юридических лиц</p>
-                )}
-            </div>
+        <Container>
+            <Row className="g-4">
+                {/* Левый столбец - Юридические лица */}
+                <Col md={6}>
+                    <Card className="shadow-lg">
+                        <Card.Body>
+                            <h4 className="text-center text-primary mb-4">Юридические лица</h4>
+                            <ListGroup>
+                                {legalEntities.length > 0 ? (
+                                    legalEntities.map((entity) => (
+                                        <ListGroup.Item
+                                            key={entity.id}
+                                            onClick={() => handleSelectEntity(entity.id)}
+                                            className={`d-flex flex-column 
+                                                ${selectedEntity === entity.id ? "bg-success text-white" : "bg-light"}`}
+                                            style={{
+                                                cursor: "pointer",
+                                                borderRadius: "8px",
+                                                padding: "12px",
+                                                marginBottom: "10px",
+                                            }}
+                                        >
+                                            <div className="fw-bold">{entity.firm}</div>
+                                            <div className="text-muted fw-bold">ИНН: {entity.inn}</div>
+                                        </ListGroup.Item>
+                                    ))
+                                ) : (
+                                    <p className="text-center text-muted mt-3">Нет зарегистрированных юридических лиц</p>
+                                )}
+                            </ListGroup>
+                        </Card.Body>
+                    </Card>
+                </Col>
 
-            {/* Правый столбец - Физические лица */}
-            <div style={{ flex: 1 }}>
-                <h3 style={{ textAlign: 'center', color: 'white' }}>Физические лица</h3>
-                {persons.length > 0 ? (
-                    persons.map((person) => (
-                        <div
-                            key={person.id}
-                            onClick={() => handleSelectEntity(person.id)}
-                            style={{
-                                padding: '10px',
-                                margin: '5px 0',
-                                backgroundColor: selectedEntity === person.id ? '#4114f5' : '#bd0999',
-                                border: '1px solid green',
-                                borderRadius: '5px',
-                                cursor: 'pointer',
-                            }}
-                        >
-                            <strong>{person.fullName}</strong>
-                            <p>ИНН: {person.inn}</p>
-                        </div>
-                    ))
-                ) : (
-                    <p style={{ textAlign: 'center', color: 'white' }}>У вас нет зарегистрированных физических лиц</p>
-                )}
-            </div>
-        </div>
+                {/* Правый столбец - Физические лица */}
+                <Col md={6}>
+                    <Card className="shadow-lg">
+                        <Card.Body>
+                            <h4 className="text-center text-primary mb-4">Физические лица</h4>
+                            <ListGroup>
+                                {persons.length > 0 ? (
+                                    persons.map((person) => (
+                                        <ListGroup.Item
+                                            key={person.id}
+                                            onClick={() => handleSelectEntity(person.id)}
+                                            className={`d-flex flex-column 
+                                                ${selectedEntity === person.id ? "bg-success text-white" : "bg-light"}`}
+                                            style={{
+                                                cursor: "pointer",
+                                                borderRadius: "8px",
+                                                padding: "12px",
+                                                marginBottom: "10px",
+                                            }}
+                                        >
+                                            <div className="fw-bold">{person.fullName}</div>
+                                            <div className="text-muted fw-bold">ИНН: {person.inn}</div>
+                                        </ListGroup.Item>
+                                    ))
+                                ) : (
+                                    <p className="text-center text-muted mt-3">Нет зарегистрированных физических лиц</p>
+                                )}
+                            </ListGroup>
+                        </Card.Body>
+                    </Card>
+                </Col>
+            </Row>
+        </Container>
     );
 };
-
 
 const ProfilePage = () => {
     const [profileData, setProfileData] = useState({
@@ -377,119 +388,183 @@ const ProfilePage = () => {
     };
 
     return (
-        <div>
-            <h2>Ваши данные</h2>
+        <Container fluid className="py-4" style={{ backgroundColor: "#242582", minHeight: "100vh" }}>
+            <Row className="justify-content-center">
+                {/* Личные данные */}
+                <Col xs={12} lg={10} className="mb-4">
+                    <Card className="p-4 shadow-lg">
+                        <Card.Body>
+                            <h2 className="text-center mb-4 text-primary">Ваши данные</h2>
+                            {error && <p className="text-danger text-center">{error}</p>}
+                            <Form>
+                                {/* Номер телефона */}
+                                <Form.Group controlId="formPhoneNumber" className="mb-3">
+                                    <Form.Label className="fw-bold">Номер телефона</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={localStorage.getItem("phoneNumber")}
+                                        disabled
+                                        className="rounded-pill p-3 text-center"
+                                        style={{ backgroundColor: "#e9ecef", border: "none" }}
+                                    />
+                                </Form.Group>
 
-            {error && <p style={{ color: 'red' }}>{error}</p>}
+                                {/* Имя */}
+                                <Form.Group controlId="formName" className="mb-3">
+                                    <Form.Label className="fw-bold">Имя</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="name"
+                                        placeholder="Введите ваше имя"
+                                        value={profileData.name || ""}
+                                        onChange={(e) => {
+                                            const onlyLetters = e.target.value.replace(/[^a-zA-Zа-яА-ЯёЁ\s-]/g, "");
+                                            handleInputChange({ target: { name: e.target.name, value: onlyLetters } });
+                                        }}
+                                        disabled={!isEditable}
+                                        className="rounded-pill p-3"
+                                    />
+                                </Form.Group>
 
-            <FormField
-                type="text"
-                label="Номер телефона"
-                name="phoneNumber"
-                placeholder="Номер телефона"
-                value={localStorage.getItem('phoneNumber')}
-                // onChange={handleInputChange}
-                disabled={true}
-            />
+                                {/* Отчество */}
+                                <Form.Group controlId="formPatronymic" className="mb-3">
+                                    <Form.Label className="fw-bold">Отчество</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="patronymic"
+                                        placeholder="Введите ваше отчество"
+                                        value={profileData.patronymic || ""}
+                                        onChange={(e) => {
+                                            const onlyLetters = e.target.value.replace(/[^a-zA-Zа-яА-ЯёЁ\s-]/g, "");
+                                            handleInputChange({ target: { name: e.target.name, value: onlyLetters } });
+                                        }}
+                                        disabled={!isEditable}
+                                        className="rounded-pill p-3"
+                                    />
+                                </Form.Group>
 
-            <FormField
-                type="text"
-                label="Имя"
-                name="name"
-                placeholder="Имя"
-                value={profileData.name || ''}
-                onChange={(e) => {
-                    const onlyLetters = e.target.value.replace(/[^a-zA-Zа-яА-ЯёЁ\s-]/g, ""); // Разрешаем буквы, пробелы и дефис
-                    handleInputChange({ target: { name: e.target.name, value: onlyLetters } });
-                }}
-                disabled={!isEditable}
-            />
+                                {/* Фамилия */}
+                                <Form.Group controlId="formSurname" className="mb-3">
+                                    <Form.Label className="fw-bold">Фамилия</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="surname"
+                                        placeholder="Введите вашу фамилию"
+                                        value={profileData.surname || ""}
+                                        onChange={(e) => {
+                                            const onlyLetters = e.target.value.replace(/[^a-zA-Zа-яА-ЯёЁ\s-]/g, "");
+                                            handleInputChange({ target: { name: e.target.name, value: onlyLetters } });
+                                        }}
+                                        disabled={!isEditable}
+                                        className="rounded-pill p-3"
+                                    />
+                                </Form.Group>
 
-            <FormField
-                type="text"
-                label="Отчество"
-                name="patronymic"
-                placeholder="Отчество"
-                value={profileData.patronymic || ''}
-                onChange={(e) => {
-                    const onlyLetters = e.target.value.replace(/[^a-zA-Zа-яА-ЯёЁ\s-]/g, "");
-                    handleInputChange({ target: { name: e.target.name, value: onlyLetters } });
-                }}
-                disabled={!isEditable}
-            />
+                                {/* Почта */}
+                                <Form.Group controlId="formEmail" className="mb-3">
+                                    <Form.Label className="fw-bold">Почта</Form.Label>
+                                    <Form.Control
+                                        type="email"
+                                        name="email"
+                                        placeholder="Введите вашу почту"
+                                        value={profileData.email || ""}
+                                        onChange={handleInputChange}
+                                        disabled={!isEditable}
+                                        className="rounded-pill p-3"
+                                    />
+                                </Form.Group>
 
-            <FormField
-                type="text"
-                label="Фамилия"
-                name="surname"
-                placeholder="Фамилия"
-                value={profileData.surname || ''}
-                onChange={(e) => {
-                    const onlyLetters = e.target.value.replace(/[^a-zA-Zа-яА-ЯёЁ\s-]/g, "");
-                    handleInputChange({ target: { name: e.target.name, value: onlyLetters } });
-                }}
-                disabled={!isEditable}
-            />
+                                {/* Дата рождения */}
+                                <Form.Group controlId="formBirthday" className="mb-4">
+                                    <Form.Label className="fw-bold">Дата рождения</Form.Label>
+                                    <Form.Control
+                                        type="date"
+                                        name="birthday"
+                                        value={profileData.birthday || ""}
+                                        onChange={handleInputChange}
+                                        disabled={!isEditable}
+                                        className="rounded-pill p-3"
+                                    />
+                                </Form.Group>
 
-            <FormField
-                type="text"
-                label="Почта"
-                name="email"
-                placeholder="Почта"
-                value={profileData.email || ''}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-            />
+                                {/* Кнопки */}
+                                <div className="d-grid gap-2">
+                                    {isEditable ? (
+                                        <div className="d-flex justify-content-between">
+                                            <Button
+                                                variant="danger"
+                                                className="rounded-pill w-50"
+                                                style={{ fontSize: "18px" }}
+                                                onClick={() => setIsEditable(false)}
+                                            >
+                                                Отмена
+                                            </Button>
+                                            <Button
+                                                variant="success"
+                                                className="rounded-pill w-50"
+                                                style={{ fontSize: "18px" }}
+                                                onClick={handleSave}
+                                            >
+                                                Сохранить
+                                            </Button>
+                                        </div>
+                                    ) : (
+                                        <Button
+                                            variant="primary"
+                                            className="rounded-pill w-100"
+                                            style={{ fontSize: "18px" }}
+                                            onClick={() => setIsEditable(true)}
+                                        >
+                                            Редактировать
+                                        </Button>
+                                    )}
+                                </div>
+                            </Form>
+                        </Card.Body>
+                    </Card>
+                </Col>
 
-            <FormField
-                type="date"
-                label="Дата рождения"
-                name="birthday"
-                placeholder="Дата рождения"
-                value={profileData.birthday || ''}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-            />
+                {/* Данные по лицам */}
+                <Col xs={12} lg={10} className="mb-4">
+                    <Card className="p-4 shadow-lg">
+                        <Card.Body>
+                            <h2 className="text-center mb-4 text-primary">Данные по лицам</h2>
+                            <Entities onSelectEntity={handleSelectEntity} triggerGet={triggerGet} />
+                            <div className="d-grid mt-3">
+                                <Button variant="primary" onClick={openModal} className="w-100">
+                                    Добавить новое лицо
+                                </Button>
+                            </div>
+                            <EntityModal isOpen={isModalOpen} onClose={closeModal} fullName={fullName} onTrigger={triggerGet} />
+                        </Card.Body>
+                    </Card>
+                </Col>
 
-            {isEditable ? (
-                <button onClick={handleSave}>Сохранить</button>
-            ) : (
-                <button onClick={() => setIsEditable(true)}>Редактировать</button>
-            )}
-
-            <div>
-                <button onClick={openModal}>Добавить новое лицо</button>
-                {/* Модальное окно */}
-                <AddEntityWindow isOpen={isModalOpen} onClose={closeModal} fullName={fullName} onTrigger={toggleTriggerGet} />
-            </div>
-
-            <h3>Фото</h3>
-            <ImageLoader imagePath={avatarPath} label={"Ваш аватар"} place={'profile'}></ImageLoader>
-            <ImageUploader label="Загрузить аватар" imagePath={avatarPath} onUpload={handleAvatarUpload}/>
-
-            {/* <ImageLoader imagePath={passportPhoto1} label={"Первая страница паспорта"} place={'profile'}></ImageLoader>
-            <ImageUploader
-                label="Загрузить фото паспорта 1"
-                imagePath={passportPhoto1}
-                onUpload={(file) => handlePassportUpload(file, 0)}
-            />
-
-            <ImageLoader imagePath={passportPhoto2} label={"Вторая страница паспорта"} place={'profile'}></ImageLoader>
-            <ImageUploader
-                label="Загрузить фото паспорта 2"
-                imagePath={passportPhoto2}
-                onUpload={(file) => handlePassportUpload(file, 1)}
-            />
-
-            <ImageLoader imagePath={passportPhoto3} label={"Третья страница паспорта"} place={'profile'}></ImageLoader>
-            <ImageUploader
-                label="Загрузить фото паспорта 3"
-                imagePath={passportPhoto3}
-                onUpload={(file) => handlePassportUpload(file, 2)}
-            /> */}
-
-            <Entities onSelectEntity={handleSelectEntity} triggerGet={triggerGet} />
-        </div>
+                {/* Фото профиля */}
+                <Col xs={12} lg={10}>
+                    <Card className="p-4 shadow-lg">
+                        <Card.Body>
+                            <h3 className="text-center mb-4 text-primary">Фото профиля</h3>
+                            <div className="d-flex flex-column align-items-center">
+                                <ImageLoader imagePath={avatarPath} place={"profile"} />
+                                <div className="mt-3">
+                                    <Button variant="primary" onClick={() => document.getElementById("avatarUpload").click()}>
+                                        Загрузить аватар
+                                    </Button>
+                                </div>
+                                <input
+                                    id="avatarUpload"
+                                    type="file"
+                                    accept="image/*"
+                                    className="d-none"
+                                    onChange={(e) => handleAvatarUpload(e.target.files[0])}
+                                />
+                            </div>
+                        </Card.Body>
+                    </Card>
+                </Col>
+            </Row>
+        </Container>
     );
 };
 

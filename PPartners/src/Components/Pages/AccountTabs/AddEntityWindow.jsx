@@ -1,97 +1,63 @@
-import React, { useState } from 'react';
-import { useProfile } from '../../Context/ProfileContext';
+import React, { useState } from "react";
+import { Modal, Button, Form, Dropdown, Card } from "react-bootstrap";
+import { useProfile } from "../../Context/ProfileContext";
 
-const Dropdown = ({ options, onSelect }) => {
-  const [isOpen, setIsOpen] = useState(false); // Стейт для контроля видимости списка
-  const [selectedOption, setSelectedOption] = useState(null); // Стейт для выбранного элемента
-
-  const toggleDropdown = () => setIsOpen(!isOpen); // Переключить видимость списка
-  const handleSelect = (option) => {
-    setSelectedOption(option);
-    setIsOpen(false); // Закрыть список после выбора
-    onSelect(option); // Передать выбранный элемент в родительский компонент
-  };
-
-  return (
-    <div className="dropdown">
-      <button className="dropdown-toggle" onClick={toggleDropdown}>
-        {selectedOption ? selectedOption : 'Выберите типа лица'}
-      </button>
-
-      {isOpen && (
-        <ul className="dropdown-menu">
-          {options.map((option, index) => (
-            <li key={index} onClick={() => handleSelect(option)} className="dropdown-item">
-              {option}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-};
-
-const Modal = ({ isOpen, onClose, children, fullName, onTrigger }) => {
-  // console.log(fullName)
-  if (!isOpen) return null;
-  const authToken = localStorage.getItem('authToken');
-  const url = localStorage.getItem('url');
+const EntityModal = ({ isOpen, onClose, fullName, onTrigger }) => {
+  const authToken = localStorage.getItem("authToken");
+  const url = localStorage.getItem("url");
   const { isSpecialist } = useProfile();
 
   const [isLegalEntity, setIsLegalEntity] = useState(null);
-  const [entity, setEntity] = useState(null); // Стейт для выбранного типа лица
+  const [entity, setEntity] = useState(null);
   const [formData, setFormData] = useState({
-    bik: '',
-    corrAcc: '',
-    currAcc: '',
-    bank: '',
+    bik: "",
+    corrAcc: "",
+    currAcc: "",
+    bank: "",
     fullName: fullName,
-    kpp: '',
-    inn: '',
-    address: '',
-    position: '',
-    firm: '',
+    kpp: "",
+    inn: "",
+    address: "",
+    position: "",
+    firm: "",
   });
 
   const handleSelectOption = (option) => {
-    // console.log(option)
     setEntity(option);
-    // console.log(entity)
-    option === "Юридическое лицо" ? setIsLegalEntity(true) : setIsLegalEntity(false);
+    setIsLegalEntity(option === "Юридическое лицо");
 
+    // Сброс формы при выборе нового типа
     setFormData({
-      bik: '',
-      corrAcc: '',
-      currAcc: '',
-      bank: '',
+      bik: "",
+      corrAcc: "",
+      currAcc: "",
+      bank: "",
       fullName: fullName,
-      kpp: '',
-      inn: '',
-      address: '',
-      position: '',
-      firm: '',
-    }); // Сбросить форму
+      kpp: "",
+      inn: "",
+      address: "",
+      position: "",
+      firm: "",
+    });
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
+    setFormData((prevState) => ({
       ...prevState,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSave = async () => {
     try {
-      const fullUrl = `${url}/${isSpecialist ? 'contractor' : 'customer'}`;
-      // console.log(formData)
+      const fullUrl = `${url}/${isSpecialist ? "contractor" : "customer"}`;
       formData.isLegalEntity = isLegalEntity;
-      // console.log(formData)
 
       const response = await fetch(fullUrl, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify(formData),
@@ -101,222 +67,166 @@ const Modal = ({ isOpen, onClose, children, fullName, onTrigger }) => {
         throw new Error(`Ошибка сети: ${response.status}`);
       }
 
-      alert('Данные успешно сохранены!');
-
+      alert("Данные успешно сохранены!");
       onClose();
-      // setIsEditable(false);
       onTrigger();
-
-      // setTimeout(() => {
-      // }, 300);
-
     } catch (error) {
       console.error(`Ошибка при сохранении данных: ${error.message}`);
     }
   };
 
-  const options = ['Физическое лицо', 'Юридическое лицо'];
+  const options = ["Физическое лицо", "Юридическое лицо"];
 
   return (
-    <div className="modal">
-      <div className="modal-content">
-        <Dropdown options={options} onSelect={handleSelectOption} />
+    <Modal show={isOpen} onHide={onClose} centered>
+      <Modal.Header closeButton>
+        <Modal.Title>Добавить новое лицо</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        {/* Выпадающий список */}
+        <Dropdown onSelect={handleSelectOption}>
+          <Dropdown.Toggle variant="primary" className="w-100">
+            {entity || "Выберите тип лица"}
+          </Dropdown.Toggle>
+          <Dropdown.Menu className="w-100">
+            {options.map((option, index) => (
+              <Dropdown.Item key={index} eventKey={option}>
+                {option}
+              </Dropdown.Item>
+            ))}
+          </Dropdown.Menu>
+        </Dropdown>
 
-        {entity === 'Юридическое лицо' && (
-          <div>
+        {entity && (
+          <Card className="mt-3 p-3">
+            <Form>
+              {/* ФИО */}
+              <Form.Group className="mb-3">
+                <Form.Label>ФИО</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleInputChange}
+                />
+              </Form.Group>
 
-            <label>
-              ФИО:
-              <input
-                type="text"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleInputChange}
-              />
-            </label>
+              {/* Адрес */}
+              <Form.Group className="mb-3">
+                <Form.Label>Адрес</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                />
+              </Form.Group>
 
-            <label>
-              Название фирмы:
-              <input
-                type="text"
-                name="firm"
-                value={formData.firm}
-                onChange={handleInputChange}
-              />
-            </label>
+              {/* ИНН */}
+              <Form.Group className="mb-3">
+                <Form.Label>ИНН</Form.Label>
+                <Form.Control
+                  type="number"
+                  name="inn"
+                  value={formData.inn}
+                  onChange={handleInputChange}
+                />
+              </Form.Group>
 
-            <label>
-              Должность:
-              <input
-                type="text"
-                name="position"
-                value={formData.position}
-                onChange={handleInputChange}
-              />
-            </label>
+              {/* КПП, Банк, Расчетный счет, Корреспондентский счет, БИК */}
+              {(isLegalEntity || entity === "Физическое лицо") && (
+                <>
+                  {isLegalEntity && (
+                    <>
+                      {/* Юридическое лицо - Название фирмы и Должность */}
+                      <Form.Group className="mb-3">
+                        <Form.Label>Название фирмы</Form.Label>
+                        <Form.Control
+                          type="text"
+                          name="firm"
+                          value={formData.firm}
+                          onChange={handleInputChange}
+                        />
+                      </Form.Group>
 
-            <label>
-              Адрес:
-              <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleInputChange}
-              />
-            </label>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Должность</Form.Label>
+                        <Form.Control
+                          type="text"
+                          name="position"
+                          value={formData.position}
+                          onChange={handleInputChange}
+                        />
+                      </Form.Group>
+                    </>
+                  )}
 
-            <label>
-              ИНН:
-              <input
-                type="number"
-                name="inn"
-                value={formData.inn}
-                onChange={handleInputChange}
-              />
-            </label>
+                  {/* Общие поля для обоих типов */}
+                  <Form.Group className="mb-3">
+                    <Form.Label>КПП</Form.Label>
+                    <Form.Control
+                      type="number"
+                      name="kpp"
+                      value={formData.kpp}
+                      onChange={handleInputChange}
+                    />
+                  </Form.Group>
 
-            <label>
-              КПП:
-              <input
-                type="number"
-                name="kpp"
-                value={formData.kpp}
-                onChange={handleInputChange}
-              />
-            </label>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Банк</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="bank"
+                      value={formData.bank}
+                      onChange={handleInputChange}
+                    />
+                  </Form.Group>
 
-            <label>
-              Банк:
-              <input
-                type="number"
-                name="bank"
-                value={formData.bank}
-                onChange={handleInputChange}
-              />
-            </label>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Расчетный счет</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="currAcc"
+                      value={formData.currAcc}
+                      onChange={handleInputChange}
+                    />
+                  </Form.Group>
 
-            <label>
-              Расчетный счет:
-              <input
-                type="number"
-                name="currAcc"
-                value={formData.currAcc}
-                onChange={handleInputChange}
-              />
-            </label>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Корреспондентский счет</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="corrAcc"
+                      value={formData.corrAcc}
+                      onChange={handleInputChange}
+                    />
+                  </Form.Group>
 
-            <label>
-              Корреспондентский счет:
-              <input
-                type="number"
-                name="corrAcc"
-                value={formData.corrAcc}
-                onChange={handleInputChange}
-              />
-            </label>
-
-            <label>
-              БИК:
-              <input
-                type="number"
-                name="bik"
-                value={formData.bik}
-                onChange={handleInputChange}
-              />
-            </label>
-
-          </div>
+                  <Form.Group className="mb-3">
+                    <Form.Label>БИК</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="bik"
+                      value={formData.bik}
+                      onChange={handleInputChange}
+                    />
+                  </Form.Group>
+                </>
+              )}
+            </Form>
+          </Card>
         )}
-
-        {entity === 'Физическое лицо' && (
-          <div>
-            <label>
-              ФИО:
-              <input
-                type="text"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleInputChange}
-              />
-            </label>
-
-            <label>
-              Адрес:
-              <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleInputChange}
-              />
-            </label>
-
-            <label>
-              ИНН:
-              <input
-                type="text"
-                name="inn"
-                value={formData.inn}
-                onChange={handleInputChange}
-              />
-            </label>
-
-            <label>
-              КПП:
-              <input
-                type="number"
-                name="kpp"
-                value={formData.kpp}
-                onChange={handleInputChange}
-              />
-            </label>
-
-            <label>
-              Банк:
-              <input
-                type="number"
-                name="bank"
-                value={formData.bank}
-                onChange={handleInputChange}
-              />
-            </label>
-
-            <label>
-              Расчетный счет:
-              <input
-                type="number"
-                name="currAcc"
-                value={formData.currAcc}
-                onChange={handleInputChange}
-              />
-            </label>
-
-            <label>
-              Корреспондентский счет:
-              <input
-                type="number"
-                name="corrAcc"
-                value={formData.corrAcc}
-                onChange={handleInputChange}
-              />
-            </label>
-
-            <label>
-              БИК:
-              <input
-                type="number"
-                name="bik"
-                value={formData.bik}
-                onChange={handleInputChange}
-              />
-            </label>
-          </div>
-        )}
-
-        <button onClick={onClose}>Закрыть</button>
-        <button onClick={handleSave}>Сохранить</button>
-      </div>
-    </div>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={onClose}>
+          Закрыть
+        </Button>
+        <Button variant="success" onClick={handleSave}>
+          Сохранить
+        </Button>
+      </Modal.Footer>
+    </Modal>
   );
 };
 
-export default Modal;
+export default EntityModal;
