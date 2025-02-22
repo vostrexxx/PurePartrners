@@ -1,31 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import Card from '../Previews/Card';
+import { Card, Button, Container, Row, Col } from 'react-bootstrap'; // Импортируем компоненты Bootstrap
 import { useNavigate } from 'react-router-dom';
 
-const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localizedStatus,
-     isReceiver, initiatorId , receiverId, chatId, isSpecialist, onTrigger }) => {
-
+const Agreement = ({
+    id, mode, initiatorItemId, receiverItemId, comment, localizedStatus,
+    isReceiver, initiatorId, receiverId, chatId, isSpecialist, onTrigger
+}) => {
     const [questionnaireId, setQuestionnaireId] = useState(null);
     const [announcementId, setAnnouncementId] = useState(null);
-
     const [questionnaireData, setQuestionnaireData] = useState(null);
     const [announcementData, setAnnouncementData] = useState(null);
-
     const [isChatExists, setIsChatExists] = useState(null);
-    const [isConversation, setIsConversation] = useState(localizedStatus === 'Переговоры' ? true : false);
-    const [isRejected, setIsRejected] = useState(localizedStatus === 'Отклонено' ? true : false);
+    const [isConversation, setIsConversation] = useState(localizedStatus === 'Переговоры');
+    const [isRejected, setIsRejected] = useState(localizedStatus === 'Отклонено');
 
     const url = localStorage.getItem('url');
     const getAuthToken = () => localStorage.getItem('authToken');
     const navigate = useNavigate();
     const [trigger, setTrigger] = useState(false);
 
-
     useEffect(() => {
-        const params = new URLSearchParams({
-            chatId: chatId,
-        });
-    
+        const params = new URLSearchParams({ chatId });
+
         fetch(`${url}/chat/exists?${params.toString()}`, {
             method: 'GET',
             headers: {
@@ -33,24 +29,21 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
                 'Authorization': `Bearer ${getAuthToken()}`,
             },
         })
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error(`Ошибка при проверке существования чата: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then((data) => {
-            setIsChatExists(data.isChatExists);
-            // console.log("Обновлено isChatExists:", data.isChatExists);
-        })
-        .catch((error) => {
-            console.error("Ошибка:", error);
-        });
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Ошибка при проверке существования чата: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                setIsChatExists(data.isChatExists);
+            })
+            .catch((error) => {
+                console.error("Ошибка:", error);
+            });
     }, [chatId, trigger]);
-    
 
     useEffect(() => {
-        // Определяем, что является `questionnaire` и `announcement`
         if (mode) {
             setAnnouncementId(initiatorItemId);
             setQuestionnaireId(receiverItemId);
@@ -84,8 +77,6 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
 
                 if (response.ok) {
                     const data = await response.json();
-                    // console.log("data", data)
-
                     if (type === 'questionnaire') {
                         setQuestionnaireData(data);
                     } else {
@@ -105,23 +96,30 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
 
     const renderCard = (data, type) => {
         if (!data) return <p>Данные не загружены</p>;
-        // console.log(data)
+
         return (
-            <Card
-                title={data.workCategories}
-                totalCost={data.totalCost}
-                address={data.address}
-                workExp={data.workExp}
-                hasTeam={data.hasTeam}
-                hasEdu={data.hasEdu}
-                onClick={() => navigate(`/${type}/${data.id}`, { state: { fromLk: null } })}
-                type={type}
-            />
+            <Card className="mb-3">
+                <Card.Body>
+                    <Card.Title>{data.workCategories}</Card.Title>
+                    <Card.Text>
+                        Стоимость: {data.totalCost} руб.<br />
+                        Адрес: {data.address}<br />
+                        Опыт работы: {data.workExp} лет<br />
+                        {data.hasTeam ? 'Имеется команда' : 'Нет команды'}<br />
+                        {data.hasEdu ? 'Есть образование' : 'Нет образования'}
+                    </Card.Text>
+                    <Button
+                        variant="primary"
+                        onClick={() => navigate(`/${type}/${data.id}`, { state: { fromLk: null } })}
+                    >
+                        Подробнее
+                    </Button>
+                </Card.Body>
+            </Card>
         );
     };
 
     const handleReject = async () => {
-        // console.log(questionnaireData)
         const bodyData = {
             newStatus: "Отклонено",
             agreementId: id,
@@ -142,31 +140,26 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
 
             const data = await response.json();
             if (data.success === 1) {
-                onTrigger()
-            } else {
-                // setError('Не удалось отклонить соглашение');
+                onTrigger();
             }
         } catch (error) {
-            // setError(`Ошибка при отклонении: ${error.message}`);
+            console.error('Ошибка при отклонении:', error);
         }
     };
 
     const handleStartChat = async () => {
         let initiatorChatName = '';
         let receiverChatName = '';
-    
+
         if (mode === 1) {
-            // Инициатор — анкета, получатель — объявление
             initiatorChatName = questionnaireData?.workCategories || 'Неизвестно';
             receiverChatName = announcementData?.workCategories || 'Неизвестно';
         } else if (mode === 0) {
-            // Инициатор — объявление, получатель — анкета
             initiatorChatName = announcementData?.workCategories || 'Неизвестно';
             receiverChatName = questionnaireData?.workCategories || 'Неизвестно';
         }
-    
+
         const bodyData = {
-            // Инициатор айди - тот кто откликнулся, Инициатор Чата - тот кто создал чат
             chatInitiatorId: receiverId,
             chatReceiverId: initiatorId,
             chatId: chatId,
@@ -175,7 +168,7 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
             isSpecialist: isSpecialist,
             agreementId: id,
         };
-    
+
         fetch(`${url}/event/new-chat`, {
             method: 'POST',
             headers: {
@@ -191,8 +184,7 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
                 return response.json();
             })
             .then(() => {
-
-                setTrigger(!trigger) 
+                setTrigger(!trigger);
                 const bodyData = {
                     newStatus: 'Переговоры',
                     agreementId: id,
@@ -212,7 +204,7 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
                         return response.json();
                     })
                     .then((data) => {
-                        onTrigger()
+                        onTrigger();
                     })
                     .catch((error) => {
                         console.error('Ошибка:', error.message);
@@ -222,12 +214,10 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
                 console.error('Ошибка:', error.message);
             });
     };
-    
+
     const handleOpenChat = () => {
-        const params = new URLSearchParams({
-            chatId,
-        });
-    
+        const params = new URLSearchParams({ chatId });
+
         fetch(`${url}/chat/info?${params.toString()}`, {
             method: 'GET',
             headers: {
@@ -241,84 +231,72 @@ const Agreement = ({ id, mode, initiatorItemId, receiverItemId, comment, localiz
                 return response.json();
             })
             .then((response) => {
-                // console.log('агримант', agreementId);
                 navigate(`/chat/${chatId}`, { state: { agreementId: response.agreementId } });
             })
             .catch((error) => {
                 console.error(`Ошибка при получении информации по соглашению: ${error.message}`);
             });
     };
-        
+
     let bottomEl;
 
     if (!isRejected) {
         if (isReceiver) {
             bottomEl = (
-                <div>
-                    <button onClick={handleReject} style={styles.button}>Отклонить</button>
-                    {isChatExists ? 
-                        <button onClick={handleOpenChat} style={styles.button}>Открыть чат</button>
+                <div className="d-flex gap-2">
+                    <Button variant="danger" onClick={handleReject}>Отклонить</Button>
+                    {isChatExists ?
+                        <Button variant="primary" onClick={handleOpenChat}>Открыть чат</Button>
                         :
-                        <button onClick={handleStartChat} style={styles.button}>Создать чат</button>
+                        <Button variant="success" onClick={handleStartChat}>Создать чат</Button>
                     }
-                </div>)
-        } else if (!isReceiver && isChatExists){
+                </div>
+            );
+        } else if (!isReceiver && isChatExists) {
             bottomEl = (
-                <div>
-                    <button onClick={handleOpenChat} style={styles.button}>Открыть чат</button>
-                </div>)
-        }  
+                <Button variant="primary" onClick={handleOpenChat}>Открыть чат</Button>
+            );
+        }
     } else {
-        bottomEl = null
+        bottomEl = null;
     }
 
-
     return (
-        <div style={styles.agreement}>
-            {mode ? (
-                <div>
-                    {isSpecialist ? (<h4>Ваша анкета:</h4>): (<h4>Анкета:</h4>)}
-                    {renderCard(questionnaireData, 'questionnaire')}
+        <Container className="border rounded p-3 mb-3">
+            <Row>
+                <Col>
+                    {mode ? (
+                        <div>
+                            {isSpecialist ? <h4>Ваша анкета:</h4> : <h4>Анкета:</h4>}
+                            {renderCard(questionnaireData, 'questionnaire')}
 
-                    {!isSpecialist ? (<h4>Ваше объявление:</h4>): (<h4>Обновление:</h4>)}
-                    {renderCard(announcementData, 'announcement')}
+                            {!isSpecialist ? <h4>Ваше объявление:</h4> : <h4>Обновление:</h4>}
+                            {renderCard(announcementData, 'announcement')}
 
-                    <h4>Комментарий откликнувшегося:</h4>
-                    <p>{comment}</p>
+                            <h4>Комментарий откликнувшегося:</h4>
+                            <p>{comment}</p>
 
-                    <h2>{localizedStatus}</h2>
-                </div>
-            ) : (
-                <div>
-                    {!isSpecialist ? (<h4>Ваше объявление:</h4>): (<h4>Обновление:</h4>)}
-                    {renderCard(announcementData, 'announcement')}
+                            <h2>{localizedStatus}</h2>
+                        </div>
+                    ) : (
+                        <div>
+                            {!isSpecialist ? <h4>Ваше объявление:</h4> : <h4>Обновление:</h4>}
+                            {renderCard(announcementData, 'announcement')}
 
-                    {isSpecialist ? (<h4>Ваша анкета:</h4>): (<h4>Анкета:</h4>)}
-                    {renderCard(questionnaireData, 'questionnaire')}
+                            {isSpecialist ? <h4>Ваша анкета:</h4> : <h4>Анкета:</h4>}
+                            {renderCard(questionnaireData, 'questionnaire')}
 
-                    <h4>Комментарий откликнувшегося:</h4>
-                    <p>{comment}</p>
+                            <h4>Комментарий откликнувшегося:</h4>
+                            <p>{comment}</p>
 
-                    <h2>{localizedStatus}</h2>
-                </div>
-            )}
-                <div>{bottomEl}</div>
-
-        </div>
+                            <h2>{localizedStatus}</h2>
+                        </div>
+                    )}
+                    <div>{bottomEl}</div>
+                </Col>
+            </Row>
+        </Container>
     );
-};
-
-const styles = {
-    agreement: {
-        color: 'black',
-        border: '1px solid #ccc',
-        borderRadius: '8px',
-        padding: '16px',
-        margin: '16px 0',
-        cursor: 'pointer',
-        backgroundColor: '#fff',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-    },
 };
 
 export default Agreement;

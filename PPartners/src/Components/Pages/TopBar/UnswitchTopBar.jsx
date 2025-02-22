@@ -11,7 +11,7 @@ import logo from "../../../Images/logo.png";
 import smallLogo from "../../../Images/small-logo.png";
 import './TopBar.css'
 
-const NotAuthTopBar = () => {
+const UnswitchTopBar = () => {
   const { isSpecialist, toggleProfile } = useProfile(); // Доступ к состоянию профиля
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -46,40 +46,6 @@ const NotAuthTopBar = () => {
             style={{ width: "50px", height: "auto", objectFit: "contain" }}
           />
         </Navbar.Brand>
-
-        {/* Центр: Переключатель */}
-        <div className="d-flex align-items-center">
-          {/* Иконка заказчика */}
-          <span className="me-2 d-none d-md-block text-white">Заказчик</span>
-          <span className="me-2 d-md-none">
-            <MdBusinessCenter size={30} color="#ffffff" />
-          </span>
-
-          <Switch
-            checked={isSpecialist}
-            onChange={toggleProfile}
-            sx={{
-              "& .MuiSwitch-switchBase": {
-                color: "#ff7101",
-              },
-              "& .MuiSwitch-switchBase.Mui-checked": {
-                color: "#ff7101",
-              },
-              "& .MuiSwitch-track": {
-                backgroundColor: "#ff7101",
-              },
-              "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-                backgroundColor: "#ff7101",
-              },
-            }}
-          />
-
-          {/* Иконка специалиста */}
-          <span className="ms-2 d-none d-md-block text-white">Специалист</span>
-          <span className="ms-2 d-md-none">
-            <FaHardHat size={26} color="#ffffff" />
-          </span>
-        </div>
 
         {/* Иконка профиля */}
         <Dropdown>
@@ -124,4 +90,4 @@ const NotAuthTopBar = () => {
   );
 };
 
-export default NotAuthTopBar;
+export default UnswitchTopBar;

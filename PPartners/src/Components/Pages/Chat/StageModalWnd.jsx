@@ -607,7 +607,9 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                     </div>
                 } else if (mode === 'customer') {
                     return <div>
-                        <Typography color="textSecondary">Ваш текущий баланс {balance}</Typography>
+                        {balance > stageData.totalPrice ?
+                            <Typography color="textSecondary">Ваш текущий баланс {balance}</Typography> : 'Недостаточно средств'
+                        }
                         <Typography color="textSecondary">Стоимость этапа: {stageData.totalPrice}</Typography>
 
                         {balance > stageData.totalPrice ? (

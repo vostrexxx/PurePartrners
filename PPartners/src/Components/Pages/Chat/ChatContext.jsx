@@ -5,8 +5,7 @@ import { EventSourcePolyfill } from 'event-source-polyfill';
 import RejectButton from './RejectButton';
 import CompleteButton from './CompleteButton';
 import { useProfile } from '../../Context/ProfileContext';
-import { TextField, Button, Drawer, List, ListItem, Divider } from '@mui/material';
-
+import { Button } from 'react-bootstrap'; // Используем Button из Bootstrap
 
 const ChatContext = ({ agreementId }) => {
     const [agreementInfo, setAgreementInfo] = useState(null);
@@ -18,18 +17,14 @@ const ChatContext = ({ agreementId }) => {
     const { isSpecialist } = useProfile();
     const who = isSpecialist ? 'contractor' : 'customer';
 
-
-
-
     const url = localStorage.getItem('url');
     const getAuthToken = () => localStorage.getItem('authToken');
     const navigate = useNavigate();
 
-
-
     const [triggerAgreement, setTriggerAgreement] = useState(false);
     const eventQueue = useRef([]);
     const isProcessingQueue = useRef(false);
+
     useEffect(() => {
         const processEventQueue = () => {
             if (eventQueue.current.length > 0 && !isProcessingQueue.current) {
@@ -61,16 +56,11 @@ const ChatContext = ({ agreementId }) => {
 
         eventSource.onmessage = (event) => {
             if (event.data.trim() === ':ping') {
-                // Игнорируем пинг
                 return;
             }
 
             console.log("SSE msg: event.data - ", event.data);
-
-            // Добавляем событие в очередь
             eventQueue.current.push(event.data);
-
-            // Запускаем обработку очереди
             processEventQueue();
         };
 
@@ -85,11 +75,7 @@ const ChatContext = ({ agreementId }) => {
         };
     }, [agreementId, url]);
 
-
     useEffect(() => {
-        // console.log('Agreement ID in ChatContext:', agreementId);
-
-        // Проверка наличия `agreementId`
         if (!agreementId) {
             console.error('Agreement ID is missing');
             return;
@@ -116,8 +102,6 @@ const ChatContext = ({ agreementId }) => {
                 setMode(data.agreementInfo.mode);
 
 
-
-                // Определяем, что является `questionnaire` и `announcement`
                 if (data.agreementInfo.mode) {
                     fetchPreviewData(data.agreementInfo.receiverItemId, 'questionnaire');
                     fetchPreviewData(data.agreementInfo.initiatorItemId, 'announcement');
@@ -182,19 +166,16 @@ const ChatContext = ({ agreementId }) => {
             <Card
                 title={title}
                 isSpecialist={isSpecialist}
-                // date={data.date || 'Дата отсутствует'}
                 onClick={() => navigate(`/${type}/${data.id}`, { state: { fromLk: null } })}
                 totalCost={data.totalCost}
                 address={data.address}
                 workExp={data.workExp}
                 hasTeam={data.hasTeam}
                 hasEdu={data.hasEdu}
-                // onClick={() => navigate(`/${type}/${data.id}`, { state: { fromLk: null } })}
                 type={type}
             />
         );
     };
-
 
     const handleComplete = async (mode, agreementId) => {
         try {
@@ -212,11 +193,10 @@ const ChatContext = ({ agreementId }) => {
             }
 
             const data = await response.json();
-
         } catch (error) {
             alert('Ошибка при утверждении.');
         }
-    }
+    };
 
     const isLocalCompleted = who === 'contractor'
         ? agreementInfo?.isContractorCompleted ?? false
@@ -224,33 +204,31 @@ const ChatContext = ({ agreementId }) => {
 
     const isBothCompleted = (agreementInfo?.isContractorCompleted ?? false) && (agreementInfo?.isCustomerCompleted ?? false);
 
-
     return (
-        <div>
+        <div className="container mt-4">
+            <div className="card">
+                <div className="card-body">
+                    {mode !== null ? (
+                        <div>
+                            <h3 className="card-title">Статус: {agreementInfo.localizedStatus}</h3>
+                            {isSpecialist ? (<h4>Ваша анкета:</h4>) : (<h4>Анкета:</h4>)}
+                            {renderCard(questionnaireData, 'questionnaire')}
 
-            <div style={styles.card}>
-                {mode !== null ? (
-                    <div>
-                        <h3>Статус: {agreementInfo.localizedStatus}</h3>
-                        {isSpecialist ? (<h4>Ваша анкета:</h4>) : (<h4>Анкета:</h4>)}
-                        {renderCard(questionnaireData, 'questionnaire')}
-
-                        {!isSpecialist ? (<h4>Ваше объявление:</h4>) : (<h4>Обновление:</h4>)}
-                        {renderCard(announcementData, 'announcement')}
-                    </div>
-                ) : (
-                    <p>Загрузка данных...</p>
-                )}
+                            {!isSpecialist ? (<h4>Ваше объявление:</h4>) : (<h4>Обновление:</h4>)}
+                            {renderCard(announcementData, 'announcement')}
+                        </div>
+                    ) : (
+                        <p>Загрузка данных...</p>
+                    )}
+                </div>
             </div>
 
-            {agreementInfo ? (<RejectButton agreementId={agreementId} status={agreementInfo.localizedStatus} />) : (<div>Загрузка...</div>)}
-
-            {/* <CompleteButton agreementId={agreementId} /> */}
-
+            {agreementInfo && (agreementInfo.localizedStatus === "В ожидании" || agreementInfo.localizedStatus === "Переговоры") ?
+                <RejectButton  className="m-3" agreementId={agreementId} /> : ""}
 
             {agreementInfo ? (
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h5>
+                <div className="d-flex justify-content-between align-items-center mt-3">
+                    <h5 className="mb-0 text-white">
                         Статус:
                         {agreementInfo.isCustomerCompleted && agreementInfo.isContractorCompleted ? (
                             ' Соглашение завершено'
@@ -265,47 +243,24 @@ const ChatContext = ({ agreementId }) => {
                         )}
                     </h5>
 
-
                     {isBothCompleted ? (
-                        <Button>
+                        <Button variant="success" disabled>
                             Все работы завершены
-                        </Button>)
-                        : (
-                            <Button
-                                variant="outlined"
-                                color="success"
-                                onClick={() => handleComplete(who, agreementId)}
-                            >
-                                {isLocalCompleted ? 'Отменить завершение' : 'Утвердить завершение'}
-                            </Button>
-                        )}
-
-
-
+                        </Button>
+                    ) : (
+                        <Button
+                            variant={isLocalCompleted ? 'outline-danger' : 'outline-success'}
+                            onClick={() => handleComplete(who, agreementId)}
+                        >
+                            {isLocalCompleted ? 'Отменить завершение' : 'Утвердить завершение'}
+                        </Button>
+                    )}
                 </div>
             ) : (
                 <div>Загрузка...</div>
             )}
-
-
-
-
         </div>
-
     );
-};
-
-const styles = {
-    card: {
-        color: 'black',
-        border: '1px solid #ccc',
-        borderRadius: '8px',
-        padding: '16px',
-        margin: '16px 0',
-        cursor: 'pointer',
-        backgroundColor: '#fff',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-    },
 };
 
 export default ChatContext;

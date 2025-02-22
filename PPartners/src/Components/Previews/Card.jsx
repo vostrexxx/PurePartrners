@@ -1,7 +1,6 @@
 import React from 'react';
 
 const Card = ({ title, totalCost, address, onClick, isSelected, type, hasEdu, hasTeam, workExp }) => {
-
     function getYearWord(number) {
         if (number >= 11 && number <= 14) {
             return `${number} лет`;
@@ -20,43 +19,32 @@ const Card = ({ title, totalCost, address, onClick, isSelected, type, hasEdu, ha
 
     return (
         <div
-            style={{
-                ...styles.card,
-                backgroundColor: isSelected ? '#b3d9ff' : '#fff', // Изменение фона при выборе
-                border: isSelected ? '2px solid blue' : '1px solid #ccc',
-            }}
+            className={`card ${isSelected ? 'border-primary shadow' : ''}`}
+            style={{ cursor: 'pointer', marginBottom: '16px' }}
             onClick={onClick}
         >
+            <div className="card-body">
+                <h5 className="card-title">{title}</h5>
 
-            <h3>{title}</h3>
-
-            {type === 'announcement' ? (
-                <div>
-                    <p> Стоимость: {totalCost} руб.</p>
-                    <p> Адрес: {address}</p>
-                </div>) : (
-                <div>
-                    <p>{hasEdu ? 'Имеется профильное образование' : 'Не имеется профильное образование'}</p>
-                    <p>{hasTeam ? 'Имеется команда' : 'Не имеется команды'}</p>
-                    <p> Опыт работы: {getYearWord(workExp)}</p>
-                </div>)}
-
-
+                {type === 'announcement' ? (
+                    <div>
+                        <p className="card-text">Стоимость: {totalCost} руб.</p>
+                        <p className="card-text">Адрес: {address}</p>
+                    </div>
+                ) : (
+                    <div>
+                        <p className="card-text">
+                            {hasEdu ? 'Имеется профильное образование' : 'Не имеется профильное образование'}
+                        </p>
+                        <p className="card-text">
+                            {hasTeam ? 'Имеется команда' : 'Не имеется команды'}
+                        </p>
+                        <p className="card-text">Опыт работы: {getYearWord(workExp)}</p>
+                    </div>
+                )}
+            </div>
         </div>
     );
-};
-
-const styles = {
-    card: {
-        color: 'black',
-        border: '1px solid #ccc',
-        borderRadius: '8px',
-        padding: '16px',
-        margin: '16px 0',
-        cursor: 'pointer',
-        backgroundColor: '#fff',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-    },
 };
 
 export default Card;

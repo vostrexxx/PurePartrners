@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Container, Row, Col, Card, Spinner, Alert } from 'react-bootstrap';
 import Agreement from '../../Previews/Agreement';
 import { useProfile } from '../../Context/ProfileContext';
 
@@ -8,15 +9,16 @@ let url = localStorage.getItem('url');
 const SentAgreement = () => {
     const [agreements, setAgreements] = useState([]);
     const { isSpecialist } = useProfile();
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
+            setLoading(true);
+            setError(null);
             try {
-
-                const params = new URLSearchParams({
-                    mode: isSpecialist ? 0 : 1,
-                });
-                const response = await fetch(`${url}/agreement/sent?${params.toString()}`, {
+                const params = new URLSearchParams({ mode: isSpecialist ? 0 : 1 });
+                const response = await fetch(`${url}/agreement/sent?${params}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -24,48 +26,44 @@ const SentAgreement = () => {
                     }
                 });
 
-                if (!response.ok) {
-                    throw new Error(`Ошибка сети: ${response.status}`);
-                }
-
+                if (!response.ok) throw new Error(`Ошибка сети: ${response.status}`);
+                
                 const data = await response.json();
                 setAgreements(data.agreements);
-            } catch (error) {
-                console.error('Ошибка при загрузке данных:', error);
+            } catch {
+                setError('Ошибка при загрузке данных.');
+            } finally {
+                setLoading(false);
             }
         };
-
         fetchData();
     }, [isSpecialist]);
 
-
     return (
-        <div>
-            <h2>На что вы откликнулись</h2>
-            {agreements.length > 0 ? (
-                agreements.map((item, index) => (
-                    <Agreement 
-                        id={item.id} 
-                        mode={item.mode} 
-                        initiatorId={item.initiatorId} 
-                        initiatorItemId={item.initiatorItemId} 
-                        receiverId={item.receiverId}
-                        receiverItemId={item.receiverItemId}
-                        localizedStatus={item.localizedStatus}
-                        comment={item.comment}
-                        updateDate={item.updateDate}
-                        key={index}
-                        isReceiver={false}
-                        chatId={item.chatId}
-                        isSpecialist={isSpecialist}
-
-
-                    />
-                ))
+        <Container className="mt-4">
+            <h2 className="text-center mb-4 text-white">На что вы откликнулись</h2>
+            {loading ? (
+                <div className="text-center">
+                    <Spinner animation="border" variant="primary" />
+                </div>
+            ) : error ? (
+                <Alert variant="danger">{error}</Alert>
+            ) : agreements.length > 0 ? (
+                <Row>
+                    {agreements.map((item, index) => (
+                        <Col xs={12} md={6} lg={4} key={index} className="mb-4">
+                            <Card className="shadow-sm">
+                                <Card.Body>
+                                    <Agreement {...item} isReceiver={false} isSpecialist={isSpecialist} />
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    ))}
+                </Row>
             ) : (
-                <p>Нет откликов</p>
+                <Alert variant="info">Нет откликов</Alert>
             )}
-        </div>
+        </Container>
     );
 };
 

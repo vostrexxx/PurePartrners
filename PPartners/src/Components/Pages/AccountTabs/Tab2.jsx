@@ -1122,7 +1122,7 @@ const MainPage = () => {
             </Col>
           </Row>
 
-          <Row className="g-4">
+          <Row>
             {isSpecialist ? (
               questionnaires.length > 0 ? (
                 questionnaires.map((item) => (

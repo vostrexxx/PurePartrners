@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Switch, Drawer, Button, TextField, Checkbox, FormControlLabel, Slider, Radio, RadioGroup, FormControl, FormLabel } from '@mui/material';
+import { Switch, Drawer, TextField, Checkbox, FormControlLabel, Slider, Radio, RadioGroup, FormControl, FormLabel } from '@mui/material';
 import { useProfile } from '../../Context/ProfileContext';
 import { useNavigate } from 'react-router-dom';
 import { FaUserCircle } from 'react-icons/fa';
@@ -10,6 +10,7 @@ import Card from '../../Previews/Card';
 import SearchComponent from '../SearchComponent/SearchComponent';
 import TopBar from '../TopBar/TopBar';
 import ErrorMessage from '../../ErrorHandling/ErrorMessage';
+import { Container, Row, Col, Nav, Button, Tab } from "react-bootstrap";
 
 const MainPage = () => {
     const { isSpecialist, toggleProfile } = useProfile();
@@ -190,7 +191,7 @@ const MainPage = () => {
                     const errorText = await response.text();
 
                     try {
-                        const errorData = JSON.parse(errorText); 
+                        const errorData = JSON.parse(errorText);
                         throw new Error(errorData.message || `Ошибка ${response.status}`);
                     } catch (parseError) {
 
@@ -217,161 +218,177 @@ const MainPage = () => {
 
 
     return (
-        <div>
+        <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
             <TopBar />
+            <Container
+                fluid
+                style={{
+                    backgroundColor: "#242582",
+                    flex: 1,
+                    padding: "20px",
+                }}
+            >
+                <Row className="justify-content-center">
+                    <Col xs={12} md={10} lg={8}>
 
-            <div style={styles.mainContent}>
-                {isSpecialist ? <div>Поиск объявлений</div> : <div>Поиск анкет</div>}
-            </div>
+                        {/* <div style={styles.mainContent}> */}
+                        <h2 className="text-white">{isSpecialist ? "Поиск объявлений" : "Поиск анкет"}</h2>
+                        {/* </div> */}
 
-            <ErrorMessage message={cardsError} errorCode={null} />
-            
-            <div style={{ marginTop: '20px' }}>
-                <SearchComponent onSearch={handleSearch} />
-                <Button variant="outlined" onClick={toggleFilterDrawer} style={{ marginTop: '20px' }}>
-                    Фильтры
-                </Button>
-            </div>
+                        <ErrorMessage message={cardsError} errorCode={null} />
 
-            <Drawer anchor="right" open={isFilterOpen} onClose={toggleFilterDrawer}>
-                <div style={{ width: '300px', padding: '20px' }}>
-                    <h3>Фильтры</h3>
+                        <div className='mb-3'>
+                            <SearchComponent onSearch={handleSearch} />
+                            <Button
+                                variant="primary"
+                                className="w-100 mt-3"
+                                onClick={toggleFilterDrawer}
 
-                    {!isSpecialist ? (
-                        <>
-                            <FormControl component="fieldset">
-                                <FormLabel component="legend">Имеется ли команда?</FormLabel>
-                                <RadioGroup
-                                    name="hasTeam"
-                                    value={filterParams.hasTeam}
-                                    onChange={handleHasTeamChange}
-                                >
-                                    <FormControlLabel value="any" control={<Radio />} label="Неважно" />
-                                    <FormControlLabel value="yes" control={<Radio />} label="Да" />
-                                    <FormControlLabel value="no" control={<Radio />} label="Нет" />
-                                </RadioGroup>
-                            </FormControl>
+                            >
+                                Фильтры 🔍
+                            </Button>
+                        </div>
 
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={filterParams.hasEdu}
-                                        onChange={handleFilterChange}
-                                        name="hasEdu"
-                                    />
-                                }
-                                label="Имеется профильное образование"
-                            />
-                            <h5>Минимальная опыт работы в годах</h5>
-                            <Slider
-                                value={filterParams.experience}
-                                onChange={(e, newValue) => handleFilterChange(e, newValue)}
-                                valueLabelDisplay="auto"
-                                min={0}
-                                max={50}
-                                name="experience"
-                                label="Опыт работы (лет)"
-                            />
-                            <h5>Минимальная цена</h5>
-                            <Slider
-                                value={filterParams.minPrice}
-                                onChange={(e, newValue) => handleFilterChange(e, newValue)}
-                                valueLabelDisplay="auto"
-                                min={0}
-                                max={10000000}
-                                name="minPrice"
-                                label="Минимальная цена"
-                            />
-                        </>
-                    ) : (
-                        <>
-                            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                <DatePicker
-                                    label="Дата начала"
-                                    value={filterParams.startDate}
-                                    onChange={(date) => handleDateChange('startDate', date)}
-                                    renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
-                                />
-                                <DatePicker
-                                    label="Дата окончания"
-                                    value={filterParams.finishDate}
-                                    onChange={(date) => handleDateChange('finishDate', date)}
-                                    renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
-                                />
+                        <Drawer anchor="right" open={isFilterOpen} onClose={toggleFilterDrawer}>
+                            <div style={{ width: '300px', padding: '20px' }}>
+                                <h3>Фильтры</h3>
 
-                            </LocalizationProvider>
+                                {!isSpecialist ? (
+                                    <>
+                                        <FormControl component="fieldset">
+                                            <FormLabel component="legend">Имеется ли команда?</FormLabel>
+                                            <RadioGroup
+                                                name="hasTeam"
+                                                value={filterParams.hasTeam}
+                                                onChange={handleHasTeamChange}
+                                            >
+                                                <FormControlLabel value="any" control={<Radio />} label="Неважно" />
+                                                <FormControlLabel value="yes" control={<Radio />} label="Да" />
+                                                <FormControlLabel value="no" control={<Radio />} label="Нет" />
+                                            </RadioGroup>
+                                        </FormControl>
 
-                            <h5>Общая стоимость</h5>
-                            <Slider
-                                value={filterParams.totalCost}
-                                onChange={(e, newValue) => handleFilterChange(e, newValue)}
-                                valueLabelDisplay="auto"
-                                min={0}
-                                max={10000000}
-                                name="totalCost"
-                                label="Общая стоимость"
-                            />
-                        </>
-                    )}
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={filterParams.hasEdu}
+                                                    onChange={handleFilterChange}
+                                                    name="hasEdu"
+                                                />
+                                            }
+                                            label="Имеется профильное образование"
+                                        />
+                                        <h5>Минимальная опыт работы в годах</h5>
+                                        <Slider
+                                            value={filterParams.experience}
+                                            onChange={(e, newValue) => handleFilterChange(e, newValue)}
+                                            valueLabelDisplay="auto"
+                                            min={0}
+                                            max={50}
+                                            name="experience"
+                                            label="Опыт работы (лет)"
+                                        />
+                                        <h5>Минимальная цена</h5>
+                                        <Slider
+                                            value={filterParams.minPrice}
+                                            onChange={(e, newValue) => handleFilterChange(e, newValue)}
+                                            valueLabelDisplay="auto"
+                                            min={0}
+                                            max={10000000}
+                                            name="minPrice"
+                                            label="Минимальная цена"
+                                        />
+                                    </>
+                                ) : (
+                                    <>
+                                        <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                            <DatePicker
+                                                label="Дата начала"
+                                                value={filterParams.startDate}
+                                                onChange={(date) => handleDateChange('startDate', date)}
+                                                renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
+                                            />
+                                            <DatePicker
+                                                label="Дата окончания"
+                                                value={filterParams.finishDate}
+                                                onChange={(date) => handleDateChange('finishDate', date)}
+                                                renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
+                                            />
 
-                    <Button variant="contained" color="primary" onClick={applyFilters} fullWidth>
-                        Применить фильтры
-                    </Button>
-                </div>
-            </Drawer>
+                                        </LocalizationProvider>
 
-            <div>
-                {!isSpecialist ? (
-                    <div>
-                        <h2>Анкеты:</h2>
-                        {questionnaires.length > 0 ? (
-                            questionnaires.map((item) => (
-                                <Card
-                                    title={item.workCategories}
-                                    onClick={() => navigate(`/questionnaire/${item.id}`, { state: { fromLk: false } })}
-                                    key={item.id}
+                                        <h5>Общая стоимость</h5>
+                                        <Slider
+                                            value={filterParams.totalCost}
+                                            onChange={(e, newValue) => handleFilterChange(e, newValue)}
+                                            valueLabelDisplay="auto"
+                                            min={0}
+                                            max={10000000}
+                                            name="totalCost"
+                                            label="Общая стоимость"
+                                        />
+                                    </>
+                                )}
 
-                                    totalCost={item.totalCost}
-                                    address={item.address}
-                                    workExp={item.workExp}
-                                    hasTeam={item.hasTeam}
-                                    hasEdu={item.hasEdu}
-                                    // onClick={() => navigate(`/${type}/${data.id}`, { state: { fromLk: null } })}
-                                    type={"questionnaire"}
+                                <Button color="primary" onClick={applyFilters} fullWidth>
+                                    Применить фильтры
+                                </Button>
+                            </div>
+                        </Drawer>
+
+                        <div>
+                            {!isSpecialist ? (
+                                <div>
+                                    {/* <h2 className="w-100 mt-3 text-white" >Анкеты:</h2> */}
+                                    {questionnaires.length > 0 ? (
+                                        questionnaires.map((item) => (
+                                            <Card
+                                                title={item.workCategories}
+                                                onClick={() => navigate(`/questionnaire/${item.id}`, { state: { fromLk: false } })}
+                                                key={item.id}
+
+                                                totalCost={item.totalCost}
+                                                address={item.address}
+                                                workExp={item.workExp}
+                                                hasTeam={item.hasTeam}
+                                                hasEdu={item.hasEdu}
+                                                // onClick={() => navigate(`/${type}/${data.id}`, { state: { fromLk: null } })}
+                                                type={"questionnaire"}
+                                            />
+                                        ))
+                                    ) : (
+                                        <p>Нет анкет</p>
+                                    )}
+                                </div>
+                            ) : (
+                                <div>
+                                    {/* <h2>Объявления:</h2> */}
+                                    {announcements.length > 0 ? (
+                                        announcements.map((item) => (
+                                            <Card
+                                                title={item.workCategories}
+                                                onClick={() => navigate(`/announcement/${item.id}`, { state: { fromLk: false } })}
+                                                key={item.id}
+                                                totalCost={item.totalCost}
+                                                address={item.address}
+                                                workExp={item.workExp}
+                                                hasTeam={item.hasTeam}
+                                                hasEdu={item.hasEdu}
+                                                // onClick={() => navigate(`/${type}/${data.id}`, { state: { fromLk: null } })}
+                                                type={"announcement"}
+                                            />
+                                        ))
+                                    ) : (
+                                        <p>Нет объявлений</p>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </Col>
+                </Row>
 
 
-
-
-                                />
-                            ))
-                        ) : (
-                            <p>Нет анкет</p>
-                        )}
-                    </div>
-                ) : (
-                    <div>
-                        <h2>Объявления:</h2>
-                        {announcements.length > 0 ? (
-                            announcements.map((item) => (
-                                <Card
-                                    title={item.workCategories}
-                                    onClick={() => navigate(`/announcement/${item.id}`, { state: { fromLk: false } })}
-                                    key={item.id}
-                                    totalCost={item.totalCost}
-                                    address={item.address}
-                                    workExp={item.workExp}
-                                    hasTeam={item.hasTeam}
-                                    hasEdu={item.hasEdu}
-                                    // onClick={() => navigate(`/${type}/${data.id}`, { state: { fromLk: null } })}
-                                    type={"announcement"}
-                                />
-                            ))
-                        ) : (
-                            <p>Нет объявлений</p>
-                        )}
-                    </div>
-                )}
-            </div>
+            </Container >
         </div>
     );
 };
@@ -439,7 +456,7 @@ const styles = {
         marginLeft: '20px',
     },
     mainContent: {
-        padding: '70px 20px 20px',
+        // padding: '70px 20px 20px',
     },
 };
 

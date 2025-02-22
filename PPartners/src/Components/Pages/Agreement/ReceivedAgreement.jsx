@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Container, Row, Col, Card, Spinner, Alert } from 'react-bootstrap';
 import Agreement from '../../Previews/Agreement';
 import { useProfile } from '../../Context/ProfileContext';
 
@@ -8,13 +9,15 @@ let url = localStorage.getItem('url');
 const ReceivedAgreement = () => {
     const [agreements, setAgreements] = useState([]);
     const { isSpecialist } = useProfile();
-
     const [trigger, setTrigger] = useState(false);
-    
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
     useEffect(() => {
         const fetchData = async () => {
+            setLoading(true);
+            setError(null);
             try {
-
                 const params = new URLSearchParams({
                     mode: isSpecialist ? 1 : 0,
                 });
@@ -33,43 +36,56 @@ const ReceivedAgreement = () => {
                 const data = await response.json();
                 setAgreements(data.agreements);
             } catch (error) {
-                console.error('Ошибка при загрузке данных:', error);
+                setError('Ошибка при загрузке данных.');
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchData();
     }, [isSpecialist, trigger]);
 
-    const toggleTrigger = () => {
-        setTrigger((prev) => !prev);
-    };
+    const toggleTrigger = () => setTrigger(prev => !prev);
 
     return (
-        <div>
-            <h2>На что вам откликнулись</h2>
-            {agreements.length > 0 ? (
-                agreements.map((item, index) => (
-                    <Agreement 
-                        id={item.id} 
-                        mode={item.mode} 
-                        initiatorId={item.initiatorId} 
-                        initiatorItemId={item.initiatorItemId} 
-                        receiverId={item.receiverId}
-                        receiverItemId={item.receiverItemId}
-                        localizedStatus={item.localizedStatus}
-                        comment={item.comment}
-                        updateDate={item.updateDate}
-                        key={index}
-                        isReceiver={true}
-                        chatId={item.chatId}
-                        isSpecialist={isSpecialist}
-                        onTrigger={toggleTrigger}
-                    />
-                ))
+        <Container className="mt-4">
+            <h2 className="text-center mb-4 text-white">На что вам откликнулись</h2>
+            {loading ? (
+                <div className="text-center">
+                    <Spinner animation="border" variant="primary" />
+                </div>
+            ) : error ? (
+                <Alert variant="danger">{error}</Alert>
+            ) : agreements.length > 0 ? (
+                <Row>
+                    {agreements.map((item, index) => (
+                        <Col key={index} className="mb-4">
+                            <Card className="shadow-sm">
+                                <Card.Body>
+                                    <Agreement
+                                        id={item.id}
+                                        mode={item.mode}
+                                        initiatorId={item.initiatorId}
+                                        initiatorItemId={item.initiatorItemId}
+                                        receiverId={item.receiverId}
+                                        receiverItemId={item.receiverItemId}
+                                        localizedStatus={item.localizedStatus}
+                                        comment={item.comment}
+                                        updateDate={item.updateDate}
+                                        isReceiver={true}
+                                        chatId={item.chatId}
+                                        isSpecialist={isSpecialist}
+                                        onTrigger={toggleTrigger}
+                                    />
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    ))}
+                </Row>
             ) : (
-                <p>Нет откликов</p>
+                <Alert variant="info">Нет откликов</Alert>
             )}
-        </div>
+        </Container>
     );
 };
 

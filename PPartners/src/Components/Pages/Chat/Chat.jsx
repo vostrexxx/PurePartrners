@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { FaFileWord, FaFileExcel, FaFilePdf, FaFileAlt } from 'react-icons/fa';
-
+import { Container, Form, InputGroup, Button, Image, Row, Col } from 'react-bootstrap';
 const Chat = ({ chatId }) => {
     const [newMessage, setNewMessage] = useState('');
     const [attachments, setAttachments] = useState([]);
@@ -24,8 +24,8 @@ const Chat = ({ chatId }) => {
             if (chatRef.current) {
                 chatRef.current.scrollTop = chatRef.current.scrollHeight;
             }
-        }, 100); 
-    }, [messages]); 
+        }, 100);
+    }, [messages]);
 
     useEffect(() => {
         const fetchChatHistory = async () => {
@@ -214,123 +214,62 @@ const Chat = ({ chatId }) => {
     };
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: '#ffffff' }}>
+        <Container
+            fluid
+            className="d-flex flex-column p-2 bg-white"
+            style={{
+                maxHeight: '80vh', // Ограничение высоты контейнера (не более 80% экрана)
+                minHeight: '400px', // Минимальная высота
+                height: 'auto',
+                border: '1px solid #ccc',
+                borderRadius: '12px',
+                boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+                overflow: 'hidden',
+            }}
+        >
+            {/* Просмотр изображения в полноэкранном режиме */}
             {selectedImage && (
                 <div
                     onClick={() => setSelectedImage(null)}
-                    style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        zIndex: 1000,
-                    }}
+                    className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-dark bg-opacity-75"
+                    style={{ zIndex: 1000 }}
                 >
-                    <img
-                        src={selectedImage}
-                        alt="full-size"
-                        style={{ maxWidth: '90%', maxHeight: '90%', borderRadius: '10px' }}
-                    />
+                    <Image src={selectedImage} alt="full-size" fluid rounded />
                 </div>
             )}
 
-            <div  ref={chatRef} style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
+            {/* Сообщения */}
+            <div ref={chatRef} className="flex-grow-1 overflow-auto p-2">
                 {messages.map((msg, index) => (
-                    <div
-                        key={index}
-                        style={{
-                            display: 'flex',
-                            justifyContent: msg.initiatorId === userId ? 'flex-end' : 'flex-start',
-                            marginBottom: '10px',
-                        }}
-                    >
+                    <div key={index} className={`d-flex mb-3 ${msg.initiatorId === userId ? 'justify-content-end' : 'justify-content-start'}`}>
                         <div
-                            style={{
-                                maxWidth: '60%',
-                                padding: '10px',
-                                borderRadius: '8px',
-                                backgroundColor: msg.initiatorId === userId ? '#FFB640' : '#4282D3',
-                                color: msg.initiatorId === userId ? 'black' : '#000000',
-                                wordWrap: 'break-word',
-                            }}
+                            className={`p-2 rounded ${msg.initiatorId === userId ? 'bg-warning' : 'bg-primary text-white'}`}
+                            style={{ maxWidth: '75%', wordWrap: 'break-word' }}
                         >
-                            {msg.message}
-                            <div style={{ marginTop: '5px' }}>
-                                {/* Отображение изображений */}
-                                {msg.images &&
-                                    msg.images.map((img, i) =>
-                                        img ? (
-                                            <img
-                                                key={i}
-                                                src={img}
-                                                alt="attachment"
-                                                style={{
-                                                    maxWidth: '100px',
-                                                    maxHeight: '100px',
-                                                    margin: '5px',
-                                                    cursor: 'pointer',
-                                                }}
-                                                onClick={() => handleImageClick(img)}
-                                            />
-                                        ) : (
-                                            <p key={i} style={{ fontSize: '12px', color: '#888' }}>
-                                                Загрузка изображения...
-                                            </p>
-                                        )
-                                    )}
-
-                                {/* Отображение документов */}
-                                {msg.documents &&
-                                    msg.documents.map((doc, i) => (
-                                        <div
-                                            key={i}
-                                            style={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                marginTop: '5px',
-                                                cursor: 'pointer',
-                                            }}
-                                            onClick={() =>
-                                                handleDownloadFile(doc.filePath, doc.originalFileName)
-                                            }
-                                        >
-                                            <span style={{ marginRight: '5px' }}>
-                                                {getFileIcon(doc.originalFileName)}
-                                            </span>
-                                            <span
-                                                style={{
-                                                    fontSize: '14px',
-                                                    color: 'black',
-                                                }}
-                                            >
-                                                {doc.originalFileName}
-                                            </span>
-                                        </div>
-                                    ))}
-                                {msg.videos &&
-                                    msg.videos.map((video, i) => (
-                                        <div
-                                            key={i}
-                                            style={{ marginTop: '5px', cursor: 'pointer', color: 'blue' }}
-                                            onClick={() => handleDownloadFile(video.filePath, video.originalFileName)}
-                                        >
-                                            {video.originalFileName}
-                                        </div>
-                                    ))}
-                            </div>
-                            <div
-                                style={{
-                                    marginTop: '5px',
-                                    fontSize: '12px',
-                                    color: 'black',
-                                    textAlign: 'right',
-                                }}
-                            >
+                            <div>{msg.message}</div>
+                            {/* Медиафайлы */}
+                            {msg.images?.map((img, i) => (
+                                <Image
+                                    key={i}
+                                    src={img}
+                                    alt="attachment"
+                                    thumbnail
+                                    className="mt-2"
+                                    style={{ maxWidth: '100px', cursor: 'pointer' }}
+                                    onClick={() => handleImageClick(img)}
+                                />
+                            ))}
+                            {msg.documents?.map((doc, i) => (
+                                <div key={i} className="mt-2 text-primary" onClick={() => handleDownloadFile(doc.filePath, doc.originalFileName)}>
+                                    📄 {doc.originalFileName}
+                                </div>
+                            ))}
+                            {msg.videos?.map((video, i) => (
+                                <div key={i} className="mt-2 text-success" onClick={() => handleDownloadFile(video.filePath, video.originalFileName)}>
+                                    🎥 {video.originalFileName}
+                                </div>
+                            ))}
+                            <div className="text-end text-muted" style={{ fontSize: '0.75rem' }}>
                                 {new Date(msg.timestamp).toLocaleTimeString()}
                             </div>
                         </div>
@@ -338,89 +277,85 @@ const Chat = ({ chatId }) => {
                 ))}
             </div>
 
-            <div
+            {/* Поле ввода и кнопки */}
+            <Form className="border-top p-2">
+                <Row className="g-2">
+                    <Col xs={9} md={10}>
+                        <InputGroup>
+                            <Form.Control
+                                type="text"
+                                placeholder="Введите сообщение..."
+                                value={newMessage}
+                                onChange={(e) => setNewMessage(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                            />
+                            <label htmlFor="fileInput" className="input-group-text" style={{ cursor: 'pointer' }}>
+                                📎
+                            </label>
+                            <Form.Control
+                                type="file"
+                                id="fileInput"
+                                multiple
+                                hidden
+                                onChange={(e) => {
+                                    const files = Array.from(e.target.files);
+                                    const validFormats = ['png', 'jpg', 'jpeg', 'gif', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'mp4', 'avi', 'mov', 'mkv'];
+                                    const validFiles = files.filter(file => {
+                                        const extension = file.name.split('.').pop().toLowerCase();
+                                        if (!validFormats.includes(extension)) {
+                                            alert(`Некорректный формат файла: ${file.name}`);
+                                            return false;
+                                        }
+                                        return true;
+                                    });
+                                    setAttachments(validFiles);
+                                }}
+                            />
+                        </InputGroup>
+                    </Col>
+                    <Col xs={3} md={2} className="text-end">
+                        <Button variant="primary" onClick={handleSendMessage}>
+                            Отправить
+                        </Button>
+                    </Col>
+                </Row>
+
+                {/* Отображение выбранных файлов */}
+                {attachments.length > 0 && (
+                    <div className="mt-2">
+                        {attachments.map((file, index) => (
+                            <small key={index} className="d-block text-primary">
+                                📎 {file.name}
+                            </small>
+                        ))}
+                    </div>
+                )}
+            </Form>
+
+            {/* Стили */}
+            <style>
+                {`
+                @media (max-width: 768px) {
+                    .p-2 {
+                        padding: 0.5rem !important;
+                    }
+                    .flex-grow-1 {
+                        font-size: 0.9rem;
+                    }
+                }
     
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    padding: '10px',
-                    borderTop: '1px solid #ddd',
-                }}
-            >
-                <input
-                    type="text"
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()} // Вызов по Enter
-                    placeholder="Введите сообщение..."
-                    style={{
-                        flex: 1,
-                        padding: '10px',
-                        borderRadius: '4px',
-                        border: '1px solid #ddd',
-                        outline: 'none',
-                    }}
-                />
-                <label
-                    htmlFor="fileInput"
-                    style={{
-                        fontSize: '20px',
-                        cursor: 'pointer',
-                        marginRight: '10px',
-                    }}
-                >
-                    📎
-                </label>
-                <input
-                    type="file"
-                    id="fileInput"
-                    multiple
-                    onChange={(e) => {
-                        const files = Array.from(e.target.files);
-                        const validFormats = ['png', 'jpg', 'jpeg', 'gif', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'mp4', 'avi', 'mov', 'mkv'];
-
-                        const validFiles = files.filter((file) => {
-                            const extension = file.name.split('.').pop().toLowerCase();
-                            if (!validFormats.includes(extension)) {
-                                alert(`Некорректный формат файла: ${file.name}`);
-                                return false;
-                            }
-                            return true;
-                        });
-
-                        setAttachments(validFiles);
-                    }}
-                    style={{ display: 'none' }}
-                />
-
-                {attachments.map((file, index) => (
-                    <span
-                        key={index}
-                        style={{
-                            fontSize: '12px',
-                            marginRight: '5px',
-                            color: '#007bff',
-                        }}
-                    >
-                        {file.name}
-                    </span>
-                ))}
-                <button
-                    onClick={handleSendMessage}
-                    style={{
-                        padding: '10px 20px',
-                        marginLeft: '10px',
-                        background: '#007bff',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                    }}
-                >
-                    Отправить
-                </button>
-            </div>
-        </div>
+                .bg-warning {
+                    background-color: #ffc107 !important;
+                    color: black;
+                }
+    
+                .bg-primary {
+                    background-color: #0d6efd !important;
+                    color: white;
+                }
+                `}
+            </style>
+        </Container>
     );
 };
 export default Chat;

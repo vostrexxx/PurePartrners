@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { TextField, Button, Drawer, List, ListItem, Divider } from '@mui/material';
+// import { TextField, Button, Drawer, List, ListItem, Divider } from '@mui/material';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { useProfile } from '../../Context/ProfileContext';
 import StageModalWnd from './StageModalWnd'
 import { EventSourcePolyfill } from 'event-source-polyfill';
+import { Container, Form, InputGroup, Button, Image, Row, Col } from 'react-bootstrap';
 
 const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
     const [stages, setStages] = useState([]); // Список этапов работ
@@ -505,126 +506,94 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
     };
 
     return (
-        <>
-            <Button onClick={() => setDrawerOpen(true)}>Открыть этапы работ</Button>
-            <Drawer
-                anchor="right"
-                open={drawerOpen}
-                onClose={() => setDrawerOpen(false)}
-                PaperProps={{ style: { width: '100%' } }}
-            >
-                <div style={{ padding: '20px', display: 'flex', height: '100%' }}>
-                    {/* Левая панель */}
-                    <DragDropContext onDragEnd={onDragEnd} >
-                        <div style={{ flex: 1, marginRight: '20px' }}>
-                            <h3>Добавить этапы</h3>
-                            <TextField
-                                label="Название этапа"
-                                variant="outlined"
-                                fullWidth
-                                value={newStageName}
-                                onChange={(e) => setNewStageName(e.target.value)}
-                                style={{ marginBottom: '10px' }}
-                                disabled={isEditing !== true}
-                            />
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={handleAddStage}
-                                style={{ marginBottom: '20px' }}
-                                disabled={isEditing !== true}
-                            >
-                                Добавить этап
-                            </Button>
+        <Container fluid className="py-4">
+            <DragDropContext onDragEnd={onDragEnd}>
+                <Row>
+                    <Col md={6} className="mb-4">
+                        <h3 className='text-white'>Создание этапа</h3>
+                        <Form.Control
+                            type="text"
+                            placeholder="Название этапа"
+                            value={newStageName}
+                            onChange={(e) => setNewStageName(e.target.value)}
+                            className="mb-3"
+                            disabled={isEditing !== true}
+                        />
+                        <Button
+                            variant="primary"
+                            className="mb-4"
+                            onClick={handleAddStage}
+                            disabled={isEditing !== true}
+                        >
+                            Добавить этап
+                        </Button>
 
-                            <h4>Список этапов работ</h4>
-                            {stages.map((stage) => {
-                                const totalSum = stage.children.reduce((sum, child) => sum + (child.totalPrice || 0), 0);
-                                const isLocalApproved = mode === 'contractor' ? stage.isContractorApproved : stage.isCustomerApproved;
-                                const isBothApproved = stage.isContractorApproved & stage.isCustomerApproved ? true : false
-                                // console.log(stages,'asdasdadassd')
-                                return (
-                                    <Droppable key={stage.id} droppableId={stage.id} isDropDisabled={isBothApproved || isEditing !== true}>
-                                        {(provided) => (
-                                            <div
-                                                ref={provided.innerRef}
-                                                {...provided.droppableProps}
-                                                style={{
-                                                    padding: '10px',
-                                                    border: '1px solid #ccc',
-                                                    borderRadius: '5px',
-                                                    marginBottom: '10px',
-                                                }}
-                                            >
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} disabled={isEditing !== true}>
-                                                    <h5>
-                                                        {stage.order}. {stage.name} — Сумма: {totalSum} руб.
-                                                    </h5>
+                        <h2 className='text-white'>Список этапов работ:</h2>
+                        {stages.length === 0 ? <p className='text-white'>Список этапов пока что пуст</p> : <div></div>}
+                        {stages.map((stage) => {
+                            const totalSum = stage.children.reduce((sum, child) => sum + (child.totalPrice || 0), 0);
+                            const isLocalApproved = mode === 'contractor' ? stage.isContractorApproved : stage.isCustomerApproved;
+                            const isBothApproved = stage.isContractorApproved && stage.isCustomerApproved;
 
-                                                    {!isBothApproved ? <Button
-                                                        variant="outlined"
-                                                        color="error"
+                            return (
+                                <Droppable key={stage.id} droppableId={stage.id} isDropDisabled={isBothApproved || isEditing !== true}>
+                                    {(provided) => (
+                                        <div ref={provided.innerRef} {...provided.droppableProps} className="p-3 mb-3 border rounded">
+                                            <div className="d-flex justify-content-between align-items-center">
+                                                <h5 className='text-white'>
+                                                    {stage.order}. {stage.name} — Сумма: {totalSum} руб.
+                                                </h5>
+                                                {!isBothApproved && (
+                                                    <Button
+                                                        variant="outline-danger"
+                                                        size="sm"
                                                         onClick={() => handleDeleteStage(stage.id)}
                                                         disabled={isEditing !== true}
                                                     >
                                                         Удалить
-                                                    </Button> : null}
+                                                    </Button>
+                                                )}
+                                            </div>
 
-                                                </div>
+                                            {/* Статус утверждения */}
+                                            <div className="d-flex justify-content-between align-items-center mt-2">
+                                                <h6 className='text-white'>
+                                                    Статус:{" "}
+                                                    {stage.isCustomerApproved && stage.isContractorApproved
+                                                        ? "Этап утвержден"
+                                                        : mode === "contractor"
+                                                            ? stage.isCustomerApproved
+                                                                ? "Заказчик утвердил"
+                                                                : "Заказчик еще не утвердил"
+                                                            : stage.isContractorApproved
+                                                                ? "Подрядчик утвердил"
+                                                                : "Подрядчик еще не утвердил"}
+                                                </h6>
 
-                                                {/* {console.log('asdasdadasdasdasdasd', stage)} */}
-
-                                                {/* Утверждение */}
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                    <h5>
-                                                        Статус:
-                                                        {stage.isCustomerApproved && stage.isContractorApproved ? (
-                                                            ' Этап утвержден'
-                                                        ) : mode === 'contractor' ? (
-                                                            stage.isCustomerApproved ?
-                                                                ' Заказчик утвердил' :
-                                                                ' Заказчик еще не утвердил'
-                                                        ) : (
-                                                            stage.isContractorApproved ?
-                                                                ' Подрядчик утвердил' :
-                                                                ' Подрядчик еще не утвердил'
-                                                        )}
-                                                    </h5>
-
-                                                    {isBothApproved ? (<Button
-                                                        variant="outlined"
-                                                        color="info"
-                                                        onClick={() => handleStageStatusModalWnd(mode, stage)} // Передаем mode и stage
+                                                {isBothApproved ? (
+                                                    <Button
+                                                        variant="outline-info"
+                                                        size="sm"
+                                                        onClick={() => handleStageStatusModalWnd(mode, stage)}
                                                     >
                                                         Открыть
-                                                    </Button>)
-                                                        : (
-                                                            <Button
-                                                                variant="outlined"
-                                                                color="success"
-                                                                onClick={() => handleApprove(stage.id, stage.children, stage)}
-                                                                disabled={isEditing !== null}
-                                                            >
-                                                                {isLocalApproved ? 'Отменить' : 'Утвердить'}
-                                                            </Button>
-                                                        )}
+                                                    </Button>
+                                                ) : (
+                                                    <Button
+                                                        variant="outline-success"
+                                                        size="sm"
+                                                        onClick={() => handleApprove(stage.id, stage.children, stage)}
+                                                        disabled={isEditing !== null}
+                                                    >
+                                                        {isLocalApproved ? "Отменить" : "Утвердить"}
+                                                    </Button>
+                                                )}
+                                            </div>
 
-                                                </div>
-
-                                                <div
-                                                    style={{
-                                                        display: 'flex',
-                                                        gap: '15px',
-                                                        backgroundColor: '#f9f9f9',
-                                                        padding: '10px',
-                                                        borderRadius: '8px',
-                                                        boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
-                                                        marginTop: '10px',
-                                                        alignItems: 'center', // Для выравнивания полей по вертикали
-                                                    }}
-                                                >
-                                                    <TextField
-                                                        label="Дата начала"
+                                            {/* Даты */}
+                                            <Row className="mt-3 mb-3">
+                                                <Col xs={6}>
+                                                    <Form.Control
                                                         type="date"
                                                         value={stage.startDate ? stage.startDate.split('T')[0] : ''}
                                                         onChange={(e) => {
@@ -637,19 +606,11 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                                                                 );
                                                             }
                                                         }}
-                                                        InputLabelProps={{
-                                                            shrink: true,
-                                                        }}
-                                                        style={{
-                                                            backgroundColor: 'white',
-                                                            borderRadius: '5px',
-                                                            flex: 1, // Растягиваем поле ввода равномерно
-                                                        }}
-                                                        disabled={isEditing !== true || (stage.isCustomerApproved && stage.isContractorApproved)}
+                                                        disabled={isEditing !== true || isBothApproved}
                                                     />
-
-                                                    <TextField
-                                                        label="Дата окончания"
+                                                </Col>
+                                                <Col xs={6}>
+                                                    <Form.Control
                                                         type="date"
                                                         value={stage.finishDate ? stage.finishDate.split('T')[0] : ''}
                                                         onChange={(e) => {
@@ -662,164 +623,128 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                                                                 );
                                                             }
                                                         }}
-                                                        InputLabelProps={{
-                                                            shrink: true,
-                                                        }}
-                                                        style={{
-                                                            backgroundColor: 'white',
-                                                            borderRadius: '5px',
-                                                            flex: 1, // Растягиваем поле ввода равномерно
-                                                        }}
-                                                        disabled={isEditing !== true || (stage.isCustomerApproved && stage.isContractorApproved)}
+                                                        disabled={isEditing !== true || isBothApproved}
                                                     />
-                                                </div>
+                                                </Col>
+                                            </Row>
 
-                                                {/* {console.log(modalData.stage.id || 'нема')} */}
-
-
-
-
-                                                {stage.children.length === 0 ? (
-                                                    <p>Вы не добавили виды работ в этот этап</p>
-                                                ) : (
-                                                    stage.children.map((child, index) => (
-                                                        <Draggable key={child.id} draggableId={child.id} index={index} isDragDisabled={isBothApproved || isLocalApproved || isEditing !== true}>
-                                                            {(provided) => (
-                                                                <div
-                                                                    ref={provided.innerRef}
-                                                                    {...provided.draggableProps}
-                                                                    {...provided.dragHandleProps}
-                                                                    style={{
-                                                                        padding: '5px',
-                                                                        margin: '5px 0',
-                                                                        backgroundColor: '#f9f9f9',
-                                                                        borderRadius: '3px',
-                                                                        ...provided.draggableProps.style,
-                                                                    }}
-                                                                >
-                                                                    {index + 1}. {child.subWorkCategoryName} —{' '}
-                                                                    {child.totalPrice || 'Цена не указана'} руб.
-                                                                </div>
-                                                            )}
-                                                        </Draggable>
-                                                    ))
-                                                )}
-                                                {provided.placeholder}
-                                            </div>
-                                        )}
-                                    </Droppable>
-                                );
-                            })}
-
-                        </div>
-
-                        <Divider orientation="vertical" flexItem />
-
-                        {/* Правая панель */}
-                        <div style={{ flex: 1, marginLeft: '20px' }}>
-                            <div style={{
-                                display: 'flex',
-                                justifyContent: 'space-between', // Размещаем элементы по краям
-                                alignItems: 'center', // Выравниваем элементы по вертикали
-                                gap: '15px', // Для выравнивания полей по вертикали
-                            }}
-                            >
-                                <h3>Список видов работ</h3>
-                                <Button
-                                    variant="contained"
-                                    color="error"
-                                    onClick={handleResetStages}
-                                    style={{ marginRight: '10px' }}
-                                    disabled={!isEditing}
-                                >
-                                    Сбросить этапы работ
-                                </Button>
-                            </div>
-
-                            <Droppable droppableId="rawStagesList" disabled={isEditing !== true}>
-                                {(provided) => (
-                                    <div
-                                        ref={provided.innerRef}
-                                        {...provided.droppableProps}
-                                        style={{
-                                            padding: '10px',
-                                            border: '1px solid #ccc',
-                                            borderRadius: '5px',
-                                        }}
-                                    >
-                                        {rawStages.map((rawStage, index) => (
-                                            <Draggable key={rawStage.id} draggableId={rawStage.id} index={index} disabled={isEditing !== true}>
-                                                {(provided) => (
-                                                    <div
-                                                        ref={provided.innerRef}
-                                                        {...provided.draggableProps}
-                                                        {...provided.dragHandleProps}
-                                                        style={{
-                                                            padding: '5px',
-                                                            margin: '5px 0',
-                                                            backgroundColor: '#e9ecef',
-                                                            borderRadius: '3px',
-                                                            ...provided.draggableProps.style,
-                                                        }}
+                                            {/* Список видов работ */}
+                                            {stage.children.length === 0 ? (
+                                                <p className="mt-3 text-white">Вы не добавили виды работ в этот этап</p>
+                                            ) : (
+                                                stage.children.map((child, index) => (
+                                                    <Draggable
+                                                    
+                                                        key={child.id}
+                                                        draggableId={child.id}
+                                                        index={index}
+                                                        isDragDisabled={isBothApproved || isLocalApproved || isEditing !== true}
                                                     >
-                                                        {index + 1}. {rawStage.subWorkCategoryName || 'Без названия'} —{' '}
-                                                        {rawStage.totalPrice || 'Цена не указана'} руб.
-                                                    </div>
-                                                )}
-                                            </Draggable>
-                                        ))}
-                                        {provided.placeholder}
-                                    </div>
-                                )}
-                            </Droppable>
-                        </div>
-                    </DragDropContext>
-                </div>
+                                                        {(provided) => (
+                                                            <div
+                                                                ref={provided.innerRef}
+                                                                {...provided.draggableProps}
+                                                                {...provided.dragHandleProps}
+                                                                className="p-2 mb-2 bg-secondary text-white rounded"
+                                                            >
+                                                                {index + 1}. {child.subWorkCategoryName} — {child.totalPrice || "Цена не указана"} руб.
+                                                            </div>
+                                                        )}
+                                                    </Draggable>
+                                                ))
+                                            )}
+                                            {provided.placeholder}
+                                        </div>
+                                    )}
+                                </Droppable>
+                            );
+                        })}
+                    </Col>
 
-                <div style={{ textAlign: 'center', padding: '20px' }}>
+                    {/* Правая панель */}
+                    <Col md={6} className="mb-4">
+                        <div className="d-flex justify-content-between align-items-center mb-3">
+                            <h3 className='text-white'>Список видов работ</h3>
+                            <Button
+                                variant="danger"
+                                onClick={handleResetStages}
+                                disabled={!isEditing}
+                            >
+                                Сбросить этапы работ
+                            </Button>
+                        </div>
+
+                        <Droppable droppableId="rawStagesList" disabled={isEditing !== true}>
+                            {(provided) => (
+                                <div
+                                    ref={provided.innerRef}
+                                    {...provided.droppableProps}
+                                    className="p-3 border rounded"
+                                >
+                                    {rawStages.map((rawStage, index) => (
+                                        <Draggable
+                                            key={rawStage.id}
+                                            draggableId={rawStage.id}
+                                            index={index}
+                                            isDragDisabled={isEditing !== true}
+                                        >
+                                            {(provided) => (
+                                                <div
+                                                    ref={provided.innerRef}
+                                                    {...provided.draggableProps}
+                                                    {...provided.dragHandleProps}
+                                                    className="p-2 mb-2 bg-secondary text-white rounded"
+                                                >
+                                                    {index + 1}. {rawStage.subWorkCategoryName || "Без названия"} —{" "}
+                                                    {rawStage.totalPrice || "Цена не указана"} руб.
+                                                </div>
+                                            )}
+                                        </Draggable>
+                                    ))}
+                                    {provided.placeholder}
+                                </div>
+                            )}
+                        </Droppable>
+                    </Col>
+                </Row>
+
+                {/* Кнопки управления */}
+                <div className="text-center mt-4">
                     <Button
-                        variant="contained"
-                        color="primary"
+                        variant="primary"
+                        className="me-2"
                         onClick={handleEdit}
-                        style={{ marginRight: '10px' }}
                         disabled={isEditing === true}
                     >
                         Редактировать
                     </Button>
 
                     <Button
-                        variant="contained"
-                        color="primary"
+                        variant="success"
+                        className="me-2"
                         onClick={handleSave}
-                        style={{ marginRight: '10px' }}
                         disabled={isEditing !== true}
                     >
                         Сохранить
                     </Button>
-                    <Button variant="contained" color="secondary" onClick={() => setDrawerOpen(false)}>
-                        Закрыть
-                    </Button>
                 </div>
+            </DragDropContext>
 
-                <StageModalWnd
-                    // key={stage?.id || Math.random()} // Используем ключ для принудительного перерендера
-                    isOpen={modalOpen}
-                    onClose={closeModal}
-                    mode={modalData.mode} // Передаем mode
-                    stage={modalData.stage} // Передаем stage
-                    agreementId={agreementId}
-                    triggerStages={triggerStages}
-                    setTriggerStages={setTriggerStages} // Пробрасываем функцию изменения
-                    firstId={initiatorId}
-                    secondId={receiverId}
-                // id={stage.id} // Передаем stage
-                />
-
-            </Drawer>
-
-
-        </>
+            {/* Модальное окно */}
+            <StageModalWnd
+                isOpen={modalOpen}
+                onClose={closeModal}
+                mode={modalData.mode}
+                stage={modalData.stage}
+                agreementId={agreementId}
+                triggerStages={triggerStages}
+                setTriggerStages={setTriggerStages}
+                firstId={initiatorId}
+                secondId={receiverId}
+            />
+        </Container>
     );
+
 };
 
 export default WorkStagesBuilder;

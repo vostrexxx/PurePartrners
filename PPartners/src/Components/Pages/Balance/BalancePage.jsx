@@ -1,131 +1,103 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Container, Row, Col, Card, Spinner, Alert, Button, Form } from 'react-bootstrap';
 import TopBar from '../TopBar/TopBar';
 
-const BalancePage = () => {
-    const url = localStorage.getItem('url');
-    const authToken = localStorage.getItem('authToken');
+const getAuthToken = () => localStorage.getItem('authToken');
+let url = localStorage.getItem('url');
 
+const BalancePage = () => {
     const [currBalance, setCurrBalance] = useState(0);
-    const [isTopUpFormVisible, setIsTopUpFormVisible] = useState(false);
     const [topUpAmount, setTopUpAmount] = useState('');
+    const [isTopUpFormVisible, setIsTopUpFormVisible] = useState(false);
     const [error, setError] = useState(null);
-    const [trigger, setTrigger] = useState(false);
-    const [history, setHistory] = useState([]); // История списания
+    const [history, setHistory] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchGetBalance = async () => {
+        const fetchBalance = async () => {
             try {
                 const response = await fetch(`${url}/balance`, {
-                    method: 'GET',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`,
+                        'Authorization': `Bearer ${getAuthToken()}`,
                     },
                 });
-                if (!response.ok) {
-                    throw new Error(`Ошибка загрузки баланса: ${response.status}`);
-                }
-
                 const data = await response.json();
                 setCurrBalance(data.balance);
-                setHistory(data.history || []); // Сохраняем историю списания
-            } catch (error) {
-                setError(`Не удалось загрузить баланс: ${error.message}`);
+                setHistory(data.history || []);
+            } catch {
+                setError('Ошибка при загрузке баланса');
+            } finally {
+                setLoading(false);
             }
         };
+        fetchBalance();
+    }, []);
 
-        fetchGetBalance();
-    }, [trigger]);
-
-    const handleTopUp = async () => {
-        if (!topUpAmount || isNaN(topUpAmount) || topUpAmount <= 0) {
-            setError('Введите корректную сумму для пополнения.');
+    const handleTopUp = () => {
+        if (!topUpAmount || topUpAmount <= 0) {
+            setError('Введите корректную сумму');
             return;
         }
-
-        try {
-            const amountAsDouble = parseFloat(topUpAmount).toFixed(2);
-
-            const response = await fetch(`${url}/balance`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`,
-                },
-                body: JSON.stringify({ balance: parseFloat(amountAsDouble) }),
-            });
-
-            if (!response.ok) {
-                throw new Error(`Ошибка пополнения баланса: ${response.status}`);
-            }
-
-            const data = await response.json();
-            setCurrBalance(data.balance);
-            setTopUpAmount('');
-            setIsTopUpFormVisible(false);
-            setError(null);
-        } catch (error) {
-            setError(`Не удалось пополнить баланс: ${error.message}`);
-        }
-        setTrigger(!trigger);
+        setError(null);
+        setCurrBalance(prev => prev + parseFloat(topUpAmount));
+        setTopUpAmount('');
+        setIsTopUpFormVisible(false);
     };
 
     return (
-        <>
+        <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
             <TopBar />
-            <h3>Ваш баланс:</h3>
-            <div>{currBalance} руб.</div>
-            {!isTopUpFormVisible ? (
-                <button onClick={() => setIsTopUpFormVisible(true)}>Пополнить</button>
-            ) : (
-                <div>
-                    <h4>Пополнение баланса</h4>
-                    <input
+        
+        <Container fluid
+        style={{
+          backgroundColor: "#242582",
+          flex: 1,
+          padding: "20px",
+        }}>
+            <h2 className="text-center mb-4 text-white">Ваш баланс: {currBalance} руб.</h2>
+
+            {isTopUpFormVisible ? (
+                <Form className="mb-4">
+                    <Form.Control
                         type="number"
                         placeholder="Введите сумму"
                         value={topUpAmount}
-                        onChange={(e) => setTopUpAmount(e.target.value)}
+                        onChange={e => setTopUpAmount(e.target.value)}
                     />
-                    <button onClick={handleTopUp}>Отправить</button>
-                    <button onClick={() => setIsTopUpFormVisible(false)}>Отмена</button>
-                </div>
+                    <div className="d-flex gap-2 mt-2">
+                        <Button variant="success" onClick={handleTopUp}>Отправить</Button>
+                        <Button variant="secondary" onClick={() => setIsTopUpFormVisible(false)}>Отмена</Button>
+                    </div>
+                </Form>
+            ) : (
+                <Button variant="primary" className="mb-3 w-100" onClick={() => setIsTopUpFormVisible(true)}>Пополнить</Button>
             )}
-            {error && <p style={{ color: 'red' }}>{error}</p>}
+            {error && <Alert variant="danger">{error}</Alert>}
 
-            {/* Блок с историей списания */}
-            <h3>История списания:</h3>
-            <div style={{
-                marginTop: '20px',
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                gap: '20px',
-            }}>
-                {history.length > 0 ? (
-                    history.map((item, index) => (
-                        <div
-                            key={index}
-                            style={{
-                                border: '1px solid #ccc',
-                                borderRadius: '10px',
-                                padding: '15px',
-                                backgroundColor: 'grey',
-                                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
-                            }}
-                        >
-                            <p><strong>Мод:</strong> {item.mode || 'Мод не определен'}</p>
-
-                            <p><strong>Дата:</strong> {new Date(item.paymentTimestamp).toLocaleString()}</p>
-                            <p><strong>Стоимость:</strong> {item.paycheck} руб.</p>
-                            <p><strong>Наименование объявления:</strong> {item.workCategories}</p>
-                            <p><strong>Наименование этапа:</strong> {item.stageTitle}</p>
-                            <p><strong>Адрес работ:</strong> {item.address}</p>
-                        </div>
-                    ))
-                ) : (
-                    <p>История списания пуста.</p>
-                )}
-            </div>
-        </>
+            <h3 className="mt-4 text-white">История списания:</h3>
+            {loading ? (
+                <Spinner animation="border" />
+            ) : history.length > 0 ? (
+                <Row>
+                    {history.map((item, idx) => (
+                        <Col xs={12} md={6} lg={4} key={idx} className="mb-3">
+                            <Card className="shadow-sm">
+                                <Card.Body>
+                                    <p><strong>Дата:</strong> {new Date(item.paymentTimestamp).toLocaleString()}</p>
+                                    <p><strong>Стоимость:</strong> {item.paycheck} руб.</p>
+                                    <p><strong>Категория:</strong> {item.workCategories}</p>
+                                    <p><strong>Этап:</strong> {item.stageTitle}</p>
+                                    <p><strong>Адрес:</strong> {item.address}</p>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    ))}
+                </Row>
+            ) : (
+                <Alert variant="info">История списания пуста</Alert>
+            )}
+        </Container>
+        </div>
     );
 };
 

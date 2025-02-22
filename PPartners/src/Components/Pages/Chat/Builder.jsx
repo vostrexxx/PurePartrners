@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { TextField, Button, Select, MenuItem, IconButton, Drawer } from '@mui/material';
+import { TextField, Select, MenuItem, IconButton, Drawer } from '@mui/material';
 import { Add, Remove, Menu } from '@mui/icons-material';
 import ChangeCard from './ChangeCard';
 import BuilderModalWnd from './BuilderModalWnd';
 import DocumentManager from './DocumentManager';
 import { EventSourcePolyfill } from 'event-source-polyfill';
 import MeasureUnitAutocomplete from '../SearchComponent/MeasureUnitAutocomplete';
-
+import { Container, Form, InputGroup, Button, Image, Row, Col } from 'react-bootstrap';
+import { Delete } from '@mui/icons-material'; // Импортируем иконку корзины
 const Builder = ({ agreementId, initiatorId, receiverId }) => {
     const [estimate, setEstimate] = useState([]);
     const [originalEstimate, setOriginalEstimate] = useState([]);
@@ -763,276 +764,70 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
     };
 
     return (
-        <>
-            <Button
-                variant="contained"
-                color="primary"
-                startIcon={<Menu />}
-                onClick={() => setDrawerOpen(true)}
-                style={{ marginBottom: '20px' }}
-            >
-                Открыть смету
-            </Button>
+        <Container fluid className="p-3 bg-light" style={{ minHeight: '500px', maxHeight: '90vh', overflowY: 'auto' }}>
+            <h2 className="mb-4 text-center">Редактор сметы</h2>
 
-            {/* Шторка (Drawer) */}
-            <Drawer
-                anchor="right"
-                open={drawerOpen}
-                onClose={() => setDrawerOpen(false)}
-                PaperProps={{ style: { width: '100%' } }} // Шторка на всю ширину
-            >
-                <div style={{ padding: '20px' }}>
-                    <h2>Редактор сметы</h2>
-                    <Button
-                        variant="contained"
-                        color="secondary"
-                        onClick={() => setDrawerOpen(false)}
-                        style={{ marginBottom: '20px' }}
-                    >
-                        Закрыть
-                    </Button>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleEdit}
-                        style={{ marginBottom: '20px', marginLeft: '10px' }}
-                        disabled={isEditing === true}
-                    >
-                        Редактировать
-                    </Button>
+            {/* Кнопки управления */}
+            <div className="d-flex flex-wrap justify-content-center mb-4 gap-2">
+                <Button variant="primary" onClick={handleEdit} disabled={isEditing}>
+                    Редактировать
+                </Button>
+                <Button variant="success" onClick={handleOpenModal}>
+                    Загрузить шаблон
+                </Button>
+                <Button variant="warning" onClick={handleAddOrangeItem} disabled={!isEditing}>
+                    Добавить категорию
+                </Button>
+                <Button variant="secondary" onClick={handleSave} disabled={!isEditing}>
+                    Сохранить
+                </Button>
+            </div>
 
-                    <Button
-                        variant="contained"
-                        color="submit"
-                        onClick={handleOpenModal}
-                        style={{ marginBottom: '20px', marginLeft: '10px' }}
-                    >
-                        Загрузить шаблон
-                    </Button>
+            <BuilderModalWnd isOpen={modalOpen} onClose={closeModal} agreementId={agreementId} />
 
-                    <BuilderModalWnd
-                        isOpen={modalOpen}
-                        onClose={closeModal}
-                        agreementId={agreementId}
-                    // onTrigger={() => setTriggerEstimate()}
-                    />
+            {/* Смета */}
+            <div className="mb-4">
+                {estimate.map((orange) => (
+                    <div key={orange.nodeId} className="p-3 mb-4 bg-warning rounded shadow">
+                        {/* Категория */}
+                        <div className="d-flex flex-nowrap align-items-center gap-3">
+                            <strong>{orange.nodeId}</strong>
+                            <TextField
+                                placeholder="Введите наименование категории"
+                                size="small"
+                                value={orange.subWorkCategoryName}
+                                onChange={(e) => handleOrangeTextChange(orange.elementId, e.target.value)}
+                                disabled={!isEditing}
+                                className="flex-fill"
+                            />
+                            <IconButton
+                                variant="danger"
+                                onClick={() => handleRemoveOrangeItem(orange.elementId)}
+                                disabled={!isEditing}
+                                color="error" // Цвет для кнопки удаления (красный)
+                            >
+                                <Remove /> {/* Иконка минуса */}
+                            </IconButton>
+                            <IconButton
+                                variant="outline-dark"
+                                onClick={() => handleAddSubItem(orange.elementId)}
+                                disabled={!isEditing}
+                                color="primary" // Цвет для кнопки добавления (синий)
+                            >
+                                <Add /> {/* Иконка плюса */}
+                            </IconButton>
+                        </div>
 
-                    <div>
-
-                        {estimate.map((orange) => (
-                            <React.Fragment key={orange.nodeId}>
-                                {/* Блок категории */}
-                                <div style={styles.orangeBox}>
-                                    <div style={styles.orangeHeader}>
-                                    <p>{orange.nodeId}</p>
-                                        <IconButton
-                                            color="error"
-                                            onClick={() => handleRemoveOrangeItem(orange.elementId)}
-                                            disabled={isEditing !== true}
-                                        >
-                                            <Remove />
-                                        </IconButton>
-                                        <TextField
-                                            placeholder="Введите наименование категории"
-                                            variant="outlined"
-                                            size="small"
-                                            style={styles.inputField}
-                                            value={orange.subWorkCategoryName}
-                                            onChange={(e) =>
-                                                handleOrangeTextChange(orange.elementId, e.target.value)
-                                            }
-                                            disabled={isEditing !== true}
-                                        />
-                                        <Button
-                                            variant="contained"
-                                            style={styles.addButton}
-                                            onClick={() => handleAddSubItem(orange.elementId)}
-                                            disabled={isEditing !== true}
-                                        >
-                                            <Add />
-                                        </Button>
-                                    </div>
-                                    
-
-                                    {/* <p>Здесь должны отображаться карточки изменения и удаления рыжих</p> */}
-
-                                    {changes
-                                        .filter(
-                                            (change) =>
-                                                (change.operation === 'update' || change.operation === 'delete') &&
-                                                change.parentNodeId === null &&
-                                                change.updatedFields.nodeId === orange.nodeId
-                                                                                    )
-                                        .map((change, index) => (
-                                            <ChangeCard
-                                                key={`${change.nodeId}-add-${index}`}
-                                                operation={change.operation}
-                                                data={change}
-                                                url={url}
-                                                authToken={authToken}
-                                                agreementId={agreementId}
-                                                userId={userId}
-                                                firstId={initiatorId}
-                                                secondId={receiverId}
-                                            />
-                                        ))}
-                                </div>
-
-                                {orange.subSubWorkCategories.map((subItem) => (
-                                    <div key={subItem.nodeId}>
-                                        {/* Блок подкатегории */}
-                                        <div style={styles.whiteBox}>
-                                        <p>{subItem.nodeId}</p>
-                                            <TextField
-                                                placeholder="Наименование подкатегории"
-                                                variant="outlined"
-                                                size="small"
-                                                style={styles.inputField}
-                                                value={subItem.subSubWorkCategoryName || ''}
-                                                onChange={(e) =>
-                                                    handleSubItemChange(
-                                                        orange.elementId,
-                                                        subItem.elementId,
-                                                        'subSubWorkCategoryName',
-                                                        e.target.value
-                                                    )
-                                                }
-                                                disabled={isEditing !== true}
-                                            />
-                                            <TextField
-                                                placeholder="Объем работ"
-                                                variant="outlined"
-                                                size="small"
-                                                style={styles.inputFieldSmall}
-                                                value={subItem.workAmount || ''}
-                                                onChange={(e) => {
-                                                    const newValue = e.target.value.replace(/[^0-9.,]/g, ''); // Оставляем только цифры, точку и запятую
-                                                    handleSubItemChange(
-                                                        orange.elementId,
-                                                        subItem.elementId,
-                                                        'workAmount',
-                                                        newValue
-                                                    );
-                                                }}
-                                                disabled={isEditing !== true}
-                                                InputProps={{
-                                                    inputMode: 'decimal', // Показывает цифровую клавиатуру с десятичной точкой на мобильных устройствах
-                                                    pattern: '[0-9]*', // Ограничение на ввод только цифр (основное для валидации)
-                                                }}
-                                            />
-                                            <MeasureUnitAutocomplete
-                                                onSelect={(value) =>
-                                                    handleSubItemChange(
-                                                        orange.elementId,
-                                                        subItem.elementId,
-                                                        'measureUnit',
-                                                        value
-                                                    )
-                                                }
-                                                value={subItem.measureUnit || ''}
-                                                disabled={isEditing !== true}
-                                                style={styles.select}
-                                            />
-                                            <TextField
-                                                placeholder="Цена"
-                                                variant="outlined"
-                                                size="small"
-                                                style={styles.inputFieldSmall}
-                                                value={subItem.price || ''}
-                                                onChange={(e) => {
-                                                    let newValue = e.target.value.replace(/[^0-9.,]/g, ''); // Оставляем только цифры, точку и запятую
-                                                    newValue = newValue.replace(/,/g, '.'); // Заменяем запятую на точку (единый формат)
-
-                                                    // Проверка: только одна десятичная точка
-                                                    if ((newValue.match(/\./g) || []).length > 1) {
-                                                        return; // Не даём ввести вторую точку
-                                                    }
-
-                                                    handleSubItemChange(
-                                                        orange.elementId,
-                                                        subItem.elementId,
-                                                        'price',
-                                                        newValue
-                                                    );
-                                                }}
-                                                disabled={isEditing !== true}
-                                                InputProps={{
-                                                    inputMode: 'decimal', // Мобильные устройства показывают цифровую клавиатуру с точкой
-                                                }}
-                                            />
-                                            
-                                            <IconButton
-                                                color="error"
-                                                onClick={() =>
-                                                    handleRemoveSubItem(orange.elementId, subItem.elementId)
-                                                }
-                                                disabled={isEditing !== true}
-                                            >
-                                                <Remove />
-                                            </IconButton>
-                                        </div>
-
-                                        {/* Карточки изменений для подкатегории */}
-                                        {changes
-                                            .filter(
-                                                (change) =>
-                                                    (change.updatedFields?.nodeId === subItem.nodeId || // Для изменений подкатегории
-                                                        change.parentId === subItem.elementId) && // Для изменений, связанных с конкретной подкатегорией
-                                                    change.elementId !== null // Исключаем карточки на добавление
-                                            )
-                                            .map((change, index) => (
-                                                <ChangeCard
-                                                    key={`${subItem.nodeId}-${index}`}
-                                                    operation={change.operation}
-                                                    data={change}
-                                                    url={url}
-                                                    authToken={authToken}
-                                                    agreementId={agreementId}
-                                                    userId={userId}
-                                                    firstId={initiatorId}
-                                                    secondId={receiverId}
-                                                />
-                                            ))}
-
-                                    </div>
-
-                                ))}
-
-                                {/* Карточки изменений на добавление подкатегорий */}
-                                {changes
-                                    .filter(
-                                        (change) =>
-                                            change.operation === 'add' && // Только карточки на добавление
-                                            change.elementId === null && // Карточки без elementId
-                                            change.parentNodeId === orange.nodeId // Карточки для текущей категории
-                                    )
-                                    .map((change, index) => (
-                                        <ChangeCard
-                                            key={`${orange.nodeId}-add-${index}`}
-                                            operation={change.operation}
-                                            data={change}
-                                            url={url}
-                                            authToken={authToken}
-                                            agreementId={agreementId}
-                                            userId={userId}
-                                            firstId={initiatorId}
-                                            secondId={receiverId}
-                                        />
-                                    ))}
-
-                            </React.Fragment>
-                        ))}
-                        {/* проблемный Блок */}
+                        {/* Карточки изменений для категории */}
                         {changes
                             .filter(
                                 (change) =>
-                                    change.operation === 'add' &&
-                                    change.parentNodeId === null && // Карточки без elementId
-                                    change.parentNodeId === null // Карточки для новых элементов (без родителя)
+                                    (change.operation === 'update' || change.operation === 'delete') &&
+                                    change.updatedFields.nodeId === orange.nodeId
                             )
                             .map((change, index) => (
                                 <ChangeCard
-                                    key={`${change.nodeId}-add-${index}`}
+                                    key={`${orange.nodeId}-change-${index}`}
                                     operation={change.operation}
                                     data={change}
                                     url={url}
@@ -1043,123 +838,141 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                                     secondId={receiverId}
                                 />
                             ))}
+
+                        {/* Подкатегории */}
+                        {orange.subSubWorkCategories.map((subItem) => (
+                            <div key={subItem.nodeId} className="p-2 mb-3 mt-2 bg-white rounded border">
+                                {/* Поля ввода и кнопки */}
+                                <div className="d-flex flex-wrap align-items-center gap-2">
+                                    <TextField
+                                        placeholder="Наименование подкатегории"
+                                        size="small"
+                                        value={subItem.subSubWorkCategoryName || ''}
+                                        onChange={(e) =>
+                                            handleSubItemChange(orange.elementId, subItem.elementId, 'subSubWorkCategoryName', e.target.value)
+                                        }
+                                        disabled={!isEditing}
+                                        className="flex-fill"
+                                    />
+                                    <TextField
+                                        placeholder="Объем"
+                                        size="small"
+                                        value={subItem.workAmount || ''}
+                                        onChange={(e) => handleSubItemChange(orange.elementId, subItem.elementId, 'workAmount', e.target.value.replace(/[^0-9.,]/g, ''))}
+                                        disabled={!isEditing}
+                                        className="input-sm"
+                                    />
+                                    <MeasureUnitAutocomplete
+                                        onSelect={(value) =>
+                                            handleSubItemChange(orange.elementId, subItem.elementId, 'measureUnit', value)
+                                        }
+                                        value={subItem.measureUnit || ''}
+                                        disabled={!isEditing}
+                                    />
+                                    <TextField
+                                        placeholder="Цена"
+                                        size="small"
+                                        value={subItem.price || ''}
+                                        onChange={(e) => handleSubItemChange(orange.elementId, subItem.elementId, 'price', e.target.value.replace(/[^0-9.,]/g, ''))}
+                                        disabled={!isEditing}
+                                        className="input-sm"
+                                    />
+                                    <IconButton
+                                        variant="outline-danger"
+                                        onClick={() => handleRemoveSubItem(orange.elementId, subItem.elementId)}
+                                        disabled={!isEditing}
+                                        color="error" // Цвет для кнопки удаления (красный)
+                                    >
+                                        <Delete /> {/* Иконка корзины */}
+                                    </IconButton>
+                                </div>
+
+                                {/* Карточки изменений для подкатегории */}
+                                <div className="mt-2">
+                                    {changes
+                                        .filter(
+                                            (change) =>
+                                                (change.updatedFields?.nodeId === subItem.nodeId ||
+                                                    change.parentId === subItem.elementId) &&
+                                                change.operation !== 'add'
+                                        )
+                                        .map((change, index) => (
+                                            <div key={`${subItem.nodeId}-sub-change-${index}`} className="change-card-desktop">
+                                                <ChangeCard
+                                                    operation={change.operation}
+                                                    data={change}
+                                                    url={url}
+                                                    authToken={authToken}
+                                                    agreementId={agreementId}
+                                                    userId={userId}
+                                                    firstId={initiatorId}
+                                                    secondId={receiverId}
+                                                />
+                                            </div>
+                                        ))}
+                                </div>
+                            </div>
+                        ))}
                     </div>
+                ))}
 
-                    <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                {/* Карточки для новых элементов (без категории) */}
+                {changes
+                    .filter(
+                        (change) =>
+                            change.operation === 'add' &&
+                            change.parentNodeId === null
+                    )
+                    .map((change, index) => (
+                        <ChangeCard
+                            key={`new-add-${index}`}
+                            operation={change.operation}
+                            data={change}
+                            url={url}
+                            authToken={authToken}
+                            agreementId={agreementId}
+                            userId={userId}
+                            firstId={initiatorId}
+                            secondId={receiverId}
+                        />
+                    ))}
+            </div>
 
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => handleAddOrangeItem()}
-                            style={{ backgroundColor: 'orange', marginRight: '10px' }}
-                            disabled={isEditing !== true}
-                        >
-                            Добавить категорию
-                        </Button>
+            {/* Документ менеджер */}
+            {Array.isArray(estimate) && estimate.length > 0 && (
+                <DocumentManager agreementId={agreementId} firstId={initiatorId} secondId={receiverId} />
+            )}
 
-                        <Button
-                            variant="contained"
-                            color="secondary"
-                            onClick={handleSave}
-                            disabled={isEditing !== true}
-                        >
-                            Сохранить
-                        </Button>
-
-                        {/* console.log('Estimate:', estimate); */}
-                        {Array.isArray(estimate) && estimate.length > 0 ? <DocumentManager agreementId={agreementId} firstId={initiatorId} secondId={receiverId} /> : null}
-
-                    </div>
-                </div>
-            </Drawer>
-        </>
+            {/* Стили для адаптива */}
+            <style>
+                {`
+                @media (max-width: 768px) {
+                    .input-sm {
+                        width: 100px;
+                    }
+                    .flex-fill {
+                        flex: 1;
+                        min-width: 150px;
+                    }
+                }
+    
+                .bg-warning {
+                    background-color: #ffc107;
+                }
+    
+                .p-2 {
+                    padding: 0.5rem;
+                }
+    
+                .rounded {
+                    border-radius: 8px;
+                }
+                `}
+            </style>
+        </Container>
     );
-
-
 };
 
-const styles = {
-    // Стиль для контейнера категории (оранжевый блок)
-    orangeBox: {
-        backgroundColor: '#ffa726',
-        padding: '20px',
-        borderRadius: '12px',
-        marginBottom: '20px',
-        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-        border: '1px solid #e65100',
-    },
-    // Заголовок категории
-    orangeHeader: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px',
-        marginBottom: '15px',
-    },
-    // Стиль для подкатегории (белый блок)
-    whiteBox: {
-        backgroundColor: '#fff',
-        padding: '15px',
-        borderRadius: '8px',
-        marginTop: '15px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-        border: '1px solid #e0e0e0',
-    },
-    // Стиль для текстовых полей
-    inputField: {
-        flex: 1,
-        backgroundColor: '#fff',
-        borderRadius: '4px',
-        border: '1px solid #ccc',
-    },
-    // Стиль для маленьких текстовых полей (например, объём работ, цена)
-    inputFieldSmall: {
-        flex: 0.2,
-        backgroundColor: '#fff',
-        borderRadius: '4px',
-        border: '1px solid #ccc',
-    },
-    // Стиль для выпадающего списка (единицы измерения)
-    select: {
-        flex: 0.2,
-        backgroundColor: '#fff',
-        borderRadius: '4px',
-        border: '1px solid #ccc',
-    },
-    // Стиль для кнопки добавления
-    addButton: {
-        backgroundColor: '#fff',
-        color: '#ffa726',
-        border: '1px solid #ffa726',
-        borderRadius: '4px',
-        '&:hover': {
-            backgroundColor: '#ffa726',
-            color: '#fff',
-        },
-    },
-    // Стиль для заголовков (например, Node ID)
-    headerText: {
-        fontSize: '16px',
-        fontWeight: 'bold',
-        color: '#333',
-        marginBottom: '10px',
-    },
-    // Стиль для разделителя между элементами
-    divider: {
-        borderBottom: '1px solid #e0e0e0',
-        margin: '15px 0',
-    },
-    // Стиль для карточек изменений
-    changeCard: {
-        backgroundColor: '#f5f5f5',
-        padding: '10px',
-        borderRadius: '6px',
-        marginTop: '10px',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-        border: '1px solid #e0e0e0',
-    },
-};
+
 
 export default Builder;
