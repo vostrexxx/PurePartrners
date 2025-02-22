@@ -454,432 +454,431 @@ const AnnouncementDetails = () => {
 
     return (
         <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-          <TopBar />
-          <Container
-            fluid
-            style={{
-              backgroundColor: "#242582",
-              flex: 1,
-              padding: "20px",
-            }}
-          >
-            <Row className="justify-content-center">
-              <Col md={8}>
-                <Card
-                  style={{
-                    backgroundColor: "#222",
-                    color: "white",
-                    borderRadius: "12px",
+            <TopBar />
+            <Container
+                fluid
+                style={{
+                    backgroundColor: "#242582",
+                    flex: 1,
                     padding: "20px",
-                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.5)",
-                  }}
-                >
-                  <Card.Body>
-                    <h2 className="text-center mb-4" style={{ color: "#ff7f00", fontWeight: "bold" }}>
-                      Детали объявления
-                    </h2>
-      
-                    <Form>
-                      {/* Категории работ */}
-                      <Form.Group className="mb-3">
-                        <Form.Label>Категории работ</Form.Label>
-                        <Form.Control
-                          type="text"
-                          name="workCategories"
-                          value={announcement.workCategories}
-                          onChange={handleInputChange}
-                          disabled={!isEditable}
-                          className="form-control-placeholder"
-                        />
-                      </Form.Group>
-      
-                      {/* Стоимость */}
-                      <Form.Group className="mb-3">
-                        <Form.Label>Общая стоимость</Form.Label>
-                        <Form.Control
-                          type="text"
-                          name="totalCost"
-                          value={announcement.totalCost}
-                          onChange={handleInputChange}
-                          disabled={!isEditable}
-                          className="form-control-placeholder"
-                        />
-                      </Form.Group>
-      
-                      {/* Цена по договору */}
-                      <Form.Group className="mb-3">
-                        <Form.Label>Цена по договору</Form.Label>
-                        <Form.Select
-                          name="isNonFixedPrice"
-                          value={announcement.isNonFixedPrice ? "Да" : "Нет"}
-                          onChange={(e) =>
-                            handleInputChange({
-                              target: { name: "isNonFixedPrice", value: e.target.value === "Да" },
-                            })
-                          }
-                          disabled={!isEditable}
+                }}
+            >
+                <Row className="justify-content-center">
+                    <Col md={8}>
+                        <Card
+                            style={{
+                                backgroundColor: "#222",
+                                color: "white",
+                                borderRadius: "12px",
+                                padding: "20px",
+                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.5)",
+                            }}
                         >
-                          <option>Да</option>
-                          <option>Нет</option>
-                        </Form.Select>
-                      </Form.Group>
-      
-                      {/* Метро */}
-                      <Form.Group className="mb-3">
-                        <Form.Label>Ближайшее метро</Form.Label>
-                        <Form.Control
-                          type="text"
-                          name="metro"
-                          value={announcement.metro}
-                          onChange={handleInputChange}
-                          disabled={!isEditable}
-                          className="form-control-placeholder"
-                        />
-                      </Form.Group>
-      
-                      {/* Адрес */}
-                      <Form.Group className="mb-3">
-                        <Form.Label>Полный адрес</Form.Label>
-                        <Form.Control
-                          type="text"
-                          name="address"
-                          value={announcement.address}
-                          onChange={handleInputChange}
-                          disabled={!isEditable}
-                          className="form-control-placeholder"
-                        />
-                      </Form.Group>
-      
-                      {/* Даты */}
-                      <Row className="g-3 mb-3">
-                        <Col xs={12} md={6}>
-                          <Form.Group>
-                            <Form.Label>Дата начала</Form.Label>
-                            <Form.Control
-                              type="date"
-                              name="startDate"
-                              value={announcement.startDate}
-                              onChange={handleInputChange}
-                              disabled={!isEditable}
-                              className="form-control-placeholder"
-                            />
-                          </Form.Group>
-                        </Col>
-                        <Col xs={12} md={6}>
-                          <Form.Group>
-                            <Form.Label>Дата окончания</Form.Label>
-                            <Form.Control
-                              type="date"
-                              name="finishDate"
-                              value={announcement.finishDate}
-                              onChange={handleInputChange}
-                              disabled={!isEditable}
-                              className="form-control-placeholder"
-                            />
-                          </Form.Group>
-                        </Col>
-                      </Row>
-      
-                      {/* Комментарий */}
-                      <Form.Group className="mb-3">
-                        <Form.Label>Комментарий</Form.Label>
-                        <Form.Control
-                          as="textarea"
-                          name="comments"
-                          placeholder="Добавьте комментарий"
-                          value={announcement.comments}
-                          onChange={handleInputChange}
-                          disabled={!isEditable}
-                          className="form-control-placeholder"
-                        />
-                      </Form.Group>
-                    </Form>
-      
-                    <div>
-                        <div>
-                            <h4>Прикрепленные фотографии:</h4>
-                            {images.length > 0 ? (
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                                    {announcement.announcementImages.map((imagePath, index) => (
-                                        <div key={index} style={{ position: 'relative', display: 'inline-block' }}>
-                                            <img
-                                                src={images[index]}
-                                                alt={`Фото ${index + 1}`}
-                                                style={{
-                                                    width: '150px',
-                                                    height: '150px',
-                                                    objectFit: 'cover',
-                                                    borderRadius: '8px',
-                                                    cursor: 'pointer',
-                                                }}
-                                                onClick={() => handleImageClick(images[index])} // Открытие модального окна
+                            <Card.Body>
+                                <h2 className="text-center mb-4" style={{ color: "#ff7f00", fontWeight: "bold" }}>
+                                    Детали объявления
+                                </h2>
+                                <Form>
+                                    {/* Категории работ */}
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Категории работ</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="workCategories"
+                                            value={announcement.workCategories}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditable}
+                                            className="form-control-placeholder"
+                                        />
+                                    </Form.Group>
+
+                                    {/* Стоимость */}
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Общая стоимость</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="totalCost"
+                                            value={announcement.totalCost}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditable}
+                                            className="form-control-placeholder"
+                                        />
+                                    </Form.Group>
+
+                                    {/* Цена по договору */}
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Цена по договору</Form.Label>
+                                        <Form.Select
+                                            name="isNonFixedPrice"
+                                            value={announcement.isNonFixedPrice ? "Да" : "Нет"}
+                                            onChange={(e) =>
+                                                handleInputChange({
+                                                    target: { name: "isNonFixedPrice", value: e.target.value === "Да" },
+                                                })
+                                            }
+                                            disabled={!isEditable}
+                                        >
+                                            <option>Да</option>
+                                            <option>Нет</option>
+                                        </Form.Select>
+                                    </Form.Group>
+
+                                    {/* Метро */}
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Ближайшее метро</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="metro"
+                                            value={announcement.metro}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditable}
+                                            className="form-control-placeholder"
+                                        />
+                                    </Form.Group>
+
+                                    {/* Адрес */}
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Полный адрес</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="address"
+                                            value={announcement.address}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditable}
+                                            className="form-control-placeholder"
+                                        />
+                                    </Form.Group>
+
+                                    {/* Даты */}
+                                    <Row className="g-3 mb-3">
+                                        <Col xs={12} md={6}>
+                                            <Form.Group>
+                                                <Form.Label>Дата начала</Form.Label>
+                                                <Form.Control
+                                                    type="date"
+                                                    name="startDate"
+                                                    value={announcement.startDate}
+                                                    onChange={handleInputChange}
+                                                    disabled={!isEditable}
+                                                    className="form-control-placeholder"
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                        <Col xs={12} md={6}>
+                                            <Form.Group>
+                                                <Form.Label>Дата окончания</Form.Label>
+                                                <Form.Control
+                                                    type="date"
+                                                    name="finishDate"
+                                                    value={announcement.finishDate}
+                                                    onChange={handleInputChange}
+                                                    disabled={!isEditable}
+                                                    className="form-control-placeholder"
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+
+                                    {/* Комментарий */}
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Комментарий</Form.Label>
+                                        <Form.Control
+                                            as="textarea"
+                                            name="comments"
+                                            placeholder="Добавьте комментарий"
+                                            value={announcement.comments}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditable}
+                                            className="form-control-placeholder"
+                                        />
+                                    </Form.Group>
+                                </Form>
+
+                                <div>
+                                    <div>
+                                        <h4>Прикрепленные фотографии:</h4>
+                                        {images.length > 0 ? (
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                                                {announcement.announcementImages.map((imagePath, index) => (
+                                                    <div key={index} style={{ position: 'relative', display: 'inline-block' }}>
+                                                        <img
+                                                            src={images[index]}
+                                                            alt={`Фото ${index + 1}`}
+                                                            style={{
+                                                                width: '150px',
+                                                                height: '150px',
+                                                                objectFit: 'cover',
+                                                                borderRadius: '8px',
+                                                                cursor: 'pointer',
+                                                            }}
+                                                            onClick={() => handleImageClick(images[index])} // Открытие модального окна
+                                                        />
+                                                        {isEditable && (
+                                                            <button
+                                                                onClick={() => handleDeleteImage(imagePath)}
+                                                                style={{
+                                                                    position: 'absolute',
+                                                                    top: '5px',
+                                                                    right: '5px',
+                                                                    background: 'red',
+                                                                    color: 'white',
+                                                                    border: 'none',
+                                                                    borderRadius: '50%',
+                                                                    width: '20px',
+                                                                    height: '20px',
+                                                                    cursor: 'pointer',
+                                                                }}
+                                                            >
+                                                                ×
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <p>Фотографии отсутствуют</p>
+                                        )}
+                                    </div>
+
+                                    {isEditable && (
+                                        <div style={{ marginTop: '20px' }}>
+                                            <h4>Добавить новые фотографии:</h4>
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                multiple
+                                                onChange={handleAddImages}
                                             />
-                                            {isEditable && (
+                                            {newImages.length > 0 && (
+                                                <div>
+                                                    <h5>Выбранные фотографии:</h5>
+                                                    <ul>
+                                                        {newImages.map((file, index) => (
+                                                            <li key={index}>{file.name}</li>
+                                                        ))}
+                                                    </ul>
+                                                    <button onClick={handleUploadImages} style={{ marginRight: '10px', background: 'green', color: 'white', padding: '10px' }}>
+                                                        Отправить
+                                                    </button>
+                                                    <button onClick={handleCancelUpload} style={{ background: 'red', color: 'white', padding: '10px' }}>
+                                                        Отменить
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {selectedImage && (
+                                        <div
+                                            onClick={handleCloseImageModal}
+                                            style={{
+                                                position: 'fixed',
+                                                top: 0,
+                                                left: 0,
+                                                width: '100%',
+                                                height: '100%',
+                                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                zIndex: 1000,
+                                                cursor: 'pointer',
+                                            }}
+                                        >
+                                            <img
+                                                src={selectedImage}
+                                                alt="Просмотр изображения"
+                                                style={{
+                                                    maxWidth: '90%',
+                                                    maxHeight: '90%',
+                                                    borderRadius: '10px',
+                                                }}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div>
+                                    <h4>Прикрепленные файлы:</h4>
+                                    {files.length > 0 ? (
+                                        <ul>
+                                            {files.map((file, index) => (
+                                                <li key={index} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                    <span>📄</span>
+                                                    <span
+                                                        style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
+                                                        onClick={() => handleDownloadFile(file.storedFileName, file.originalFileName)}
+                                                    >
+                                                        {file.originalFileName}
+                                                    </span>
+                                                    {isEditable && (
+                                                        <button
+                                                            onClick={() => handleDeleteFile(file.storedFileName)}
+                                                            style={{ background: 'red', color: 'white', border: 'none', padding: '5px', cursor: 'pointer' }}
+                                                        >
+                                                            Удалить
+                                                        </button>
+                                                    )}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <p>Файлы отсутствуют</p>
+                                    )}
+                                </div>
+
+                                {isEditable && (
+                                    <div style={{ marginTop: '20px' }}>
+                                        <h4>Добавить новые файлы:</h4>
+                                        <input
+                                            type="file"
+                                            accept=".doc,.docx,.xls,.xlsx,.pdf" // Поддерживаемые форматы
+                                            multiple
+                                            onChange={handleAddFiles}
+                                        />
+                                        {newFiles.length > 0 && (
+                                            <div>
+                                                <h5>Выбранные файлы:</h5>
+                                                <ul>
+                                                    {newFiles.map((file, index) => (
+                                                        <li key={index} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                            📄 {file.name}
+                                                            <button
+                                                                onClick={() => handleRemoveNewFile(index)}
+                                                                style={{ background: 'red', color: 'white', border: 'none', padding: '5px', cursor: 'pointer' }}
+                                                            >
+                                                                Удалить
+                                                            </button>
+                                                        </li>
+                                                    ))}
+                                                </ul>
                                                 <button
-                                                    onClick={() => handleDeleteImage(imagePath)}
-                                                    style={{
-                                                        position: 'absolute',
-                                                        top: '5px',
-                                                        right: '5px',
-                                                        background: 'red',
-                                                        color: 'white',
-                                                        border: 'none',
-                                                        borderRadius: '50%',
-                                                        width: '20px',
-                                                        height: '20px',
-                                                        cursor: 'pointer',
-                                                    }}
+                                                    onClick={handleUploadFiles}
+                                                    style={{ marginRight: '10px', background: 'green', color: 'white', padding: '10px' }}
                                                 >
-                                                    ×
+                                                    Отправить
+                                                </button>
+                                                <button
+                                                    onClick={() => setNewFiles([])}
+                                                    style={{ background: 'red', color: 'white', padding: '10px' }}
+                                                >
+                                                    Отменить
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+
+                                <div>
+                                    {location.state?.fromLk === null ? null : (
+                                        <div>
+                                            {!isEditable && canEditOrDelete ? (
+                                                <>
+
+                                                    {/* <h3>Данные по лицу</h3> */}
+                                                    {!entityId ?
+                                                        (
+                                                            <div>
+                                                                <div>Лицо не привязано</div>
+                                                                <EntityCard onSelectEntity={handleSelectEntity} />
+                                                                <button onClick={() => handleEventEntity("link")}>Привязать лицо</button>
+
+                                                            </div>
+                                                        ) : (
+                                                            <>
+                                                                {entityData ? (
+                                                                    isLegalEntity ? (
+                                                                        <div>
+                                                                            <h3 style={{ textAlign: 'center', color: 'white' }}>Ваше юридическое лицо</h3>
+                                                                            <div
+                                                                                style={{
+                                                                                    padding: '10px',
+                                                                                    margin: '5px 0',
+                                                                                    backgroundColor: '#4114f5',
+                                                                                    border: '1px solid green',
+                                                                                    borderRadius: '5px',
+                                                                                    cursor: 'pointer',
+                                                                                }}
+                                                                            >
+                                                                                <strong>{entityData.firm}</strong>
+                                                                                <p>ИНН: {entityData.inn}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div>
+                                                                            <h3 style={{ textAlign: 'center', color: 'white' }}>Ваше физическое лицо</h3>
+                                                                            <div
+                                                                                style={{
+                                                                                    padding: '10px',
+                                                                                    margin: '5px 0',
+                                                                                    backgroundColor: '#4114f5',
+                                                                                    border: '1px solid green',
+                                                                                    borderRadius: '5px',
+                                                                                    cursor: 'pointer',
+                                                                                }}
+                                                                            >
+                                                                                <strong>{entityData.fullName}</strong>
+                                                                                <p>ИНН: {entityData.inn}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                    )
+                                                                ) : (
+                                                                    <div>Загрузка данных лица...</div>
+                                                                )}
+
+                                                                <button onClick={() => handleEventEntity("unlink")}>Отвязать лицо</button>
+                                                            </>
+                                                        )
+                                                    }
+
+                                                    <button onClick={handleEditClick} style={styles.button}>
+                                                        Редактировать
+                                                    </button>
+                                                    <button onClick={handleDeleteClick} style={styles.deleteButton}>
+                                                        Удалить
+                                                    </button>
+                                                </>
+                                            ) : isEditable ? (
+                                                <button onClick={handleSaveClick} style={styles.button}>
+                                                    Сохранить
+                                                </button>
+                                            ) : (
+                                                <button onClick={handleOpenReaction} style={styles.button}>
+                                                    Откликнуться
                                                 </button>
                                             )}
                                         </div>
-                                    ))}
+                                    )}
                                 </div>
-                            ) : (
-                                <p>Фотографии отсутствуют</p>
-                            )}
-                        </div>
 
-                        {isEditable && (
-                            <div style={{ marginTop: '20px' }}>
-                                <h4>Добавить новые фотографии:</h4>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    multiple
-                                    onChange={handleAddImages}
+                                <ReactionWindow
+                                    isOpen={isModalOpen} onClose={closeModal}
+                                    userId={announcement.userId}
+                                    id={announcement.id}
+                                    mode={0}
+                                    receiverItemName={announcement.workCategories}
                                 />
-                                {newImages.length > 0 && (
-                                    <div>
-                                        <h5>Выбранные фотографии:</h5>
-                                        <ul>
-                                            {newImages.map((file, index) => (
-                                                <li key={index}>{file.name}</li>
-                                            ))}
-                                        </ul>
-                                        <button onClick={handleUploadImages} style={{ marginRight: '10px', background: 'green', color: 'white', padding: '10px' }}>
-                                            Отправить
-                                        </button>
-                                        <button onClick={handleCancelUpload} style={{ background: 'red', color: 'white', padding: '10px' }}>
-                                            Отменить
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        {selectedImage && (
-                            <div
-                                onClick={handleCloseImageModal}
-                                style={{
-                                    position: 'fixed',
-                                    top: 0,
-                                    left: 0,
-                                    width: '100%',
-                                    height: '100%',
-                                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    zIndex: 1000,
-                                    cursor: 'pointer',
-                                }}
-                            >
-                                <img
-                                    src={selectedImage}
-                                    alt="Просмотр изображения"
-                                    style={{
-                                        maxWidth: '90%',
-                                        maxHeight: '90%',
-                                        borderRadius: '10px',
-                                    }}
-                                />
-                            </div>
-                        )}
-                    </div>
-
-                    <div>
-                        <h4>Прикрепленные файлы:</h4>
-                        {files.length > 0 ? (
-                            <ul>
-                                {files.map((file, index) => (
-                                    <li key={index} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                        <span>📄</span>
-                                        <span
-                                            style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
-                                            onClick={() => handleDownloadFile(file.storedFileName, file.originalFileName)}
-                                        >
-                                            {file.originalFileName}
-                                        </span>
-                                        {isEditable && (
-                                            <button
-                                                onClick={() => handleDeleteFile(file.storedFileName)}
-                                                style={{ background: 'red', color: 'white', border: 'none', padding: '5px', cursor: 'pointer' }}
-                                            >
-                                                Удалить
-                                            </button>
-                                        )}
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p>Файлы отсутствуют</p>
-                        )}
-                    </div>
-
-                    {isEditable && (
-                        <div style={{ marginTop: '20px' }}>
-                            <h4>Добавить новые файлы:</h4>
-                            <input
-                                type="file"
-                                accept=".doc,.docx,.xls,.xlsx,.pdf" // Поддерживаемые форматы
-                                multiple
-                                onChange={handleAddFiles}
-                            />
-                            {newFiles.length > 0 && (
-                                <div>
-                                    <h5>Выбранные файлы:</h5>
-                                    <ul>
-                                        {newFiles.map((file, index) => (
-                                            <li key={index} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                📄 {file.name}
-                                                <button
-                                                    onClick={() => handleRemoveNewFile(index)}
-                                                    style={{ background: 'red', color: 'white', border: 'none', padding: '5px', cursor: 'pointer' }}
-                                                >
-                                                    Удалить
-                                                </button>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                    <button
-                                        onClick={handleUploadFiles}
-                                        style={{ marginRight: '10px', background: 'green', color: 'white', padding: '10px' }}
-                                    >
-                                        Отправить
-                                    </button>
-                                    <button
-                                        onClick={() => setNewFiles([])}
-                                        style={{ background: 'red', color: 'white', padding: '10px' }}
-                                    >
-                                        Отменить
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    )}
 
 
-                    <div>
-                        {location.state?.fromLk === null ? null : (
-                            <div>
-                                {!isEditable && canEditOrDelete ? (
-                                    <>
 
-                                        {/* <h3>Данные по лицу</h3> */}
-                                        {!entityId ?
-                                            (
-                                                <div>
-                                                    <div>Лицо не привязано</div>
-                                                    <EntityCard onSelectEntity={handleSelectEntity} />
-                                                    <button onClick={() => handleEventEntity("link")}>Привязать лицо</button>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                </Row>
 
-                                                </div>
-                                            ) : (
-                                                <>
-                                                    {entityData ? (
-                                                        isLegalEntity ? (
-                                                            <div>
-                                                                <h3 style={{ textAlign: 'center', color: 'white' }}>Ваше юридическое лицо</h3>
-                                                                <div
-                                                                    style={{
-                                                                        padding: '10px',
-                                                                        margin: '5px 0',
-                                                                        backgroundColor: '#4114f5',
-                                                                        border: '1px solid green',
-                                                                        borderRadius: '5px',
-                                                                        cursor: 'pointer',
-                                                                    }}
-                                                                >
-                                                                    <strong>{entityData.firm}</strong>
-                                                                    <p>ИНН: {entityData.inn}</p>
-                                                                </div>
-                                                            </div>
-                                                        ) : (
-                                                            <div>
-                                                                <h3 style={{ textAlign: 'center', color: 'white' }}>Ваше физическое лицо</h3>
-                                                                <div
-                                                                    style={{
-                                                                        padding: '10px',
-                                                                        margin: '5px 0',
-                                                                        backgroundColor: '#4114f5',
-                                                                        border: '1px solid green',
-                                                                        borderRadius: '5px',
-                                                                        cursor: 'pointer',
-                                                                    }}
-                                                                >
-                                                                    <strong>{entityData.fullName}</strong>
-                                                                    <p>ИНН: {entityData.inn}</p>
-                                                                </div>
-                                                            </div>
-                                                        )
-                                                    ) : (
-                                                        <div>Загрузка данных лица...</div>
-                                                    )}
-
-                                                    <button onClick={() => handleEventEntity("unlink")}>Отвязать лицо</button>
-                                                </>
-                                            )
-                                        }
-
-                                        <button onClick={handleEditClick} style={styles.button}>
-                                            Редактировать
-                                        </button>
-                                        <button onClick={handleDeleteClick} style={styles.deleteButton}>
-                                            Удалить
-                                        </button>
-                                    </>
-                                ) : isEditable ? (
-                                    <button onClick={handleSaveClick} style={styles.button}>
-                                        Сохранить
-                                    </button>
-                                ) : (
-                                    <button onClick={handleOpenReaction} style={styles.button}>
-                                        Откликнуться
-                                    </button>
-                                )}
-                            </div>
-                        )}
-                    </div>
-
-                    <ReactionWindow
-                        isOpen={isModalOpen} onClose={closeModal}
-                        userId={announcement.userId}
-                        id={announcement.id}
-                        mode={0}
-                        receiverItemName={announcement.workCategories}
-                    />
-
-      
-                    
-                  </Card.Body>
-                </Card>
-              </Col>
-            </Row>
-      
-            {/* Стили для серого плейсхолдера */}
-            <style>
-              {`
+                {/* Стили для серого плейсхолдера */}
+                <style>
+                    {`
                 .form-control-placeholder::placeholder {
                   color: #bbb;
                 }
               `}
-            </style>
-          </Container>
+                </style>
+            </Container>
         </div>
-      );
-      
+    );
+
 };
 
 const styles = {
