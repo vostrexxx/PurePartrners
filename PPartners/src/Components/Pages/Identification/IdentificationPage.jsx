@@ -82,7 +82,7 @@ const IdentificationPage = () => {
                     }}
                 >
                     <Col xs={12} md={8} lg={4} className="mx-auto">
-                        <h2 className="text-center text-white mb-4">Вход и регистрация</h2>
+                        <h2 className="text-center text-white mb-4">Вход и регистрация HOME</h2>
                         <Form className="text-center">
                             <Form.Group controlId="formPhoneNumber">
                                 {/* Поле ввода с маской */}
