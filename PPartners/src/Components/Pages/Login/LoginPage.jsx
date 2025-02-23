@@ -34,6 +34,15 @@ const LoginPage = () => {
 
             localStorage.setItem("authToken", token);
             localStorage.setItem("userId", userId);
+
+            requestPermission().then(fcmToken => {
+                if (fcmToken) {
+                    console.log('FCM Token получен и отправлен на сервер:', fcmToken);
+                } else {
+                    console.warn('FCM Token не был получен.');
+                }
+            });
+
             navigate("/main");
         } catch (error) {
             setErrorMessage(error.message);
@@ -42,6 +51,28 @@ const LoginPage = () => {
 
     const handlePasswordReset = () => navigate("/phone-enter");
     const ChangePhoneNumber = () => navigate("/identification");
+    function formatPhoneNumber(phone) {
+        // Удаляем все символы, кроме цифр и знака "+"
+        const cleaned = phone.replace(/[^\d+]/g, '');
+
+        // Проверяем, начинается ли номер с "+7"
+        if (cleaned.startsWith('+7')) {
+            return cleaned; // Если номер уже в правильном формате, возвращаем его
+        }
+
+        // Если номер начинается с "7" (без "+"), добавляем "+" в начало
+        if (cleaned.startsWith('7')) {
+            return `+${cleaned}`;
+        }
+
+        // Если номер начинается с "8" (российский формат), заменяем "8" на "+7"
+        if (cleaned.startsWith('8')) {
+            return `+7${cleaned.slice(1)}`;
+        }
+
+        // Если номер не соответствует ни одному из вышеуказанных форматов, возвращаем его как есть
+        return cleaned;
+    }
 
     const handleEnterPhoneNumber = async () => {
         try {
