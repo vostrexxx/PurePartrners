@@ -463,7 +463,7 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
                     <Form.Control
                       type="text"
                       name="team"
-                      placeholder="Введите название команды"
+                      placeholder="Опишите команду"
                       value={formData.team}
                       onChange={handleInputChange}
                       style={{
@@ -1141,7 +1141,7 @@ const MainPage = () => {
                 ))
               ) : (
                 <Col>
-                  <p className="text-center text-muted">Нет анкет</p>
+                  <p className="text-center text-white">Нет анкет</p>
                 </Col>
               )
             ) : announcements.length > 0 ? (
@@ -1161,7 +1161,7 @@ const MainPage = () => {
               ))
             ) : (
               <Col>
-                <p className="text-center text-muted">Нет объявлений</p>
+                <p className="text-center text-white">Нет объявлений</p>
               </Col>
             )}
           </Row>

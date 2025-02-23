@@ -12,6 +12,7 @@ const BalancePage = () => {
     const [error, setError] = useState(null);
     const [history, setHistory] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [trigger, setTrigger] = useState(false);
 
     useEffect(() => {
         const fetchBalance = async () => {
@@ -31,17 +32,39 @@ const BalancePage = () => {
             }
         };
         fetchBalance();
-    }, []);
+    }, [trigger]);
 
-    const handleTopUp = () => {
-        if (!topUpAmount || topUpAmount <= 0) {
-            setError('Введите корректную сумму');
+    const handleTopUp = async () => {
+        if (!topUpAmount || isNaN(topUpAmount) || topUpAmount <= 0) {
+            setError('Введите корректную сумму для пополнения.');
             return;
         }
-        setError(null);
-        setCurrBalance(prev => prev + parseFloat(topUpAmount));
-        setTopUpAmount('');
-        setIsTopUpFormVisible(false);
+
+        try {
+            const amountAsDouble = parseFloat(topUpAmount).toFixed(2);
+
+            const response = await fetch(`${url}/balance`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getAuthToken()}`,
+                },
+                body: JSON.stringify({ balance: parseFloat(amountAsDouble) }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Ошибка пополнения баланса: ${response.status}`);
+            }
+
+            const data = await response.json();
+            setCurrBalance(data.balance);
+            // setTopUpAmount('');
+            setIsTopUpFormVisible(false);
+            setError(null);
+        } catch (error) {
+            setError(`Не удалось пополнить баланс: ${error.message}`);
+        }
+        setTrigger(!trigger);
     };
 
     return (
