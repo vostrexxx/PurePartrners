@@ -232,7 +232,7 @@ const MainPage = () => {
                     <Col xs={12} md={10} lg={8}>
 
                         {/* <div style={styles.mainContent}> */}
-                        <h2 className="text-white">{isSpecialist ? "Поиск объявлений" : "Поиск анкет"} WwW</h2>
+                        <h2 className="text-white">{isSpecialist ? "Поиск объявлений" : "Поиск анкет"}</h2>
                         {/* </div> */}
 
                         <ErrorMessage message={cardsError} errorCode={null} />
