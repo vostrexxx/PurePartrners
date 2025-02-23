@@ -76,7 +76,7 @@ const CodeEnteringPage = () => {
                                         />
                                     </Form.Group>
                                     <Form.Group controlId="formCode" className="mb-3">
-                                        <Form.Label>Вам поступит звонок, введите четыре последние цифры номера телефона</Form.Label>
+                                        <Form.Label>Введите код из СМС</Form.Label>
                                         <InputMask
                                             mask="9999" // Маска для ввода кода (4 цифры)
                                             value={code}
