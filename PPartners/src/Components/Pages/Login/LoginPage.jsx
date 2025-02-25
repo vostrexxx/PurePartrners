@@ -4,6 +4,8 @@ import { Button, Container, Row, Col, Form, Card } from "react-bootstrap";
 import NotAuthTopBar from "../TopBar/NotAuthTopBar";
 import ErrorMessage from "../../ErrorHandling/ErrorMessage";
 import { requestPermission } from "../../../../firebase";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 const LoginPage = () => {
     const [errorMessage, setErrorMessage] = useState(null);
@@ -12,6 +14,7 @@ const LoginPage = () => {
     const [rememberMe, setRememberMe] = useState(false);
     const navigate = useNavigate();
     const url = localStorage.getItem("url");
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleLogin = async () => {
         try {
@@ -132,10 +135,10 @@ const LoginPage = () => {
                                             }}
                                         />
                                     </Form.Group>
-                                    <Form.Group controlId="formPassword" className="mb-3">
-                                        {/* <Form.Label>Введите пароль</Form.Label> */}
+                                    <Form.Group controlId="formPassword" className="mb-3 position-relative">
+                                        {/* Поле ввода пароля */}
                                         <Form.Control
-                                            type="password"
+                                            type={showPassword ? "text" : "password"}
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             placeholder="Введите пароль"
@@ -146,15 +149,22 @@ const LoginPage = () => {
                                                 boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
                                             }}
                                         />
+
+                                        <FontAwesomeIcon
+                                            icon={showPassword ? faEyeSlash : faEye}
+                                            className="position-absolute top-50 end-0 translate-middle-y me-3"
+                                            style={{ cursor: "pointer", color: "#888" }}
+                                            onClick={() => setShowPassword(!showPassword)}
+                                        />
                                     </Form.Group>
-                                    <Form.Group controlId="formRememberMe" className="mb-3">
+                                    {/* <Form.Group controlId="formRememberMe" className="mb-3">
                                         <Form.Check
                                             type="checkbox"
                                             label="Запомнить меня"
                                             checked={rememberMe}
                                             onChange={(e) => setRememberMe(e.target.checked)}
                                         />
-                                    </Form.Group>
+                                    </Form.Group> */}
                                     <ErrorMessage message={errorMessage} />
                                     <div className="d-grid gap-2">
                                         <Button

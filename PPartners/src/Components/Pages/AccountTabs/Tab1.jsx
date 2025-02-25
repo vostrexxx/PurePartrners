@@ -4,6 +4,7 @@ import EntityModal from './AddEntityWindow'
 import { useProfile } from '../../Context/ProfileContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Container, Row, Col, Form, Button, Card, ListGroup } from "react-bootstrap";
+import EntityDetailsModal from '../../Previews/EntityDetails';
 const ImageUploader = ({ label, onUpload, imagePath, onTrigger }) => {
 
     const handleFileChange = async (e) => {
@@ -42,6 +43,12 @@ const Entities = ({ onSelectEntity, triggerGet }) => {
     const authToken = localStorage.getItem("authToken");
     const { isSpecialist } = useProfile();
 
+    const [isEntityDetailsModalOpen, setIsEntityDetailsModalOpen] = useState(false);
+    const openEntityDetailsModal = () => setIsEntityDetailsModalOpen(true);
+    const closeEntityDetailsModal = () => {
+        setIsEntityDetailsModalOpen(false); // Закрываем модальное окно
+        setSelectedEntity(null); // Сбрасываем выбранный ID
+    };
     const [legalEntities, setLegalEntities] = useState([]);
     const [persons, setPersons] = useState([]);
     const [selectedEntity, setSelectedEntity] = useState(null); // ID выбранного лица
@@ -50,7 +57,8 @@ const Entities = ({ onSelectEntity, triggerGet }) => {
 
     useEffect(() => {
         if (selectedEntity) {
-            navigate(`/entity/${selectedEntity}`);
+            // navigate(`/entity/${selectedEntity}`);
+
         }
     }, [selectedEntity, navigate]);
 
@@ -102,8 +110,8 @@ const Entities = ({ onSelectEntity, triggerGet }) => {
     }, [isSpecialist, url, authToken, triggerGet]);
 
     const handleSelectEntity = (id) => {
-        setSelectedEntity(id);
-        onSelectEntity(id);
+        setSelectedEntity(id); // Установка выбранного ID
+        openEntityDetailsModal(); // Открытие модального окна
     };
 
     return (
@@ -173,6 +181,12 @@ const Entities = ({ onSelectEntity, triggerGet }) => {
                     </Card>
                 </Col>
             </Row>
+            <EntityDetailsModal
+                id={selectedEntity}
+                isOpen={isEntityDetailsModalOpen}
+                onClose={closeEntityDetailsModal}
+            />
+
         </Container>
     );
 };
@@ -201,6 +215,8 @@ const ProfilePage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
+
+
 
     const [legal, setLegal] = useState({});
     const [person, setPerson] = useState({});
@@ -529,7 +545,9 @@ const ProfilePage = () => {
                     <Card className="p-4 shadow-lg">
                         <Card.Body>
                             <h2 className="text-center mb-4 text-primary">Данные по лицам</h2>
+
                             <Entities onSelectEntity={handleSelectEntity} triggerGet={triggerGet} />
+
                             <div className="d-grid mt-3">
                                 <Button variant="primary" onClick={openModal} className="w-100">
                                     Добавить новое лицо
@@ -569,3 +587,4 @@ const ProfilePage = () => {
 };
 
 export default ProfilePage;
+

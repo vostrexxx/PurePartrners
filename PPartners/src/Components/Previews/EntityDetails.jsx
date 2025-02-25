@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Form, Button, Card, Container, Row, Col } from "react-bootstrap";
+import { Modal, Form, Button, Card, Container, Row, Col } from "react-bootstrap";
 import { useProfile } from "../../Components/Context/ProfileContext";
-import TopBar from "../Pages/TopBar/TopBar";
-const EntityDetails = () => {
+
+const EntityDetailsModal = ({ isOpen, onClose, id }) => {
     const [isLegalEntity, setIsLegalEntity] = useState(null);
     const [entityData, setEntityData] = useState({});
     const [originalData, setOriginalData] = useState({});
@@ -12,46 +11,48 @@ const EntityDetails = () => {
     const url = localStorage.getItem("url");
     const getAuthToken = () => localStorage.getItem("authToken");
     const { isSpecialist } = useProfile();
-    const { id } = useParams();
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const entityParams = new URLSearchParams();
-                const who = isSpecialist ? "contractor" : "customer";
-                isSpecialist
-                    ? entityParams.append("contractorId", id)
-                    : entityParams.append("customerId", id);
+        if (isOpen && id) {
+            // Логика загрузки данных по ID
+            const fetchEntityDetails = async () => {
+                try {
+                    const url = localStorage.getItem("url");
+                    const getAuthToken = () => localStorage.getItem("authToken");
 
-                const entityResponse = await fetch(
-                    `${url}/${who}?${entityParams.toString()}`,
-                    {
-                        method: "GET",
-                        headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${getAuthToken()}`,
-                        },
-                    }
-                );
+                    const entityParams = new URLSearchParams();
+                    const who = isSpecialist ? "contractor" : "customer";
+                    isSpecialist
+                        ? entityParams.append("contractorId", id)
+                        : entityParams.append("customerId", id);
 
-                if (!entityResponse.ok) {
-                    throw new Error(
-                        `Ошибка при получении данных лица: ${entityResponse.status}`
+                    const response = await fetch(
+                        `${url}/${who}?${entityParams.toString()}`,
+                        {
+                            method: "GET",
+                            headers: {
+                                "Content-Type": "application/json",
+                                Authorization: `Bearer ${getAuthToken()}`,
+                            },
+                        }
                     );
+
+                    if (!response.ok) {
+                        throw new Error(`Ошибка при получении данных лица: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    console.log('entityData', data)
+                    setEntityData(data);
+                } catch (error) {
+                    console.error(`Ошибка при выполнении запросов: ${error.message}`);
                 }
+            };
 
-                const entityData = await entityResponse.json();
-                setIsLegalEntity(entityData.isLegalEntity);
-                setEntityData(entityData);
-                setOriginalData(entityData); // Сохраняем исходные данные
-            } catch (error) {
-                console.error(`Ошибка при выполнении запросов: ${error.message}`);
-            }
-        };
-
-        fetchData();
-    }, [id, url, isSpecialist]);
+            fetchEntityDetails();
+        }
+    }, [isOpen, id]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -89,7 +90,7 @@ const EntityDetails = () => {
                 throw new Error(`Ошибка при удалении данных: ${response.status}`);
             }
 
-            navigate(`/account-actions`);
+            onClose();
         } catch (error) {
             console.error(`Ошибка при удалении данных: ${error.message}`);
         }
@@ -127,20 +128,16 @@ const EntityDetails = () => {
     }
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-            <TopBar />
-            <Container
-                fluid
-                className="py-5"
-                style={{
-                    backgroundColor: "#242582",
-                    flex: 1
-                }}
-            >
-                <Row>
-                    <Col xs={12} md={8} lg={6} className="mx-auto">
-                        <Card className="p-4 shadow-lg">
-                            <Card.Body>
+        <Modal show={isOpen} onHide={onClose} centered>
+            <Modal.Header closeButton>
+                <Modal.Title>Детали лица</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                   
+                        <Row>
+                            <Col xs={12} md={8} lg={6} className="mx-auto">
+
                                 <h3 className="text-center mb-4">
                                     {isLegalEntity ? "Юридическое лицо" : "Физическое лицо"}
                                 </h3>
@@ -264,59 +261,61 @@ const EntityDetails = () => {
 
                                 </Form>
 
-                                <div className="d-flex justify-content-center gap-3 mt-4">
-                                    {!isEditable ? (
-                                        <Button
-                                            variant="primary"
-                                            className="rounded-pill px-4 py-2"
-                                            style={{ fontSize: "16px" }}
-                                            onClick={handleEditClick}
-                                        >
-                                            Редактировать
-                                        </Button>
-                                    ) : (
-                                        <>
-                                            <Button
-                                                variant="success"
-                                                className="rounded-pill px-4 py-2"
-                                                style={{ fontSize: "16px" }}
-                                                onClick={handleSaveClick}
-                                            >
-                                                Сохранить
-                                            </Button>
-                                            <Button
-                                                variant="warning"
-                                                className="rounded-pill px-4 py-2 text-white"
-                                                style={{
-                                                    fontSize: "16px",
-                                                    backgroundColor: "#ff7101",
-                                                    border: "none",
-                                                }}
-                                                onClick={handleCancelClick}
-                                            >
-                                                Отмена
-                                            </Button>
-                                        </>
-                                    )}
-                                    <Button
-                                        variant="danger"
-                                        className="rounded-pill px-4 py-2"
-                                        style={{ fontSize: "16px" }}
-                                        onClick={handleDeleteClick}
-                                    >
-                                        Удалить
-                                    </Button>
-                                </div>
-
-
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                </Row>
-            </Container>
-        </div >
+                            </Col>
+                        </Row>
+                </div >
+            </Modal.Body>
+            <Modal.Footer>
+                {/* <Button variant="secondary" onClick={onClose}>
+                    Закрыть
+                </Button> */}
+                <div className="d-flex justify-content-center">
+                    {!isEditable ? (
+                        <Button
+                            variant="primary"
+                            className="rounded-pill px-4 py-2"
+                            style={{ fontSize: "16px" }}
+                            onClick={handleEditClick}
+                        >
+                            Редактировать
+                        </Button>
+                    ) : (
+                        <>
+                            <Button
+                                variant="success"
+                                className="rounded-pill px-4 py-2"
+                                style={{ fontSize: "16px" }}
+                                onClick={handleSaveClick}
+                            >
+                                Сохранить
+                            </Button>
+                            <Button
+                                variant="warning"
+                                className="rounded-pill px-4 py-2 text-white"
+                                style={{
+                                    fontSize: "16px",
+                                    backgroundColor: "#ff7101",
+                                    border: "none",
+                                }}
+                                onClick={handleCancelClick}
+                            >
+                                Отмена
+                            </Button>
+                        </>
+                    )}
+                    <Button
+                        variant="danger"
+                        className="rounded-pill px-4 py-2"
+                        style={{ fontSize: "16px" }}
+                        onClick={handleDeleteClick}
+                    >
+                        Удалить
+                    </Button>
+                </div>
+            </Modal.Footer>
+        </Modal>
 
     );
 };
 
-export default EntityDetails;
+export default EntityDetailsModal;
