@@ -27,7 +27,7 @@ const SentAgreement = () => {
                 });
 
                 if (!response.ok) throw new Error(`Ошибка сети: ${response.status}`);
-                
+
                 const data = await response.json();
                 setAgreements(data.agreements);
             } catch {
@@ -52,11 +52,7 @@ const SentAgreement = () => {
                 <Row>
                     {agreements.map((item, index) => (
                         <Col xs={12} md={6} lg={4} key={index} className="mb-4">
-                            <Card className="shadow-sm">
-                                <Card.Body>
-                                    <Agreement {...item} isReceiver={false} isSpecialist={isSpecialist} />
-                                </Card.Body>
-                            </Card>
+                            <Agreement {...item} isReceiver={false} isSpecialist={isSpecialist} />
                         </Col>
                     ))}
                 </Row>

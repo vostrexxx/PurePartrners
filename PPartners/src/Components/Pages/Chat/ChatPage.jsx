@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, useSearchParams } from 'react-router-dom';
 import { Container, Nav, Button, Tab } from 'react-bootstrap';
 import Chat from './Chat';
 import ChatContext from './ChatContext';
@@ -16,8 +16,11 @@ const ChatPage = () => {
     const [initiatorId, setInitiatorId] = useState(null);
     const [receiverId, setReceiverId] = useState(null);
     const [localizedStatus, setLocalizedStatus] = useState(null);
-    const [activeTab, setActiveTab] = useState('chat');
 
+    const [searchParams, setSearchParams] = useSearchParams();
+    const defaultTab = searchParams.get("tab") || "chat";
+    const [activeTab, setActiveTab] = useState(defaultTab);
+    
     useEffect(() => {
         const fetchAgreement = async () => {
             try {
@@ -59,6 +62,11 @@ const ChatPage = () => {
 
     }
 
+    const handleTabChange = (tab) => {
+        setActiveTab(tab);
+        setSearchParams({ tab });
+    };
+
     return (
         <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
             <TopBar />
@@ -67,7 +75,7 @@ const ChatPage = () => {
                     <Nav.Item>
                         <Nav.Link
                             className={`text-white ${activeTab === 'chat' ? 'active fw-bold' : ''}`}
-                            onClick={() => setActiveTab('chat')}
+                            onClick={() => handleTabChange('chat')}
                         >
                             Чат
                         </Nav.Link>
@@ -75,7 +83,7 @@ const ChatPage = () => {
                     <Nav.Item>
                         <Nav.Link
                             className={`text-white ${activeTab === 'context' ? 'active fw-bold' : ''}`}
-                            onClick={() => setActiveTab('context')}
+                            onClick={() => handleTabChange('context')}
                         >
                             Соглашение
                         </Nav.Link>
@@ -83,7 +91,7 @@ const ChatPage = () => {
                     <Nav.Item>
                         <Nav.Link
                             className={`text-white ${activeTab === 'builder' ? 'active fw-bold' : ''}`}
-                            onClick={() => setActiveTab('builder')}
+                            onClick={() => handleTabChange('builder')}
                         >
                             Смета
                         </Nav.Link>
@@ -91,7 +99,7 @@ const ChatPage = () => {
                     <Nav.Item>
                         <Nav.Link
                             className={`text-white ${activeTab === 'stages' ? 'active fw-bold' : ''}`}
-                            onClick={() => setActiveTab('stages')}
+                            onClick={() => handleTabChange('stages')}
                         >
                             Этапы
                         </Nav.Link>

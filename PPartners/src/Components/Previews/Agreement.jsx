@@ -262,7 +262,7 @@ const Agreement = ({
     }
 
     return (
-        <Container className="border rounded p-3 mb-3">
+        <Container className="border rounded p-3 mb-3 bg-white">
             <Row>
                 <Col>
                     {mode ? (
@@ -270,7 +270,7 @@ const Agreement = ({
                             {isSpecialist ? <h4>Ваша анкета:</h4> : <h4>Анкета:</h4>}
                             {renderCard(questionnaireData, 'questionnaire')}
 
-                            {!isSpecialist ? <h4>Ваше объявление:</h4> : <h4>Обновление:</h4>}
+                            {!isSpecialist ? <h4>Ваше объявление:</h4> : <h4>Объяовление:</h4>}
                             {renderCard(announcementData, 'announcement')}
 
                             <h4>Комментарий откликнувшегося:</h4>
@@ -280,7 +280,7 @@ const Agreement = ({
                         </div>
                     ) : (
                         <div>
-                            {!isSpecialist ? <h4>Ваше объявление:</h4> : <h4>Обновление:</h4>}
+                            {!isSpecialist ? <h4>Ваше объявление:</h4> : <h4>Объявление:</h4>}
                             {renderCard(announcementData, 'announcement')}
 
                             {isSpecialist ? <h4>Ваша анкета:</h4> : <h4>Анкета:</h4>}
