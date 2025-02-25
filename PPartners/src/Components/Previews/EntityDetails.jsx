@@ -3,7 +3,7 @@ import { Modal, Form, Button, Card, Container, Row, Col } from "react-bootstrap"
 import { useProfile } from "../../Components/Context/ProfileContext";
 
 const EntityDetailsModal = ({ isOpen, onClose, id }) => {
-    const [isLegalEntity, setIsLegalEntity] = useState(null);
+    const [isLegalEntity, setIsLegalEntity] = useState();
     const [entityData, setEntityData] = useState({});
     const [originalData, setOriginalData] = useState({});
     const [isEditable, setIsEditable] = useState(false);
@@ -43,8 +43,10 @@ const EntityDetailsModal = ({ isOpen, onClose, id }) => {
                     }
 
                     const data = await response.json();
-                    console.log('entityData', data)
+                    console.log(isLegalEntity)
                     setEntityData(data);
+                    setIsLegalEntity(data.isLegalEntity);
+
                 } catch (error) {
                     console.error(`Ошибка при выполнении запросов: ${error.message}`);
                 }
@@ -139,7 +141,7 @@ const EntityDetailsModal = ({ isOpen, onClose, id }) => {
                             <Col xs={12} md={8} lg={6} className="mx-auto">
 
                                 <h3 className="text-center mb-4">
-                                    {isLegalEntity ? "Юридическое лицо" : "Физическое лицо"}
+                                    {isLegalEntity && isLegalEntity ? "Юридическое лицо" : "Физическое лицо"}
                                 </h3>
                                 <Form>
                                     {/* Общие поля */}
