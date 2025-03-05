@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Modal, Form, Button, Card, Container, Row, Col } from "react-bootstrap";
 import { useProfile } from "../../Components/Context/ProfileContext";
 
-const EntityDetailsModal = ({ isOpen, onClose, id }) => {
+const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
     const [isLegalEntity, setIsLegalEntity] = useState();
     const [entityData, setEntityData] = useState({});
     const [originalData, setOriginalData] = useState({});
@@ -74,28 +74,30 @@ const EntityDetailsModal = ({ isOpen, onClose, id }) => {
     };
 
     const handleDeleteClick = async () => {
-        try {
-            const entityParams = new URLSearchParams();
-            const who = isSpecialist ? "contractor" : "customer";
-            isSpecialist
-                ? entityParams.append("contractorId", id)
-                : entityParams.append("customerId", id);
-            const response = await fetch(`${url}/${who}?${entityParams.toString()}`, {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${getAuthToken()}`,
-                },
-            });
 
-            if (!response.ok) {
-                throw new Error(`Ошибка при удалении данных: ${response.status}`);
-            }
+        // try {
+        //     const entityParams = new URLSearchParams();
+        //     const who = isSpecialist ? "contractor" : "customer";
+        //     isSpecialist
+        //         ? entityParams.append("contractorId", id)
+        //         : entityParams.append("customerId", id);
+        //     const response = await fetch(`${url}/${who}?${entityParams.toString()}`, {
+        //         method: "DELETE",
+        //         headers: {
+        //             "Content-Type": "application/json",
+        //             Authorization: `Bearer ${getAuthToken()}`,
+        //         },
+        //     });
 
-            onClose();
-        } catch (error) {
-            console.error(`Ошибка при удалении данных: ${error.message}`);
-        }
+        //     if (!response.ok) {
+        //         throw new Error(`Ошибка при удалении данных: ${response.status}`);
+        //     }
+
+        //     onClose();
+        //     onTrigger()
+        // } catch (error) {
+        //     console.error(`Ошибка при удалении данных: ${error.message}`);
+        // }
     };
 
     const handleSaveClick = async () => {
@@ -136,135 +138,135 @@ const EntityDetailsModal = ({ isOpen, onClose, id }) => {
             </Modal.Header>
             <Modal.Body>
                 <div style={{ display: "flex", flexDirection: "column" }}>
-                   
-                        <Row>
-                            <Col xs={12} md={8} lg={6} className="mx-auto">
 
-                                <h3 className="text-center mb-4">
-                                    {isLegalEntity && isLegalEntity ? "Юридическое лицо" : "Физическое лицо"}
-                                </h3>
-                                <Form>
-                                    {/* Общие поля */}
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>ФИО</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="fullName"
-                                            value={entityData.fullName || ""}
-                                            onChange={handleInputChange}
-                                            disabled={!isEditable}
-                                        />
-                                    </Form.Group>
+                    <Row>
+                        <Col xs={12} md={8} lg={6} className="mx-auto">
 
-                                    {/* Поля для юридического лица */}
-                                    {isLegalEntity && (
-                                        <>
-                                            <Form.Group className="mb-3">
-                                                <Form.Label>Наименование фирмы</Form.Label>
-                                                <Form.Control
-                                                    type="text"
-                                                    name="firm"
-                                                    value={entityData.firm || ""}
-                                                    onChange={handleInputChange}
-                                                    disabled={!isEditable}
-                                                />
-                                            </Form.Group>
+                            <h3 className="text-center mb-4">
+                                {isLegalEntity && isLegalEntity ? "Юридическое лицо" : "Физическое лицо"}
+                            </h3>
+                            <Form>
+                                {/* Общие поля */}
+                                <Form.Group className="mb-3">
+                                    <Form.Label>ФИО</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="fullName"
+                                        value={entityData.fullName || ""}
+                                        onChange={handleInputChange}
+                                        disabled={!isEditable}
+                                    />
+                                </Form.Group>
 
-                                            <Form.Group className="mb-3">
-                                                <Form.Label>Должность</Form.Label>
-                                                <Form.Control
-                                                    type="text"
-                                                    name="position"
-                                                    value={entityData.position || ""}
-                                                    onChange={handleInputChange}
-                                                    disabled={!isEditable}
-                                                />
-                                            </Form.Group>
-                                        </>
-                                    )}
+                                {/* Поля для юридического лица */}
+                                {isLegalEntity && (
+                                    <>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Наименование фирмы</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                name="firm"
+                                                value={entityData.firm || ""}
+                                                onChange={handleInputChange}
+                                                disabled={!isEditable}
+                                            />
+                                        </Form.Group>
 
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>ИНН</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="inn"
-                                            value={entityData.inn || ""}
-                                            onChange={handleInputChange}
-                                            disabled={!isEditable}
-                                        />
-                                    </Form.Group>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Должность</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                name="position"
+                                                value={entityData.position || ""}
+                                                onChange={handleInputChange}
+                                                disabled={!isEditable}
+                                            />
+                                        </Form.Group>
+                                    </>
+                                )}
 
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Адрес</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="address"
-                                            value={entityData.address || ""}
-                                            onChange={handleInputChange}
-                                            disabled={!isEditable}
-                                        />
-                                    </Form.Group>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>ИНН</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="inn"
+                                        value={entityData.inn || ""}
+                                        onChange={handleInputChange}
+                                        disabled={!isEditable}
+                                    />
+                                </Form.Group>
 
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>КПП</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="kpp"
-                                            value={entityData.kpp || ""}
-                                            onChange={handleInputChange}
-                                            disabled={!isEditable}
-                                        />
-                                    </Form.Group>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Адрес</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="address"
+                                        value={entityData.address || ""}
+                                        onChange={handleInputChange}
+                                        disabled={!isEditable}
+                                    />
+                                </Form.Group>
 
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Банк</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="bank"
-                                            value={entityData.bank || ""}
-                                            onChange={handleInputChange}
-                                            disabled={!isEditable}
-                                        />
-                                    </Form.Group>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>КПП</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="kpp"
+                                        value={entityData.kpp || ""}
+                                        onChange={handleInputChange}
+                                        disabled={!isEditable}
+                                    />
+                                </Form.Group>
 
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Корреспондентский счет</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="corrAcc"
-                                            value={entityData.corrAcc || ""}
-                                            onChange={handleInputChange}
-                                            disabled={!isEditable}
-                                        />
-                                    </Form.Group>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Банк</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="bank"
+                                        value={entityData.bank || ""}
+                                        onChange={handleInputChange}
+                                        disabled={!isEditable}
+                                    />
+                                </Form.Group>
 
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Расчетный счет</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="currAcc"
-                                            value={entityData.currAcc || ""}
-                                            onChange={handleInputChange}
-                                            disabled={!isEditable}
-                                        />
-                                    </Form.Group>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Корреспондентский счет</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="corrAcc"
+                                        value={entityData.corrAcc || ""}
+                                        onChange={handleInputChange}
+                                        disabled={!isEditable}
+                                    />
+                                </Form.Group>
 
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>БИК</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="bik"
-                                            value={entityData.bik || ""}
-                                            onChange={handleInputChange}
-                                            disabled={!isEditable}
-                                        />
-                                    </Form.Group>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Расчетный счет</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="currAcc"
+                                        value={entityData.currAcc || ""}
+                                        onChange={handleInputChange}
+                                        disabled={!isEditable}
+                                    />
+                                </Form.Group>
+
+                                <Form.Group className="mb-3">
+                                    <Form.Label>БИК</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="bik"
+                                        value={entityData.bik || ""}
+                                        onChange={handleInputChange}
+                                        disabled={!isEditable}
+                                    />
+                                </Form.Group>
 
 
-                                </Form>
+                            </Form>
 
-                            </Col>
-                        </Row>
+                        </Col>
+                    </Row>
                 </div >
             </Modal.Body>
             <Modal.Footer>
@@ -316,7 +318,6 @@ const EntityDetailsModal = ({ isOpen, onClose, id }) => {
                 </div>
             </Modal.Footer>
         </Modal>
-
     );
 };
 

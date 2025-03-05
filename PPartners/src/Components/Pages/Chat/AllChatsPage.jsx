@@ -12,6 +12,16 @@ const AllChatsPage = () => {
     const { isSpecialist } = useProfile();
     const navigate = useNavigate();
 
+    useEffect(()=>{
+        console.log("Данные из localStorage:");
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i); // Получаем ключ по индексу
+            const value = localStorage.getItem(key); // Получаем значение по ключу
+            console.log(`${key}: ${value}`);
+        }
+    })
+
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -59,8 +69,9 @@ const AllChatsPage = () => {
                 return response.json();
             })
             .then((response) => {
-                // console.log('агримант', agreementId);
+                console.log(response.agreementId)
                 navigate(`/chat/${chatId}`, { state: { agreementId: response.agreementId } });
+                localStorage.setItem('agreementId', response.agreementId); 
             })
             .catch((error) => {
                 console.error(`Ошибка при получении информации по соглашению: ${error.message}`);

@@ -1,14 +1,24 @@
-import React from "react";
+import React, { useState} from "react";
 import { Container, Row, Col, Nav, Tab } from "react-bootstrap";
 import TopBar from "../TopBar/TopBar";
 import Tab1 from "./Tab1";
 import Tab2 from "./Tab2";
 import Tab4 from "./Tab4";
 import { useProfile } from "../../Context/ProfileContext";
+import { useSearchParams } from 'react-router-dom';
 
 const PageWithTabs = () => {
   const { isSpecialist } = useProfile();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const defaultTab = searchParams.get("tab") || "offers";
+    const [activeTab, setActiveTab] = useState(defaultTab);
+    
+    const handleTabChange = (tab) => {
+      setActiveTab(tab);
+      setSearchParams({ tab });
+  };
 
+  
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
       <TopBar />
@@ -31,16 +41,18 @@ const PageWithTabs = () => {
               >
                 <Nav.Item>
                   <Nav.Link
-                    eventKey="tab1"
-                    className="rounded-pill fw-bold text-center custom-tab"
+                    eventKey="offers"
+                    className={`rounded-pill fw-bold text-center custom-tab ${activeTab === 'offers' ? 'active fw-bold' : ''}`}
+                    onClick={() => handleTabChange('offers')}
                   >
                     {isSpecialist ? "Ваши анкеты" : "Ваши объявления"}
                   </Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
-                  <Nav.Link
-                    eventKey="tab2"
-                    className="rounded-pill fw-bold text-center custom-tab"
+                <Nav.Link
+                    eventKey="personal-info"
+                    className={`rounded-pill fw-bold text-center custom-tab ${activeTab === 'personal-info' ? 'active fw-bold' : ''}`}
+                    onClick={() => handleTabChange('personal-info')}
                   >
                     Персональная информация
                   </Nav.Link>
@@ -48,15 +60,20 @@ const PageWithTabs = () => {
               </Nav>
 
               <Tab.Content>
-                <Tab.Pane eventKey="tab1">
+                {activeTab === 'offers' && <Tab2 />} 
+                {activeTab === 'personal-info' && <Tab1 />} 
+
+                {/* <Tab.Pane eventKey="offers">
                   <Tab2 />
                 </Tab.Pane>
-                <Tab.Pane eventKey="tab2">
+                <Tab.Pane eventKey="personal-info">
                   <Tab1 />
                 </Tab.Pane>
-                <Tab.Pane eventKey="tab3">
+
+                 */}
+                {/* <Tab.Pane eventKey="tab3">
                   <Tab4 />
-                </Tab.Pane>
+                </Tab.Pane> */}
               </Tab.Content>
             </Tab.Container>
           </Col>

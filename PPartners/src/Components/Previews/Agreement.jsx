@@ -232,6 +232,7 @@ const Agreement = ({
             })
             .then((response) => {
                 navigate(`/chat/${chatId}`, { state: { agreementId: response.agreementId } });
+                localStorage.setItem('agreementId', response.agreementId)
             })
             .catch((error) => {
                 console.error(`Ошибка при получении информации по соглашению: ${error.message}`);

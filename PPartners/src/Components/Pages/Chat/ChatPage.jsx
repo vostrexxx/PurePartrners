@@ -10,7 +10,7 @@ import TopBar from '../TopBar/UnswitchTopBar';
 const ChatPage = () => {
     const { chatId } = useParams();
     const location = useLocation();
-    const agreementId = location.state?.agreementId;
+    const agreementId = location.state?.agreementId || localStorage.getItem('agreementId');
     const authToken = localStorage.getItem("authToken");
     const url = localStorage.getItem("url");
     const [initiatorId, setInitiatorId] = useState(null);
@@ -20,7 +20,7 @@ const ChatPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const defaultTab = searchParams.get("tab") || "chat";
     const [activeTab, setActiveTab] = useState(defaultTab);
-    
+
     useEffect(() => {
         const fetchAgreement = async () => {
             try {

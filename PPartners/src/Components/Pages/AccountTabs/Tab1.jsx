@@ -5,6 +5,9 @@ import { useProfile } from '../../Context/ProfileContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Container, Row, Col, Form, Button, Card, ListGroup } from "react-bootstrap";
 import EntityDetailsModal from '../../Previews/EntityDetails';
+import ToastNotification from '../../Notification/ToastNotification';
+
+
 const ImageUploader = ({ label, onUpload, imagePath, onTrigger }) => {
 
     const handleFileChange = async (e) => {
@@ -38,7 +41,7 @@ const FormField = ({ type, label, name, placeholder, value, onChange, disabled }
     );
 };
 
-const Entities = ({ onSelectEntity, triggerGet }) => {
+const Entities = ({ onSelectEntity, triggerGet, onTrigger }) => {
     const url = localStorage.getItem("url");
     const authToken = localStorage.getItem("authToken");
     const { isSpecialist } = useProfile();
@@ -181,10 +184,12 @@ const Entities = ({ onSelectEntity, triggerGet }) => {
                     </Card>
                 </Col>
             </Row>
+
             <EntityDetailsModal
                 id={selectedEntity}
                 isOpen={isEntityDetailsModalOpen}
                 onClose={closeEntityDetailsModal}
+                onTrigger={() => onTrigger()}
             />
 
         </Container>
@@ -215,9 +220,6 @@ const ProfilePage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
-
-
-
     const [legal, setLegal] = useState({});
     const [person, setPerson] = useState({});
 
@@ -335,15 +337,15 @@ const ProfilePage = () => {
                 },
                 body: JSON.stringify(profileData),
             });
-
+            console.log(response)
             if (!response.ok) {
                 throw new Error(`Ошибка сети: ${response.status}`);
+            } else {
+                handleShowToast('Данные профиля успешно сохранены', 'success')
+                setIsEditable(false);
             }
-
-            alert('Данные успешно сохранены!');
-            setIsEditable(false);
         } catch (error) {
-            setError(`Ошибка при сохранении данных: ${error.message}`);
+            handleShowToast('Данные профиля не сохранены!', 'error')
         }
     };
 
@@ -403,9 +405,27 @@ const ProfilePage = () => {
         }
     };
 
+    // Уведомления
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastType, setToastType] = useState('info');
+
+    const handleShowToast = (message, type) => {
+        setToastMessage(message);
+        setToastType(type);
+        setShowToast(true);
+    };
     return (
         <Container fluid className="py-4" style={{ backgroundColor: "#242582", minHeight: "100vh" }}>
             <Row className="justify-content-center">
+
+                <ToastNotification
+                    message={toastMessage}
+                    type={toastType}
+                    show={showToast}
+                    onClose={() => setShowToast(false)}
+                />
+
                 {/* Личные данные */}
                 <Col xs={12} lg={10} className="mb-4">
                     <Card className="p-4 shadow-lg">
@@ -546,14 +566,15 @@ const ProfilePage = () => {
                         <Card.Body>
                             <h2 className="text-center mb-4 text-primary">Данные по лицам</h2>
 
-                            <Entities onSelectEntity={handleSelectEntity} triggerGet={triggerGet} />
+                            {/* handleShowToast('Данные профиля не сохранены!', 'error') */}
+                            <Entities onSelectEntity={handleSelectEntity} triggerGet={triggerGet} onTrigger={() => toggleTriggerGet()} toast={handleShowToast} />
 
                             <div className="d-grid mt-3">
                                 <Button variant="primary" onClick={openModal} className="w-100">
                                     Добавить новое лицо
                                 </Button>
                             </div>
-                            <EntityModal isOpen={isModalOpen} onClose={closeModal} fullName={fullName} onTrigger={triggerGet} />
+                            <EntityModal isOpen={isModalOpen} onClose={closeModal} fullName={fullName} onTrigger={() => toggleTriggerGet()} />
                         </Card.Body>
                     </Card>
                 </Col>
