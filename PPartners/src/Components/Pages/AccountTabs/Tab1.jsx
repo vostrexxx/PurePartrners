@@ -6,7 +6,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Container, Row, Col, Form, Button, Card, ListGroup } from "react-bootstrap";
 import EntityDetailsModal from '../../Previews/EntityDetails';
 import ToastNotification from '../../Notification/ToastNotification';
-
+import { useToast } from '../../Notification/ToastContext';
 
 const ImageUploader = ({ label, onUpload, imagePath, onTrigger }) => {
 
@@ -197,6 +197,9 @@ const Entities = ({ onSelectEntity, triggerGet, onTrigger }) => {
 };
 
 const ProfilePage = () => {
+
+    const showToast = useToast();
+
     const [profileData, setProfileData] = useState({
         surname: '',
         patronymic: '',
@@ -341,11 +344,11 @@ const ProfilePage = () => {
             if (!response.ok) {
                 throw new Error(`Ошибка сети: ${response.status}`);
             } else {
-                handleShowToast('Данные профиля успешно сохранены', 'success')
+                showToast('Данные профиля успешно сохранены', 'success')
                 setIsEditable(false);
             }
         } catch (error) {
-            handleShowToast('Данные профиля не сохранены!', 'error')
+            showToast('Данные профиля не сохранены!', 'error')
         }
     };
 
@@ -405,26 +408,10 @@ const ProfilePage = () => {
         }
     };
 
-    // Уведомления
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState('');
-    const [toastType, setToastType] = useState('info');
 
-    const handleShowToast = (message, type) => {
-        setToastMessage(message);
-        setToastType(type);
-        setShowToast(true);
-    };
     return (
         <Container fluid className="py-4" style={{ backgroundColor: "#242582", minHeight: "100vh" }}>
             <Row className="justify-content-center">
-
-                <ToastNotification
-                    message={toastMessage}
-                    type={toastType}
-                    show={showToast}
-                    onClose={() => setShowToast(false)}
-                />
 
                 {/* Личные данные */}
                 <Col xs={12} lg={10} className="mb-4">
@@ -567,7 +554,7 @@ const ProfilePage = () => {
                             <h2 className="text-center mb-4 text-primary">Данные по лицам</h2>
 
                             {/* handleShowToast('Данные профиля не сохранены!', 'error') */}
-                            <Entities onSelectEntity={handleSelectEntity} triggerGet={triggerGet} onTrigger={() => toggleTriggerGet()} toast={handleShowToast} />
+                            <Entities onSelectEntity={handleSelectEntity} triggerGet={triggerGet} onTrigger={() => toggleTriggerGet()} />
 
                             <div className="d-grid mt-3">
                                 <Button variant="primary" onClick={openModal} className="w-100">

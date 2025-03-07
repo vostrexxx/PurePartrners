@@ -25,36 +25,40 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
 import NotAuthTopBar from './Components/Pages/TopBar/NotAuthTopBar'
+import { ToastProvider } from './Components/Notification/ToastContext';
+
 global.global = global;
 const App = () => {
 
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<NonAuthMainPage />} />
+    <ToastProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<NonAuthMainPage />} />
 
-        <Route path="/identification" element={<IdentificationPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegistrationPage />} />
-        <Route path="/main" element={<MainPage />} />
-        <Route path="/personal-information" element={<ProfilePage />} />
-        {/* <Route path="/phone-enter" element={<PhoneNumberEnteringPage />} /> */}
-        <Route path="/passcode-enter" element={<EnterCodePage />} />
-        <Route path="/password-reset" element={<PasswordResetPage />} />
-        <Route path="/account-actions" element={<PageWTabs />} />
-        <Route path="/questionnaire/:id" element={<QuestionnaireDetails />} />
-        <Route path="/announcement/:id" element={<AnnouncementDetails />} />
-        <Route path="/agreement" element={<AgreementPage />} />
-        <Route path="/chat/:chatId" element={<ChatPage />} />
-        <Route path="/all-chats" element={<AllChatsPage />} />
-        <Route path="/entity/:id" element={< EntityDetailes />} />
-        <Route path="/balance" element={< BalancePage />} />
-        <Route path="/NotAuthTopBar" element={< NotAuthTopBar />} />
-        
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </Router>
+          <Route path="/identification" element={<IdentificationPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegistrationPage />} />
+          <Route path="/main" element={<MainPage />} />
+          <Route path="/personal-information" element={<ProfilePage />} />
+          {/* <Route path="/phone-enter" element={<PhoneNumberEnteringPage />} /> */}
+          <Route path="/passcode-enter" element={<EnterCodePage />} />
+          <Route path="/password-reset" element={<PasswordResetPage />} />
+          <Route path="/account-actions" element={<PageWTabs />} />
+          <Route path="/questionnaire/:id" element={<QuestionnaireDetails />} />
+          <Route path="/announcement/:id" element={<AnnouncementDetails />} />
+          <Route path="/agreement" element={<AgreementPage />} />
+          <Route path="/chat/:chatId" element={<ChatPage />} />
+          <Route path="/all-chats" element={<AllChatsPage />} />
+          <Route path="/entity/:id" element={< EntityDetailes />} />
+          <Route path="/balance" element={< BalancePage />} />
+          <Route path="/NotAuthTopBar" element={< NotAuthTopBar />} />
+
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Router>
+    </ToastProvider>
   );
 };
 

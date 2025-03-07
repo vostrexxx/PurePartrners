@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Toast, ToastContainer } from 'react-bootstrap';
-import './ToastNotification.css'; // Подключаем стили
+import './ToastNotification.css';
 
 const ToastNotification = ({ message, type = 'info', delay = 3000, show, onClose }) => {
     useEffect(() => {
