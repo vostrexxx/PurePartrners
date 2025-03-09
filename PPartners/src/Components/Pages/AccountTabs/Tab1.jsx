@@ -534,7 +534,7 @@ const ProfilePage = () => {
                                     ) : (
                                         <Button
                                             variant="primary"
-                                            className="rounded-pill w-100"
+                                            className=" w-100"
                                             style={{ fontSize: "18px" }}
                                             onClick={() => setIsEditable(true)}
                                         >

@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Modal, Button, Form, Dropdown, Card } from "react-bootstrap";
 import { useProfile } from "../../Context/ProfileContext";
-
+import { useToast } from '../../Notification/ToastContext'
 const EntityModal = ({ isOpen, onClose, fullName, onTrigger }) => {
   const authToken = localStorage.getItem("authToken");
+  const showToast = useToast();
   const url = localStorage.getItem("url");
   const { isSpecialist } = useProfile();
 
@@ -67,11 +68,14 @@ const EntityModal = ({ isOpen, onClose, fullName, onTrigger }) => {
         throw new Error(`Ошибка сети: ${response.status}`);
       }
 
-      alert("Данные успешно сохранены!");
+      // alert("Данные успешно сохранены!");
       onClose();
       onTrigger();
+      showToast('Созданное лицо успешно сохранено', 'success')
     } catch (error) {
       console.error(`Ошибка при сохранении данных: ${error.message}`);
+      showToast('Ошибка сохранения созданного лица', 'error')
+
     }
   };
 

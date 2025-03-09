@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Toast, ToastContainer } from 'react-bootstrap';
 import './ToastNotification.css';
 
-const ToastNotification = ({ message, type = 'info', delay = 3000, show, onClose }) => {
+const ToastNotification = ({ message, type = 'info', delay = 5000, show, onClose }) => {
     useEffect(() => {
         if (show) {
             const timer = setTimeout(() => onClose(), delay);
@@ -31,7 +31,7 @@ const getToastTitle = (type) => {
             return 'Успешно!';
         case 'warning':
             return 'Внимание!';
-        case 'danger':
+        case 'error':
             return 'Ошибка!';
         default:
             return 'Информация:';

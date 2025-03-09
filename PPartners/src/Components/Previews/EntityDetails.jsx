@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Form, Button, Card, Container, Row, Col } from "react-bootstrap";
 import { useProfile } from "../../Components/Context/ProfileContext";
+import { useToast } from '../../Components/Notification/ToastContext';
 
 const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
+
+    const showToast = useToast();
+
     const [isLegalEntity, setIsLegalEntity] = useState();
     const [entityData, setEntityData] = useState({});
     const [originalData, setOriginalData] = useState({});
@@ -74,30 +78,32 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
     };
 
     const handleDeleteClick = async () => {
+        try {
+            const entityParams = new URLSearchParams();
+            const who = isSpecialist ? "contractor" : "customer";
+            isSpecialist
+                ? entityParams.append("contractorId", id)
+                : entityParams.append("customerId", id);
+            const response = await fetch(`${url}/${who}?${entityParams.toString()}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${getAuthToken()}`,
+                },
+            });
 
-        // try {
-        //     const entityParams = new URLSearchParams();
-        //     const who = isSpecialist ? "contractor" : "customer";
-        //     isSpecialist
-        //         ? entityParams.append("contractorId", id)
-        //         : entityParams.append("customerId", id);
-        //     const response = await fetch(`${url}/${who}?${entityParams.toString()}`, {
-        //         method: "DELETE",
-        //         headers: {
-        //             "Content-Type": "application/json",
-        //             Authorization: `Bearer ${getAuthToken()}`,
-        //         },
-        //     });
+            if (!response.ok) {
+                throw new Error(`Ошибка при удалении данных: ${response.status}`);
+            }
 
-        //     if (!response.ok) {
-        //         throw new Error(`Ошибка при удалении данных: ${response.status}`);
-        //     }
+            onClose();
+            onTrigger()
+            showToast('Данные лица успешно удалены', 'success')
 
-        //     onClose();
-        //     onTrigger()
-        // } catch (error) {
-        //     console.error(`Ошибка при удалении данных: ${error.message}`);
-        // }
+        } catch (error) {
+            console.error(`Ошибка при удалении данных: ${error.message}`);
+            showToast('Ошибка удаления лица', 'danger')
+        }
     };
 
     const handleSaveClick = async () => {
@@ -118,8 +124,12 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
 
             setOriginalData(entityData); // Обновляем исходные данные
             setIsEditable(false); // Отключаем режим редактирования
+            showToast('Данные лица успешно сохранены', 'success')
+
         } catch (error) {
             console.error(`Ошибка при сохранении данных: ${error.message}`);
+            showToast('Ошибка сохранения данных лица', 'error')
+
         }
     };
 
