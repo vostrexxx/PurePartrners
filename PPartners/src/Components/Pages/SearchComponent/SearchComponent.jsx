@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { TextField, } from '@mui/material';
-import { Container, Row, Col, Form, Button, Card, ListGroup } from "react-bootstrap";
+import { Container, Row, Col, Form, Button } from "react-bootstrap";
+
 const SearchComponent = ({ onSearch }) => {
     const [searchText, setSearchText] = useState('');
 
@@ -10,14 +10,14 @@ const SearchComponent = ({ onSearch }) => {
 
     return (
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <TextField
-                label="Поиск"
-                variant="outlined"
+            <Form.Control
+                type="text"
+                placeholder="Поиск"
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
                 style={{ flexGrow: 1 }}
             />
-            <Button variant="primary" color="primary" onClick={handleSearch}>
+            <Button variant="primary" onClick={handleSearch}>
                 Найти
             </Button>
         </div>

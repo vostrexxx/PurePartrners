@@ -41,7 +41,10 @@ const App = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegistrationPage />} />
           <Route path="/main" element={<MainPage />} />
-          <Route path="/personal-information" element={<ProfilePage />} />
+          <Route path="/personal-information" element={<ProfilePage />} /
+
+
+          >
           {/* <Route path="/phone-enter" element={<PhoneNumberEnteringPage />} /> */}
           <Route path="/passcode-enter" element={<EnterCodePage />} />
           <Route path="/password-reset" element={<PasswordResetPage />} />

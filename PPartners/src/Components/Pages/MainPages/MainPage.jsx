@@ -10,7 +10,7 @@ import Card from '../../Previews/Card';
 import SearchComponent from '../SearchComponent/SearchComponent';
 import TopBar from '../TopBar/TopBar';
 import ErrorMessage from '../../ErrorHandling/ErrorMessage';
-import { Container, Row, Col, Nav, Button, Tab } from "react-bootstrap";
+import { Container, Row, Col, Nav, Button, Tab, Form } from "react-bootstrap";
 
 const MainPage = () => {
     const { isSpecialist, toggleProfile } = useProfile();
@@ -21,6 +21,8 @@ const MainPage = () => {
     const [questionnaires, setQuestionnaires] = useState([]);
     const [loading, setLoading] = useState(false);
     const [cardsError, setCardsError] = useState(null);
+
+
     const [filterParams, setFilterParams] = useState({
         minPrice: 0,
         maxPrice: 10000000,
@@ -28,7 +30,7 @@ const MainPage = () => {
         totalCost: [0, 10000000],
         startDate: null,
         finishDate: null,
-        hasTeam: 'any', // "any" (по умолчанию), "yes", или "no"
+        hasTeam: 'any',
         hasEdu: false,
         isNonFixedPrice: false,
         workCategories: ''
@@ -217,6 +219,28 @@ const MainPage = () => {
     }, [isSpecialist]);
 
 
+    // const [filterParams, setFilterParams] = useState({
+    //     hasTeam: 'any',
+    //     hasEdu: false,
+    //     experience: 0,
+    //     minPrice: 0,
+    // });
+
+    // const handleHasTeamChange = (event) => {
+    //     setFilterParams({ ...filterParams, hasTeam: event.target.value });
+    // };
+
+    // const handleFilterChange = (name, value) => {
+    //     setFilterParams({ ...filterParams, [name]: value });
+    // };
+
+    // Вспомогательный компонент для группировки фильтров
+    const FilterSection = ({ title, children }) => (
+        <div style={{ marginBottom: '20px' }}>
+            <h5>{title}</h5>
+            {children}
+        </div>
+    );
     return (
         <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
             <TopBar />
@@ -251,54 +275,104 @@ const MainPage = () => {
 
                         <Drawer anchor="right" open={isFilterOpen} onClose={toggleFilterDrawer}>
                             <div style={{ width: '300px', padding: '20px' }}>
-                                <h3>Фильтры</h3>
-
+                                <h2>Фильтры</h2>
                                 {!isSpecialist ? (
-                                    <>
-                                        <FormControl component="fieldset">
-                                            <FormLabel component="legend">Имеется ли команда?</FormLabel>
-                                            <RadioGroup
-                                                name="hasTeam"
-                                                value={filterParams.hasTeam}
-                                                onChange={handleHasTeamChange}
-                                            >
-                                                <FormControlLabel value="any" control={<Radio />} label="Неважно" />
-                                                <FormControlLabel value="yes" control={<Radio />} label="Да" />
-                                                <FormControlLabel value="no" control={<Radio />} label="Нет" />
-                                            </RadioGroup>
-                                        </FormControl>
+                                    <div>
+                                        {/* Команда */}
+                                        <FilterSection title="Имеется ли команда?">
+                                            <FormControl component="fieldset">
+                                                <RadioGroup
+                                                    name="hasTeam"
+                                                    value={filterParams.hasTeam}
+                                                    onChange={handleHasTeamChange}
+                                                >
+                                                    <FormControlLabel value="any" control={<Radio />} label="Неважно" />
+                                                    <FormControlLabel value="yes" control={<Radio />} label="Да" />
+                                                    <FormControlLabel value="no" control={<Radio />} label="Нет" />
+                                                </RadioGroup>
+                                            </FormControl>
+                                        </FilterSection>
 
-                                        <FormControlLabel
-                                            control={
-                                                <Checkbox
-                                                    checked={filterParams.hasEdu}
-                                                    onChange={handleFilterChange}
-                                                    name="hasEdu"
-                                                />
-                                            }
-                                            label="Имеется профильное образование"
-                                        />
-                                        <h5>Минимальная опыт работы в годах</h5>
-                                        <Slider
-                                            value={filterParams.experience}
-                                            onChange={(e, newValue) => handleFilterChange(e, newValue)}
-                                            valueLabelDisplay="auto"
-                                            min={0}
-                                            max={50}
-                                            name="experience"
-                                            label="Опыт работы (лет)"
-                                        />
-                                        <h5>Минимальная цена</h5>
-                                        <Slider
-                                            value={filterParams.minPrice}
-                                            onChange={(e, newValue) => handleFilterChange(e, newValue)}
-                                            valueLabelDisplay="auto"
-                                            min={0}
-                                            max={10000000}
-                                            name="minPrice"
-                                            label="Минимальная цена"
-                                        />
-                                    </>
+                                        {/* Профильное образование */}
+                                        <FilterSection title="Имеется ли профильное образование?">
+                                            <FormControlLabel
+                                                control={
+                                                    <Checkbox
+                                                        checked={filterParams.hasEdu}
+                                                        onChange={(e) =>
+                                                            handleFilterChange('hasEdu', e.target.checked)
+                                                        }
+                                                        name="hasEdu"
+                                                    />
+                                                }
+                                                label="Имеется профильное образование"
+                                            />
+                                        </FilterSection>
+
+                                        {/* Минимальный опыт работы */}
+                                        <FilterSection title="Минимальный опыт работы (лет)">
+                                            <Row className="align-items-center">
+                                                <Col xs={9}>
+                                                    <Slider
+                                                        value={filterParams.experience}
+                                                        onChange={(e, newValue) =>
+                                                            handleFilterChange('experience', newValue)
+                                                        }
+                                                        valueLabelDisplay="auto"
+                                                        min={0}
+                                                        max={50}
+                                                    />
+                                                </Col>
+                                                <Col xs={3}>
+                                                    <Form.Control
+                                                        type="number"
+                                                        value={filterParams.experience}
+                                                        onChange={(e) =>
+                                                            handleFilterChange(
+                                                                'experience',
+                                                                Number(e.target.value)
+                                                            )
+                                                        }
+                                                        min={0}
+                                                        max={50}
+                                                        style={{ width: '80px' }}
+                                                    />
+                                                </Col>
+                                            </Row>
+                                        </FilterSection>
+
+                                        {/* Минимальная цена */}
+                                        <FilterSection title="Минимальная цена">
+                                            <Row className="align-items-center">
+                                                <Col xs={9}>
+                                                    <Slider
+                                                        value={filterParams.minPrice}
+                                                        onChange={(e, newValue) =>
+                                                            handleFilterChange('minPrice', newValue)
+                                                        }
+                                                        valueLabelDisplay="auto"
+                                                        min={0}
+                                                        max={10000000}
+                                                    />
+                                                </Col>
+                                                <Col xs={3}>
+                                                    <Form.Control
+                                                        type="number"
+                                                        value={filterParams.minPrice}
+                                                        onChange={(e) =>
+                                                            handleFilterChange(
+                                                                'minPrice',
+                                                                Number(e.target.value)
+                                                            )
+                                                        }
+                                                        min={0}
+                                                        max={10000000}
+                                                        style={{ width: '120px' }}
+                                                    />
+                                                </Col>
+                                            </Row>
+                                        </FilterSection>
+                                    </div>
                                 ) : (
                                     <>
                                         <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -331,7 +405,7 @@ const MainPage = () => {
                                 )}
 
                                 <Button color="primary" onClick={applyFilters} fullWidth>
-                                    Применить фильтры
+                                    Применить
                                 </Button>
                             </div>
                         </Drawer>
