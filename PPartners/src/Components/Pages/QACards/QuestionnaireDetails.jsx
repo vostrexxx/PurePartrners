@@ -253,8 +253,6 @@ const QuestionnaireDetails = () => {
             } else {
                 // setError('Не удалось сохранить данные');
                 showToast("Не удалось сохранить данные", "error")
-
-
             }
         } catch (error) {
             // setError(`Ошибка при сохранении: ${error.message}`);
