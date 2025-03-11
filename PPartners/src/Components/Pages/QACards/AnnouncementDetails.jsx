@@ -5,9 +5,12 @@ import { useProfile } from '../../Context/ProfileContext';
 import TopBar from '../TopBar/TopBar';
 import EntityCard from '../../Previews/EntityCard'
 import { Button, Card, Container, Form, ListGroup, Row, Col, Spinner } from "react-bootstrap";
+import { useToast } from '../../Notification/ToastContext'
 
 
 const AnnouncementDetails = () => {
+    const showToast = useToast();
+
     const { id } = useParams();
     const [announcement, setAnnouncement] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -90,7 +93,9 @@ const AnnouncementDetails = () => {
 
                         await fetchEntity(entityId); // Выполняем запрос для получения данных лица
                     } else {
-                        console.error('ID лица отсутствует в данных объявления');
+                        // console.error('ID лица отсутствует в данных объявления');
+                        showToast("Не выбрано лицо в данных объявления", "error")
+
                     }
                 } else {
                     setError('Информация об объявлении не найдена');
@@ -119,7 +124,9 @@ const AnnouncementDetails = () => {
                         });
 
                         if (!response.ok) {
-                            console.error(`Ошибка загрузки изображения: ${imagePath}`);
+                            // console.error(`Ошибка загрузки изображения: ${imagePath}`);
+                            showToast("Ошибка загрузки изображения", "error")
+
                             return null;
                         }
 
@@ -168,17 +175,21 @@ const AnnouncementDetails = () => {
             });
 
             if (!response.ok) {
+                showToast("Ошибка скачивания файла", "error")
                 throw new Error(`Ошибка скачивания файла: ${response.status}`);
+
             }
+            // showToast("Ошибка создания объявления", "error")
 
             const blob = await response.blob();
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = originalFileName; // Устанавливаем оригинальное имя файла
+            link.download = originalFileName;
             link.click();
         } catch (error) {
-            console.error('Ошибка скачивания файла:', error);
-            alert('Не удалось скачать файл.');
+            // console.error('Ошибка скачивания файла:', error);
+            // alert('Не удалось скачать файл.');
+            showToast("Не удалось скачать файл", "error")
         }
     };
 
@@ -197,18 +208,23 @@ const AnnouncementDetails = () => {
                     throw new Error(`Ошибка удаления файла: ${response.status}`);
                 }
 
-                alert('Файл успешно удален.');
+                // alert('Файл успешно удален.');
+                showToast("Файл успешно удален", "success")
+
                 setFiles((prevFiles) => prevFiles.filter((file) => file.storedFileName !== storedFileName));
             } catch (error) {
-                console.error('Ошибка удаления файла:', error);
-                alert('Не удалось удалить файл.');
+                // console.error('Ошибка удаления файла:', error);
+                // alert('Не удалось удалить файл.');
+                showToast("Не удалось удалить файл", "error")
+
             }
         }
     };
 
     const handleUploadFiles = async () => {
         if (newFiles.length === 0) {
-            alert('Вы не выбрали файлы для загрузки.');
+            // alert('Вы не выбрали файлы для загрузки.');
+            showToast("Вы не выбрали файлы для загрузки", "error")
             return;
         }
 
@@ -230,12 +246,16 @@ const AnnouncementDetails = () => {
                 throw new Error(`Ошибка загрузки файлов: ${response.status}`);
             }
 
-            alert('Файлы успешно загружены.');
+            // alert('Файлы успешно загружены.');
+            showToast("Файлы успешно загружены", "success")
+
             setNewFiles([]); // Очищаем локальное состояние
             setTrigger(!trigger); // Обновляем данные
         } catch (error) {
-            console.error('Ошибка загрузки файлов:', error);
-            alert('Не удалось загрузить файлы.');
+            // console.error('Ошибка загрузки файлов:', error);
+            // alert('Не удалось загрузить файлы.');
+            showToast("Не удалось загрузить файлы", "error")
+
         }
     };
 
@@ -280,7 +300,8 @@ const AnnouncementDetails = () => {
 
     const handleUploadImages = async () => {
         if (newImages.length === 0) {
-            alert('Вы не выбрали фотографии для загрузки.');
+            // alert('Вы не выбрали фотографии для загрузки.');
+            showToast("Ошибка создания объявления", "error")
             return;
         }
 
@@ -301,12 +322,15 @@ const AnnouncementDetails = () => {
                 throw new Error(`Ошибка при загрузке фотографий: ${response.status}`);
             }
 
-            alert('Фотографии успешно загружены.');
+            // alert('Фотографии успешно загружены.');
+            showToast("Фотография успешно загружена", "success")
+
             setNewImages([]); // Очищаем локальное состояние после успешной отправки
             setTrigger(!trigger); // Обновляем данные объявления
         } catch (error) {
-            console.error('Ошибка при загрузке фотографий:', error);
-            alert('Не удалось загрузить фотографии.');
+            // console.error('Ошибка при загрузке фотографий:', error);
+            // alert('Не удалось загрузить фотографии.');
+            showToast("Не удалось загрузить фотографии", "error")
         }
     };
 
@@ -326,7 +350,9 @@ const AnnouncementDetails = () => {
                     throw new Error(`Ошибка при удалении изображения: ${response.status}`);
                 }
 
-                alert('Изображение успешно удалено.');
+                // alert('Изображение успешно удалено.');
+                showToast("Изображение успешно удалено", "success")
+
 
                 // Удаляем изображение из локального состояния после успешного удаления
                 setImages((prevImages) => prevImages.filter((img) => img !== filePath));
@@ -335,8 +361,10 @@ const AnnouncementDetails = () => {
                     announcementImages: prev.announcementImages.filter((img) => img !== filePath),
                 }));
             } catch (error) {
-                console.error('Ошибка при удалении изображения:', error);
-                alert('Не удалось удалить изображение.');
+                // console.error('Ошибка при удалении изображения:', error);
+                // alert('Не удалось удалить изображение.');
+                showToast("Не удалось удалить изображение", "error")
+
             }
         }
     };
@@ -358,13 +386,17 @@ const AnnouncementDetails = () => {
             }
 
             const data = await response.json();
+            showToast("Объявление успешно сохранено", "success")
+
             if (data.success === 1) {
                 setIsEditable(false);
             } else {
                 setError('Не удалось сохранить данные');
             }
         } catch (error) {
-            setError(`Ошибка при сохранении: ${error.message}`);
+            // setError(`Ошибка при сохранении: ${error.message}`);
+            showToast("Ошибка при слхранении", "error")
+
         }
     };
 
@@ -389,12 +421,15 @@ const AnnouncementDetails = () => {
 
                 const data = await response.json();
                 if (data.success === 1) {
+                    showToast("Объявление успешно удалено", "success")
                     navigate('/account-actions'); // Перенаправление после успешного удаления
                 } else {
                     setError('Не удалось удалить анкету');
                 }
             } catch (error) {
-                setError(`Ошибка при удалении: ${error.message}`);
+                // setError(`Ошибка при удалении: ${error.message}`);
+                showToast("Ошибка удаления", "error")
+
             }
         }
     };
@@ -416,8 +451,10 @@ const AnnouncementDetails = () => {
                 }
 
             } catch (error) {
-                console.error('Ошибка применения изменения:', error);
-                alert('Не удалось одобрить изменение.');
+                // console.error('Ошибка применения изменения:', error);
+                // alert('Не удалось одобрить изменение.');
+                showToast("Не удалось одобрить изменение", "error")
+
             }
         }
         else if (mode === "unlink") {//
@@ -435,9 +472,13 @@ const AnnouncementDetails = () => {
                     throw new Error(`Ошибка применения изменения: ${response.status}`);
                 }
 
-                alert('Лицо успешно отвязано!');
+                // alert('Лицо успешно отвязано!');
+                showToast("Лицо успешно отвязано", "success")
+
             } catch (error) {
-                console.error('Ошибка привязки лица:', error);
+                // console.error('Ошибка привязки лица:', error);
+                showToast("Ошибка привязки лица", "error")
+
                 // alert('Не удалось одобрить изменение.');
             }
         }

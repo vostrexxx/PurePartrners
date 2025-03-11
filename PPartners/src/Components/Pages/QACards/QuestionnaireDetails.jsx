@@ -4,9 +4,12 @@ import ReactionWindow from '../Agreement/Reaction';
 import { useProfile } from '../../Context/ProfileContext';
 import TopBar from '../TopBar/TopBar';
 import EntityCard from '../../Previews/EntityCard'
+import { useToast } from '../../Notification/ToastContext'
 
 
 const QuestionnaireDetails = () => {
+    const showToast = useToast();
+
     const { id } = useParams();
     const location = useLocation();
     const navigate = useNavigate();
@@ -150,7 +153,8 @@ const QuestionnaireDetails = () => {
 
     const handleUploadImages = async () => {
         if (newImages.length === 0) {
-            alert('Вы не выбрали фотографии для загрузки.');
+            // alert('Вы не выбрали фотографии для загрузки.');
+            showToast("Вы не выбрали фотографии для загрузки", "error")
             return;
         }
 
@@ -171,12 +175,16 @@ const QuestionnaireDetails = () => {
                 throw new Error(`Ошибка при загрузке фотографий: ${response.status}`);
             }
 
-            alert('Фотографии успешно загружены.');
+            // alert('Фотографии успешно загружены.');
+            showToast("Фотографии успешно загружены", "success")
+
             setNewImages([]); // Очищаем локальное состояние после успешной отправки
             setTrigger(!trigger); // Обновляем данные объявления
         } catch (error) {
-            console.error('Ошибка при загрузке фотографий:', error);
-            alert('Не удалось загрузить фотографии.');
+            // console.error('Ошибка при загрузке фотографий:', error);
+            // alert('Не удалось загрузить фотографии.');
+            showToast("Не удалось загрузить фотографии", "error")
+
         }
     };
 
@@ -195,7 +203,9 @@ const QuestionnaireDetails = () => {
                     throw new Error(`Ошибка при удалении изображения: ${response.status}`);
                 }
 
-                alert('Изображение успешно удалено.');
+                // alert('Изображение успешно удалено.');
+                showToast("Изображение успешно удалено", "success")
+
 
                 // Удаляем изображение из локального состояния после успешного удаления
                 setImages((prevImages) => prevImages.filter((img) => img !== filePath));
@@ -204,8 +214,10 @@ const QuestionnaireDetails = () => {
                     questionnaireImages: prev.questionnaireImages.filter((img) => img !== filePath),
                 }));
             } catch (error) {
-                console.error('Ошибка при удалении изображения:', error);
-                alert('Не удалось удалить изображение.');
+                // console.error('Ошибка при удалении изображения:', error);
+                // alert('Не удалось удалить изображение.');
+                showToast("Не удалось удалить изображение", "error")
+
             }
         }
     };
@@ -234,13 +246,19 @@ const QuestionnaireDetails = () => {
             }
 
             const data = await response.json();
+            showToast("Анкета была сохранения успешно", "success")
+
             if (data.success === 1) {
                 setIsEditable(false);
             } else {
-                setError('Не удалось сохранить данные');
+                // setError('Не удалось сохранить данные');
+                showToast("Не удалось сохранить данные", "error")
+
+
             }
         } catch (error) {
-            setError(`Ошибка при сохранении: ${error.message}`);
+            // setError(`Ошибка при сохранении: ${error.message}`);
+            showToast("Ошибка при сохранении", "error")
         }
     };
 
@@ -255,6 +273,8 @@ const QuestionnaireDetails = () => {
                         'Authorization': `Bearer ${getAuthToken()}`,
                     },
                 });
+
+                showToast("", "error")
 
                 if (!response.ok) {
                     throw new Error(`Ошибка при удалении: ${response.status}`);

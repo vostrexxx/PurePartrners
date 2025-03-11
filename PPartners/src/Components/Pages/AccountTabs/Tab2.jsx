@@ -7,6 +7,7 @@ import AutoCompleteInput from './AutoCompleteInput.jsx';
 import MetroAutocomplete from '../SearchComponent/AutoCompleteMetro.jsx';
 import { Button, Card, Container, Form, ListGroup, Row, Col, Spinner } from "react-bootstrap";
 import './global.css'
+import { useToast } from '../../Notification/ToastContext'
 
 const Entities = ({ onSelectEntity }) => {
   const url = localStorage.getItem("url");
@@ -249,6 +250,8 @@ const getAuthToken = () => {
 let url = localStorage.getItem('url')
 
 const QuestionnaireForm = ({ onSubmit, onCancel }) => {
+  const showToast = useToast();
+
   const [formData, setFormData] = useState({
     workCategories: "",
     hasEdu: false,
@@ -327,15 +330,18 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
       });
 
       if (response.ok) {
-        alert("Анкета успешно добавлена!");
+        // alert("Анкета успешно добавлена!");
+        showToast("Анкета успешно добавлена", "success")
         setPhotos([]); // Очистить фотографии после успешной отправки
         onSubmit();
       } else {
         const errorMsg = await response.text();
-        alert(`Ошибка при добавлении анкеты: ${errorMsg}`);
+        // alert(`Ошибка при добавлении анкеты: ${errorMsg}`);
       }
     } catch (error) {
       console.error("Ошибка при отправке анкеты:", error);
+      showToast('Ошибка добавления анкета', 'error')
+
     }
   };
 
@@ -368,7 +374,7 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
                     onCategorySelect={handleCategorySelect}
                   />
                 </Form.Group>
-  
+
                 {/* Образование */}
                 <Form.Group className="mb-3">
                   <Form.Check
@@ -380,7 +386,7 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
                     style={{ color: "white" }}
                   />
                 </Form.Group>
-  
+
                 {formData.hasEdu && (
                   <>
                     <Form.Group className="mb-3">
@@ -401,7 +407,7 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
                         className="form-control-placeholder"
                       />
                     </Form.Group>
-  
+
                     <Row className="g-3">
                       <Col xs={12} md={6}>
                         <Form.Group className="mb-3">
@@ -444,7 +450,7 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
                     </Row>
                   </>
                 )}
-  
+
                 {/* Команда */}
                 <Form.Group className="mb-3">
                   <Form.Check
@@ -456,7 +462,7 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
                     style={{ color: "white" }}
                   />
                 </Form.Group>
-  
+
                 {formData.hasTeam && (
                   <Form.Group className="mb-3">
                     <Form.Label style={{ color: "white" }}>Команда</Form.Label>
@@ -475,7 +481,7 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
                     />
                   </Form.Group>
                 )}
-  
+
                 {/* Другие поля */}
                 <Row className="g-3 mb-3">
                   <Col xs={12} md={6}>
@@ -517,7 +523,7 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
                     </Form.Group>
                   </Col>
                 </Row>
-  
+
                 {/* Информация о себе */}
                 <Form.Group className="mb-3">
                   <Form.Label style={{ color: "white" }}>
@@ -537,7 +543,7 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
                     className="form-control-placeholder"
                   />
                 </Form.Group>
-  
+
                 {/* Фото */}
                 <h5 className="mt-4" style={{ color: "#ff7f00" }}>
                   Добавить фотографии
@@ -555,13 +561,13 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
                     }}
                   />
                 </Form.Group>
-  
+
                 {/* Выбор лица */}
                 <Entities onSelectEntity={handleSelectEntity} />
-  
+
                 {/* Кнопки */}
                 <div className="d-flex justify-content-between mt-4">
-                  
+
                   <Button
                     style={{
                       width: "48%",
@@ -598,7 +604,7 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
           </Card>
         </Col>
       </Row>
-  
+
       {/* Стили для серого плейсхолдера */}
       <style>
         {`
@@ -609,12 +615,14 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
       </style>
     </Container>
   );
-  
+
 
 
 };
 
 const AnnouncementForm = ({ onSubmit, onCancel }) => {
+  const showToast = useToast();
+
   const [formData, setFormData] = useState({
     totalCost: "",
     isNonFixedPrice: false,
@@ -704,7 +712,9 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
       });
 
       if (response.ok) {
-        alert("Объявление успешно добавлено!");
+        showToast('Объявление успешно добавлено', 'success')
+
+        // alert("!");
         setFormData({
           totalCost: "",
           isNonFixedPrice: false,
@@ -722,11 +732,14 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
         onSubmit();
       } else {
         const errorMsg = await response.text();
-        alert(`Ошибка при добавлении объявления: ${errorMsg}`);
+        // alert(`Ошибка при добавлении объявления: ${errorMsg}`);
+        showToast("Ошибка создания объявления", "error")
       }
     } catch (error) {
       console.error("Ошибка при отправке данных:", error);
-      alert("Произошла ошибка при отправке данных.");
+      // alert("Произошла ошибка при отправке данных.");
+      showToast("Ошибка создания объявления", "error")
+
     } finally {
       setUploading(false);
     }
