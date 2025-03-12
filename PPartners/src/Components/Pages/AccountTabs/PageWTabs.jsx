@@ -1,4 +1,4 @@
-import React, { useState} from "react";
+import React, { useState } from "react";
 import { Container, Row, Col, Nav, Tab } from "react-bootstrap";
 import TopBar from "../TopBar/TopBar";
 import Tab1 from "./Tab1";
@@ -9,16 +9,16 @@ import { useSearchParams } from 'react-router-dom';
 
 const PageWithTabs = () => {
   const { isSpecialist } = useProfile();
-    const [searchParams, setSearchParams] = useSearchParams();
-    const defaultTab = searchParams.get("tab") || "offers";
-    const [activeTab, setActiveTab] = useState(defaultTab);
-    
-    const handleTabChange = (tab) => {
-      setActiveTab(tab);
-      setSearchParams({ tab });
+  const [searchParams, setSearchParams] = useSearchParams();
+  const defaultTab = searchParams.get("tab") || "offers";
+  const [activeTab, setActiveTab] = useState(defaultTab);
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setSearchParams({ tab });
   };
 
-  
+
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
       <TopBar />
@@ -49,7 +49,7 @@ const PageWithTabs = () => {
                   </Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
-                <Nav.Link
+                  <Nav.Link
                     eventKey="personal-info"
                     className={`rounded-pill fw-bold text-center custom-tab ${activeTab === 'personal-info' ? 'active fw-bold' : ''}`}
                     onClick={() => handleTabChange('personal-info')}
@@ -60,8 +60,8 @@ const PageWithTabs = () => {
               </Nav>
 
               <Tab.Content>
-                {activeTab === 'offers' && <Tab2 />} 
-                {activeTab === 'personal-info' && <Tab1 />} 
+                {activeTab === 'offers' && <Tab2 />}
+                {activeTab === 'personal-info' && <Tab1 />}
 
                 {/* <Tab.Pane eventKey="offers">
                   <Tab2 />

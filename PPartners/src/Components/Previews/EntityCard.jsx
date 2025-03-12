@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useProfile } from '../../Components/Context/ProfileContext';
-
+import { Row, Col, Card, Button } from 'react-bootstrap';
 const EntityCard = ({ onSelectEntity }) => {
     const url = localStorage.getItem('url');
     const authToken = localStorage.getItem('authToken');
@@ -63,51 +63,54 @@ const EntityCard = ({ onSelectEntity }) => {
     };
 
     return (
-        <div style={{ display: 'flex', gap: '20px' }}>
+        <Row style={{ gap: '10px' }}>
             {/* Левый столбец - Юридические лица */}
-            <div style={{ flex: 1 }}>
-                <h3 style={{ textAlign: 'center', color: 'white' }}>Ваши юридические лица</h3>
+            <Col style={{ flex: 1 }}>
+                <h5 style={{ textAlign: 'center', color: 'white' }}>Ваши юридические лица</h5>
                 {legalEntities.map((entity) => (
-                    <div
+                    <Card
                         key={entity.id}
                         onClick={() => handleSelectEntity(entity.id)}
                         style={{
-                            padding: '10px',
                             margin: '5px 0',
-                            backgroundColor: selectedEntity === entity.id ? '#4114f5' : '#bd0999',
+                            backgroundColor: selectedEntity === entity.id ? 'grey' : 'white',
                             border: '1px solid blue',
                             borderRadius: '5px',
                             cursor: 'pointer',
                         }}
                     >
-                        <strong>{entity.firm}</strong>
-                        <p>ИНН: {entity.inn}</p>
-                    </div>
+                        <Card.Body>
+                            <Card.Title as="strong">{entity.firm}</Card.Title>
+                            <Card.Text>ИНН: {entity.inn}</Card.Text>
+                        </Card.Body>
+                    </Card>
                 ))}
-            </div>
+            </Col>
 
             {/* Правый столбец - Физические лица */}
-            <div style={{ flex: 1 }}>
-                <h3 style={{ textAlign: 'center', color: 'white' }}>Ваши физические лица</h3>
+            <Col style={{ flex: 1 }}>
+                <h5 style={{ textAlign: 'center', color: 'white' }}>Ваши физические лица</h5>
                 {persons.map((person) => (
-                    <div
+                    <Card
                         key={person.id}
                         onClick={() => handleSelectEntity(person.id)}
                         style={{
-                            padding: '10px',
                             margin: '5px 0',
-                            backgroundColor: selectedEntity === person.id ? '#4114f5' : '#bd0999',
+                            backgroundColor: selectedEntity === person.id ? 'grey' : 'white',
                             border: '1px solid green',
                             borderRadius: '5px',
                             cursor: 'pointer',
                         }}
                     >
-                        <strong>{person.fullName}</strong>
-                        <p>ИНН: {person.inn}</p>
-                    </div>
+                        <Card.Body>
+                            <Card.Title as="strong">{person.fullName}</Card.Title>
+                            <Card.Text>ИНН: {person.inn}</Card.Text>
+                        </Card.Body>
+                    </Card>
                 ))}
-            </div>
-        </div>
+            </Col>
+        </Row>
+
     );
 };
 

@@ -5,6 +5,7 @@ import { useProfile } from '../../Context/ProfileContext';
 import TopBar from '../TopBar/TopBar';
 import EntityCard from '../../Previews/EntityCard'
 import { useToast } from '../../Notification/ToastContext'
+import { Button, Card, Container, Form, ListGroup, Row, Col, Spinner, Image, Modal, ButtonGroup } from "react-bootstrap";
 
 
 const QuestionnaireDetails = () => {
@@ -140,6 +141,10 @@ const QuestionnaireDetails = () => {
 
     const handleCloseImageModal = () => {
         setSelectedImage(null); // Закрываем модальное окно
+    };
+
+    const handleGoBack = () => {
+        window.history.back();
     };
 
     const handleAddImages = (e) => {
@@ -345,326 +350,370 @@ const QuestionnaireDetails = () => {
     if (error) return <div>Ошибка: {error}</div>;
 
     return (
-        <div>
+        <div style={{ display: "flex", flexDirection: "column", height: "100vh" }} >
             <TopBar />
-            <div style={styles.container}>
-                <h2>Детали анкеты</h2>
+            <Container
+                fluid
+                style={{
+                    backgroundColor: "#242582",
+                    flex: 1,
+                    padding: "20px",
+                }}
+            >
+                <Row className="justify-content-center">
+                    <Col md={8} style={{ padding: "20px" }}>
+                        <Card
+                            style={{
+                                backgroundColor: "#222",
+                                color: "white",
+                                borderRadius: "12px",
+                                padding: "20px",
+                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.5)",
+                            }}
+                        >
+                            <Card.Text>
+                                <Button
+                                    onClick={handleGoBack}
+                                    variant="secondary"
+                                    style={{
+                                        marginTop: '10px',
+                                        padding: '10px 20px',
+                                        borderRadius: '8px',
+                                        width: '100%'
+                                    }}
+                                >
+                                    Назад
+                                </Button>
+                            </Card.Text>
 
-                <label htmlFor="workCategories">Категории работ</label>
-                <input
-                    type="text"
-                    name="workCategories"
-                    id="workCategories"
-                    value={questionnaire.workCategories || ''}
-                    onChange={handleInputChange}
-                    disabled={!isEditable}
-                    style={styles.input}
-                />
 
-                <label>Есть ли команда:</label>
-                <select
-                    name="hasTeam"
-                    value={questionnaire.hasTeam ? 'Да' : 'Нет'}
-                    onChange={(e) => handleInputChange({ target: { name: 'hasTeam', value: e.target.value === 'Да' } })}
-                    disabled={!isEditable}
-                    style={styles.input}
-                >
-                    <option>Да</option>
-                    <option>Нет</option>
-                </select>
+                            <Card.Body >
+                                <h2 className="text-center mb-4" style={{ color: "#ff7f00", fontWeight: "bold" }}>
+                                    Детали анкеты</h2>
 
-                {questionnaire.hasTeam && (
-                    <>
-                        <label htmlFor="team">Команда</label>
-                        <input
-                            type="text"
-                            name="team"
-                            id="team"
-                            value={questionnaire.team || ''}
-                            onChange={handleInputChange}
-                            disabled={!isEditable}
-                            style={styles.input}
-                        />
-                    </>
-                )}
+                                <label htmlFor="workCategories">Категории работ</label>
+                                <input
+                                    type="text"
+                                    name="workCategories"
+                                    id="workCategories"
+                                    value={questionnaire.workCategories || ''}
+                                    onChange={handleInputChange}
+                                    disabled={!isEditable}
+                                    style={styles.input}
+                                />
 
-                <label>Есть ли образование:</label>
-                <select
-                    name="hasEdu"
-                    value={questionnaire.hasEdu ? 'Да' : 'Нет'}
-                    onChange={(e) => handleInputChange({ target: { name: 'hasEdu', value: e.target.value === 'Да' } })}
-                    disabled={!isEditable}
-                    style={styles.input}
-                >
-                    <option>Да</option>
-                    <option>Нет</option>
-                </select>
+                                <label>Есть ли команда:</label>
+                                <select
+                                    name="hasTeam"
+                                    value={questionnaire.hasTeam ? 'Да' : 'Нет'}
+                                    onChange={(e) => handleInputChange({ target: { name: 'hasTeam', value: e.target.value === 'Да' } })}
+                                    disabled={!isEditable}
+                                    style={styles.input}
+                                >
+                                    <option>Да</option>
+                                    <option>Нет</option>
+                                </select>
 
-                {questionnaire.hasEdu && (
-                    <>
-                        <label htmlFor="eduEst">Учебное заведение</label>
-                        <input
-                            type="text"
-                            name="eduEst"
-                            id="eduEst"
-                            value={questionnaire.eduEst || ''}
-                            onChange={handleInputChange}
-                            disabled={!isEditable}
-                            style={styles.input}
-                        />
+                                {questionnaire.hasTeam && (
+                                    <>
+                                        <label htmlFor="team">Команда</label>
+                                        <input
+                                            type="text"
+                                            name="team"
+                                            id="team"
+                                            value={questionnaire.team || ''}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditable}
+                                            style={styles.input}
+                                        />
+                                    </>
+                                )}
 
-                        <label htmlFor="eduDateStart">Дата начала обучения</label>
-                        <input
-                            type="date"
-                            name="eduDateStart"
-                            id="eduDateStart"
-                            value={questionnaire.eduDateStart || ''}
-                            onChange={handleInputChange}
-                            disabled={!isEditable}
-                            style={styles.input}
-                        />
+                                <label>Есть ли образование:</label>
+                                <select
+                                    name="hasEdu"
+                                    value={questionnaire.hasEdu ? 'Да' : 'Нет'}
+                                    onChange={(e) => handleInputChange({ target: { name: 'hasEdu', value: e.target.value === 'Да' } })}
+                                    disabled={!isEditable}
+                                    style={styles.input}
+                                >
+                                    <option>Да</option>
+                                    <option>Нет</option>
+                                </select>
 
-                        <label htmlFor="eduDateEnd">Дата окончания обучения</label>
-                        <input
-                            type="date"
-                            name="eduDateEnd"
-                            id="eduDateEnd"
-                            value={questionnaire.eduDateEnd || ''}
-                            onChange={handleInputChange}
-                            disabled={!isEditable}
-                            style={styles.input}
-                        />
-                    </>
-                )}
+                                {questionnaire.hasEdu && (
+                                    <>
+                                        <label htmlFor="eduEst">Учебное заведение</label>
+                                        <input
+                                            type="text"
+                                            name="eduEst"
+                                            id="eduEst"
+                                            value={questionnaire.eduEst || ''}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditable}
+                                            style={styles.input}
+                                        />
 
-                <label htmlFor="workExp">Опыт работы</label>
-                <input
-                    type="text"
-                    name="workExp"
-                    id="workExp"
-                    value={questionnaire.workExp || ''}
-                    onChange={handleInputChange}
-                    disabled={!isEditable}
-                    style={styles.input}
-                />
+                                        <label htmlFor="eduDateStart">Дата начала обучения</label>
+                                        <input
+                                            type="date"
+                                            name="eduDateStart"
+                                            id="eduDateStart"
+                                            value={questionnaire.eduDateStart || ''}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditable}
+                                            style={styles.input}
+                                        />
 
-                <label htmlFor="selfInfo">Дополнительная информация</label>
-                <input
-                    type="text"
-                    name="selfInfo"
-                    id="selfInfo"
-                    value={questionnaire.selfInfo || ''}
-                    onChange={handleInputChange}
-                    disabled={!isEditable}
-                    style={styles.input}
-                />
+                                        <label htmlFor="eduDateEnd">Дата окончания обучения</label>
+                                        <input
+                                            type="date"
+                                            name="eduDateEnd"
+                                            id="eduDateEnd"
+                                            value={questionnaire.eduDateEnd || ''}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditable}
+                                            style={styles.input}
+                                        />
+                                    </>
+                                )}
 
-                <label htmlFor="prices">Расценки</label>
-                <input
-                    type="text"
-                    name="prices"
-                    id="prices"
-                    value={questionnaire.prices || ''}
-                    onChange={handleInputChange}
-                    disabled={!isEditable}
-                    style={styles.input}
-                />
+                                <label htmlFor="workExp">Опыт работы</label>
+                                <input
+                                    type="text"
+                                    name="workExp"
+                                    id="workExp"
+                                    value={questionnaire.workExp || ''}
+                                    onChange={handleInputChange}
+                                    disabled={!isEditable}
+                                    style={styles.input}
+                                />
 
-                <div>
-                    <div>
-                        <h4>Прикрепленные фотографии:</h4>
-                        {images.length > 0 ? (
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                                {questionnaire.questionnaireImages.map((imagePath, index) => (
-                                    <div key={index} style={{ position: 'relative', display: 'inline-block' }}>
-                                        <img
-                                            src={images[index]}
-                                            alt={`Фото ${index + 1}`}
+                                <label htmlFor="selfInfo">Дополнительная информация</label>
+                                <input
+                                    type="text"
+                                    name="selfInfo"
+                                    id="selfInfo"
+                                    value={questionnaire.selfInfo || ''}
+                                    onChange={handleInputChange}
+                                    disabled={!isEditable}
+                                    style={styles.input}
+                                />
+
+                                <label htmlFor="prices">Расценки</label>
+                                <input
+                                    type="text"
+                                    name="prices"
+                                    id="prices"
+                                    value={questionnaire.prices || ''}
+                                    onChange={handleInputChange}
+                                    disabled={!isEditable}
+                                    style={styles.input}
+                                />
+
+                                <div>
+                                    <div>
+                                        <h4>Прикрепленные фотографии:</h4>
+                                        {images.length > 0 ? (
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                                                {questionnaire.questionnaireImages.map((imagePath, index) => (
+                                                    <div key={index} style={{ position: 'relative', display: 'inline-block' }}>
+                                                        <img
+                                                            src={images[index]}
+                                                            alt={`Фото ${index + 1}`}
+                                                            style={{
+                                                                width: '150px',
+                                                                height: '150px',
+                                                                objectFit: 'cover',
+                                                                borderRadius: '8px',
+                                                                cursor: 'pointer',
+                                                            }}
+                                                            onClick={() => handleImageClick(images[index])} // Открытие модального окна
+                                                        />
+                                                        {isEditable && (
+                                                            <button
+                                                                onClick={() => handleDeleteImage(imagePath)}
+                                                                style={{
+                                                                    position: 'absolute',
+                                                                    top: '5px',
+                                                                    right: '5px',
+                                                                    background: 'red',
+                                                                    color: 'white',
+                                                                    border: 'none',
+                                                                    borderRadius: '50%',
+                                                                    width: '20px',
+                                                                    height: '20px',
+                                                                    cursor: 'pointer',
+                                                                }}
+                                                            >
+                                                                ×
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <p>Фотографии отсутствуют</p>
+                                        )}
+                                    </div>
+
+                                    {isEditable && (
+                                        <div style={{ marginTop: '20px' }}>
+                                            <h4>Добавить новые фотографии:</h4>
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                multiple
+                                                onChange={handleAddImages}
+                                            />
+                                            {newImages.length > 0 && (
+                                                <div>
+                                                    <h5>Выбранные фотографии:</h5>
+                                                    <ul>
+                                                        {newImages.map((file, index) => (
+                                                            <li key={index}>{file.name}</li>
+                                                        ))}
+                                                    </ul>
+                                                    <button onClick={handleUploadImages} style={{ marginRight: '10px', background: 'green', color: 'white', padding: '10px' }}>
+                                                        Отправить
+                                                    </button>
+                                                    <button onClick={handleCancelUpload} style={{ background: 'red', color: 'white', padding: '10px' }}>
+                                                        Отменить
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {selectedImage && (
+                                        <div
+                                            onClick={handleCloseImageModal}
                                             style={{
-                                                width: '150px',
-                                                height: '150px',
-                                                objectFit: 'cover',
-                                                borderRadius: '8px',
+                                                position: 'fixed',
+                                                top: 0,
+                                                left: 0,
+                                                width: '100%',
+                                                height: '100%',
+                                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                zIndex: 1000,
                                                 cursor: 'pointer',
                                             }}
-                                            onClick={() => handleImageClick(images[index])} // Открытие модального окна
-                                        />
-                                        {isEditable && (
-                                            <button
-                                                onClick={() => handleDeleteImage(imagePath)}
+                                        >
+                                            <img
+                                                src={selectedImage}
+                                                alt="Просмотр изображения"
                                                 style={{
-                                                    position: 'absolute',
-                                                    top: '5px',
-                                                    right: '5px',
-                                                    background: 'red',
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    borderRadius: '50%',
-                                                    width: '20px',
-                                                    height: '20px',
-                                                    cursor: 'pointer',
+                                                    maxWidth: '90%',
+                                                    maxHeight: '90%',
+                                                    borderRadius: '10px',
                                                 }}
-                                            >
-                                                ×
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+
+                                {location.state?.fromLk === null ? null : (
+                                    <div>
+                                        {!isEditable && canEditOrDelete ? (
+                                            <>
+
+                                                <h3>Данные по лицу</h3>
+                                                {!entityId ?
+                                                    (
+                                                        <div>
+                                                            <div>Лицо не привязано</div>
+                                                            <EntityCard onSelectEntity={handleSelectEntity} />
+                                                            <button onClick={() => handleEventEntity("link")}>Привязать лицо</button>
+
+                                                        </div>
+                                                    ) : (
+                                                        <>
+                                                            {entityData ? (
+                                                                isLegalEntity ? (
+                                                                    <div>
+                                                                        <h3 style={{ textAlign: 'center', color: 'white' }}>Ваше юридическое лицо</h3>
+                                                                        <div
+                                                                            style={{
+                                                                                padding: '10px',
+                                                                                margin: '5px 0',
+                                                                                backgroundColor: '#4114f5',
+                                                                                border: '1px solid green',
+                                                                                borderRadius: '5px',
+                                                                                cursor: 'pointer',
+                                                                            }}
+                                                                        >
+                                                                            <strong>{entityData.firm}</strong>
+                                                                            <p>ИНН: {entityData.inn}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                ) : (
+                                                                    <div>
+                                                                        <h3 style={{ textAlign: 'center', color: 'white' }}>Ваше физическое лицо</h3>
+                                                                        <div
+                                                                            style={{
+                                                                                padding: '10px',
+                                                                                margin: '5px 0',
+                                                                                backgroundColor: '#4114f5',
+                                                                                border: '1px solid green',
+                                                                                borderRadius: '5px',
+                                                                                cursor: 'pointer',
+                                                                            }}
+                                                                        >
+                                                                            <strong>{entityData.fullName}</strong>
+                                                                            <p>ИНН: {entityData.inn}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                )
+                                                            ) : (
+                                                                <div>Загрузка данных лица...</div>
+                                                            )}
+
+                                                            <button onClick={() => handleEventEntity("unlink")}>Отвязать лицо</button>
+                                                        </>
+                                                    )
+                                                }
+
+                                                <button onClick={handleEditClick} style={styles.button}>
+                                                    Редактировать
+                                                </button>
+                                                <button onClick={handleDeleteClick} style={styles.deleteButton}>
+                                                    Удалить
+                                                </button>
+                                            </>
+                                        ) : isEditable ? (
+                                            <button onClick={handleSaveClick} style={styles.button}>
+                                                Сохранить
+                                            </button>
+                                        ) : (
+                                            <button onClick={handleOpenReaction} style={styles.button}>
+                                                Откликнуться
                                             </button>
                                         )}
                                     </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <p>Фотографии отсутствуют</p>
-                        )}
-                    </div>
+                                )}
 
-                    {isEditable && (
-                        <div style={{ marginTop: '20px' }}>
-                            <h4>Добавить новые фотографии:</h4>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                multiple
-                                onChange={handleAddImages}
-                            />
-                            {newImages.length > 0 && (
-                                <div>
-                                    <h5>Выбранные фотографии:</h5>
-                                    <ul>
-                                        {newImages.map((file, index) => (
-                                            <li key={index}>{file.name}</li>
-                                        ))}
-                                    </ul>
-                                    <button onClick={handleUploadImages} style={{ marginRight: '10px', background: 'green', color: 'white', padding: '10px' }}>
-                                        Отправить
-                                    </button>
-                                    <button onClick={handleCancelUpload} style={{ background: 'red', color: 'white', padding: '10px' }}>
-                                        Отменить
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    )}
+                                <ReactionWindow
+                                    isOpen={isModalOpen}
+                                    onClose={closeModal}
+                                    userId={questionnaire.userId}
+                                    id={questionnaire.id}
+                                    mode={1}
+                                    receiverItemName={questionnaire.workCategories}
+                                />
 
-                    {selectedImage && (
-                        <div
-                            onClick={handleCloseImageModal}
-                            style={{
-                                position: 'fixed',
-                                top: 0,
-                                left: 0,
-                                width: '100%',
-                                height: '100%',
-                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                zIndex: 1000,
-                                cursor: 'pointer',
-                            }}
-                        >
-                            <img
-                                src={selectedImage}
-                                alt="Просмотр изображения"
-                                style={{
-                                    maxWidth: '90%',
-                                    maxHeight: '90%',
-                                    borderRadius: '10px',
-                                }}
-                            />
-                        </div>
-                    )}
-                </div>
+                                {/* {console.log(questionnaire.workCategories)} */}
+                            </Card.Body>
 
-                {location.state?.fromLk === null ? null : (
-                    <div>
-                        {!isEditable && canEditOrDelete ? (
-                            <>
 
-                                <h3>Данные по лицу</h3>
-                                {!entityId ?
-                                    (
-                                        <div>
-                                            <div>Лицо не привязано</div>
-                                            <EntityCard onSelectEntity={handleSelectEntity} />
-                                            <button onClick={() => handleEventEntity("link")}>Привязать лицо</button>
+                        </Card>
+                    </Col>
+                </Row>
 
-                                        </div>
-                                    ) : (
-                                        <>
-                                            {entityData ? (
-                                                isLegalEntity ? (
-                                                    <div>
-                                                        <h3 style={{ textAlign: 'center', color: 'white' }}>Ваше юридическое лицо</h3>
-                                                        <div
-                                                            style={{
-                                                                padding: '10px',
-                                                                margin: '5px 0',
-                                                                backgroundColor: '#4114f5',
-                                                                border: '1px solid green',
-                                                                borderRadius: '5px',
-                                                                cursor: 'pointer',
-                                                            }}
-                                                        >
-                                                            <strong>{entityData.firm}</strong>
-                                                            <p>ИНН: {entityData.inn}</p>
-                                                        </div>
-                                                    </div>
-                                                ) : (
-                                                    <div>
-                                                        <h3 style={{ textAlign: 'center', color: 'white' }}>Ваше физическое лицо</h3>
-                                                        <div
-                                                            style={{
-                                                                padding: '10px',
-                                                                margin: '5px 0',
-                                                                backgroundColor: '#4114f5',
-                                                                border: '1px solid green',
-                                                                borderRadius: '5px',
-                                                                cursor: 'pointer',
-                                                            }}
-                                                        >
-                                                            <strong>{entityData.fullName}</strong>
-                                                            <p>ИНН: {entityData.inn}</p>
-                                                        </div>
-                                                    </div>
-                                                )
-                                            ) : (
-                                                <div>Загрузка данных лица...</div>
-                                            )}
 
-                                            <button onClick={() => handleEventEntity("unlink")}>Отвязать лицо</button>
-                                        </>
-                                    )
-                                }
-
-                                <button onClick={handleEditClick} style={styles.button}>
-                                    Редактировать
-                                </button>
-                                <button onClick={handleDeleteClick} style={styles.deleteButton}>
-                                    Удалить
-                                </button>
-                            </>
-                        ) : isEditable ? (
-                            <button onClick={handleSaveClick} style={styles.button}>
-                                Сохранить
-                            </button>
-                        ) : (
-                            <button onClick={handleOpenReaction} style={styles.button}>
-                                Откликнуться
-                            </button>
-                        )}
-                    </div>
-                )}
-
-                <ReactionWindow
-                    isOpen={isModalOpen}
-                    onClose={closeModal}
-                    userId={questionnaire.userId}
-                    id={questionnaire.id}
-                    mode={1}
-                    receiverItemName={questionnaire.workCategories}
-                />
-
-                {/* {console.log(questionnaire.workCategories)} */}
-            </div>
+            </Container>
         </div>
     );
 };
