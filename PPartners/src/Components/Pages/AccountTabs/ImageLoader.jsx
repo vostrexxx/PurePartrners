@@ -10,9 +10,9 @@ const ImageLoader = ({ imagePath, label, place }) => {
 
     useEffect(() => {
         const fetchImage = async () => {
-             
+
             try {
-                
+
                 const params = new URLSearchParams({ imagePath });
                 const response = await fetch(`${url}/${place}/image?${params.toString()}`, {
                     method: 'GET',

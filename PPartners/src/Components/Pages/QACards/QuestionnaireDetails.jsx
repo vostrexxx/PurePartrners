@@ -386,328 +386,399 @@ const QuestionnaireDetails = () => {
                                 </Button>
                             </Card.Text>
 
-
                             <Card.Body >
                                 <h2 className="text-center mb-4" style={{ color: "#ff7f00", fontWeight: "bold" }}>
-                                    Детали анкеты</h2>
+                                    Детали анкеты
+                                </h2>
 
-                                <label htmlFor="workCategories">Категории работ</label>
-                                <input
-                                    type="text"
-                                    name="workCategories"
-                                    id="workCategories"
-                                    value={questionnaire.workCategories || ''}
-                                    onChange={handleInputChange}
-                                    disabled={!isEditable}
-                                    style={styles.input}
-                                />
-
-                                <label>Есть ли команда:</label>
-                                <select
-                                    name="hasTeam"
-                                    value={questionnaire.hasTeam ? 'Да' : 'Нет'}
-                                    onChange={(e) => handleInputChange({ target: { name: 'hasTeam', value: e.target.value === 'Да' } })}
-                                    disabled={!isEditable}
-                                    style={styles.input}
-                                >
-                                    <option>Да</option>
-                                    <option>Нет</option>
-                                </select>
-
-                                {questionnaire.hasTeam && (
-                                    <>
-                                        <label htmlFor="team">Команда</label>
-                                        <input
+                                <Form>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Категории работ</Form.Label>
+                                        <Form.Control
                                             type="text"
-                                            name="team"
-                                            id="team"
-                                            value={questionnaire.team || ''}
+                                            style={{
+                                                backgroundColor: "#333",
+                                                color: "white",
+                                                border: "1px solid #555",
+                                            }}
+                                            name="workCategories"
+                                            id="workCategories"
+                                            value={questionnaire.workCategories || ''}
                                             onChange={handleInputChange}
                                             disabled={!isEditable}
-                                            style={styles.input}
+                                            // style={styles.input}
+                                            className="form-control-placeholder"
                                         />
-                                    </>
-                                )}
+                                    </Form.Group>
 
-                                <label>Есть ли образование:</label>
-                                <select
-                                    name="hasEdu"
-                                    value={questionnaire.hasEdu ? 'Да' : 'Нет'}
-                                    onChange={(e) => handleInputChange({ target: { name: 'hasEdu', value: e.target.value === 'Да' } })}
-                                    disabled={!isEditable}
-                                    style={styles.input}
-                                >
-                                    <option>Да</option>
-                                    <option>Нет</option>
-                                </select>
-
-                                {questionnaire.hasEdu && (
-                                    <>
-                                        <label htmlFor="eduEst">Учебное заведение</label>
-                                        <input
-                                            type="text"
-                                            name="eduEst"
-                                            id="eduEst"
-                                            value={questionnaire.eduEst || ''}
-                                            onChange={handleInputChange}
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Есть ли команда:</Form.Label>
+                                        {/* <label></label> */}
+                                        <Form.Select
+                                            style={{
+                                                backgroundColor: "#333",
+                                                color: "white",
+                                                border: "1px solid #555",
+                                            }}
+                                            name="hasTeam"
+                                            value={questionnaire.hasTeam ? 'Да' : 'Нет'}
+                                            onChange={(e) => handleInputChange({ target: { name: 'hasTeam', value: e.target.value === 'Да' } })}
                                             disabled={!isEditable}
-                                            style={styles.input}
-                                        />
+                                        >
+                                            <option>Да</option>
+                                            <option>Нет</option>
+                                        </Form.Select>
+                                    </Form.Group>
 
-                                        <label htmlFor="eduDateStart">Дата начала обучения</label>
-                                        <input
-                                            type="date"
-                                            name="eduDateStart"
-                                            id="eduDateStart"
-                                            value={questionnaire.eduDateStart || ''}
-                                            onChange={handleInputChange}
-                                            disabled={!isEditable}
-                                            style={styles.input}
-                                        />
-
-                                        <label htmlFor="eduDateEnd">Дата окончания обучения</label>
-                                        <input
-                                            type="date"
-                                            name="eduDateEnd"
-                                            id="eduDateEnd"
-                                            value={questionnaire.eduDateEnd || ''}
-                                            onChange={handleInputChange}
-                                            disabled={!isEditable}
-                                            style={styles.input}
-                                        />
-                                    </>
-                                )}
-
-                                <label htmlFor="workExp">Опыт работы</label>
-                                <input
-                                    type="text"
-                                    name="workExp"
-                                    id="workExp"
-                                    value={questionnaire.workExp || ''}
-                                    onChange={handleInputChange}
-                                    disabled={!isEditable}
-                                    style={styles.input}
-                                />
-
-                                <label htmlFor="selfInfo">Дополнительная информация</label>
-                                <input
-                                    type="text"
-                                    name="selfInfo"
-                                    id="selfInfo"
-                                    value={questionnaire.selfInfo || ''}
-                                    onChange={handleInputChange}
-                                    disabled={!isEditable}
-                                    style={styles.input}
-                                />
-
-                                <label htmlFor="prices">Расценки</label>
-                                <input
-                                    type="text"
-                                    name="prices"
-                                    id="prices"
-                                    value={questionnaire.prices || ''}
-                                    onChange={handleInputChange}
-                                    disabled={!isEditable}
-                                    style={styles.input}
-                                />
-
-                                <div>
-                                    <div>
-                                        <h4>Прикрепленные фотографии:</h4>
-                                        {images.length > 0 ? (
-                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                                                {questionnaire.questionnaireImages.map((imagePath, index) => (
-                                                    <div key={index} style={{ position: 'relative', display: 'inline-block' }}>
-                                                        <img
-                                                            src={images[index]}
-                                                            alt={`Фото ${index + 1}`}
-                                                            style={{
-                                                                width: '150px',
-                                                                height: '150px',
-                                                                objectFit: 'cover',
-                                                                borderRadius: '8px',
-                                                                cursor: 'pointer',
-                                                            }}
-                                                            onClick={() => handleImageClick(images[index])} // Открытие модального окна
-                                                        />
-                                                        {isEditable && (
-                                                            <button
-                                                                onClick={() => handleDeleteImage(imagePath)}
-                                                                style={{
-                                                                    position: 'absolute',
-                                                                    top: '5px',
-                                                                    right: '5px',
-                                                                    background: 'red',
-                                                                    color: 'white',
-                                                                    border: 'none',
-                                                                    borderRadius: '50%',
-                                                                    width: '20px',
-                                                                    height: '20px',
-                                                                    cursor: 'pointer',
-                                                                }}
-                                                            >
-                                                                ×
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <p>Фотографии отсутствуют</p>
+                                    <Form.Group className="mb-3">
+                                        {questionnaire.hasTeam && (
+                                            <>
+                                                <Form.Label>Команда:</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    style={{
+                                                        backgroundColor: "#333",
+                                                        color: "white",
+                                                        border: "1px solid #555",
+                                                    }}
+                                                    name="team"
+                                                    id="team"
+                                                    value={questionnaire.team || ''}
+                                                    onChange={handleInputChange}
+                                                    disabled={!isEditable}
+                                                />
+                                            </>
                                         )}
-                                    </div>
 
-                                    {isEditable && (
-                                        <div style={{ marginTop: '20px' }}>
-                                            <h4>Добавить новые фотографии:</h4>
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                multiple
-                                                onChange={handleAddImages}
-                                            />
-                                            {newImages.length > 0 && (
-                                                <div>
-                                                    <h5>Выбранные фотографии:</h5>
-                                                    <ul>
-                                                        {newImages.map((file, index) => (
-                                                            <li key={index}>{file.name}</li>
+                                    </Form.Group>
+
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Есть ли образование:</Form.Label>
+                                        {/* <label></label> */}
+                                        <Form.Select
+                                            name="hasEdu"
+                                            style={{
+                                                backgroundColor: "#333",
+                                                color: "white",
+                                                border: "1px solid #555",
+                                            }}
+                                            value={questionnaire.hasEdu ? 'Да' : 'Нет'}
+                                            onChange={(e) => handleInputChange({ target: { name: 'hasEdu', value: e.target.value === 'Да' } })}
+                                            disabled={!isEditable}
+                                        >
+                                            <option>Да</option>
+                                            <option>Нет</option>
+                                        </Form.Select>
+                                    </Form.Group>
+
+
+
+                                    <Form.Group className="mb-3">
+                                        {questionnaire.hasEdu && (
+                                            <>
+                                                <Form.Label>Учебное заведение</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    name="eduEst"
+                                                    id="eduEst"
+                                                    value={questionnaire.eduEst || ''}
+                                                    onChange={handleInputChange}
+                                                    disabled={!isEditable}
+                                                    style={{
+                                                        backgroundColor: "#333",
+                                                        color: "white",
+                                                        border: "1px solid #555",
+                                                    }}
+                                                    className="mb-3"
+                                                />
+
+                                                <Form.Label>Дата начала обучения</Form.Label>
+                                                <Form.Control
+                                                    type="date"
+                                                    name="eduDateStart"
+                                                    id="eduDateStart"
+                                                    value={questionnaire.eduDateStart || ''}
+                                                    onChange={handleInputChange}
+                                                    disabled={!isEditable}
+                                                    style={{
+                                                        backgroundColor: "#333",
+                                                        color: "white",
+                                                        border: "1px solid #555",
+                                                    }}
+                                                    className="mb-3"
+
+                                                />
+
+                                                <Form.Label htmlFor="eduDateEnd">Дата окончания обучения</Form.Label>
+                                                <Form.Control
+                                                    type="date"
+                                                    name="eduDateEnd"
+                                                    id="eduDateEnd"
+                                                    value={questionnaire.eduDateEnd || ''}
+                                                    onChange={handleInputChange}
+                                                    disabled={!isEditable}
+                                                    style={{
+                                                        backgroundColor: "#333",
+                                                        color: "white",
+                                                        border: "1px solid #555",
+                                                    }}
+                                                    className="mb-3"
+                                                />
+                                            </>
+                                        )}
+                                    </Form.Group>
+
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Опыт работы</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="workExp"
+                                            id="workExp"
+                                            value={questionnaire.workExp || ''}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditable}
+                                            style={{
+                                                backgroundColor: "#333",
+                                                color: "white",
+                                                border: "1px solid #555",
+                                            }}
+                                        />
+                                    </Form.Group>
+
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Дополнительная информация</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="selfInfo"
+                                            id="selfInfo"
+                                            value={questionnaire.selfInfo || ''}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditable}
+                                            style={{
+                                                backgroundColor: "#333",
+                                                color: "white",
+                                                border: "1px solid #555",
+                                            }}
+                                        />
+                                    </Form.Group>
+
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Расценки</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="prices"
+                                            id="prices"
+                                            value={questionnaire.prices || ''}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditable}
+                                            style={{
+                                                backgroundColor: "#333",
+                                                color: "white",
+                                                border: "1px solid #555",
+                                            }}
+                                        />
+                                    </Form.Group>
+                                </Form>
+                                <Row>
+                                    <Col>
+
+                                        <div>
+                                            <div>
+                                                <h4>Прикрепленные фотографии:</h4>
+                                                {images.length > 0 ? (
+                                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                                                        {questionnaire.questionnaireImages.map((imagePath, index) => (
+                                                            <div key={index} style={{ position: 'relative', display: 'inline-block' }}>
+                                                                <img
+                                                                    src={images[index]}
+                                                                    alt={`Фото ${index + 1}`}
+                                                                    style={{
+                                                                        width: '150px',
+                                                                        height: '150px',
+                                                                        objectFit: 'cover',
+                                                                        borderRadius: '8px',
+                                                                        cursor: 'pointer',
+                                                                    }}
+                                                                    onClick={() => handleImageClick(images[index])} // Открытие модального окна
+                                                                />
+                                                                {isEditable && (
+                                                                    <button
+                                                                        onClick={() => handleDeleteImage(imagePath)}
+                                                                        style={{
+                                                                            position: 'absolute',
+                                                                            top: '5px',
+                                                                            right: '5px',
+                                                                            background: 'red',
+                                                                            color: 'white',
+                                                                            border: 'none',
+                                                                            borderRadius: '50%',
+                                                                            width: '20px',
+                                                                            height: '20px',
+                                                                            cursor: 'pointer',
+                                                                        }}
+                                                                    >
+                                                                        ×
+                                                                    </button>
+                                                                )}
+                                                            </div>
                                                         ))}
-                                                    </ul>
-                                                    <button onClick={handleUploadImages} style={{ marginRight: '10px', background: 'green', color: 'white', padding: '10px' }}>
-                                                        Отправить
-                                                    </button>
-                                                    <button onClick={handleCancelUpload} style={{ background: 'red', color: 'white', padding: '10px' }}>
-                                                        Отменить
-                                                    </button>
+                                                    </div>
+                                                ) : (
+                                                    <p>Фотографии отсутствуют</p>
+                                                )}
+                                            </div>
+
+                                            {isEditable && (
+                                                <div style={{ marginTop: '20px' }}>
+                                                    <h4>Добавить новые фотографии:</h4>
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        multiple
+                                                        onChange={handleAddImages}
+                                                    />
+                                                    {newImages.length > 0 && (
+                                                        <div>
+                                                            <h5>Выбранные фотографии:</h5>
+                                                            <ul>
+                                                                {newImages.map((file, index) => (
+                                                                    <li key={index}>{file.name}</li>
+                                                                ))}
+                                                            </ul>
+                                                            <button onClick={handleUploadImages} style={{ marginRight: '10px', background: 'green', color: 'white', padding: '10px' }}>
+                                                                Отправить
+                                                            </button>
+                                                            <button onClick={handleCancelUpload} style={{ background: 'red', color: 'white', padding: '10px' }}>
+                                                                Отменить
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            {selectedImage && (
+                                                <div
+                                                    onClick={handleCloseImageModal}
+                                                    style={{
+                                                        position: 'fixed',
+                                                        top: 0,
+                                                        left: 0,
+                                                        width: '100%',
+                                                        height: '100%',
+                                                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                                        display: 'flex',
+                                                        justifyContent: 'center',
+                                                        alignItems: 'center',
+                                                        zIndex: 1000,
+                                                        cursor: 'pointer',
+                                                    }}
+                                                >
+                                                    <img
+                                                        src={selectedImage}
+                                                        alt="Просмотр изображения"
+                                                        style={{
+                                                            maxWidth: '90%',
+                                                            maxHeight: '90%',
+                                                            borderRadius: '10px',
+                                                        }}
+                                                    />
                                                 </div>
                                             )}
                                         </div>
-                                    )}
 
-                                    {selectedImage && (
-                                        <div
-                                            onClick={handleCloseImageModal}
-                                            style={{
-                                                position: 'fixed',
-                                                top: 0,
-                                                left: 0,
-                                                width: '100%',
-                                                height: '100%',
-                                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                                display: 'flex',
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                                zIndex: 1000,
-                                                cursor: 'pointer',
-                                            }}
-                                        >
-                                            <img
-                                                src={selectedImage}
-                                                alt="Просмотр изображения"
-                                                style={{
-                                                    maxWidth: '90%',
-                                                    maxHeight: '90%',
-                                                    borderRadius: '10px',
-                                                }}
-                                            />
-                                        </div>
-                                    )}
-                                </div>
+                                        {location.state?.fromLk === null ? null : (
+                                            <div>
+                                                {!isEditable && canEditOrDelete ? (
+                                                    <>
 
-                                {location.state?.fromLk === null ? null : (
-                                    <div>
-                                        {!isEditable && canEditOrDelete ? (
-                                            <>
+                                                        <h3>Данные по лицу</h3>
+                                                        {!entityId ?
+                                                            (
+                                                                <div>
+                                                                    <div>Лицо не привязано</div>
+                                                                    <EntityCard onSelectEntity={handleSelectEntity} />
+                                                                    <button onClick={() => handleEventEntity("link")}>Привязать лицо</button>
 
-                                                <h3>Данные по лицу</h3>
-                                                {!entityId ?
-                                                    (
-                                                        <div>
-                                                            <div>Лицо не привязано</div>
-                                                            <EntityCard onSelectEntity={handleSelectEntity} />
-                                                            <button onClick={() => handleEventEntity("link")}>Привязать лицо</button>
-
-                                                        </div>
-                                                    ) : (
-                                                        <>
-                                                            {entityData ? (
-                                                                isLegalEntity ? (
-                                                                    <div>
-                                                                        <h3 style={{ textAlign: 'center', color: 'white' }}>Ваше юридическое лицо</h3>
-                                                                        <div
-                                                                            style={{
-                                                                                padding: '10px',
-                                                                                margin: '5px 0',
-                                                                                backgroundColor: '#4114f5',
-                                                                                border: '1px solid green',
-                                                                                borderRadius: '5px',
-                                                                                cursor: 'pointer',
-                                                                            }}
-                                                                        >
-                                                                            <strong>{entityData.firm}</strong>
-                                                                            <p>ИНН: {entityData.inn}</p>
-                                                                        </div>
-                                                                    </div>
-                                                                ) : (
-                                                                    <div>
-                                                                        <h3 style={{ textAlign: 'center', color: 'white' }}>Ваше физическое лицо</h3>
-                                                                        <div
-                                                                            style={{
-                                                                                padding: '10px',
-                                                                                margin: '5px 0',
-                                                                                backgroundColor: '#4114f5',
-                                                                                border: '1px solid green',
-                                                                                borderRadius: '5px',
-                                                                                cursor: 'pointer',
-                                                                            }}
-                                                                        >
-                                                                            <strong>{entityData.fullName}</strong>
-                                                                            <p>ИНН: {entityData.inn}</p>
-                                                                        </div>
-                                                                    </div>
-                                                                )
+                                                                </div>
                                                             ) : (
-                                                                <div>Загрузка данных лица...</div>
-                                                            )}
+                                                                <>
+                                                                    {entityData ? (
+                                                                        isLegalEntity ? (
+                                                                            <div>
+                                                                                <h3 style={{ textAlign: 'center', color: 'white' }}>Ваше юридическое лицо</h3>
+                                                                                <div
+                                                                                    style={{
+                                                                                        padding: '10px',
+                                                                                        margin: '5px 0',
+                                                                                        backgroundColor: '#4114f5',
+                                                                                        border: '1px solid green',
+                                                                                        borderRadius: '5px',
+                                                                                        cursor: 'pointer',
+                                                                                    }}
+                                                                                >
+                                                                                    <strong>{entityData.firm}</strong>
+                                                                                    <p>ИНН: {entityData.inn}</p>
+                                                                                </div>
+                                                                            </div>
+                                                                        ) : (
+                                                                            <div>
+                                                                                <h3 style={{ textAlign: 'center', color: 'white' }}>Ваше физическое лицо</h3>
+                                                                                <div
+                                                                                    style={{
+                                                                                        padding: '10px',
+                                                                                        margin: '5px 0',
+                                                                                        backgroundColor: '#4114f5',
+                                                                                        border: '1px solid green',
+                                                                                        borderRadius: '5px',
+                                                                                        cursor: 'pointer',
+                                                                                    }}
+                                                                                >
+                                                                                    <strong>{entityData.fullName}</strong>
+                                                                                    <p>ИНН: {entityData.inn}</p>
+                                                                                </div>
+                                                                            </div>
+                                                                        )
+                                                                    ) : (
+                                                                        <div>Загрузка данных лица...</div>
+                                                                    )}
 
-                                                            <button onClick={() => handleEventEntity("unlink")}>Отвязать лицо</button>
-                                                        </>
-                                                    )
-                                                }
+                                                                    <button onClick={() => handleEventEntity("unlink")}>Отвязать лицо</button>
+                                                                </>
+                                                            )
+                                                        }
 
-                                                <button onClick={handleEditClick} style={styles.button}>
-                                                    Редактировать
-                                                </button>
-                                                <button onClick={handleDeleteClick} style={styles.deleteButton}>
-                                                    Удалить
-                                                </button>
-                                            </>
-                                        ) : isEditable ? (
-                                            <button onClick={handleSaveClick} style={styles.button}>
-                                                Сохранить
-                                            </button>
-                                        ) : (
-                                            <button onClick={handleOpenReaction} style={styles.button}>
-                                                Откликнуться
-                                            </button>
+                                                        <button onClick={handleEditClick} style={styles.button}>
+                                                            Редактировать
+                                                        </button>
+                                                        <button onClick={handleDeleteClick} style={styles.deleteButton}>
+                                                            Удалить
+                                                        </button>
+                                                    </>
+                                                ) : isEditable ? (
+                                                    <button onClick={handleSaveClick} style={styles.button}>
+                                                        Сохранить
+                                                    </button>
+                                                ) : (
+                                                    <button onClick={handleOpenReaction} style={styles.button}>
+                                                        Откликнуться
+                                                    </button>
+                                                )}
+                                            </div>
                                         )}
-                                    </div>
-                                )}
 
-                                <ReactionWindow
-                                    isOpen={isModalOpen}
-                                    onClose={closeModal}
-                                    userId={questionnaire.userId}
-                                    id={questionnaire.id}
-                                    mode={1}
-                                    receiverItemName={questionnaire.workCategories}
-                                />
+                                        <ReactionWindow
+                                            isOpen={isModalOpen}
+                                            onClose={closeModal}
+                                            userId={questionnaire.userId}
+                                            id={questionnaire.id}
+                                            mode={1}
+                                            receiverItemName={questionnaire.workCategories}
+                                        />
 
-                                {/* {console.log(questionnaire.workCategories)} */}
+
+                                    </Col >
+                                </Row >
                             </Card.Body>
-
-
                         </Card>
                     </Col>
                 </Row>
