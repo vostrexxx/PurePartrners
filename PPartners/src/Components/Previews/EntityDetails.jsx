@@ -166,8 +166,6 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
                     throw new Error(`Ошибка при сохранении данных: ${responseCustomer.status}`);
                 }
 
-
-
                 if (!responseContractor.ok) {
                     throw new Error(`Ошибка при сохранении данных: ${responseContractor.status}`);
                 }
@@ -194,15 +192,13 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
                     throw new Error(`Ошибка при сохранении данных: ${responseCustomer.status}`);
                 }
 
-
-
                 if (!responseContractor.ok) {
                     throw new Error(`Ошибка при сохранении данных: ${responseContractor.status}`);
                 }
 
             }
 
-
+            onTrigger()
             setOriginalData(entityData); // Обновляем исходные данные
             setIsEditable(false); // Отключаем режим редактирования
             showToast('Данные лица успешно сохранены', 'success')
