@@ -538,6 +538,7 @@ const AnnouncementDetails = () => {
                                     Назад
                                 </Button>
                             </Card.Text>
+
                             <Card.Body>
                                 <h2 className="text-center mb-4" style={{ color: "#ff7f00", fontWeight: "bold" }}>
                                     Детали объявления
