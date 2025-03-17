@@ -41,7 +41,7 @@ const FormField = ({ type, label, name, placeholder, value, onChange, disabled }
     );
 };
 
-const Entities = ({ onSelectEntity, triggerGet, onTrigger }) => {
+const Entities = ({ onSelectEntity, triggerGet, onTrigger, onGotPerson }) => {
     const url = localStorage.getItem("url");
     const authToken = localStorage.getItem("authToken");
     const { isSpecialist } = useProfile();
@@ -103,6 +103,9 @@ const Entities = ({ onSelectEntity, triggerGet, onTrigger }) => {
 
                 const data = await response.json();
                 setPersons(data);
+
+                data.length === 0 ? onGotPerson(false) : onGotPerson(true)
+
             } catch (error) {
                 console.error("Ошибка при загрузке физлиц:", error.message);
             }
@@ -227,6 +230,8 @@ const ProfilePage = () => {
     const [person, setPerson] = useState({});
 
     const [triggerGet, setTriggerGet] = useState(false);
+
+
 
     const toggleTriggerGet = () => {
         setTriggerGet((prev) => !prev);
@@ -408,6 +413,12 @@ const ProfilePage = () => {
         }
     };
 
+    const [gotPerson, setGotPerson] = useState()
+
+    const handleGotPerson = (gotPerson) => {
+        console.log("Got person:", gotPerson);
+        setGotPerson(gotPerson)
+    };
 
     return (
         <Container fluid className="py-4" style={{ backgroundColor: "#242582", minHeight: "100vh" }}>
@@ -559,14 +570,14 @@ const ProfilePage = () => {
                             <h2 className="text-center mb-4 text-primary">Данные по лицам</h2>
 
                             {/* handleShowToast('Данные профиля не сохранены!', 'error') */}
-                            <Entities onSelectEntity={handleSelectEntity} triggerGet={triggerGet} onTrigger={() => toggleTriggerGet()} />
+                            <Entities onSelectEntity={handleSelectEntity} triggerGet={triggerGet} onTrigger={() => toggleTriggerGet()} onGotPerson={handleGotPerson} />
 
                             <div className="d-grid mt-3">
                                 <Button variant="primary" onClick={openModal} className="w-100">
                                     Добавить новое лицо
                                 </Button>
                             </div>
-                            <EntityModal isOpen={isModalOpen} onClose={closeModal} fullName={fullName} onTrigger={() => toggleTriggerGet()} />
+                            <EntityModal isOpen={isModalOpen} onClose={closeModal} fullName={fullName} onTrigger={() => toggleTriggerGet()} gotPerson={gotPerson} />
                         </Card.Body>
                     </Card>
                 </Col>

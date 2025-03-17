@@ -84,48 +84,124 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
 
     const handleDeleteClick = async () => {
         try {
-            const entityParams = new URLSearchParams();
-            const who = isSpecialist ? "contractor" : "customer";
-            isSpecialist
-                ? entityParams.append("contractorId", id)
-                : entityParams.append("customerId", id);
-            const response = await fetch(`${url}/${who}?${entityParams.toString()}`, {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${getAuthToken()}`,
-                },
-            });
+            const who = isSpecialist ? "contractor/" : "customer";
 
-            if (!response.ok) {
-                throw new Error(`Ошибка при удалении данных: ${response.status}`);
+            if (isLegalEntity) {
+                const entityParams = new URLSearchParams();
+                isSpecialist
+                    ? entityParams.append("contractorId", id)
+                    : entityParams.append("customerId", id);
+                const response = await fetch(`${url}/${who}?${entityParams.toString()}`, {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${getAuthToken()}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка при удалении данных: ${response.status}`);
+                }
+            }
+            else {
+                const response1 = await fetch(`${url}/customer/person`, {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${getAuthToken()}`,
+                    },
+                });
+                if (!response1.ok) {
+                    throw new Error(`Ошибка при удалении данных: ${response1.status}`);
+                }
+                const response2 = await fetch(`${url}/contractor/person`, {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${getAuthToken()}`,
+                    },
+                });
+                if (!response2.ok) {
+                    throw new Error(`Ошибка при удалении данных: ${response2.status}`);
+                }
             }
 
-            onClose();
-            onTrigger()
             showToast('Данные лица успешно удалены', 'success')
 
         } catch (error) {
             console.error(`Ошибка при удалении данных: ${error.message}`);
-            showToast('Ошибка удаления лица', 'danger')
+            showToast('Ошибка при удалении лица', 'danger')
         }
+        onClose();
+        onTrigger()
     };
 
     const handleSaveClick = async () => {
         try {
-            const who = isSpecialist ? "contractor" : "customer";
-            const response = await fetch(`${url}/${who}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${getAuthToken()}`,
-                },
-                body: JSON.stringify(entityData),
-            });
+            let id = entityData.id
+            entityData.id = null
 
-            if (!response.ok) {
-                throw new Error(`Ошибка при сохранении данных: ${response.status}`);
+            const who = isSpecialist ? "contractor" : "customer";
+
+            if (who === "customer") {
+                const responseContractor = await fetch(`${url}/${"contractor"}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${getAuthToken()}`,
+                    },
+                    body: JSON.stringify(entityData),
+                });
+                entityData.id = id
+                const responseCustomer = await fetch(`${url}/${"customer"}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${getAuthToken()}`,
+                    },
+                    body: JSON.stringify(entityData),
+                });
+
+                if (!responseCustomer.ok) {
+                    throw new Error(`Ошибка при сохранении данных: ${responseCustomer.status}`);
+                }
+
+
+
+                if (!responseContractor.ok) {
+                    throw new Error(`Ошибка при сохранении данных: ${responseContractor.status}`);
+                }
+            } else {
+                const responseContractor = await fetch(`${url}/${"customer"}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${getAuthToken()}`,
+                    },
+                    body: JSON.stringify(entityData),
+                });
+                entityData.id = id
+                const responseCustomer = await fetch(`${url}/${"contractor"}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${getAuthToken()}`,
+                    },
+                    body: JSON.stringify(entityData),
+                });
+
+                if (!responseCustomer.ok) {
+                    throw new Error(`Ошибка при сохранении данных: ${responseCustomer.status}`);
+                }
+
+
+
+                if (!responseContractor.ok) {
+                    throw new Error(`Ошибка при сохранении данных: ${responseContractor.status}`);
+                }
+
             }
+
 
             setOriginalData(entityData); // Обновляем исходные данные
             setIsEditable(false); // Отключаем режим редактирования

@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Button, Form, Dropdown, Card } from "react-bootstrap";
 import { useProfile } from "../../Context/ProfileContext";
 import { useToast } from '../../Notification/ToastContext'
-const EntityModal = ({ isOpen, onClose, fullName, onTrigger }) => {
+// import { useEffect } from "react";
+const EntityModal = ({ isOpen, onClose, fullName, onTrigger, gotPerson }) => {
   const authToken = localStorage.getItem("authToken");
   const showToast = useToast();
   const url = localStorage.getItem("url");
@@ -22,6 +23,10 @@ const EntityModal = ({ isOpen, onClose, fullName, onTrigger }) => {
     position: "",
     firm: "",
   });
+
+  useEffect(() => {
+    console.log('имеется физ лицо', gotPerson)
+  }, [gotPerson]);
 
   const handleSelectOption = (option) => {
     setEntity(option);
@@ -50,35 +55,96 @@ const EntityModal = ({ isOpen, onClose, fullName, onTrigger }) => {
     }));
   };
 
+  useEffect(() => {
+    if (!isOpen) {
+      setEntity(null);
+      setIsLegalEntity(null);
+      setFormData({
+        bik: "",
+        corrAcc: "",
+        currAcc: "",
+        bank: "",
+        fullName: fullName,
+        kpp: "",
+        inn: "",
+        address: "",
+        position: "",
+        firm: "",
+      }); // Сброс формы
+    }
+  }, [isOpen]); // Зависимость от isOpen и fullName
+
   const handleSave = async () => {
     try {
-      const fullUrl = `${url}/${isSpecialist ? "contractor" : "customer"}`;
-      formData.isLegalEntity = isLegalEntity;
+      if (entity === "Физическое лицо") {
+        // URL для подрядчика и заказчика
+        const contractorUrl = `${url}/contractor`;
+        const customerUrl = `${url}/customer`;
 
-      const response = await fetch(fullUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: JSON.stringify(formData),
-      });
+        // Данные для отправки
+        const data = { ...formData, isLegalEntity: isLegalEntity };
 
-      if (!response.ok) {
-        throw new Error(`Ошибка сети: ${response.status}`);
+        // Отправляем данные для подрядчика
+        const contractorResponse = await fetch(contractorUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (!contractorResponse.ok) {
+          throw new Error(`Ошибка сети: ${contractorResponse.status}`);
+        }
+
+        // Отправляем данные для заказчика
+        const customerResponse = await fetch(customerUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (!customerResponse.ok) {
+          throw new Error(`Ошибка сети: ${customerResponse.status}`);
+        }
+
+        // Если оба запроса успешны
+        onClose();
+        onTrigger();
+        showToast('Физическое лицо успешно сохранено для обоих профилей', 'success');
+      } else {
+        // Если создаётся юридическое лицо, отправляем данные только для текущего профиля
+        const fullUrl = `${url}/${isSpecialist ? "contractor" : "customer"}`;
+        formData.isLegalEntity = isLegalEntity;
+
+        const response = await fetch(fullUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify(formData),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Ошибка сети: ${response.status}`);
+        }
+
+        onClose();
+        onTrigger();
+        showToast('Юридическое лицо успешно сохранено', 'success');
       }
-
-      onClose();
-      onTrigger();
-      showToast('Созданное лицо успешно сохранено', 'success')
     } catch (error) {
       console.error(`Ошибка при сохранении данных: ${error.message}`);
-      showToast('Ошибка сохранения созданного лица', 'error')
-
+      showToast('Ошибка сохранения лица', 'error');
     }
   };
 
-  const options = ["Физическое лицо", "Юридическое лицо"];
+  const options = [!gotPerson ? "Физическое лицо" : null, "Юридическое лицо"]
 
   return (
     <Modal show={isOpen} onHide={onClose} centered>
