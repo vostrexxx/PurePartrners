@@ -23,24 +23,31 @@ const MainPage = () => {
     const [cardsError, setCardsError] = useState(null);
 
 
-    const [filterParams, setFilterParams] = useState({
-        minPrice: 0,
-        maxPrice: 10000000,
-        experience: 0,
-        totalCost: [0, 10000000],
-        startDate: null,
-        finishDate: null,
-        hasTeam: 'any',
-        hasEdu: false,
-        isNonFixedPrice: false,
-        workCategories: ''
-    });
-    const [appliedFilters, setAppliedFilters] = useState({ ...filterParams });
+
     let url = localStorage.getItem('url');
     const getAuthToken = () => localStorage.getItem('authToken');
 
     const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
     const toggleFilterDrawer = () => setIsFilterOpen(!isFilterOpen);
+
+
+    // Состояние для применённых фильтров
+    const [appliedQuestionnaireFilters, setAppliedQuestionnaireFilters] = useState({});
+    const [appliedAnnouncementFilters, setAppliedAnnouncementFilters] = useState({});
+
+    // Применение фильтров для анкет
+    const applyQuestionnaireFilters = () => {
+        setAppliedQuestionnaireFilters(questionnaireFilterParams);
+        toggleFilterDrawer(); // Закрыть drawer (если используется)
+    };
+
+    // Применение фильтров для объявлений
+    const applyAnnouncementFilters = () => {
+        setAppliedAnnouncementFilters(announcementParams);
+        toggleFilterDrawer(); // Закрыть drawer (если используется)
+    };
+    // const [appliedFilters, setAppliedFilters] = useState({ ...filterParams });
+
 
     const handleSearch = async (searchText) => {
         setLoading(true);
@@ -51,51 +58,42 @@ const MainPage = () => {
             // Поисковый текст
             params.append('text', searchText || '');
 
-            // Общая стоимость: разбиваем на minPrice и maxPrice
-            if (appliedFilters.totalCost && appliedFilters.totalCost.length === 2) {
-                params.append('minPrice', appliedFilters.totalCost[0]);
-                params.append('maxPrice', appliedFilters.totalCost[1]);
+            // Если это запрос для анкет
+            if (!isSpecialist) {
+                // Фильтры для анкет
+                if (appliedQuestionnaireFilters.minPrice) {
+                    params.append('minPrice', appliedQuestionnaireFilters.minPrice);
+                }
+                if (appliedQuestionnaireFilters.experience) {
+                    params.append('minWorkExp', appliedQuestionnaireFilters.experience);
+                }
+                if (appliedQuestionnaireFilters.hasEdu) {
+                    params.append('hasEdu', 'true');
+                }
+                if (appliedQuestionnaireFilters.hasTeam === 'yes') {
+                    params.append('hasTeam', 'true');
+                }
+                if (appliedQuestionnaireFilters.hasTeam === 'no') {
+                    params.append('hasTeam', 'false');
+                }
             }
 
-            // Минимальная и максимальная цена
-            if (appliedFilters.minPrice > 0) {
-                params.append('minPrice', appliedFilters.minPrice);
+            // Если это запрос для объявлений
+            if (isSpecialist) {
+                // Фильтры для объявлений
+                if (appliedAnnouncementFilters.minCost) {
+                    params.append('minCost', appliedAnnouncementFilters.minCost);
+                }
+                if (appliedAnnouncementFilters.maxCost) {
+                    params.append('maxCost', appliedAnnouncementFilters.maxCost);
+                }
+                if (appliedAnnouncementFilters.startDate) {
+                    params.append('startDate', formatDate(appliedAnnouncementFilters.startDate));
+                }
+                if (appliedAnnouncementFilters.finishDate) {
+                    params.append('finishDate', formatDate(appliedAnnouncementFilters.finishDate));
+                }
             }
-            if (appliedFilters.maxPrice < 100000) {
-                params.append('maxPrice', appliedFilters.maxPrice);
-            }
-
-            // Опыт работы
-            if (appliedFilters.experience > 0) {
-                params.append('minWorkExp', appliedFilters.experience);
-            }
-
-            // Фильтр "Есть образование"
-            if (appliedFilters.hasEdu) {
-                params.append('hasEdu', 'true');
-            }
-
-            // Фильтр команды
-            if (appliedFilters.hasTeam === 'yes') {
-                params.append('hasTeam', 'true');
-            }
-            if (appliedFilters.hasTeam === 'no') {
-                params.append('hasTeam', 'false');
-            }
-
-            // Если пользователь не специалист
-            // if (!isSpecialist) {
-            if (appliedFilters.isNonFixedPrice) {
-                params.append('isNonFixedPrice', '1');
-            }
-            if (appliedFilters.startDate) {
-                params.append('startDate', formatDate(appliedFilters.startDate));
-            }
-            if (appliedFilters.finishDate) {
-                params.append('finishDate', formatDate(appliedFilters.finishDate));
-            }
-
-            // }
 
             // Формируем URL с параметрами
             const urlWithParams = isSpecialist
@@ -132,11 +130,10 @@ const MainPage = () => {
     };
 
 
-    const handleFilterChange = (e, newValue) => {
-        const { name, type, checked, value } = e.target || {};
+    const handleFilterChange = (key, value) => {
         setFilterParams({
             ...filterParams,
-            [name]: type === 'checkbox' ? checked : newValue || value
+            [key]: value
         });
     };
 
@@ -155,8 +152,12 @@ const MainPage = () => {
     };
 
     const applyFilters = () => {
-        setAppliedFilters(filterParams);
-        toggleFilterDrawer();
+        if (!isSpecialist) {
+            setAppliedQuestionnaireFilters(questionnaireFilterParams); // Применяем фильтры для анкет
+        } else {
+            setAppliedAnnouncementFilters(announcementParams); // Применяем фильтры для объявлений
+        }
+        toggleFilterDrawer(); // Закрываем drawer
     };
 
     const submitFilters = () => {
@@ -235,12 +236,51 @@ const MainPage = () => {
     // };
 
     // Вспомогательный компонент для группировки фильтров
-    const FilterSection = ({ title, children }) => (
-        <div style={{ marginBottom: '20px' }}>
-            <h5>{title}</h5>
-            {children}
-        </div>
-    );
+
+    const [questionnaireFilterParams, setQuestionnaireFilterParams] = useState({
+        minPrice: "",
+        experience: "",
+        hasTeam: 'any',
+        hasEdu: false
+    });
+
+    const handleQuestionnaireFilterChange = (key, value) => {
+        setQuestionnaireFilterParams(prevState => ({
+            ...prevState,
+            [key]: value
+        }));
+    };
+
+    const handleQuestionnaireHasTeamChange = (e) => {
+        handleQuestionnaireFilterChange('hasTeam', e.target.value);
+    };
+
+
+
+    const [announcementParams, setAnnouncementFilterParams] = useState({
+        startDate: null, // Начальная дата
+        finishDate: null, // Конечная дата
+        minCost: '', // Минимальная стоимость
+        maxCost: '', // Максимальная стоимость
+    });
+
+    // Обработка изменения даты
+    const handleAnnouncementDateChange = (key, date) => {
+        setAnnouncementFilterParams(prevState => ({
+            ...prevState,
+            [key]: date,
+        }));
+    };
+
+    // Обработка изменения текстовых полей (стоимость)
+    const handleAnnouncementCostChange = (e) => {
+        const { name, value } = e.target;
+        setAnnouncementFilterParams(prevState => ({
+            ...prevState,
+            [name]: value,
+        }));
+    };
+
     return (
         <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
             <TopBar />
@@ -279,129 +319,136 @@ const MainPage = () => {
                                 {!isSpecialist ? (
                                     <div>
                                         {/* Команда */}
-                                        <FilterSection title="Имеется ли команда?">
+                                        <div>
+                                            <h5>Имеется ли команда?</h5>
                                             <FormControl component="fieldset">
                                                 <RadioGroup
                                                     name="hasTeam"
-                                                    value={filterParams.hasTeam}
-                                                    onChange={handleHasTeamChange}
+                                                    value={questionnaireFilterParams.hasTeam}
+                                                    onChange={handleQuestionnaireHasTeamChange}
                                                 >
                                                     <FormControlLabel value="any" control={<Radio />} label="Неважно" />
                                                     <FormControlLabel value="yes" control={<Radio />} label="Да" />
                                                     <FormControlLabel value="no" control={<Radio />} label="Нет" />
                                                 </RadioGroup>
                                             </FormControl>
-                                        </FilterSection>
+                                        </div>
 
                                         {/* Профильное образование */}
-                                        <FilterSection title="Имеется ли профильное образование?">
+                                        <div>
+                                            <h5>Имеется ли профильное образование?</h5>
                                             <FormControlLabel
                                                 control={
                                                     <Checkbox
-                                                        checked={filterParams.hasEdu}
-                                                        onChange={(e) =>
-                                                            handleFilterChange('hasEdu', e.target.checked)
-                                                        }
+                                                        checked={questionnaireFilterParams.hasEdu}
+                                                        onChange={(e) => handleQuestionnaireFilterChange('hasEdu', e.target.checked)}
                                                         name="hasEdu"
                                                     />
                                                 }
                                                 label="Имеется профильное образование"
                                             />
-                                        </FilterSection>
+                                        </div>
 
                                         {/* Минимальный опыт работы */}
-                                        <FilterSection title="Минимальный опыт работы (лет)">
+                                        <div>
+                                            <h5>Минимальный опыт работы (лет)</h5>
                                             <Row className="align-items-center">
-                                                <Col xs={9}>
-                                                    <Slider
-                                                        value={filterParams.experience}
-                                                        onChange={(e, newValue) =>
-                                                            handleFilterChange('experience', newValue)
-                                                        }
-                                                        valueLabelDisplay="auto"
-                                                        min={0}
-                                                        max={50}
-                                                    />
-                                                </Col>
-                                                <Col xs={3}>
+                                                <Col xs={12}>
                                                     <Form.Control
                                                         type="number"
-                                                        value={filterParams.experience}
-                                                        onChange={(e) =>
-                                                            handleFilterChange(
-                                                                'experience',
-                                                                Number(e.target.value)
-                                                            )
-                                                        }
+                                                        value={questionnaireFilterParams.experience}
+                                                        onChange={(e) => {
+                                                            const value = e.target.value; // Сохраняем как строку
+                                                            handleQuestionnaireFilterChange('experience', value);
+                                                        }}
                                                         min={0}
                                                         max={50}
-                                                        style={{ width: '80px' }}
+                                                        style={{ width: '150px' }}
                                                     />
                                                 </Col>
                                             </Row>
-                                        </FilterSection>
+                                        </div>
 
                                         {/* Минимальная цена */}
-                                        <FilterSection title="Минимальная цена">
+                                        <div>
+                                            <h5>Минимальная цена</h5>
                                             <Row className="align-items-center">
-                                                <Col xs={9}>
-                                                    <Slider
-                                                        value={filterParams.minPrice}
-                                                        onChange={(e, newValue) =>
-                                                            handleFilterChange('minPrice', newValue)
-                                                        }
-                                                        valueLabelDisplay="auto"
-                                                        min={0}
-                                                        max={10000000}
-                                                    />
-                                                </Col>
-                                                <Col xs={3}>
+                                                <Col xs={12}>
                                                     <Form.Control
                                                         type="number"
-                                                        value={filterParams.minPrice}
-                                                        onChange={(e) =>
-                                                            handleFilterChange(
-                                                                'minPrice',
-                                                                Number(e.target.value)
-                                                            )
-                                                        }
-                                                        min={0}
-                                                        max={10000000}
-                                                        style={{ width: '120px' }}
+                                                        value={questionnaireFilterParams.minPrice}
+                                                        onChange={(e) => {
+                                                            const value = e.target.value; // Сохраняем как строку
+                                                            handleQuestionnaireFilterChange('minPrice', value);
+                                                        }}
+                                                        style={{ width: '150px' }}
                                                     />
                                                 </Col>
                                             </Row>
-                                        </FilterSection>
+                                        </div>
                                     </div>
                                 ) : (
-                                    <>
+                                    <div>
+                                        {/* Фильтры по дате */}
+                                        <h5>Даты проведения работ</h5>
                                         <LocalizationProvider dateAdapter={AdapterDateFns}>
                                             <DatePicker
                                                 label="Дата начала"
-                                                value={filterParams.startDate}
-                                                onChange={(date) => handleDateChange('startDate', date)}
+                                                value={announcementParams.startDate}
+                                                onChange={(date) => handleAnnouncementDateChange('startDate', date)}
                                                 renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
+                                                className='mb-2'
                                             />
                                             <DatePicker
                                                 label="Дата окончания"
-                                                value={filterParams.finishDate}
-                                                onChange={(date) => handleDateChange('finishDate', date)}
+                                                value={announcementParams.finishDate}
+                                                onChange={(date) => handleAnnouncementDateChange('finishDate', date)}
                                                 renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
                                             />
-
                                         </LocalizationProvider>
 
+                                        {/* Фильтр по стоимости (от и до) */}
                                         <h5>Общая стоимость</h5>
-                                        <Slider
-                                            value={filterParams.totalCost}
-                                            onChange={(e, newValue) => handleFilterChange(e, newValue)}
-                                            valueLabelDisplay="auto"
-                                            min={0}
-                                            max={10000000}
-                                            name="totalCost"
-                                            label="Общая стоимость"
-                                        />
-                                    </>
+                                        <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+                                            <TextField
+                                                label="От"
+                                                name="minCost"
+                                                value={announcementParams.minCost}
+                                                onChange={handleAnnouncementCostChange}
+                                                type="number"
+                                                fullWidth
+                                                margin="normal"
+                                                sx={{
+                                                    "& input[type='number']": {
+                                                        MozAppearance: "textfield", // Для Firefox
+                                                    },
+                                                    "& input[type='number']::-webkit-inner-spin-button, & input[type='number']::-webkit-outer-spin-button": {
+                                                        WebkitAppearance: "none", // Для Chrome и Safari
+                                                        margin: 0,
+                                                    },
+                                                }}
+                                            />
+                                            <span>-</span>
+                                            <TextField
+                                                label="До"
+                                                name="maxCost"
+                                                value={announcementParams.maxCost}
+                                                onChange={handleAnnouncementCostChange}
+                                                type="number"
+                                                fullWidth
+                                                margin="normal"
+                                                sx={{
+                                                    "& input[type='number']": {
+                                                        MozAppearance: "textfield", // Для Firefox
+                                                    },
+                                                    "& input[type='number']::-webkit-inner-spin-button, & input[type='number']::-webkit-outer-spin-button": {
+                                                        WebkitAppearance: "none", // Для Chrome и Safari
+                                                        margin: 0,
+                                                    },
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
                                 )}
 
                                 <Button color="primary" onClick={applyFilters} fullWidth>
@@ -431,7 +478,7 @@ const MainPage = () => {
                                             />
                                         ))
                                     ) : (
-                                        <p>Нет анкет</p>
+                                        <p className='text-white text-center'>Нет анкет, удовлетворяюищих вашему запросу</p>
                                     )}
                                 </div>
                             ) : (
@@ -453,7 +500,7 @@ const MainPage = () => {
                                             />
                                         ))
                                     ) : (
-                                        <p>Нет объявлений</p>
+                                        <p className='text-white text-center'>Нет объявлений, удовлетворяюищих вашему запросу</p>
                                     )}
                                 </div>
                             )}

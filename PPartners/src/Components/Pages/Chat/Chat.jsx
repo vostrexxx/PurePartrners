@@ -3,6 +3,10 @@ import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { FaFileWord, FaFileExcel, FaFilePdf, FaFileAlt } from 'react-icons/fa';
 import { Container, Form, InputGroup, Button, Image, Row, Col } from 'react-bootstrap';
+// import { FaPaperclip } from "react-icons/fa";
+import { MdAttachFile } from "react-icons/md";
+import { MdSend } from "react-icons/md";
+import { FaPaperPlane } from "react-icons/fa";
 const Chat = ({ chatId }) => {
     const [newMessage, setNewMessage] = useState('');
     const [attachments, setAttachments] = useState([]);
@@ -218,13 +222,12 @@ const Chat = ({ chatId }) => {
             fluid
             className="d-flex flex-column p-2 bg-white"
             style={{
-                maxHeight: '80vh', // Ограничение высоты контейнера (не более 80% экрана)
-                minHeight: '400px', // Минимальная высота
-                height: 'auto',
+                height: '80vh', // Фиксированная высота (80% высоты экрана)
                 border: '1px solid #ccc',
                 borderRadius: '12px',
                 boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
                 overflow: 'hidden',
+                width: '100%', // Ширина 100%
             }}
         >
             {/* Просмотр изображения в полноэкранном режиме */}
@@ -277,54 +280,75 @@ const Chat = ({ chatId }) => {
                 ))}
             </div>
 
-            {/* Поле ввода и кнопки */}
-            <Form className="border-top p-2">
+            <Form className="border-top p-3 bg-light">
                 <Row className="g-2">
-                    <Col xs={9} md={10}>
-                        <InputGroup>
+                    <Col>
+                        <InputGroup className="align-items-center">
                             <Form.Control
-                                type="text"
+                                as="textarea"
+                                rows={1}
                                 placeholder="Введите сообщение..."
                                 value={newMessage}
-                                onChange={(e) => setNewMessage(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                                onChange={(e) => {
+                                    setNewMessage(e.target.value);
+                                    e.target.style.height = "auto";
+                                    e.target.style.height = `${e.target.scrollHeight}px`;
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter" && !e.shiftKey) {
+                                        e.preventDefault();
+                                        handleSendMessage();
+                                    }
+                                }}
+                                style={{
+                                    resize: "none",
+                                    overflow: "hidden",
+                                    borderRadius: "12px",
+                                    padding: "0.75rem 1rem",
+                                    fontSize: "1rem",
+                                    lineHeight: "1.5",
+                                    border: "1px solid white",
+                                    backgroundColor: "white",
+                                    boxShadow: "inset 0 1px 2px rgba(0, 0, 0, 0.1)",
+                                }}
                             />
-                            <label htmlFor="fileInput" className="input-group-text" style={{ cursor: 'pointer' }}>
-                                📎
-                            </label>
-                            <Form.Control
+                            <input
                                 type="file"
                                 id="fileInput"
                                 multiple
                                 hidden
                                 onChange={(e) => {
                                     const files = Array.from(e.target.files);
-                                    const validFormats = ['png', 'jpg', 'jpeg', 'gif', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'mp4', 'avi', 'mov', 'mkv'];
-                                    const validFiles = files.filter(file => {
-                                        const extension = file.name.split('.').pop().toLowerCase();
-                                        if (!validFormats.includes(extension)) {
-                                            alert(`Некорректный формат файла: ${file.name}`);
-                                            return false;
-                                        }
-                                        return true;
-                                    });
+                                    const validFormats = ["png", "jpg", "jpeg", "gif", "pdf", "doc", "docx", "xls", "xlsx", "mp4", "avi", "mov", "mkv"];
+                                    const validFiles = files.filter(file => validFormats.includes(file.name.split(".").pop().toLowerCase()));
                                     setAttachments(validFiles);
                                 }}
                             />
+                            <label htmlFor="fileInput" className="input-group-text border-0 p-2" style={{ cursor: "pointer" }}>
+                                <MdAttachFile style={{ fontSize: "1.5rem", color: "#6c757d" }} />
+                            </label>
+                            <Button
+                                variant="primary"
+                                onClick={handleSendMessage}
+                                disabled={!newMessage.trim() && attachments.length === 0}
+                                style={{
+                                    borderRadius: "12px",
+                                    padding: "0.5rem 1.2rem",
+                                    fontSize: "1rem",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                }}
+                            >
+                                <MdSend />
+                            </Button>
                         </InputGroup>
                     </Col>
-                    <Col xs={3} md={2} className="text-end">
-                        <Button variant="primary" onClick={handleSendMessage}>
-                            Отправить
-                        </Button>
-                    </Col>
                 </Row>
-
-                {/* Отображение выбранных файлов */}
                 {attachments.length > 0 && (
-                    <div className="mt-2">
+                    <div className="mt-3 p-2 bg-white border rounded">
                         {attachments.map((file, index) => (
-                            <small key={index} className="d-block text-primary">
+                            <small key={index} className="d-block text-primary" style={{ fontSize: "0.85rem" }}>
                                 📎 {file.name}
                             </small>
                         ))}
@@ -335,25 +359,37 @@ const Chat = ({ chatId }) => {
             {/* Стили */}
             <style>
                 {`
-                @media (max-width: 768px) {
-                    .p-2 {
-                        padding: 0.5rem !important;
-                    }
-                    .flex-grow-1 {
-                        font-size: 0.9rem;
-                    }
-                }
-    
-                .bg-warning {
-                    background-color: #ffc107 !important;
-                    color: black;
-                }
-    
-                .bg-primary {
-                    background-color: #0d6efd !important;
-                    color: white;
-                }
-                `}
+    @media (max-width: 768px) {
+        .p-2 {
+            padding: 0.5rem !important;
+        }
+        .flex-grow-1 {
+            font-size: 0.9rem;
+        }
+        .bg-warning, .bg-primary {
+            font-size: 0.9rem;
+        }
+        .btn {
+            font-size: 0.9rem;
+        }
+        .input-group-text {
+            font-size: 0.9rem;
+        }
+        .text-muted {
+            font-size: 0.7rem;
+        }
+    }
+
+    .bg-warning {
+        background-color: #ffc107 !important;
+        color: black;
+    }
+
+    .bg-primary {
+        background-color: #0d6efd !important;
+        color: white;
+    }
+    `}
             </style>
         </Container>
     );

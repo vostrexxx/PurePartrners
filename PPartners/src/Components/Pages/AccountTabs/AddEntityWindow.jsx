@@ -68,7 +68,6 @@ const EntityModal = ({ isOpen, onClose, fullName, onTrigger }) => {
         throw new Error(`Ошибка сети: ${response.status}`);
       }
 
-      // alert("Данные успешно сохранены!");
       onClose();
       onTrigger();
       showToast('Созданное лицо успешно сохранено', 'success')
@@ -134,6 +133,7 @@ const EntityModal = ({ isOpen, onClose, fullName, onTrigger }) => {
                   name="inn"
                   value={formData.inn}
                   onChange={handleInputChange}
+                  className="no-spinner"
                 />
               </Form.Group>
 
@@ -160,6 +160,7 @@ const EntityModal = ({ isOpen, onClose, fullName, onTrigger }) => {
                           name="position"
                           value={formData.position}
                           onChange={handleInputChange}
+                          className="no-spinner"
                         />
                       </Form.Group>
                     </>
@@ -173,6 +174,7 @@ const EntityModal = ({ isOpen, onClose, fullName, onTrigger }) => {
                       name="kpp"
                       value={formData.kpp}
                       onChange={handleInputChange}
+                      className="no-spinner"
                     />
                   </Form.Group>
 
@@ -193,6 +195,7 @@ const EntityModal = ({ isOpen, onClose, fullName, onTrigger }) => {
                       name="currAcc"
                       value={formData.currAcc}
                       onChange={handleInputChange}
+                      className="no-spinner"
                     />
                   </Form.Group>
 
@@ -203,6 +206,7 @@ const EntityModal = ({ isOpen, onClose, fullName, onTrigger }) => {
                       name="corrAcc"
                       value={formData.corrAcc}
                       onChange={handleInputChange}
+                      className="no-spinner"
                     />
                   </Form.Group>
 
@@ -213,6 +217,7 @@ const EntityModal = ({ isOpen, onClose, fullName, onTrigger }) => {
                       name="bik"
                       value={formData.bik}
                       onChange={handleInputChange}
+                      className="no-spinner"
                     />
                   </Form.Group>
                 </>

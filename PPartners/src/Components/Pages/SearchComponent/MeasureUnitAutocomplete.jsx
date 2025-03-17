@@ -83,7 +83,7 @@ const MeasureUnitAutocomplete = ({ onSelect, value, disabled }) => {
 const styles = {
     autocompleteWrapper: {
         position: 'relative',
-        width: '100px', // Увеличили ширину контейнера
+        width: '80px', // Увеличили ширину контейнера
         fontFamily: 'Arial, sans-serif',
     },
     input: {

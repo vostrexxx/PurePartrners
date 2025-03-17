@@ -12,6 +12,9 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
     const [originalData, setOriginalData] = useState({});
     const [isEditable, setIsEditable] = useState(false);
 
+    const [origData, setOrigData] = useState({});
+
+
     const url = localStorage.getItem("url");
     const getAuthToken = () => localStorage.getItem("authToken");
     const { isSpecialist } = useProfile();
@@ -50,6 +53,8 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
                     console.log(isLegalEntity)
                     setEntityData(data);
                     setIsLegalEntity(data.isLegalEntity);
+                    setOrigData(data)
+                    // console.log()
 
                 } catch (error) {
                     console.error(`Ошибка при выполнении запросов: ${error.message}`);
@@ -73,7 +78,7 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
     };
 
     const handleCancelClick = () => {
-        setEntityData(originalData); // Восстанавливаем исходные данные
+        setEntityData(origData);
         setIsEditable(false);
     };
 
@@ -198,7 +203,7 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
                                 <Form.Group className="mb-3">
                                     <Form.Label>ИНН</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="inn"
                                         value={entityData.inn || ""}
                                         onChange={handleInputChange}
@@ -220,7 +225,7 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
                                 <Form.Group className="mb-3">
                                     <Form.Label>КПП</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="kpp"
                                         value={entityData.kpp || ""}
                                         onChange={handleInputChange}
@@ -242,7 +247,7 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
                                 <Form.Group className="mb-3">
                                     <Form.Label>Корреспондентский счет</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="corrAcc"
                                         value={entityData.corrAcc || ""}
                                         onChange={handleInputChange}
@@ -253,7 +258,7 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
                                 <Form.Group className="mb-3">
                                     <Form.Label>Расчетный счет</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="currAcc"
                                         value={entityData.currAcc || ""}
                                         onChange={handleInputChange}
@@ -264,7 +269,7 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
                                 <Form.Group className="mb-3">
                                     <Form.Label>БИК</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="bik"
                                         value={entityData.bik || ""}
                                         onChange={handleInputChange}

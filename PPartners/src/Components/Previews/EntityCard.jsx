@@ -67,7 +67,7 @@ const EntityCard = ({ onSelectEntity }) => {
             {/* Левый столбец - Юридические лица */}
             <Col style={{ flex: 1 }}>
                 <h5 style={{ textAlign: 'center', color: 'white' }}>Ваши юридические лица</h5>
-                {legalEntities.map((entity) => (
+                {legalEntities.length > 0 ? (legalEntities.map((entity) => (
                     <Card
                         key={entity.id}
                         onClick={() => handleSelectEntity(entity.id)}
@@ -84,13 +84,13 @@ const EntityCard = ({ onSelectEntity }) => {
                             <Card.Text>ИНН: {entity.inn}</Card.Text>
                         </Card.Body>
                     </Card>
-                ))}
+                ))) : <div className="text-center">Нет юридических лиц</div>}
             </Col>
 
             {/* Правый столбец - Физические лица */}
             <Col style={{ flex: 1 }}>
                 <h5 style={{ textAlign: 'center', color: 'white' }}>Ваши физические лица</h5>
-                {persons.map((person) => (
+                {persons.length > 0 ? (persons.map((person) => (
                     <Card
                         key={person.id}
                         onClick={() => handleSelectEntity(person.id)}
@@ -107,7 +107,7 @@ const EntityCard = ({ onSelectEntity }) => {
                             <Card.Text>ИНН: {person.inn}</Card.Text>
                         </Card.Body>
                     </Card>
-                ))}
+                ))) : (<div className="text-center">Нет физических лиц</div>)}
             </Col>
         </Row>
 

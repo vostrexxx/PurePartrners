@@ -22,12 +22,7 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode, receiverItemName })
 
     });
 
-
-
     useEffect(() => {
-        // console.log("URL:", agreementData);
-        // console.log("AuthToken:", getAuthToken());
-        // console.log("isSpecialist:", isSpecialist);
 
         setAnnouncements([]);
         setQuestionnaires([]);
@@ -101,7 +96,7 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode, receiverItemName })
         isOpen && (
             <div style={styles.overlay}>
                 <div style={styles.modal}>
-                    <h3>Выберите превью и оставьте комментарий</h3>
+                    <h5 className='text-black mb-5 text-center'>Выберите {isSpecialist ? "вашу анкету" : "ваше объявление"} и оставьте комментарий</h5>
 
                     {/* Список превью */}
                     <div style={styles.previewList}>
@@ -119,6 +114,13 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode, receiverItemName })
                                     }}
                                     isSelected={selectedPreviewId === preview.id} // Передаём флаг выбора
                                     key={preview.id}
+                                    type={isSpecialist ? "questionnaire" : "announcement"}
+                                    totalCost={preview.totalCost}
+                                    address={preview.address}
+                                    hasEdu={preview.hasEdu}
+                                    hasTeam={preview.hasTeam}
+                                    workExp={preview.workExp}
+
                                 />
 
 
@@ -177,7 +179,7 @@ const styles = {
         zIndex: 1000,
     },
     modal: {
-        backgroundColor: 'grey',
+        backgroundColor: 'white',
         padding: '20px',
         borderRadius: '8px',
         width: '500px',
@@ -188,7 +190,7 @@ const styles = {
         overflowY: 'auto',
         border: '1px solid #ddd',
         marginBottom: '20px',
-        padding: '10px',
+        padding: '5px',
     },
     buttons: {
         marginTop: '20px',

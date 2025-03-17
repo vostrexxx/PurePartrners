@@ -99,7 +99,10 @@ const Agreement = ({
 
         return (
             <Card className="mb-3">
-                <Card.Body>
+                <Card.Body
+                    onClick={() => navigate(`/${type}/${data.id}`, { state: { fromLk: null } })}
+
+                >
                     <Card.Title>{data.workCategories}</Card.Title>
                     <Card.Text>
                         Стоимость: {data.totalCost} руб.<br />
@@ -107,13 +110,13 @@ const Agreement = ({
                         Опыт работы: {data.workExp} лет<br />
                         {data.hasTeam ? 'Имеется команда' : 'Нет команды'}<br />
                         {data.hasEdu ? 'Есть образование' : 'Нет образования'}
+
                     </Card.Text>
-                    <Button
+                    {/* <Button
                         variant="primary"
-                        onClick={() => navigate(`/${type}/${data.id}`, { state: { fromLk: null } })}
                     >
                         Подробнее
-                    </Button>
+                    </Button> */}
                 </Card.Body>
             </Card>
         );

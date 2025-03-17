@@ -10,7 +10,7 @@ import TopBar from '../TopBar/UnswitchTopBar';
 const ChatPage = () => {
     const { chatId } = useParams();
     const location = useLocation();
-    const agreementId = location.state?.agreementId || localStorage.getItem('agreementId');
+    const agreementId = Number(location.state?.agreementId || localStorage.getItem('agreementId'));
     const authToken = localStorage.getItem("authToken");
     const url = localStorage.getItem("url");
     const [initiatorId, setInitiatorId] = useState(null);
@@ -43,13 +43,13 @@ const ChatPage = () => {
         return (
             <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
                 <TopBar />
-                <Container 
-                    fluid 
-                    style={{ 
-                        backgroundColor: "#242582", 
-                        flex: 1, 
-                        padding: "20px", 
-                        display: "flex", 
+                <Container
+                    fluid
+                    style={{
+                        backgroundColor: "#242582",
+                        flex: 1,
+                        padding: "20px",
+                        display: "flex",
                         justifyContent: "center", // Центрирование по горизонтали
                         alignItems: "center", // Центрирование по вертикали
                     }}

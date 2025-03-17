@@ -27,6 +27,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import NotAuthTopBar from './Components/Pages/TopBar/NotAuthTopBar'
 import { ToastProvider } from './Components/Notification/ToastContext';
 
+import './App.css'
 global.global = global;
 const App = () => {
 

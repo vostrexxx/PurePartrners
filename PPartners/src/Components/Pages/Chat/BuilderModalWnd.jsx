@@ -50,7 +50,7 @@ const BuilderModalWnd = ({ isOpen, onClose, agreementId, }) => {
             alert('Файл успешно отправлен');
             setFile(null); // Сбрасываем файл после успешной отправки
             onClose(); // Закрываем модальное окно
-            
+
         } catch (error) {
             setError(`Не удалось отправить файл: ${error.message}`);
         }
@@ -74,9 +74,9 @@ const BuilderModalWnd = ({ isOpen, onClose, agreementId, }) => {
                 <Typography id="modal-title" variant="h6" component="h2" color="black">
                     Загрузите смету согласно шаблону
                 </Typography>
-                <Typography id="modal-description" variant="body1" color="black" sx={{ mt: 2 }}>
+                {/* <Typography id="modal-description" variant="body1" color="black" sx={{ mt: 2 }}>
                     Идентификатор соглашения: {agreementId}
-                </Typography>
+                </Typography> */}
 
                 <Box sx={{ mt: 3 }}>
                     <input

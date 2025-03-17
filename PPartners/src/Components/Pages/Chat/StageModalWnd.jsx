@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStages, setTriggerStages, firstId, secondId }) => {
     if (!stage) return null; // Если stage не передан, ничего не рендерим
+    // console.log(stage)
     const authToken = localStorage.getItem('authToken');
     const url = localStorage.getItem('url');
     const [stageData, setStageData] = useState(stage);

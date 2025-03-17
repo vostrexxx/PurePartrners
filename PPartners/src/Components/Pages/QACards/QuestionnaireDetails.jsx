@@ -313,7 +313,9 @@ const QuestionnaireDetails = () => {
 
             } catch (error) {
                 console.error('Ошибка применения изменения:', error);
-                alert('Не удалось одобрить изменение.');
+                // alert('Не удалось одобрить изменение.');
+                showToast("Не удалось одобрить изменение", "error")
+
             }
         }
         else if (mode === "unlink") {//
@@ -331,10 +333,14 @@ const QuestionnaireDetails = () => {
                     throw new Error(`Ошибка применения изменения: ${response.status}`);
                 }
 
-                alert('Лицо успешно отвязано!');
+                // alert('Лицо успешно отвязано!');
+                showToast("Лицо успешно отвязано", "info")
+
             } catch (error) {
-                console.error('Ошибка привязки лица:', error);
+                // console.error('Ошибка привязки лица:', error);
                 // alert('Не удалось одобрить изменение.');
+                showToast("Ошибка привязки лица", "error")
+
             }
         }
         setTrigger(!trigger)
@@ -581,123 +587,142 @@ const QuestionnaireDetails = () => {
                                 </Form>
                                 <Row>
                                     <Col>
+                                        <Row>
+                                            <Col>
+                                                <h5 className="mt-4" style={{ color: "#ff7f00" }}>
+                                                    Прикрепленные фотографии:
+                                                </h5>
 
-                                        <div>
-                                            <div>
-                                                <h4>Прикрепленные фотографии:</h4>
                                                 {images.length > 0 ? (
-                                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                                                    <Row className="g-3">
                                                         {questionnaire.questionnaireImages.map((imagePath, index) => (
-                                                            <div key={index} style={{ position: 'relative', display: 'inline-block' }}>
-                                                                <img
+                                                            <Col key={index} xs={6} md={4} lg={3} style={{ position: "relative" }}>
+                                                                <Image
                                                                     src={images[index]}
                                                                     alt={`Фото ${index + 1}`}
+                                                                    fluid
+                                                                    rounded
                                                                     style={{
-                                                                        width: '150px',
-                                                                        height: '150px',
-                                                                        objectFit: 'cover',
-                                                                        borderRadius: '8px',
-                                                                        cursor: 'pointer',
+                                                                        width: "150px",
+                                                                        height: "150px",
+                                                                        objectFit: "cover",
+                                                                        cursor: "pointer",
                                                                     }}
-                                                                    onClick={() => handleImageClick(images[index])} // Открытие модального окна
+                                                                    onClick={() => handleImageClick(images[index])}
                                                                 />
                                                                 {isEditable && (
-                                                                    <button
-                                                                        onClick={() => handleDeleteImage(imagePath)}
+                                                                    <Button
+                                                                        variant="danger"
                                                                         style={{
-                                                                            position: 'absolute',
-                                                                            top: '5px',
-                                                                            right: '5px',
-                                                                            background: 'red',
-                                                                            color: 'white',
-                                                                            border: 'none',
-                                                                            borderRadius: '50%',
-                                                                            width: '20px',
-                                                                            height: '20px',
-                                                                            cursor: 'pointer',
+                                                                            position: "absolute",
+                                                                            top: "5px",
+                                                                            right: "5px",
+                                                                            borderRadius: "50%",
+                                                                            width: "20px",
+                                                                            height: "20px",
+                                                                            padding: "0",
+                                                                            display: "flex",
+                                                                            alignItems: "center",
+                                                                            justifyContent: "center",
                                                                         }}
+                                                                        onClick={() => handleDeleteImage(imagePath)}
                                                                     >
                                                                         ×
-                                                                    </button>
+                                                                    </Button>
                                                                 )}
-                                                            </div>
+                                                            </Col>
                                                         ))}
-                                                    </div>
+                                                    </Row>
                                                 ) : (
                                                     <p>Фотографии отсутствуют</p>
                                                 )}
-                                            </div>
+                                            </Col>
+                                        </Row>
 
-                                            {isEditable && (
-                                                <div style={{ marginTop: '20px' }}>
-                                                    <h4>Добавить новые фотографии:</h4>
-                                                    <input
+                                        {isEditable && (
+                                            <Row className="mt-4">
+                                                <Col>
+                                                    <h6>Добавить новые фотографии:</h6>
+                                                    <Form.Control
                                                         type="file"
-                                                        accept="image/*"
+                                                        accept=".jpeg,.png,.jpg,.svg,"
                                                         multiple
                                                         onChange={handleAddImages}
+                                                        // hidden={uploading}
+                                                        style={{
+                                                            backgroundColor: "#333",
+                                                            color: "white",
+                                                            border: "1px solid #555",
+                                                        }}
                                                     />
+
                                                     {newImages.length > 0 && (
-                                                        <div>
-                                                            <h5>Выбранные фотографии:</h5>
+                                                        <div className="mt-3">
+                                                            <h6>Выбранные фотографии:</h6>
                                                             <ul>
                                                                 {newImages.map((file, index) => (
                                                                     <li key={index}>{file.name}</li>
                                                                 ))}
                                                             </ul>
-                                                            <button onClick={handleUploadImages} style={{ marginRight: '10px', background: 'green', color: 'white', padding: '10px' }}>
-                                                                Отправить
-                                                            </button>
-                                                            <button onClick={handleCancelUpload} style={{ background: 'red', color: 'white', padding: '10px' }}>
+                                                            <Button
+                                                                variant="success"
+                                                                onClick={handleUploadImages}
+                                                                className="me-2"
+                                                            >
+                                                                Сохранить
+                                                            </Button>
+                                                            <Button variant="danger" onClick={handleCancelUpload}>
                                                                 Отменить
-                                                            </button>
+                                                            </Button>
                                                         </div>
                                                     )}
-                                                </div>
-                                            )}
+                                                </Col>
+                                            </Row>
+                                        )}
 
-                                            {selectedImage && (
-                                                <div
-                                                    onClick={handleCloseImageModal}
-                                                    style={{
-                                                        position: 'fixed',
-                                                        top: 0,
-                                                        left: 0,
-                                                        width: '100%',
-                                                        height: '100%',
-                                                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                                        display: 'flex',
-                                                        justifyContent: 'center',
-                                                        alignItems: 'center',
-                                                        zIndex: 1000,
-                                                        cursor: 'pointer',
-                                                    }}
-                                                >
-                                                    <img
+                                        {selectedImage && (
+                                            <Modal
+                                                show={!!selectedImage}
+                                                onHide={handleCloseImageModal}
+                                                centered
+                                                size="lg"
+                                            >
+                                                <Modal.Body className="p-0">
+                                                    <Image
                                                         src={selectedImage}
                                                         alt="Просмотр изображения"
-                                                        style={{
-                                                            maxWidth: '90%',
-                                                            maxHeight: '90%',
-                                                            borderRadius: '10px',
-                                                        }}
+                                                        fluid
+                                                        rounded
                                                     />
-                                                </div>
-                                            )}
-                                        </div>
+                                                </Modal.Body>
+                                            </Modal>
+                                        )}
 
                                         {location.state?.fromLk === null ? null : (
                                             <div>
                                                 {!isEditable && canEditOrDelete ? (
                                                     <>
+                                                        <h5 className="text-center mb-2" style={{ color: "#ff7f00" }}>Данные по лицу</h5>
 
-                                                        <h3>Данные по лицу</h3>
+                                                        {/* <h3>Данные по лицу</h3> */}
                                                         {!entityId ?
                                                             (
                                                                 <div>
-                                                                    <div>Лицо не привязано</div>
+                                                                    <div className="mb-4" >Выберите лицо, которое хотите привязать</div>
                                                                     <EntityCard onSelectEntity={handleSelectEntity} />
-                                                                    <button onClick={() => handleEventEntity("link")}>Привязать лицо</button>
+                                                                    <Button className='mt-2'
+                                                                        style={{
+                                                                            width: '100%',
+                                                                            backgroundColor: "#ffb300",
+                                                                            border: "none",
+                                                                            color: "black",
+                                                                            fontWeight: "bold",
+                                                                            padding: "10px",
+                                                                            borderRadius: "8px",
+                                                                            transition: "background-color 0.3s",
+                                                                        }}
+                                                                        onClick={() => handleEventEntity("link")}>Привязать лицо</Button>
+
 
                                                                 </div>
                                                             ) : (
@@ -705,12 +730,12 @@ const QuestionnaireDetails = () => {
                                                                     {entityData ? (
                                                                         isLegalEntity ? (
                                                                             <div>
-                                                                                <h3 style={{ textAlign: 'center', color: 'white' }}>Ваше юридическое лицо</h3>
+                                                                                <h5 style={{ textAlign: 'center', color: 'white' }}>Ваше юридическое лицо</h5>
                                                                                 <div
                                                                                     style={{
                                                                                         padding: '10px',
                                                                                         margin: '5px 0',
-                                                                                        backgroundColor: '#4114f5',
+                                                                                        backgroundColor: 'grey',
                                                                                         border: '1px solid green',
                                                                                         borderRadius: '5px',
                                                                                         cursor: 'pointer',
@@ -722,12 +747,12 @@ const QuestionnaireDetails = () => {
                                                                             </div>
                                                                         ) : (
                                                                             <div>
-                                                                                <h3 style={{ textAlign: 'center', color: 'white' }}>Ваше физическое лицо</h3>
+                                                                                <h5 style={{ textAlign: 'center', color: 'white' }}>Ваше физическое лицо</h5>
                                                                                 <div
                                                                                     style={{
                                                                                         padding: '10px',
                                                                                         margin: '5px 0',
-                                                                                        backgroundColor: '#4114f5',
+                                                                                        backgroundColor: 'grey',
                                                                                         border: '1px solid green',
                                                                                         borderRadius: '5px',
                                                                                         cursor: 'pointer',
@@ -742,26 +767,64 @@ const QuestionnaireDetails = () => {
                                                                         <div>Загрузка данных лица...</div>
                                                                     )}
 
-                                                                    <button onClick={() => handleEventEntity("unlink")}>Отвязать лицо</button>
+                                                                    {/* Контейнер для кнопок */}
+                                                                    <div style={{ width: "100%", boxSizing: "border-box", marginTop: "3px" }}>
+                                                                        {/* Кнопка "Отвязать лицо" */}
+                                                                        <Button
+                                                                            style={{
+                                                                                width: "100%", // Занимает всю ширину контейнера
+                                                                                backgroundColor: "#ffb300",
+                                                                                border: "none",
+                                                                                color: "black",
+                                                                                fontWeight: "bold",
+                                                                                padding: "10px",
+                                                                                borderRadius: "8px",
+                                                                                transition: "background-color 0.3s",
+                                                                                marginTop: "10px",
+                                                                                fontSize: "16px", // Размер текста для лучшей видимости
+                                                                                cursor: "pointer",
+                                                                                boxSizing: "border-box", // Учитывает padding и border в ширину
+                                                                            }}
+                                                                            onClick={() => handleEventEntity("unlink")}
+                                                                        >
+                                                                            Отвязать лицо
+                                                                        </Button>
+
+                                                                        {/* Кнопка "Привязать лицо" */}
+
+                                                                    </div>
                                                                 </>
                                                             )
                                                         }
+                                                        <ButtonGroup style={styles.buttonContainer}>
+                                                            <Button
+                                                                onClick={handleEditClick}
+                                                                style={styles.editButton}
+                                                            >
+                                                                Редактировать
+                                                            </Button>
 
-                                                        <button onClick={handleEditClick} style={styles.button}>
-                                                            Редактировать
-                                                        </button>
-                                                        <button onClick={handleDeleteClick} style={styles.deleteButton}>
-                                                            Удалить
-                                                        </button>
+                                                            <Button
+                                                                onClick={handleDeleteClick}
+                                                                style={styles.deleteButton}
+                                                            >
+                                                                Удалить
+                                                            </Button>
+                                                        </ButtonGroup>
                                                     </>
                                                 ) : isEditable ? (
-                                                    <button onClick={handleSaveClick} style={styles.button}>
-                                                        Сохранить
-                                                    </button>
+                                                    <ButtonGroup style={styles.buttonContainer}>
+                                                        <Button
+                                                            onClick={handleSaveClick}
+                                                            style={styles.editButton}
+                                                        >
+                                                            Сохранить
+                                                        </Button>
+                                                    </ButtonGroup>
                                                 ) : (
-                                                    <button onClick={handleOpenReaction} style={styles.button}>
+                                                    <Button onClick={handleOpenReaction} style={styles.editButton}>
                                                         Откликнуться
-                                                    </button>
+                                                    </Button>
                                                 )}
                                             </div>
                                         )}
@@ -774,6 +837,13 @@ const QuestionnaireDetails = () => {
                                             mode={1}
                                             receiverItemName={questionnaire.workCategories}
                                         />
+                                        <style>
+                                            {`
+                .form-control-placeholder::placeholder {
+                  color: #bbb;
+                }
+              `}
+                                        </style>
 
 
                                     </Col >
@@ -782,8 +852,6 @@ const QuestionnaireDetails = () => {
                         </Card>
                     </Col>
                 </Row>
-
-
             </Container>
         </div>
     );
@@ -793,9 +861,9 @@ const styles = {
     container: {
         display: 'flex',
         flexDirection: 'column',
-        gap: '10px',
-        maxWidth: '400px',
-        margin: '0 auto',
+        gap: '10px', // промежуток между элементами
+        // maxWidth: '400px', // ширина контейнера
+        margin: '0 auto', // центрирование на странице
     },
     input: {
         width: '100%',
@@ -803,17 +871,35 @@ const styles = {
         marginTop: '4px',
         boxSizing: 'border-box',
     },
-    button: {
-        marginTop: '20px',
-        padding: '10px',
+    buttonContainer: {
+        display: 'flex',
+        gap: "10px", // Расстояние между кнопками
+        justifyContent: 'center', // Выравнивание по центру
+        marginTop: '50px', // Отступ сверху
+    },
+    editButton: {
+        backgroundColor: '#4caf50',
+        flex: 8,
+        border: 'none',
+        color: 'white',
+        fontWeight: 'bold',
+        padding: '10px 20px',
+        borderRadius: '8px',
+        cursor: 'pointer',
+        transition: 'background-color 0.3s',
+        width: '100%'
     },
     deleteButton: {
-        padding: '10px',
-        backgroundColor: 'red',
-        color: 'white',
+        backgroundColor: '#f44336',
         border: 'none',
+        color: 'white',
+        fontWeight: 'bold',
+        padding: '10px 20px',
+        borderRadius: '8px',
         cursor: 'pointer',
+        transition: 'background-color 0.3s',
     },
+
 };
 
 export default QuestionnaireDetails;

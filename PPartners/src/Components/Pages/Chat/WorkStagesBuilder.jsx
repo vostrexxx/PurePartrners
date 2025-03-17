@@ -5,6 +5,10 @@ import { useProfile } from '../../Context/ProfileContext';
 import StageModalWnd from './StageModalWnd'
 import { EventSourcePolyfill } from 'event-source-polyfill';
 import { Container, Form, InputGroup, Button, Image, Row, Col } from 'react-bootstrap';
+import { Delete } from '@mui/icons-material'; // Импортируем иконку корзины
+import { FaFileWord, FaFileExcel, FaFilePdf, FaFileAlt, FaEdit, FaSave, FaMinus } from 'react-icons/fa';
+import { FaPlus } from "react-icons/fa";
+
 
 const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
     const [stages, setStages] = useState([]); // Список этапов работ
@@ -386,7 +390,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                 isContractorApproved: isApproved ? true : false,
                 // stageStatus: isApproved ? stage.stageStatus || "Не начато" : "В ожидании заморозки средств",
                 stageStatus: "В ожидании заморозки средств",
-
+                // elementId: stage.id,
                 stageTitle: stage.name,
                 totalPrice: stage.children.reduce((sum, child) => sum + (child.totalPrice || 0), 0),
                 stageOrder: stage.order,
@@ -497,12 +501,12 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
     const handleStageStatusModalWnd = (mode, stage) => {
         // console.log(mode, stage); // Логируем для проверки
         setModalData({ mode, stage }); // Сохраняем mode и stage
-        setModalOpen(true); // Открываем модальное окно
+        setModalOpen(true);
     };
 
     const closeModal = () => {
-        setModalOpen(false); // Закрываем модальное окно
-        setModalData({ mode: '', stage: null }); // Сбрасываем данные
+        setModalOpen(false);
+        setModalData({ mode: '', stage: null });
     };
 
     return (
@@ -511,25 +515,34 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                 <Row>
                     <Col md={6} className="mb-4">
                         <h3 className='text-white'>Создание этапа</h3>
-                        <Form.Control
-                            type="text"
-                            placeholder="Название этапа"
-                            value={newStageName}
-                            onChange={(e) => setNewStageName(e.target.value)}
-                            className="mb-3"
-                            disabled={isEditing !== true}
-                        />
-                        <Button
-                            variant="primary"
-                            className="mb-4"
-                            onClick={handleAddStage}
-                            disabled={isEditing !== true}
-                        >
-                            Добавить этап
-                        </Button>
+
+                        <Row className="align-items-center g-2 mb-4"> {/* g-2 добавляет отступы между элементами */}
+                            <Col className="flex-grow-1"> {/* flex-grow-1 позволяет Form.Control занимать доступное пространство */}
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Название этапа"
+                                    value={newStageName}
+                                    onChange={(e) => setNewStageName(e.target.value)}
+                                    disabled={isEditing !== true}
+                                    className="h-100" // Задает высоту 100% для выравнивания по высоте
+                                />
+                            </Col>
+                            <Col xs="auto"> {/* xs="auto" задает минимальную ширину для кнопки */}
+                                <Button
+                                    variant="primary"
+                                    onClick={handleAddStage}
+                                    hidden={isEditing !== true}
+                                    className="h-100" // Задает высоту 100% для выравнивания по высоте
+                                >
+                                    <FaPlus />
+                                </Button>
+                            </Col>
+                        </Row>
+
 
                         <h2 className='text-white'>Список этапов работ:</h2>
-                        {stages.length === 0 ? <p className='text-white'>Список этапов пока что пуст</p> : <div></div>}
+                        {stages.length === 0 ? <p className='text-white'>Список этапов пока что пуст,
+                            вы можете перейти в режим редактирования для добавления этапов</p> : <div></div>}
                         {stages.map((stage) => {
                             const totalSum = stage.children.reduce((sum, child) => sum + (child.totalPrice || 0), 0);
                             const isLocalApproved = mode === 'contractor' ? stage.isContractorApproved : stage.isCustomerApproved;
@@ -634,7 +647,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                                             ) : (
                                                 stage.children.map((child, index) => (
                                                     <Draggable
-                                                    
+
                                                         key={child.id}
                                                         draggableId={child.id}
                                                         index={index}
@@ -668,7 +681,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                             <Button
                                 variant="danger"
                                 onClick={handleResetStages}
-                                disabled={!isEditing}
+                                hidden={!isEditing}
                             >
                                 Сбросить этапы работ
                             </Button>
@@ -714,18 +727,21 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                         variant="primary"
                         className="me-2"
                         onClick={handleEdit}
-                        disabled={isEditing === true}
+                        hidden={isEditing === true}
+                        style={styles.fixedButton}
                     >
-                        Редактировать
+                        <FaEdit />
                     </Button>
 
                     <Button
                         variant="success"
                         className="me-2"
                         onClick={handleSave}
-                        disabled={isEditing !== true}
+                        hidden={isEditing !== true}
+                        style={styles.fixedButton}
+
                     >
-                        Сохранить
+                        <FaSave />
                     </Button>
                 </div>
             </DragDropContext>
@@ -748,3 +764,18 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
 };
 
 export default WorkStagesBuilder;
+
+const styles = {
+    fixedButton: {
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+        zIndex: 1000,
+        borderRadius: '50%',
+        width: '50px',
+        height: '50px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+};

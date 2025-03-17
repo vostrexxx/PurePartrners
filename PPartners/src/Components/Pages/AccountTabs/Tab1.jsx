@@ -7,7 +7,7 @@ import { Container, Row, Col, Form, Button, Card, ListGroup } from "react-bootst
 import EntityDetailsModal from '../../Previews/EntityDetails';
 import ToastNotification from '../../Notification/ToastNotification';
 import { useToast } from '../../Notification/ToastContext';
-
+import AvatarUploader from '../../Previews/AvatarUploader'
 const ImageUploader = ({ label, onUpload, imagePath, onTrigger }) => {
 
     const handleFileChange = async (e) => {
@@ -373,7 +373,7 @@ const ProfilePage = () => {
             setAvatarPath(data.avatar);
             setTriggerGet(!triggerGet)
 
-            alert('Аватар успешно загружен!');
+            // alert('Аватар успешно загружен!');
         } catch (error) {
             setError(`Ошибка загрузки аватара: ${error.message}`);
         }
@@ -432,6 +432,22 @@ const ProfilePage = () => {
                                     />
                                 </Form.Group>
 
+                                <Form.Group controlId="formSurname" className="mb-3">
+                                    <Form.Label className="fw-bold">Фамилия</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="surname"
+                                        placeholder="Введите вашу фамилию"
+                                        value={profileData.surname || ""}
+                                        onChange={(e) => {
+                                            const onlyLetters = e.target.value.replace(/[^a-zA-Zа-яА-ЯёЁ\s-]/g, "");
+                                            handleInputChange({ target: { name: e.target.name, value: onlyLetters } });
+                                        }}
+                                        disabled={!isEditable}
+                                        className="rounded-pill p-3"
+                                    />
+                                </Form.Group>
+
                                 {/* Имя */}
                                 <Form.Group controlId="formName" className="mb-3">
                                     <Form.Label className="fw-bold">Имя</Form.Label>
@@ -448,6 +464,9 @@ const ProfilePage = () => {
                                         className="rounded-pill p-3"
                                     />
                                 </Form.Group>
+
+
+
 
                                 {/* Отчество */}
                                 <Form.Group controlId="formPatronymic" className="mb-3">
@@ -467,21 +486,7 @@ const ProfilePage = () => {
                                 </Form.Group>
 
                                 {/* Фамилия */}
-                                <Form.Group controlId="formSurname" className="mb-3">
-                                    <Form.Label className="fw-bold">Фамилия</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="surname"
-                                        placeholder="Введите вашу фамилию"
-                                        value={profileData.surname || ""}
-                                        onChange={(e) => {
-                                            const onlyLetters = e.target.value.replace(/[^a-zA-Zа-яА-ЯёЁ\s-]/g, "");
-                                            handleInputChange({ target: { name: e.target.name, value: onlyLetters } });
-                                        }}
-                                        disabled={!isEditable}
-                                        className="rounded-pill p-3"
-                                    />
-                                </Form.Group>
+
 
                                 {/* Почта */}
                                 <Form.Group controlId="formEmail" className="mb-3">
@@ -570,9 +575,12 @@ const ProfilePage = () => {
                 <Col xs={12} lg={10}>
                     <Card className="p-4 shadow-lg">
                         <Card.Body>
-                            <h3 className="text-center mb-4 text-primary">Фото профиля</h3>
                             <div className="d-flex flex-column align-items-center">
-                                <ImageLoader imagePath={avatarPath} place={"profile"} />
+                                <ImageLoader
+                                    imagePath={avatarPath}
+                                    place={"profile"}
+                                    onTrigger={triggerGet} // Передаем triggerGet
+                                />
                                 <div className="mt-3">
                                     <Button variant="primary" onClick={() => document.getElementById("avatarUpload").click()}>
                                         Загрузить аватар
@@ -595,4 +603,3 @@ const ProfilePage = () => {
 };
 
 export default ProfilePage;
-

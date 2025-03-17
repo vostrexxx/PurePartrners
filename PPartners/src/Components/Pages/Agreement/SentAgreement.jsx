@@ -49,7 +49,7 @@ const SentAgreement = () => {
             ) : error ? (
                 <Alert variant="danger">{error}</Alert>
             ) : agreements.length > 0 ? (
-                <Row>
+                <Row >
                     {agreements.map((item, index) => (
                         <Col xs={12} md={6} lg={4} key={index} className="mb-4">
                             <Agreement {...item} isReceiver={false} isSpecialist={isSpecialist} />

@@ -705,9 +705,6 @@ const AnnouncementDetails = () => {
                                             Прикрепленные фотографии:
                                         </h5>
 
-
-
-
                                         {images.length > 0 ? (
                                             <Row className="g-3">
                                                 {announcement.announcementImages.map((imagePath, index) => (
@@ -1033,9 +1030,9 @@ const AnnouncementDetails = () => {
 
 
                                             ) : (
-                                                <button onClick={handleOpenReaction} style={styles.button}>
+                                                <Button onClick={handleOpenReaction} style={styles.editButton} >
                                                     Откликнуться
-                                                </button>
+                                                </Button>
                                             )}
                                         </div>
                                     )}
@@ -1093,6 +1090,7 @@ const styles = {
         marginTop: '50px', // Отступ сверху
     },
     editButton: {
+        width: "100%",
         backgroundColor: '#4caf50',
         flex: 8,
         border: 'none',

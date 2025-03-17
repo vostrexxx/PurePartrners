@@ -8,6 +8,8 @@ import { EventSourcePolyfill } from 'event-source-polyfill';
 import MeasureUnitAutocomplete from '../SearchComponent/MeasureUnitAutocomplete';
 import { Container, Form, InputGroup, Button, Image, Row, Col } from 'react-bootstrap';
 import { Delete } from '@mui/icons-material'; // Импортируем иконку корзины
+import { FaFileWord, FaFileExcel, FaFilePdf, FaFileAlt, FaEdit, FaSave, FaMinus } from 'react-icons/fa';
+import { FaPlus } from "react-icons/fa";
 const Builder = ({ agreementId, initiatorId, receiverId }) => {
     const [estimate, setEstimate] = useState([]);
     const [originalEstimate, setOriginalEstimate] = useState([]);
@@ -264,7 +266,7 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
             elementId: Date.now().toString(),
             nodeId: `${estimate.length + 1}`,
             type: 1,
-            subWorkCategoryName: initialName,
+            // subWorkCategoryName: initialName,
             subSubWorkCategories: [],
         };
 
@@ -764,23 +766,48 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
     };
 
     return (
-        <Container fluid className="p-3 bg-light" style={{ minHeight: '500px', maxHeight: '90vh', overflowY: 'auto' }}>
-            <h2 className="mb-4 text-center">Редактор сметы</h2>
-
+        <Container fluid className="p-3 bg-light" style={{
+            height: '80vh',
+            overflowY: 'auto',
+            borderRadius: '5px', // Скругление краёв
+        }}>
+            <Row className="align-items-center">
+                <Col className="text-center">
+                    <h2>Редактор сметы</h2>
+                </Col>
+                <Col xs="auto">
+                    <Button variant="success" onClick={handleOpenModal}>
+                        <FaFileExcel /> {/* Иконка файла */}
+                    </Button>
+                </Col>
+            </Row>
             {/* Кнопки управления */}
             <div className="d-flex flex-wrap justify-content-center mb-4 gap-2">
-                <Button variant="primary" onClick={handleEdit} disabled={isEditing}>
-                    Редактировать
+
+                <Button
+                    variant="primary"
+                    onClick={handleEdit}
+                    hidden={isEditing}
+                    className="fixed-button"
+                    style={styles.fixedButton}
+                >
+                    {/* Редактировать */}
+                    <FaEdit />
                 </Button>
-                <Button variant="success" onClick={handleOpenModal}>
-                    Загрузить шаблон
+
+                <Button
+                    variant="success"
+                    onClick={handleSave}
+                    hidden={!isEditing}
+                    className="fixed-button"
+                    style={styles.fixedButton}
+                >
+                    {/* Сохранить */}
+                    <FaSave />
                 </Button>
-                <Button variant="warning" onClick={handleAddOrangeItem} disabled={!isEditing}>
-                    Добавить категорию
-                </Button>
-                <Button variant="secondary" onClick={handleSave} disabled={!isEditing}>
-                    Сохранить
-                </Button>
+
+
+
             </div>
 
             <BuilderModalWnd isOpen={modalOpen} onClose={closeModal} agreementId={agreementId} />
@@ -806,16 +833,9 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                                 disabled={!isEditing}
                                 color="error" // Цвет для кнопки удаления (красный)
                             >
-                                <Remove /> {/* Иконка минуса */}
+                                <Delete /> {/* Иконка минуса */}
                             </IconButton>
-                            <IconButton
-                                variant="outline-dark"
-                                onClick={() => handleAddSubItem(orange.elementId)}
-                                disabled={!isEditing}
-                                color="primary" // Цвет для кнопки добавления (синий)
-                            >
-                                <Add /> {/* Иконка плюса */}
-                            </IconButton>
+
                         </div>
 
                         {/* Карточки изменений для категории */}
@@ -843,8 +863,10 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                         {orange.subSubWorkCategories.map((subItem) => (
                             <div key={subItem.nodeId} className="p-2 mb-3 mt-2 bg-white rounded border">
                                 {/* Поля ввода и кнопки */}
-                                <div className="d-flex flex-wrap align-items-center gap-2">
+                                <div className="d-flex flex-column gap-2">
+                                    {/* Наименование подкатегории */}
                                     <TextField
+                                        label="Наименование подкатегории"
                                         placeholder="Наименование подкатегории"
                                         size="small"
                                         value={subItem.subSubWorkCategoryName || ''}
@@ -852,48 +874,66 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                                             handleSubItemChange(orange.elementId, subItem.elementId, 'subSubWorkCategoryName', e.target.value)
                                         }
                                         disabled={!isEditing}
-                                        className="flex-fill"
+                                        className="w-100"
+                                        multiline
+                                        minRows={1}
+                                        maxRows={4}
                                     />
-                                    <TextField
-                                        placeholder="Объем"
-                                        size="small"
-                                        value={subItem.workAmount || ''}
-                                        onChange={(e) => handleSubItemChange(orange.elementId, subItem.elementId, 'workAmount', e.target.value.replace(/[^0-9.,]/g, ''))}
-                                        disabled={!isEditing}
-                                        className="input-sm"
-                                    />
-                                    <MeasureUnitAutocomplete
-                                        onSelect={(value) =>
-                                            handleSubItemChange(orange.elementId, subItem.elementId, 'measureUnit', value)
-                                        }
-                                        value={subItem.measureUnit || ''}
-                                        disabled={!isEditing}
-                                    />
-                                    <TextField
-                                        placeholder="Цена"
-                                        size="small"
-                                        value={subItem.price || ''}
-                                        onChange={(e) => handleSubItemChange(orange.elementId, subItem.elementId, 'price', e.target.value.replace(/[^0-9.,]/g, ''))}
-                                        disabled={!isEditing}
-                                        className="input-sm"
-                                    />
-                                    <IconButton
+
+                                    {/* Группа полей: Объем, Ед. изм, Цена */}
+                                    <div className="d-flex flex-wrap gap-2">
+                                        <TextField
+                                            // label="Объём "
+                                            placeholder="Объем"
+                                            size="small"
+                                            label="Объём работ"
+                                            value={subItem.workAmount || ''}
+                                            onChange={(e) =>
+                                                handleSubItemChange(orange.elementId, subItem.elementId, 'workAmount', e.target.value.replace(/[^0-9.,]/g, ''))
+                                            }
+                                            disabled={!isEditing}
+                                            className="flex-grow-1"
+                                        />
+
+                                        <TextField
+                                            placeholder="Ед. изм"
+                                            size="small"
+                                            label="Ед. изм"
+                                            value={subItem.measureUnit || ''}
+                                            onChange={(e) => handleSubItemChange(orange.elementId, subItem.elementId, 'measureUnit', e.target.value)}
+                                            disabled={!isEditing}
+                                            className="flex-grow-1"
+                                        />
+
+                                        <TextField
+                                            placeholder="Цена"
+                                            label="Цена"
+                                            size="small"
+                                            value={subItem.price || ''}
+                                            onChange={(e) =>
+                                                handleSubItemChange(orange.elementId, subItem.elementId, 'price', e.target.value.replace(/[^0-9.,]/g, ''))
+                                            }
+                                            disabled={!isEditing}
+                                            className="flex-grow-1"
+                                        />
+                                    </div>
+
+                                    <Button
                                         variant="outline-danger"
                                         onClick={() => handleRemoveSubItem(orange.elementId, subItem.elementId)}
                                         disabled={!isEditing}
-                                        color="error" // Цвет для кнопки удаления (красный)
+                                        color="error"
                                     >
-                                        <Delete /> {/* Иконка корзины */}
-                                    </IconButton>
+                                        Удалить
+                                    </Button>
                                 </div>
 
-                                {/* Карточки изменений для подкатегории */}
+                                {/* Карточки изменений */}
                                 <div className="mt-2">
                                     {changes
                                         .filter(
                                             (change) =>
-                                                (change.updatedFields?.nodeId === subItem.nodeId ||
-                                                    change.parentId === subItem.elementId) &&
+                                                (change.updatedFields?.nodeId === subItem.nodeId || change.parentId === subItem.elementId) &&
                                                 change.operation !== 'add'
                                         )
                                         .map((change, index) => (
@@ -912,7 +952,19 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                                         ))}
                                 </div>
                             </div>
+
+
                         ))}
+                        <Button
+                            variant="success"
+                            className='w-100 mt-2'
+                            // style={{ width: "100%" }}
+                            onClick={() => handleAddSubItem(orange.elementId)}
+                            hidden={!isEditing}
+                            color="primary" // Цвет для кнопки добавления (синий)
+                        >
+                            Добавить подкатегорию
+                        </Button>
                     </div>
                 ))}
 
@@ -938,10 +990,21 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                     ))}
             </div>
 
+            <Button
+                variant="warning"
+                style={{ width: "100%" }}
+                onClick={handleAddOrangeItem}
+                hidden={!isEditing}>
+                Добавить категорию
+            </Button>
+
+
             {/* Документ менеджер */}
-            {Array.isArray(estimate) && estimate.length > 0 && (
-                <DocumentManager agreementId={agreementId} firstId={initiatorId} secondId={receiverId} />
-            )}
+            {
+                Array.isArray(estimate) && estimate.length > 0 && (
+                    <DocumentManager agreementId={agreementId} firstId={initiatorId} secondId={receiverId} />
+                )
+            }
 
             {/* Стили для адаптива */}
             <style>
@@ -969,10 +1032,25 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                 }
                 `}
             </style>
-        </Container>
+        </Container >
     );
 };
 
 
 
 export default Builder;
+
+const styles = {
+    fixedButton: {
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+        zIndex: 1000,
+        borderRadius: '50%',
+        width: '50px',
+        height: '50px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+};
