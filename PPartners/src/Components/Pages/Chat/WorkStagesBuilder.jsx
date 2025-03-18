@@ -400,6 +400,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                     subStageTitle: child.subWorkCategoryName,
                     subStagePrice: child.totalPrice || 0,
                     subStageOrder: index + 1,
+                    elementId: child.id
                 })),
             };
         });

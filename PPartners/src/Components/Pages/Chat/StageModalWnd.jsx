@@ -14,6 +14,8 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
 
     const [isContractReady, setIsContractReady] = useState();
     const [isActReady, setIsActReady] = useState();
+    const [isEstimateReady, setIsEstimateReady] = useState();
+
     const [trigger, setTrigger] = useState(false)
 
     const [isDocsReady, setIsDocsReady] = useState({ areStageFilesPresent: [] });
@@ -59,9 +61,9 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
         const stageFile = isDocsReady.areStageFilesPresent.find(
             (file) => file.order === stage.stageOrder
         );
-        console.log(isDocsReady, stage)
+        // console.log(isDocsReady, stage)
 
-        console.log("Найденный файл:", stageFile);
+        // console.log("Найденный файл:", stageFile);
         return stageFile ? stageFile.isContractPresent : false;
     };
 
@@ -96,6 +98,14 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
         );
 
         return stageFile ? stageFile.isActPresent : false;
+    };
+
+    const checkEstimatePresence = (isDocsReady, stage) => {
+        const stageFile = isDocsReady.areStageFilesPresent.find(
+            (file) => file.order === stage.stageOrder
+        );
+
+        return stageFile ? stageFile.isEstimatePresent : false;
     };
 
     useEffect(() => {
@@ -148,7 +158,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                 const fileURL = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = fileURL;
-                link.download = type === 'contract' ? 'Договор.docx' : 'Акт.docx';
+                link.download = type === 'contract' ? ('Договор.docx') : (type === 'estimate' ? 'Смета.xlsx' : 'Акт.docx');
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -166,6 +176,9 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
             // console.log(contractReady)
             const actReady = checkActPresence(isDocsReady, stageData);
             setIsActReady(actReady);
+
+            const estimateReady = checkEstimatePresence(isDocsReady, stageData);
+            setIsEstimateReady(estimateReady);
         }
     }, [isLoading, isDocsReady, stageData]);
 
@@ -298,22 +311,56 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                 bank: customerEntityData.bank,
             };
 
-            // Шаг 7: Отправка данных на сервер для формирования
-            const endpoint = type === 'contract' ? `${url}/document/contract` : `${url}/document/act`;
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${authToken}`,
-                },
-                body: JSON.stringify({ project: projectData, contractor: contractorData, customer: customerData, firstId, secondId }),
-            });
+            if (type === "estimate") {
+                const response = await fetch(`${url}/categories/estimate-stages`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                    body: JSON.stringify({ subStages: stageData.subStages }),
+                });
+                // alert(`${type === 'contract' ? 'Договор' : 'Акт'} успешно сформирован`);
 
-            if (!response.ok) {
-                throw new Error(`Ошибка формирования ${type === 'contract' ? 'договора' : 'акта'}: ${response.status}`);
+                if (!response.ok) {
+                    throw new Error(`Ошибка формирования ${type === 'contract' ? 'договора' : 'акта'}: ${response.status}`);
+                }
+
+                const estimateResponse = await response.json();
+                console.log(estimateResponse.estimate)
+                console.log(stageData)
+
+                const responseEstimate = await fetch(`${url}/document/estimate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                    body: JSON.stringify({ estimate: estimateResponse.estimate, agreementId, firstId: initiatorId, secondId: receiverId, stageOrder: stageData.stageOrder }),
+                });
+
+                if (!responseEstimate.ok) {
+                    throw new Error(`Ошибка сохранения сметы: ${response.status}`);
+                }
+
+            } else {
+                // Шаг 7: Отправка данных на сервер для формирования
+                const endpoint = type === 'contract' ? `${url}/document/contract` : `${url}/document/act`;
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                    body: JSON.stringify({ project: projectData, contractor: contractorData, customer: customerData, firstId, secondId }),
+                });
+                alert(`${type === 'contract' ? 'Договор' : 'Акт'} успешно сформирован`);
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка формирования ${type === 'contract' ? 'договора' : 'акта'}: ${response.status}`);
+                }
+
             }
-
-            alert(`${type === 'contract' ? 'Договор' : 'Акт'} успешно сформирован`);
             setTrigger(prev => !prev);
         } catch (error) {
             console.error(`Ошибка при формировании ${type}:`, error.message);
@@ -979,6 +1026,109 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                         {renderStatus(mode, stageData.stageStatus)}
                     </div>
                 </Box>
+
+                <Box sx={{ mt: 2 }}>
+                    <div>
+
+                        {stageData.stageStatus === 'В ожидании заморозки средств' ? (
+                            <div
+                                style={{
+                                    backgroundColor: '#1a1a1a',
+                                    padding: '20px',
+                                    borderRadius: '10px',
+                                    boxShadow: '0 4px 10px rgba(0, 0, 0, 0.3)',
+                                    margin: '20px auto',
+                                    maxWidth: '500px',
+                                    color: 'white',
+                                }}
+                            >
+                                {isEstimateReady ? (
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            padding: '10px',
+                                            borderRadius: '8px',
+                                            backgroundColor: '#2a2a2a',
+                                        }}
+                                    >
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                            }}
+                                        >
+                                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                <FaFileExcel size={24} color="#4caf50" />
+                                                <h4 style={{ marginLeft: '10px', marginBottom: '0', color: 'white' }}>
+                                                    Смета
+                                                </h4>
+                                            </div>
+                                            <button
+                                                onClick={() => handleDownload('estimate')}
+                                                style={{
+                                                    background: 'transparent',
+                                                    border: 'none',
+                                                    cursor: 'pointer',
+                                                    color: '#4caf50',
+                                                    fontSize: '16px',
+                                                }}
+                                            >
+                                                Скачать
+                                            </button>
+                                        </div>
+                                        <button
+                                            onClick={() => handleGenerateContractOrAct('estimate')}
+                                            style={{
+                                                background: 'none',
+                                                border: 'none',
+                                                color: '#ffa500',
+                                                cursor: 'pointer',
+                                                fontSize: '14px',
+                                                marginTop: '8px',
+                                                textAlign: 'right',
+                                                textDecoration: 'underline',
+                                            }}
+                                        >
+                                            Переформировать
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            padding: '10px',
+                                            borderRadius: '8px',
+                                            backgroundColor: '#2a2a2a',
+                                        }}
+                                    >
+                                        <FaFileExcel size={24} color="#f44336" />
+                                        <h4 style={{ margin: '10px 0', color: 'white' }}>Смета</h4>
+                                        <button
+                                            onClick={() => handleGenerateContractOrAct('estimate')}
+                                            style={{
+                                                backgroundColor: '#f44336',
+                                                border: 'none',
+                                                color: 'white',
+                                                padding: '5px 10px',
+                                                borderRadius: '5px',
+                                                cursor: 'pointer',
+                                            }}
+                                        >
+                                            Сформировать
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        ) : null}
+
+
+                    </div>
+                </Box>
+
 
                 <Box sx={{ mt: 4, textAlign: 'right' }}>
                     <Button onClick={onClose} variant="contained" color="primary">
