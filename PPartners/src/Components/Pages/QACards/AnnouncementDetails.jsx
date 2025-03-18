@@ -125,7 +125,7 @@ const AnnouncementDetails = () => {
 
                         if (!response.ok) {
                             // console.error(`Ошибка загрузки изображения: ${imagePath}`);
-                            showToast("Ошибка загрузки изображения", "error")
+                            showToast("Ошибка загрузки изображения", "danger")
 
                             return null;
                         }
@@ -175,7 +175,7 @@ const AnnouncementDetails = () => {
             });
 
             if (!response.ok) {
-                showToast("Ошибка скачивания файла", "error")
+                showToast("Ошибка скачивания файла", "danger")
                 throw new Error(`Ошибка скачивания файла: ${response.status}`);
 
             }
@@ -189,7 +189,7 @@ const AnnouncementDetails = () => {
         } catch (error) {
             // console.error('Ошибка скачивания файла:', error);
             // alert('Не удалось скачать файл.');
-            showToast("Не удалось скачать файл", "error")
+            showToast("Не удалось скачать файл", "danger")
         }
     };
 
@@ -215,7 +215,7 @@ const AnnouncementDetails = () => {
             } catch (error) {
                 // console.error('Ошибка удаления файла:', error);
                 // alert('Не удалось удалить файл.');
-                showToast("Не удалось удалить файл", "error")
+                showToast("Не удалось удалить файл", "danger")
 
             }
         }
@@ -224,7 +224,7 @@ const AnnouncementDetails = () => {
     const handleUploadFiles = async () => {
         if (newFiles.length === 0) {
             // alert('Вы не выбрали файлы для загрузки.');
-            showToast("Вы не выбрали файлы для загрузки", "error")
+            showToast("Вы не выбрали файлы для загрузки", "danger")
             return;
         }
 
@@ -254,7 +254,7 @@ const AnnouncementDetails = () => {
         } catch (error) {
             // console.error('Ошибка загрузки файлов:', error);
             // alert('Не удалось загрузить файлы.');
-            showToast("Не удалось загрузить файлы", "error")
+            showToast("Не удалось загрузить файлы", "danger")
 
         }
     };
@@ -301,7 +301,7 @@ const AnnouncementDetails = () => {
     const handleUploadImages = async () => {
         if (newImages.length === 0) {
             // alert('Вы не выбрали фотографии для загрузки.');
-            showToast("Ошибка создания объявления", "error")
+            showToast("Ошибка создания объявления", "danger")
             return;
         }
 
@@ -330,7 +330,7 @@ const AnnouncementDetails = () => {
         } catch (error) {
             // console.error('Ошибка при загрузке фотографий:', error);
             // alert('Не удалось загрузить фотографии.');
-            showToast("Не удалось загрузить фотографии", "error")
+            showToast("Не удалось загрузить фотографии", "danger")
         }
     };
 
@@ -363,7 +363,7 @@ const AnnouncementDetails = () => {
             } catch (error) {
                 // console.error('Ошибка при удалении изображения:', error);
                 // alert('Не удалось удалить изображение.');
-                showToast("Не удалось удалить изображение", "error")
+                showToast("Не удалось удалить изображение", "danger")
 
             }
         }
@@ -395,7 +395,7 @@ const AnnouncementDetails = () => {
             }
         } catch (error) {
             // setError(`Ошибка при сохранении: ${error.message}`);
-            showToast("Ошибка при слхранении", "error")
+            showToast("Ошибка при слхранении", "danger")
 
         }
     };
@@ -428,7 +428,7 @@ const AnnouncementDetails = () => {
                 }
             } catch (error) {
                 // setError(`Ошибка при удалении: ${error.message}`);
-                showToast("Ошибка удаления", "error")
+                showToast("Ошибка удаления", "danger")
 
             }
         }
@@ -450,11 +450,11 @@ const AnnouncementDetails = () => {
                     throw new Error(`Ошибка применения изменения: ${response.status}`);
                 }
 
-                showToast("Лицо успешно привязано", "success")
+                if (selectedEntityId) { showToast("Лицо успешно привязано", "success") } else { showToast("Выберите лицо, которое хотите привязать", "danger") }
             } catch (error) {
                 // console.error('Ошибка применения изменения:', error);
                 // alert('Не удалось одобрить изменение.');
-                showToast("Не удалось привязать лицо", "error")
+                showToast("Не удалось привязать лицо", "danger")
 
             }
         }
@@ -478,7 +478,7 @@ const AnnouncementDetails = () => {
 
             } catch (error) {
                 // console.error('Ошибка привязки лица:', error);
-                showToast("Не удалось отвязать лицо", "error")
+                showToast("Не удалось отвязать лицо", "danger")
 
                 // alert('Не удалось одобрить изменение.');
             }

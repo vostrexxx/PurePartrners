@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useProfile } from '../../Context/ProfileContext'; // Импорт профиля
+import { useProfile } from '../../Context/ProfileContext';
 import { ImTextColor } from 'react-icons/im';
 import Card_ from '../../Previews/Card.jsx';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -39,7 +39,8 @@ const Entities = ({ onSelectEntity }) => {
         const data = await response.json();
         setLegalEntities(data);
       } catch (error) {
-        console.error("Ошибка при загрузке юрлиц:", error.message);
+        // console.error("Ошибка при загрузке юрлиц:", error.message);
+        showToast("Ошибка при загрузке юрлиц", "danger")
       }
     };
 
@@ -63,7 +64,8 @@ const Entities = ({ onSelectEntity }) => {
         const data = await response.json();
         setPersons(data);
       } catch (error) {
-        console.error("Ошибка при загрузке физлиц:", error.message);
+        // console.error("Ошибка при загрузке физлиц:", error.message);
+        showToast("Ошибка при загрузке физлиц", "danger")
       }
     };
 
@@ -340,7 +342,7 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
       }
     } catch (error) {
       console.error("Ошибка при отправке анкеты:", error);
-      showToast('Ошибка добавления анкета', 'error')
+      showToast('Ошибка добавления анкеты', 'danger')
 
     }
   };
@@ -733,12 +735,12 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
       } else {
         const errorMsg = await response.text();
         // alert(`Ошибка при добавлении объявления: ${errorMsg}`);
-        showToast("Ошибка создания объявления", "error")
+        showToast("Ошибка создания объявления", "danger")
       }
     } catch (error) {
       console.error("Ошибка при отправке данных:", error);
       // alert("Произошла ошибка при отправке данных.");
-      showToast("Ошибка создания объявления", "error")
+      showToast("Ошибка создания объявления", "danger")
 
     } finally {
       setUploading(false);
@@ -821,6 +823,23 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
                   />
                 </Form.Group>
 
+                {/* Адрес */}
+                <Form.Group className="mb-3">
+                  <Form.Label style={{ color: "white" }}>Адрес</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="address"
+                    placeholder="Адрес будущих работ"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    style={{
+                      backgroundColor: "#333",
+                      color: "white",
+                      border: "1px solid #555",
+                    }}
+                    className="form-control-placeholder"
+                  />
+                </Form.Group>
                 <Row className="g-3 mb-3">
                   <Col xs={12} md={6}>
                     <Form.Group>
@@ -877,23 +896,7 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
                   />
                 </Form.Group>
 
-                {/* Адрес */}
-                <Form.Group className="mb-3">
-                  <Form.Label style={{ color: "white" }}>Адрес</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="address"
-                    placeholder="Адрес будущих работ"
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    style={{
-                      backgroundColor: "#333",
-                      color: "white",
-                      border: "1px solid #555",
-                    }}
-                    className="form-control-placeholder"
-                  />
-                </Form.Group>
+
 
                 {/* Стили для серого плейсхолдера */}
                 <style>

@@ -31,7 +31,7 @@ const getToastTitle = (type) => {
             return 'Успешно!';
         case 'warning':
             return 'Внимание!';
-        case 'error':
+        case 'danger':
             return 'Ошибка!';
         default:
             return 'Информация:';

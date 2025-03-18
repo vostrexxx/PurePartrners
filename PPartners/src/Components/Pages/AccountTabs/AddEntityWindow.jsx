@@ -140,7 +140,7 @@ const EntityModal = ({ isOpen, onClose, fullName, onTrigger, gotPerson }) => {
       }
     } catch (error) {
       console.error(`Ошибка при сохранении данных: ${error.message}`);
-      showToast('Ошибка сохранения лица', 'error');
+      showToast('Ошибка сохранения лица', 'danger');
     }
   };
 

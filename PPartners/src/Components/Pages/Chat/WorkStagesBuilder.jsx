@@ -514,7 +514,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
             <DragDropContext onDragEnd={onDragEnd}>
                 <Row>
                     <Col md={6} className="mb-4">
-                        <h3 className='text-white'>Создание этапа</h3>
+                        <h2 className='text-white text-center'>Создание этапа</h2>
 
                         <Row className="align-items-center g-2 mb-4"> {/* g-2 добавляет отступы между элементами */}
                             <Col className="flex-grow-1"> {/* flex-grow-1 позволяет Form.Control занимать доступное пространство */}
@@ -523,7 +523,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                                     placeholder="Название этапа"
                                     value={newStageName}
                                     onChange={(e) => setNewStageName(e.target.value)}
-                                    disabled={isEditing !== true}
+                                    hidden={isEditing !== true}
                                     className="h-100" // Задает высоту 100% для выравнивания по высоте
                                 />
                             </Col>
@@ -540,7 +540,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                         </Row>
 
 
-                        <h2 className='text-white'>Список этапов работ:</h2>
+                        <h4 className='text-white'>Список этапов:</h4>
                         {stages.length === 0 ? <p className='text-white'>Список этапов пока что пуст,
                             вы можете перейти в режим редактирования для добавления этапов</p> : <div></div>}
                         {stages.map((stage) => {
@@ -553,15 +553,22 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                                     {(provided) => (
                                         <div ref={provided.innerRef} {...provided.droppableProps} className="p-3 mb-3 border rounded">
                                             <div className="d-flex justify-content-between align-items-center">
-                                                <h5 className='text-white'>
-                                                    {stage.order}. {stage.name} — Сумма: {totalSum} руб.
-                                                </h5>
+                                                <div className='two-lines'>
+                                                    <h3 className='text-white'>
+                                                        {stage.order}. {stage.name}
+                                                    </h3>
+                                                    <h6 className='text-white mt-3'>
+                                                        Сумма: {totalSum} руб.
+                                                    </h6>
+                                                </div>
+
+
                                                 {!isBothApproved && (
                                                     <Button
                                                         variant="outline-danger"
                                                         size="sm"
                                                         onClick={() => handleDeleteStage(stage.id)}
-                                                        disabled={isEditing !== true}
+                                                        hidden={isEditing !== true}
                                                     >
                                                         Удалить
                                                     </Button>
@@ -569,7 +576,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                                             </div>
 
                                             {/* Статус утверждения */}
-                                            <div className="d-flex justify-content-between align-items-center mt-2">
+                                            <div className="d-flex justify-content-between align-items-center ">
                                                 <h6 className='text-white'>
                                                     Статус:{" "}
                                                     {stage.isCustomerApproved && stage.isContractorApproved
@@ -596,7 +603,9 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                                                         variant="outline-success"
                                                         size="sm"
                                                         onClick={() => handleApprove(stage.id, stage.children, stage)}
-                                                        disabled={isEditing !== null}
+                                                        hidden={isEditing !== null}
+                                                    // hiiden={isEditing !== null}
+
                                                     >
                                                         {isLocalApproved ? "Отменить" : "Утвердить"}
                                                     </Button>

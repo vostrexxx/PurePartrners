@@ -83,7 +83,8 @@ const Entities = ({ onSelectEntity, triggerGet, onTrigger, onGotPerson }) => {
                 const data = await response.json();
                 setLegalEntities(data);
             } catch (error) {
-                console.error("Ошибка при загрузке юрлиц:", error.message);
+                // console.error("Ошибка при загрузке юрлиц:", error.message);
+                showToast("Ошибка при загрузке юрлиц", "danger")
             }
         };
 
@@ -107,7 +108,8 @@ const Entities = ({ onSelectEntity, triggerGet, onTrigger, onGotPerson }) => {
                 data.length === 0 ? onGotPerson(false) : onGotPerson(true)
 
             } catch (error) {
-                console.error("Ошибка при загрузке физлиц:", error.message);
+                // console.error("Ошибка при загрузке физлиц:", error.message);
+                showToast("Ошибка при загрузке физлиц", "danger")
             }
         };
 
@@ -345,7 +347,7 @@ const ProfilePage = () => {
                 },
                 body: JSON.stringify(profileData),
             });
-            console.log(response)
+            // console.log(response)
             if (!response.ok) {
                 throw new Error(`Ошибка сети: ${response.status}`);
             } else {
@@ -353,7 +355,7 @@ const ProfilePage = () => {
                 setIsEditable(false);
             }
         } catch (error) {
-            showToast('Данные профиля не сохранены!', 'error')
+            showToast('Данные профиля не сохранены!', 'danger')
         }
     };
 
@@ -402,7 +404,8 @@ const ProfilePage = () => {
             }
 
             const data = await response.json();
-            alert(`Фото паспорта ${index + 1} успешно загружено!`);
+            // alert(`Фото паспорта ${index + 1} успешно загружено!`);
+            showToast(`Фото паспорта ${index + 1} успешно загружено!`, 'success')
 
             // Обновляем соответствующую фотографию
             if (index === 0) setPassportPhoto1(data.passport);
@@ -416,7 +419,7 @@ const ProfilePage = () => {
     const [gotPerson, setGotPerson] = useState()
 
     const handleGotPerson = (gotPerson) => {
-        console.log("Got person:", gotPerson);
+        // console.log("Got person:", gotPerson);
         setGotPerson(gotPerson)
     };
 
