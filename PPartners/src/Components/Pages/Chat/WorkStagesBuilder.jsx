@@ -8,9 +8,12 @@ import { Container, Form, InputGroup, Button, Image, Row, Col } from 'react-boot
 import { Delete } from '@mui/icons-material'; // Импортируем иконку корзины
 import { FaFileWord, FaFileExcel, FaFilePdf, FaFileAlt, FaEdit, FaSave, FaMinus } from 'react-icons/fa';
 import { FaPlus } from "react-icons/fa";
-
-
+import { useToast } from '../../Notification/ToastContext'
+import { confirmAlert } from "react-confirm-alert";
+import "react-confirm-alert/src/react-confirm-alert.css";
+import Swal from "sweetalert2";
 const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
+    const showToast = useToast();
     const [stages, setStages] = useState([]); // Список этапов работ
     const [drawerOpen, setDrawerOpen] = useState(false); // Открытие/закрытие шторки
     const [rawStages, setRawStages] = useState([]); // Исходный список
@@ -143,7 +146,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                 setIsEditing(data.isEditing);
 
                 if (data.isEditing === false) {
-                    alert("Этапы работ редактируется другим пользователем.");
+                    showToast("Этапы работ редактируется другим пользователем", 'warning');
                 }
             } catch (error) {
                 console.error('Ошибка получения состояния редактирования:', error);
@@ -232,7 +235,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
             const data = await response.json();
 
             if (data.isEditing === false) {
-                alert("Этапы работ редактируется другим пользователем.");
+                showToast("Этапы работ редактируется другим пользователем", "warning");
                 return;
             }
 
@@ -256,47 +259,61 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
             setIsEditing(true);
         } catch (error) {
             console.error('Ошибка обработки редактирования:', error);
-            alert('Не удалось переключить состояние редактирования.');
+            showToast('Не удалось переключить состояние редактирования', 'warning');
         }
     };
 
     const handleResetStages = async () => {
-        if (window.confirm("Вы уверены, что хотите сбросить все этапы работ?")) {
-            try {
-                const params = new URLSearchParams({ agreementId, firstId: initiatorId, secondId: receiverId });
-                const response = await fetch(`${url}/stages?${params.toString()}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`,
-                    },
-                });
 
-                if (!response.ok) {
-                    throw new Error(`Ошибка сброса: ${response.status}`);
+
+        Swal.fire({
+            title: "Вы уверены?",
+            text: "Это действие нельзя будет отменить!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Да, удалить!",
+            cancelButtonText: "Отмена",
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const params = new URLSearchParams({ agreementId, firstId: initiatorId, secondId: receiverId });
+                    const response = await fetch(`${url}/stages?${params.toString()}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`,
+                        },
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Ошибка сброса: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    if (data.success) {
+                        setStages([])
+                        showToast('Этапы работ успешно сброшены', 'success')
+                    } else {
+                        showToast('Не удалось сбросить этапы, так как по некоторым из них уже ведутся работы', 'warning')
+                    }
+                } catch (error) {
+                    console.error('Ошибка обработки редактирования:', error);
                 }
-
-                const data = await response.json();
-                if (data.success) {
-                    setStages([])
-                    // setTrigger(!trigger)
-
-                    alert('Этапы работ успешно сброшены')
-                } else {
-                    alert('Не удалось сбросить этапы, так как по некоторым из них уже ведутся работы')
-                }
-                // console.log(data)
-            } catch (error) {
-                console.error('Ошибка обработки редактирования:', error);
             }
-        }
+        });
+
+
+
+
 
     };
 
     // Добавление нового этапа в список
     const handleAddStage = () => {
         if (!newStageName.trim()) {
-            alert('Введите название этапа!');
+            showToast('Введите название этапа', 'info');
             return;
         }
         const newStage = {
@@ -452,7 +469,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
             // setTrigger(!trigger)
         } catch (error) {
             console.error('Ошибка при сохранении этапов:', error.message);
-            alert('Ошибка при сохранении этапов. Проверьте данные и попробуйте снова.');
+            showToast('Ошибка при сохранении этапов. Проверьте данные и попробуйте снова', 'danger');
         }
     };
 
@@ -460,11 +477,11 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
 
 
         if (children.length === 0) {
-            alert('Нельзя утвердить этап без видов работ')
+            showToast('Нельзя утвердить этап без видов работ', 'danger')
         } else {
 
             if (!(stage.startDate && stage.finishDate)) {
-                alert('Нельзя утвердить этап без установленных дат')
+                showToast('Нельзя утвердить этап без установленных дат', 'warning')
             } else {
                 if (window.confirm(mode === "contractor"
                     ? (stage.isContractorApproved ? "Вы уверены, что хотите снять утверждение?" : "Вы уверены, что хотите утвердить этап?")
@@ -489,7 +506,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
 
                     } catch (error) {
                         // console.error('Ошибка при сохранении этапов:', error.message);
-                        alert('Ошибка при утверждении.');
+                        showToast('Ошибка при утверждении', 'danger');
                     }
                 }
             }

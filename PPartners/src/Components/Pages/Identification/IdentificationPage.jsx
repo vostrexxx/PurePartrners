@@ -34,7 +34,7 @@ const IdentificationPage = () => {
         setErrorMessage(null);
     };
 
-    const handleSubmit = async () => {
+    const handleEnter = async () => {
         if (isValid) {
             try {
                 const response = await fetch(url + "/auth/checkPhoneNumber", {
@@ -119,7 +119,7 @@ const IdentificationPage = () => {
                                     padding: "10px 30px",
                                     fontSize: "18px",
                                 }}
-                                onClick={handleSubmit}
+                                onClick={() => handleEnter()}
                                 disabled={!isValid}
                             >
                                 Продолжить

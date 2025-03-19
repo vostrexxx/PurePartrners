@@ -3,7 +3,9 @@ import { Button, TextField, Radio, RadioGroup, FormControlLabel, FormControl, Fo
 import { useProfile } from '../../Context/ProfileContext';
 import Card from '../../Previews/Card';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useToast } from '../../Notification/ToastContext'
 const ReactionWindow = ({ isOpen, onClose, userId, id, mode, receiverItemName }) => {
+    const showToast = useToast();
     const [selectedPreviewId, setSelectedPreviewId] = useState(null); // Выбранное превью
     const [announcements, setAnnouncements] = useState([]);
     const [questionnaires, setQuestionnaires] = useState([]);
@@ -56,7 +58,7 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode, receiverItemName })
                 }
             } catch (error) {
                 console.error("Ошибка при загрузке данных:", error);
-                alert("Ошибка при загрузке данных");
+                showToast("Ошибка при загрузке данных", "danger");
             }
         };
 
@@ -81,14 +83,12 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode, receiverItemName })
 
             if (response.ok) {
                 navigate(`/agreement`)
-                alert("Успешно отправлено!");
+                showToast("Отлик успешно отправлен", "success");
                 // onClose(); // Закрываем окно
-            } else {
-                // const error = await response.json();
-                // alert(`Ошибка: ${error.message}`);
             }
+
         } catch (error) {
-            alert("Произошла ошибка отправки данных.");
+            showToast("Ошибка отправки отклика", "danger");
         }
     };
 

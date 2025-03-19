@@ -6,8 +6,9 @@ import RejectButton from './RejectButton';
 import CompleteButton from './CompleteButton';
 import { useProfile } from '../../Context/ProfileContext';
 import { Button } from 'react-bootstrap'; // Используем Button из Bootstrap
-
+import { useToast } from '../../Notification/ToastContext'
 const ChatContext = ({ agreementId }) => {
+    const showToast = useToast();
     const [agreementInfo, setAgreementInfo] = useState(null);
     const [userId, setUserId] = useState(null);
     const [mode, setMode] = useState(null);
@@ -194,7 +195,7 @@ const ChatContext = ({ agreementId }) => {
 
             const data = await response.json();
         } catch (error) {
-            alert('Ошибка при утверждении.');
+            showToast('Ошибка при утверждении', 'danger');
         }
     };
 
@@ -224,7 +225,7 @@ const ChatContext = ({ agreementId }) => {
             </div>
 
             {agreementInfo && (agreementInfo.localizedStatus === "В ожидании" || agreementInfo.localizedStatus === "Переговоры") ?
-                <RejectButton  className="m-3" agreementId={agreementId} /> : ""}
+                <RejectButton className="m-3" agreementId={agreementId} /> : ""}
 
             {agreementInfo ? (
                 <div className="d-flex justify-content-between align-items-center mt-3">

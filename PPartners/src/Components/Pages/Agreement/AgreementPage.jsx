@@ -46,7 +46,7 @@ const AgreementPage = () => {
                     eventKey="tab2"
                     className="rounded-pill fw-bold text-center custom-tab"
                   >
-                    Отлкики вам
+                    Отклики вам
                   </Nav.Link>
                 </Nav.Item>
               </Nav>

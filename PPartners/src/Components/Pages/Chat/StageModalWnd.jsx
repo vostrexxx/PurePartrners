@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Modal, Box, Typography, Button, TextField } from '@mui/material';
 import { FaFileWord, FaFileExcel, FaFilePdf } from 'react-icons/fa';
 import { useNavigate, useLocation } from 'react-router-dom';
-
+import { useToast } from '../../Notification/ToastContext'
 const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStages, setTriggerStages, firstId, secondId }) => {
     if (!stage) return null; // Если stage не передан, ничего не рендерим
+    const showToast = useToast();
     // console.log(stage)
     const authToken = localStorage.getItem('authToken');
     const url = localStorage.getItem('url');
@@ -354,7 +355,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                     },
                     body: JSON.stringify({ project: projectData, contractor: contractorData, customer: customerData, firstId, secondId }),
                 });
-                alert(`${type === 'contract' ? 'Договор' : 'Акт'} успешно сформирован`);
+                showToast(`${type === 'contract' ? 'Договор' : 'Акт'} успешно сформирован`, 'success');
 
                 if (!response.ok) {
                     throw new Error(`Ошибка формирования ${type === 'contract' ? 'договора' : 'акта'}: ${response.status}`);
@@ -447,12 +448,12 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                 const paymentData = await response_.json();
 
                 if (paymentData.success) {
-                    alert('Деньги успешно заморожены');
+                    showToast('Деньги успешно заморожены', 'success');
                 }
 
                 handleChangeStageStatus('Не начато');
             } else {
-                alert('Не удалось выполнить заморозку средств. Проверьте данные.');
+                showToast('Не удалось выполнить заморозку средств. Проверьте данные.', 'danger');
             }
         } catch (error) {
             console.error('Ошибка при выполнении запроса:', error.message);
@@ -529,9 +530,9 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                     }
 
                     const data = await response.json();
-                    alert('Этап успешно оплачен');
+                    showToast('Этап успешно оплачен', 'success');
                 } else {
-                    alert('Этап не оплачен, пополниите баланс');
+                    showToast('Этап не оплачен, пополниите баланс', 'warning');
                 }
             } else {
                 const response = await fetch(`${url}/stages/status`, {
@@ -566,13 +567,12 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                     const newStatusData = await response.json();
 
                 }
-
-                alert('Статус успешно изменём');
+                showToast('Статус успешно изменём', 'success');
             }
 
             // onTrigger()
         } catch (error) {
-            alert('Ошибка при смене статуса');
+            showToast('Ошибка при смене статуса', 'danger');
         }
     };
 
@@ -641,7 +641,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
             handleChangeStageStatus('Подтверждено')
 
         } catch (error) {
-            alert('Ошибка при смене статуса');
+            showToast('Ошибка при смене статуса', 'danger');
         }
     };
 

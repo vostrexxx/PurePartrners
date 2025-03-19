@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useToast } from '../../Notification/ToastContext'
 let url = localStorage.getItem('url')
 
 // Функция для получения токена
 const getAuthToken = () => localStorage.getItem('authToken');
 
 const ProfilePage = () => {
+    const showToast = useToast();
     const [profileData, setProfileData] = useState({
         name: '',
         surname: '',
@@ -23,7 +25,7 @@ const ProfilePage = () => {
         const authToken = getAuthToken();
         if (authToken) {
             setToken(authToken);
-            
+
             fetch(url + '/profile', {
                 method: 'GET',
                 headers: {
@@ -31,20 +33,20 @@ const ProfilePage = () => {
                     'Authorization': `Bearer ${authToken}`,
                 },
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success === 1) {
-                    setProfileData(data.profile); // Заполняем форму данными профиля
-                    setIsEditable(false); // Поля изначально не редактируемы
-                } else {
-                    setIsUserRegistered(false); // Если профиль не найден, показываем форму регистрации
-                }
-                setIsDataLoaded(true); // Данные загружены
-            })
-            .catch(error => {
-                console.error('Ошибка при загрузке данных:', error);
-                setIsDataLoaded(true); // Устанавливаем флаг, чтобы показать ошибку или форму регистрации
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success === 1) {
+                        setProfileData(data.profile); // Заполняем форму данными профиля
+                        setIsEditable(false); // Поля изначально не редактируемы
+                    } else {
+                        setIsUserRegistered(false); // Если профиль не найден, показываем форму регистрации
+                    }
+                    setIsDataLoaded(true); // Данные загружены
+                })
+                .catch(error => {
+                    console.error('Ошибка при загрузке данных:', error);
+                    setIsDataLoaded(true); // Устанавливаем флаг, чтобы показать ошибку или форму регистрации
+                });
         } else {
             setIsUserRegistered(false); // Если токена нет, показываем форму регистрации
             setIsDataLoaded(true); // Данные не нужны, так как это форма регистрации
@@ -85,15 +87,15 @@ const ProfilePage = () => {
             const data = await response.json();
 
             if (data.success) {
-                alert('Профиль успешно обновлен!');
+                showToast('Профиль успешно обновлен', 'success');
                 setProfileData(data.profile); // Обновляем данные профиля
                 setIsEditable(false); // Поля снова становятся не редактируемыми
             } else {
-                alert('Ошибка при обновлении профиля.');
+                showToast('Ошибка при обновлении профиля', 'danger');
             }
         } catch (error) {
             console.error('Ошибка при отправке запроса:', error);
-            alert('Произошла ошибка. Попробуйте снова.');
+            showToast('Произошла ошибка. Попробуйте снова', 'danger');
         }
     };
 

@@ -3,13 +3,17 @@ import { useNavigate } from "react-router-dom";
 import { Button, Container, Row, Col, Form, Card } from "react-bootstrap";
 import NotAuthTopBar from "../TopBar/NotAuthTopBar";
 import ErrorMessage from "../../ErrorHandling/ErrorMessage";
-
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useToast } from '../../Notification/ToastContext'
 const RegistrationPage = () => {
+    const showToast = useToast();
     const [errorMessage, setErrorMessage] = useState(null);
     const [errorCode, setErrorCode] = useState(null);
     const [phoneNumber, setPhoneNumber] = useState(localStorage.getItem("phoneNumber"));
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
     const url = localStorage.getItem("url");
@@ -20,7 +24,7 @@ const RegistrationPage = () => {
 
     const handleRegister = async () => {
         if (password !== confirmPassword) {
-            alert("Пароли не совпадают");
+            showToast("Пароли не совпадают", 'warning');
             return;
         }
 
@@ -79,10 +83,10 @@ const RegistrationPage = () => {
                                             }}
                                         />
                                     </Form.Group>
-                                    <Form.Group controlId="formPassword" className="mb-3">
+                                    <Form.Group controlId="formPassword" className="mb-3 position-relative">
                                         {/* <Form.Label>Введите пароль</Form.Label> */}
                                         <Form.Control
-                                            type="password"
+                                            type={showPassword ? "text" : "password"}
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             placeholder="Введите пароль"
@@ -93,8 +97,14 @@ const RegistrationPage = () => {
                                                 boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
                                             }}
                                         />
+                                        <FontAwesomeIcon
+                                            icon={showPassword ? faEyeSlash : faEye}
+                                            className="position-absolute top-50 end-0 translate-middle-y me-3"
+                                            style={{ cursor: "pointer", color: "#888" }}
+                                            onClick={() => setShowPassword(!showPassword)}
+                                        />
                                     </Form.Group>
-                                    <Form.Group controlId="formConfirmPassword" className="mb-3">
+                                    <Form.Group controlId="formConfirmPassword" className="mb-3p osition-relative">
                                         {/* <Form.Label>Подтвердите пароль</Form.Label> */}
                                         <Form.Control
                                             type="password"
@@ -110,7 +120,7 @@ const RegistrationPage = () => {
                                         />
                                     </Form.Group>
                                     <ErrorMessage message={errorMessage} errorCode={errorCode} />
-                                    <div className="d-grid gap-2">
+                                    <div className="d-grid gap-2 mt-4">
                                         <Button
                                             variant="primary"
                                             className="rounded-pill"

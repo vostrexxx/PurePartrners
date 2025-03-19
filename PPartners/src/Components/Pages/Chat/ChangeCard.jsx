@@ -1,8 +1,9 @@
 import React from 'react';
 import { IconButton, Box, Typography, List, ListItem, ListItemText } from '@mui/material';
 import { Check, Close } from '@mui/icons-material';
-
+import { useToast } from '../../Notification/ToastContext'
 const ChangeCard = ({ operation, data, url, authToken, agreementId, userId, firstId, secondId }) => {
+    const showToast = useToast();
     const handleApprove = async () => {
         try {
             const response = await fetch(`${url}/categories/estimate`, {
@@ -18,10 +19,10 @@ const ChangeCard = ({ operation, data, url, authToken, agreementId, userId, firs
                 throw new Error(`Ошибка применения изменения: ${response.status}`);
             }
 
-            alert('Изменение успешно одобрено!');
+            showToast('Изменение успешно одобрено!', 'success');
         } catch (error) {
             console.error('Ошибка применения изменения:', error);
-            alert('Не удалось одобрить изменение.');
+            showToast('Не удалось одобрить изменение.', 'danger');
         }
     };
 
@@ -40,10 +41,10 @@ const ChangeCard = ({ operation, data, url, authToken, agreementId, userId, firs
                 throw new Error(`Ошибка отклонения изменения: ${response.status}`);
             }
 
-            alert('Изменение успешно отклонено!');
+            showToast('Изменение успешно отклонено', 'success');
         } catch (error) {
             console.error('Ошибка отклонения изменения:', error);
-            alert('Не удалось отклонить изменение.');
+            showToast('Не удалось отклонить изменение', 'danger');
         }
     };
 

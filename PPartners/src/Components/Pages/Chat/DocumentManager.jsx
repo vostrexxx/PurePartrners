@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { FaFileWord, FaFileExcel, FaFilePdf } from 'react-icons/fa';
-
+import { useToast } from '../../Notification/ToastContext'
 const getAuthToken = () => localStorage.getItem('authToken');
 let url = localStorage.getItem('url');
-
 const DocumentManager = ({ agreementId, firstId, secondId }) => {
+    const showToast = useToast();
+
     const [isContractReady, setIsContractReady] = useState(false);
     const [isEstimateReady, setIsEstimateReady] = useState(false);
     const [isActReady, setIsActReady] = useState(false);
@@ -223,14 +224,14 @@ const DocumentManager = ({ agreementId, firstId, secondId }) => {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${getAuthToken()}`,
                 },
-                body: JSON.stringify({ project: projectData, contractor: contractorData, customer: customerData}),
+                body: JSON.stringify({ project: projectData, contractor: contractorData, customer: customerData }),
             });
 
             if (!response.ok) {
                 throw new Error(`Ошибка формирования ${type === 'contract' ? 'договора' : 'акта'}: ${response.status}`);
             }
 
-            alert(`${type === 'contract' ? 'Договор' : 'Акт'} успешно сформирован`);
+            showToast(`${type === 'contract' ? 'Договор' : 'Акт'} успешно сформирован`, 'success');
             setTrigger(!trigger)
         } catch (error) {
             console.error(`Ошибка при формировании ${type}:`, error.message);
@@ -263,14 +264,14 @@ const DocumentManager = ({ agreementId, firstId, secondId }) => {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${getAuthToken()}`,
                 },
-                body: JSON.stringify({ estimate: data.estimate, agreementId,  firstId, secondId  }),
+                body: JSON.stringify({ estimate: data.estimate, agreementId, firstId, secondId }),
             });
 
             if (!generateResponse.ok) {
                 throw new Error(`Ошибка формирования сметы: ${generateResponse.status}`);
             }
 
-            alert('Смета успешно сформирована');
+            showToast('Смета успешно сформирована', 'success');
             setTrigger(!trigger)
 
         } catch (error) {

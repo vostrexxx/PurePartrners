@@ -47,12 +47,15 @@ const BuilderModalWnd = ({ isOpen, onClose, agreementId, }) => {
             }
 
             // Успешная отправка
-            alert('Файл успешно отправлен');
+            // alert('Файл успешно отправлен');
+            showToast('Файл успешно отправлен', 'success')
             setFile(null); // Сбрасываем файл после успешной отправки
             onClose(); // Закрываем модальное окно
 
         } catch (error) {
-            setError(`Не удалось отправить файл: ${error.message}`);
+            // setError(`Не удалось отправить файл: ${error.message}`);
+            showToast(`Не удалось отправить файл`, 'danger');
+
         }
     };
 

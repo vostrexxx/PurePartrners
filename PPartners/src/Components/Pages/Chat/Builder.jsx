@@ -10,7 +10,10 @@ import { Container, Form, InputGroup, Button, Image, Row, Col } from 'react-boot
 import { Delete } from '@mui/icons-material'; // Импортируем иконку корзины
 import { FaFileWord, FaFileExcel, FaFilePdf, FaFileAlt, FaEdit, FaSave, FaMinus } from 'react-icons/fa';
 import { FaPlus } from "react-icons/fa";
+import { useToast } from '../../Notification/ToastContext'
+
 const Builder = ({ agreementId, initiatorId, receiverId }) => {
+    const showToast = useToast();
     const [estimate, setEstimate] = useState([]);
     const [originalEstimate, setOriginalEstimate] = useState([]);
     const [isNewBuilder, setIsNewBuilder] = useState(false);
@@ -154,7 +157,8 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                 setIsEditing(data.isEditing);
 
                 if (data.isEditing === false) {
-                    alert("Смета редактируется другим пользователем.");
+                    // alert("Смета редактируется другим пользователем.");
+                    showToast("Смета редактируется другим пользователем", "warning")
                 }
             } catch (error) {
                 console.error('Ошибка получения состояния редактирования:', error);
@@ -182,7 +186,8 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
             const data = await response.json();
 
             if (data.isEditing === false) {
-                alert("Смета редактируется другим пользователем.");
+                showToast("Смета редактируется другим пользователем.", "warning")
+                // alert("Смета редактируется другим пользователем.");
                 return;
             }
 
@@ -206,8 +211,9 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
 
             setIsEditing(true);
         } catch (error) {
-            console.error('Ошибка обработки редактирования:', error);
-            alert('Не удалось переключить состояние редактирования.');
+            // console.error('Ошибка обработки редактирования:', error);
+            // alert('Не удалось переключить состояние редактирования.');
+            showToast('Не удалось переключить состояние редактирования', 'danger')
         }
     };
 
@@ -689,7 +695,8 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                     throw new Error(`Ошибка сохранения сметы: ${response.status}`);
                 }
 
-                alert('Смета успешно сохранена!');
+                // alert('Смета успешно сохранена!');
+                showToast('Смета успешно сохранена', 'success')
                 setOriginalEstimate([...estimate]);
                 setIsNewBuilder(false);
 
@@ -732,7 +739,9 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                         throw new Error(`Ошибка обновления сметы: ${response.status}`);
                     }
 
-                    alert('Изменения успешно сохранены!');
+                    // alert('Изменения успешно сохранены!');
+                    showToast('Изменения успешно сохранены', "success");
+
                     setOriginalEstimate([...estimate]);
 
                 }
@@ -761,7 +770,8 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
             }
         } catch (error) {
             console.error('Ошибка сохранения изменений:', error);
-            alert('Не удалось сохранить изменения.');
+            // alert('Не удалось сохранить изменения.');
+            showToast('Не удалось сохранить изменения', 'danger')
         }
     };
 
