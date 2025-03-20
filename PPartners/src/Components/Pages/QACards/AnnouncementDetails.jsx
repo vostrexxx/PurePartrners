@@ -7,7 +7,7 @@ import EntityCard from '../../Previews/EntityCard'
 import { Button, Card, Container, Form, ListGroup, Row, Col, Spinner, Image, Modal, ButtonGroup } from "react-bootstrap";
 import { useToast } from '../../Notification/ToastContext'
 import TextField from "@mui/material/TextField";
-
+import Swal from "sweetalert2";
 const AnnouncementDetails = () => {
     const showToast = useToast();
 
@@ -194,31 +194,40 @@ const AnnouncementDetails = () => {
     };
 
     const handleDeleteFile = async (storedFileName) => {
-        if (window.confirm('Вы уверены, что хотите удалить этот файл?')) {
-            try {
-                const params = new URLSearchParams({ filePath: storedFileName });
-                const response = await fetch(`${url}/announcement/file?${params.toString()}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${getAuthToken()}`,
-                    },
-                });
+        Swal.fire({
+            title: "Вы уверены, что хотите удалить файл?",
+            // text: "",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Да, удалить!",
+            cancelButtonText: "Отмена",
+        }).then(async (result) => {
+            if (result.isConfirmed) {
 
-                if (!response.ok) {
-                    throw new Error(`Ошибка удаления файла: ${response.status}`);
+                try {
+                    const params = new URLSearchParams({ filePath: storedFileName });
+                    const response = await fetch(`${url}/announcement/file?${params.toString()}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${getAuthToken()}`,
+                        },
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Ошибка удаления файла: ${response.status}`);
+                    }
+
+                    showToast("Файл успешно удален", "success")
+
+                    setFiles((prevFiles) => prevFiles.filter((file) => file.storedFileName !== storedFileName));
+                } catch (error) {
+                    showToast("Не удалось удалить файл", "danger")
+
                 }
-
-                // alert('Файл успешно удален.');
-                showToast("Файл успешно удален", "success")
-
-                setFiles((prevFiles) => prevFiles.filter((file) => file.storedFileName !== storedFileName));
-            } catch (error) {
-                // console.error('Ошибка удаления файла:', error);
-                // alert('Не удалось удалить файл.');
-                showToast("Не удалось удалить файл", "danger")
-
             }
-        }
+        });
     };
 
     const handleUploadFiles = async () => {
@@ -336,37 +345,49 @@ const AnnouncementDetails = () => {
 
 
     const handleDeleteImage = async (filePath) => {
-        if (window.confirm('Вы уверены, что хотите удалить это фото?')) {
-            try {
-                const params = new URLSearchParams({ filePath });
-                const response = await fetch(`${url}/announcement/file?${params.toString()}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${getAuthToken()}`,
-                    },
-                });
+        Swal.fire({
+            title: "Вы уверены, что хотите удалить изображение?",
+            // text: "Сброшенные этапы невозможно будет восстановить",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Да, удалить!",
+            cancelButtonText: "Отмена",
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const params = new URLSearchParams({ filePath });
+                    const response = await fetch(`${url}/announcement/file?${params.toString()}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${getAuthToken()}`,
+                        },
+                    });
 
-                if (!response.ok) {
-                    throw new Error(`Ошибка при удалении изображения: ${response.status}`);
+                    if (!response.ok) {
+                        throw new Error(`Ошибка при удалении изображения: ${response.status}`);
+                    }
+
+                    // alert('Изображение успешно удалено.');
+                    showToast("Изображение успешно удалено", "success")
+
+
+                    // Удаляем изображение из локального состояния после успешного удаления
+                    setImages((prevImages) => prevImages.filter((img) => img !== filePath));
+                    setAnnouncement((prev) => ({
+                        ...prev,
+                        announcementImages: prev.announcementImages.filter((img) => img !== filePath),
+                    }));
+                } catch (error) {
+                    // console.error('Ошибка при удалении изображения:', error);
+                    // alert('Не удалось удалить изображение.');
+                    showToast("Не удалось удалить изображение", "danger")
+
                 }
-
-                // alert('Изображение успешно удалено.');
-                showToast("Изображение успешно удалено", "success")
-
-
-                // Удаляем изображение из локального состояния после успешного удаления
-                setImages((prevImages) => prevImages.filter((img) => img !== filePath));
-                setAnnouncement((prev) => ({
-                    ...prev,
-                    announcementImages: prev.announcementImages.filter((img) => img !== filePath),
-                }));
-            } catch (error) {
-                // console.error('Ошибка при удалении изображения:', error);
-                // alert('Не удалось удалить изображение.');
-                showToast("Не удалось удалить изображение", "danger")
-
             }
-        }
+        });
+
     };
 
 
@@ -401,37 +422,48 @@ const AnnouncementDetails = () => {
     };
 
     const handleDeleteClick = async () => {
-        if (window.confirm('Вы уверены, что хотите удалить объявление?')) {
-            try {
-                const params = new URLSearchParams({
-                    announcementId: id,
-                });
+        Swal.fire({
+            title: "Вы уверены что хотите удалить объявление?",
+            text: "Работа с удаленным объявлением невозможна",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Да, удалить!",
+            cancelButtonText: "Отмена",
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const params = new URLSearchParams({
+                        announcementId: id,
+                    });
 
-                const response = await fetch(`${url}/announcement?${params.toString()}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${getAuthToken()}`,
-                    },
-                });
+                    const response = await fetch(`${url}/announcement?${params.toString()}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${getAuthToken()}`,
+                        },
+                    });
 
 
-                if (!response.ok) {
-                    throw new Error(`Ошибка при удалении объявления: ${response.status}`);
+                    if (!response.ok) {
+                        throw new Error(`Ошибка при удалении объявления: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    if (data.success === 1) {
+                        showToast("Объявление успешно удалено", "success")
+                        navigate('/account-actions'); // Перенаправление после успешного удаления
+                    } else {
+                        setError('Не удалось удалить анкету');
+                    }
+                } catch (error) {
+                    // setError(`Ошибка при удалении: ${error.message}`);
+                    showToast("Ошибка удаления", "danger")
+
                 }
-
-                const data = await response.json();
-                if (data.success === 1) {
-                    showToast("Объявление успешно удалено", "success")
-                    navigate('/account-actions'); // Перенаправление после успешного удаления
-                } else {
-                    setError('Не удалось удалить анкету');
-                }
-            } catch (error) {
-                // setError(`Ошибка при удалении: ${error.message}`);
-                showToast("Ошибка удаления", "danger")
-
             }
-        }
+        });
     };
 
     const handleEventEntity = async (mode) => {

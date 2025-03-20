@@ -4,14 +4,13 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { useProfile } from '../../Context/ProfileContext';
 import StageModalWnd from './StageModalWnd'
 import { EventSourcePolyfill } from 'event-source-polyfill';
-import { Container, Form, InputGroup, Button, Image, Row, Col } from 'react-bootstrap';
-import { Delete } from '@mui/icons-material'; // Импортируем иконку корзины
-import { FaFileWord, FaFileExcel, FaFilePdf, FaFileAlt, FaEdit, FaSave, FaMinus } from 'react-icons/fa';
+import { Container, Form, Button, Row, Col } from 'react-bootstrap';
+import { FaEdit, FaSave } from 'react-icons/fa';
 import { FaPlus } from "react-icons/fa";
 import { useToast } from '../../Notification/ToastContext'
-import { confirmAlert } from "react-confirm-alert";
-import "react-confirm-alert/src/react-confirm-alert.css";
+// import "react-confirm-alert/src/react-confirm-alert.css";
 import Swal from "sweetalert2";
+import DocumentStorageButton from './DocumentStorage/DocumentStorageButton';
 const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
     const showToast = useToast();
     const [stages, setStages] = useState([]); // Список этапов работ
@@ -79,7 +78,6 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                             })),
                         }))
                     );
-
 
                     setRawStages(
                         data.notUsedRawStages.map((rawStage) => ({
@@ -268,7 +266,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
 
         Swal.fire({
             title: "Вы уверены?",
-            text: "Это действие нельзя будет отменить!",
+            text: "Сброшенные этапы невозможно будет восстановить",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
@@ -532,7 +530,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
             <DragDropContext onDragEnd={onDragEnd}>
                 <Row>
                     <Col md={6} className="mb-4">
-                        <h2 className='text-white text-center'>Создание этапа</h2>
+                        <h2 className='text-white text-center fw-bold'>Создание этапа</h2>
 
                         <Row className="align-items-center g-2 mb-4"> {/* g-2 добавляет отступы между элементами */}
                             <Col className="flex-grow-1"> {/* flex-grow-1 позволяет Form.Control занимать доступное пространство */}
@@ -578,6 +576,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                                                     <h6 className='text-white mt-3'>
                                                         Сумма: {totalSum} руб.
                                                     </h6>
+                                                    <DocumentStorageButton agreementId={agreementId} stage={stage} />
                                                 </div>
 
 

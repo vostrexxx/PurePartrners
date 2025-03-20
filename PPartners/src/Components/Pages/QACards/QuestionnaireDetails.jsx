@@ -6,7 +6,7 @@ import TopBar from '../TopBar/TopBar';
 import EntityCard from '../../Previews/EntityCard'
 import { useToast } from '../../Notification/ToastContext'
 import { Button, Card, Container, Form, ListGroup, Row, Col, Spinner, Image, Modal, ButtonGroup } from "react-bootstrap";
-
+import Swal from "sweetalert2";
 
 const QuestionnaireDetails = () => {
     const showToast = useToast();
@@ -194,37 +194,48 @@ const QuestionnaireDetails = () => {
     };
 
     const handleDeleteImage = async (filePath) => {
-        if (window.confirm('Вы уверены, что хотите удалить это фото?')) {
-            try {
-                const params = new URLSearchParams({ filePath });
-                const response = await fetch(`${url}/questionnaire/file?${params.toString()}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${getAuthToken()}`,
-                    },
-                });
+        Swal.fire({
+            title: "Вы уверены, что хотите удалить изображение?",
+            // text: "Сброшенные этапы невозможно будет восстановить",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Да, удалить!",
+            cancelButtonText: "Отмена",
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const params = new URLSearchParams({ filePath });
+                    const response = await fetch(`${url}/questionnaire/file?${params.toString()}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${getAuthToken()}`,
+                        },
+                    });
 
-                if (!response.ok) {
-                    throw new Error(`Ошибка при удалении изображения: ${response.status}`);
+                    if (!response.ok) {
+                        throw new Error(`Ошибка при удалении изображения: ${response.status}`);
+                    }
+
+                    // alert('Изображение успешно удалено.');
+                    showToast("Изображение успешно удалено", "success")
+
+
+                    // Удаляем изображение из локального состояния после успешного удаления
+                    setImages((prevImages) => prevImages.filter((img) => img !== filePath));
+                    setQuestionnaire((prev) => ({
+                        ...prev,
+                        questionnaireImages: prev.questionnaireImages.filter((img) => img !== filePath),
+                    }));
+                } catch (error) {
+                    // console.error('Ошибка при удалении изображения:', error);
+                    // alert('Не удалось удалить изображение.');
+                    showToast("Не удалось удалить изображение", "error")
+
                 }
-
-                // alert('Изображение успешно удалено.');
-                showToast("Изображение успешно удалено", "success")
-
-
-                // Удаляем изображение из локального состояния после успешного удаления
-                setImages((prevImages) => prevImages.filter((img) => img !== filePath));
-                setQuestionnaire((prev) => ({
-                    ...prev,
-                    questionnaireImages: prev.questionnaireImages.filter((img) => img !== filePath),
-                }));
-            } catch (error) {
-                // console.error('Ошибка при удалении изображения:', error);
-                // alert('Не удалось удалить изображение.');
-                showToast("Не удалось удалить изображение", "error")
-
             }
-        }
+        });
     };
 
     const handleInputChange = (e) => {
@@ -266,33 +277,44 @@ const QuestionnaireDetails = () => {
     };
 
     const handleDeleteClick = async () => {
-        if (window.confirm('Вы уверены, что хотите удалить анкету?')) {
-            try {
-                const params = new URLSearchParams({ questionnaireId: id });
+        Swal.fire({
+            title: "Вы уверены, что хотите удалить анкету?",
+            // text: "Сброшенные этапы невозможно будет восстановить",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Да, удалить!",
+            cancelButtonText: "Отмена",
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const params = new URLSearchParams({ questionnaireId: id });
 
-                const response = await fetch(`${url}/questionnaire?${params.toString()}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${getAuthToken()}`,
-                    },
-                });
+                    const response = await fetch(`${url}/questionnaire?${params.toString()}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${getAuthToken()}`,
+                        },
+                    });
 
-                showToast("", "error")
+                    showToast("", "error")
 
-                if (!response.ok) {
-                    throw new Error(`Ошибка при удалении: ${response.status}`);
+                    if (!response.ok) {
+                        throw new Error(`Ошибка при удалении: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    if (data.success === 1) {
+                        navigate('/account-actions');
+                    } else {
+                        setError('Не удалось удалить анкету');
+                    }
+                } catch (error) {
+                    setError(`Ошибка при удалении: ${error.message}`);
                 }
-
-                const data = await response.json();
-                if (data.success === 1) {
-                    navigate('/account-actions');
-                } else {
-                    setError('Не удалось удалить анкету');
-                }
-            } catch (error) {
-                setError(`Ошибка при удалении: ${error.message}`);
             }
-        }
+        });
     };
 
     const handleEventEntity = async (mode) => {

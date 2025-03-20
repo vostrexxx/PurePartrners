@@ -3,7 +3,6 @@ import Card from '../../Previews/Card'; // Убедитесь, что компо
 import { useNavigate } from 'react-router-dom';
 import { EventSourcePolyfill } from 'event-source-polyfill';
 import RejectButton from './RejectButton';
-import CompleteButton from './CompleteButton';
 import { useProfile } from '../../Context/ProfileContext';
 import { Button } from 'react-bootstrap'; // Используем Button из Bootstrap
 import { useToast } from '../../Notification/ToastContext'

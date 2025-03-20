@@ -3,6 +3,7 @@ import { Modal, Box, Typography, Button, TextField } from '@mui/material';
 import { FaFileWord, FaFileExcel, FaFilePdf } from 'react-icons/fa';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useToast } from '../../Notification/ToastContext'
+
 const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStages, setTriggerStages, firstId, secondId }) => {
     if (!stage) return null; // Если stage не передан, ничего не рендерим
     const showToast = useToast();
@@ -226,6 +227,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
 
             const announcementData = await announcementResponse.json();
 
+            console.log(announcementData)
             // Шаг 3: Получение данных о подрядчике (анкета)
             const questionnaireResponse = await fetch(`${url}/questionnaire?questionnaireId=${contractorItemId}`, {
                 method: 'GET',
@@ -595,6 +597,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
             }
 
             const agreementData = await agreementResponse.json();
+            console.log(agreementData)
             const { mode, initiatorId, initiatorItemId, receiverId, receiverItemId } = agreementData.agreementInfo;
 
             // Определяем заказчика и подрядчика
