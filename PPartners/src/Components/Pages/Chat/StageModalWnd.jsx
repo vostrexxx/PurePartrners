@@ -32,8 +32,8 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
     useEffect(() => {
         const fetchStageData = async () => {
             try {
-
-                const response = await fetch(`${url}/stages/stage?elementId=${stageData.id}`, {
+                console.log('стэйдж', stage)
+                const response = await fetch(`${url}/stages/stage?elementId=${stage.elementId}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -330,7 +330,9 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                 }
 
                 const estimateResponse = await response.json();
-                console.log(estimateResponse.estimate)
+                console.log('ответы сметана', estimateResponse.estimate)
+
+                console.log('сметана', estimateResponse.estimate)
                 console.log(stageData)
 
                 const responseEstimate = await fetch(`${url}/document/estimate`, {
@@ -537,6 +539,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                     showToast('Этап не оплачен, пополниите баланс', 'warning');
                 }
             } else {
+                console.log(stageData.id, stageStatus, firstId, secondId)
                 const response = await fetch(`${url}/stages/status`, {
                     method: 'PUT',
                     headers: {
@@ -566,7 +569,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                         throw new Error(`Ошибка сети: ${response.status}`);
                     }
 
-                    const newStatusData = await response.json();
+                    // const newStatusData = await response.json();
 
                 }
                 showToast('Статус успешно изменём', 'success');

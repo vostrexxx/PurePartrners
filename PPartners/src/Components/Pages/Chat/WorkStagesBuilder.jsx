@@ -62,7 +62,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                             totalPrice: stage.totalPrice,
                             isCustomerApproved: stage.isCustomerApproved,
                             isContractorApproved: stage.isContractorApproved,
-                            id: stage.id,
+                            elementId: stage.id,
                             name: stage.stageTitle,
                             order: stage.stageOrder,
                             stageStatus: stage.stageStatus,
@@ -72,7 +72,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                             startDate: stage.startDate || null,
                             finishDate: stage.finishDate || null,
                             children: stage.subStages.map((subStage) => ({
-                                id: subStage.id,
+                                elementId: subStage.elementId,
                                 subWorkCategoryName: subStage.subStageTitle,
                                 totalPrice: subStage.subStagePrice,
                             })),
@@ -81,7 +81,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
 
                     setRawStages(
                         data.notUsedRawStages.map((rawStage) => ({
-                            id: rawStage.id, // Постоянный ID с бэка
+                            elementId: rawStage.elementId || rawStage.id, // Постоянный ID с бэка
                             subWorkCategoryName: rawStage.subStageTitle,
                             totalPrice: rawStage.subStagePrice,
                         }))
@@ -106,7 +106,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                         // setIsAvailable(false)
                         setRawStages(
                             rawStagesData.rawStages.map((rawStage) => ({
-                                id: rawStage.elementId, // Используем elementId как id
+                                elementId: rawStage.elementId, // Используем elementId как id
                                 subWorkCategoryName: rawStage.subWorkCategoryName,
                                 totalPrice: rawStage.totalPrice,
                             }))
@@ -315,7 +315,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
             return;
         }
         const newStage = {
-            id: Date.now().toString(),
+            elementId: Date.now().toString(),
             name: newStageName.trim(),
             order: stages.length + 1,
             children: [], // Массив дочерних rawStages
@@ -333,7 +333,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
         if (!destination) return;
 
         // Находим этап, куда происходит перетаскивание
-        const destinationStage = stages.find((stage) => stage.id === destination.droppableId);
+        const destinationStage = stages.find((stage) => stage.elementId === destination.droppableId);
 
         // Если этап утвержден обоими сторонами, запретить любые изменения
         if (destinationStage && destinationStage.isCustomerApproved && destinationStage.isContractorApproved) {
@@ -352,17 +352,17 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
             setRawStages((prev) => prev.filter((_, index) => index !== source.index));
             setStages((prev) =>
                 prev.map((stage) =>
-                    stage.id === destination.droppableId
+                    stage.elementId === destination.droppableId
                         ? { ...stage, children: [...stage.children, movedRawStage] }
                         : stage
                 )
             );
         } else if (source.droppableId !== 'rawStagesList' && destination.droppableId !== 'rawStagesList') {
             // Перемещение внутри или между этапами
-            const sourceStage = stages.find((stage) => stage.id === source.droppableId);
-            const destinationStage = stages.find((stage) => stage.id === destination.droppableId);
+            const sourceStage = stages.find((stage) => stage.elementId === source.droppableId);
+            const destinationStage = stages.find((stage) => stage.elementId === destination.droppableId);
             const [movedRawStage] = sourceStage.children.splice(source.index, 1);
-            if (sourceStage.id === destinationStage.id) {
+            if (sourceStage.elementId === destinationStage.elementId) {
                 sourceStage.children.splice(destination.index, 0, movedRawStage);
             } else {
                 destinationStage.children.splice(destination.index, 0, movedRawStage);
@@ -370,7 +370,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
             setStages([...stages]);
         } else if (source.droppableId !== 'rawStagesList' && destination.droppableId === 'rawStagesList') {
             // Перемещение из Stage обратно в rawStages
-            const sourceStage = stages.find((stage) => stage.id === source.droppableId);
+            const sourceStage = stages.find((stage) => stage.elementId === source.droppableId);
             const [movedRawStage] = sourceStage.children.splice(source.index, 1);
             setRawStages((prev) => [...prev, movedRawStage]);
             setStages([...stages]);
@@ -378,7 +378,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
     };
 
     const handleDeleteStage = (stageId) => {
-        const stageToDelete = stages.find((stage) => stage.id === stageId);
+        const stageToDelete = stages.find((stage) => stage.elementId === stageId);
         if (!stageToDelete) return;
 
         // Перемещаем все дочерние RawStages в левую часть
@@ -386,7 +386,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
 
         // Удаляем Stage и пересчитываем порядковые номера
         const updatedStages = stages
-            .filter((stage) => stage.id !== stageId)
+            .filter((stage) => stage.elementId !== stageId)
             .map((stage, index) => ({
                 ...stage,
                 order: index + 1, // Порядковый номер — новый индекс + 1
@@ -415,7 +415,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                     subStageTitle: child.subWorkCategoryName,
                     subStagePrice: child.totalPrice || 0,
                     subStageOrder: index + 1,
-                    elementId: child.id
+                    elementId: child.elementId
                 })),
             };
         });
@@ -426,6 +426,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
             subStageTitle: rawStage.subWorkCategoryName,
             subStagePrice: rawStage.totalPrice || 0,
             stageOrder: index + 1,
+            elementId: rawStage.elementId
         }));
 
         try {
@@ -481,35 +482,45 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
             if (!(stage.startDate && stage.finishDate)) {
                 showToast('Нельзя утвердить этап без установленных дат', 'warning')
             } else {
-                if (window.confirm(mode === "contractor"
-                    ? (stage.isContractorApproved ? "Вы уверены, что хотите снять утверждение?" : "Вы уверены, что хотите утвердить этап?")
-                    : (stage.isCustomerApproved ? "Вы уверены, что хотите снять утверждение?" : "Вы уверены, что хотите утвердить этап?")
-                )) {
-                    try {
-                        const response = await fetch(`${url}/stages/approval`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${authToken}`,
-                            },
-                            body: JSON.stringify({ elementId, agreementId, mode, firstId: initiatorId, secondId: receiverId }),
-                        });
 
-                        if (!response.ok) {
-                            throw new Error(`Ошибка сети: ${response.status}`);
+                Swal.fire({
+                    title: (mode === "contractor"
+                        ? (stage.isContractorApproved ? "Вы уверены, что хотите снять утверждение?" : "Вы уверены, что хотите утвердить этап?")
+                        : (stage.isCustomerApproved ? "Вы уверены, что хотите снять утверждение?" : "Вы уверены, что хотите утвердить этап?")
+                    ),
+                    // text: "Сброшенные этапы невозможно будет восстановить",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Да",
+                    cancelButtonText: "Нет",
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        try {
+                            const response = await fetch(`${url}/stages/approval`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${authToken}`,
+                                },
+                                body: JSON.stringify({ elementId, agreementId, mode, firstId: initiatorId, secondId: receiverId }),
+                            });
+
+                            if (!response.ok) {
+                                throw new Error(`Ошибка сети: ${response.status}`);
+                            }
+
+                            const data = await response.json();
+                            // setTrigger(!trigger)
+
+                        } catch (error) {
+                            // console.error('Ошибка при сохранении этапов:', error.message);
+                            showToast('Ошибка при утверждении', 'danger');
                         }
-
-                        const data = await response.json();
-                        // setTrigger(!trigger)
-
-                    } catch (error) {
-                        // console.error('Ошибка при сохранении этапов:', error.message);
-                        showToast('Ошибка при утверждении', 'danger');
                     }
-                }
+                });
             }
-
-
         }
 
     };
@@ -565,18 +576,22 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                             const isBothApproved = stage.isContractorApproved && stage.isCustomerApproved;
 
                             return (
-                                <Droppable key={stage.id} droppableId={stage.id} isDropDisabled={isBothApproved || isEditing !== true}>
+                                <Droppable key={stage.elementId} droppableId={stage.elementId} isDropDisabled={isBothApproved || isEditing !== true}>
                                     {(provided) => (
                                         <div ref={provided.innerRef} {...provided.droppableProps} className="p-3 mb-3 border rounded">
                                             <div className="d-flex justify-content-between align-items-center">
                                                 <div className='two-lines'>
-                                                    <h3 className='text-white'>
-                                                        {stage.order}. {stage.name}
-                                                    </h3>
+                                                    <div style={{ display: 'flex', alignItems: 'center', width: '100%', gap: '10px' }}>
+                                                        <h3 className='text-white' style={{ margin: 0 }}>
+                                                            {stage.order}. {stage.name}
+                                                        </h3>
+                                                        <div style={{ marginLeft: 'auto' }}>
+                                                            <DocumentStorageButton agreementId={agreementId} stage={stage} />
+                                                        </div>
+                                                    </div>
                                                     <h6 className='text-white mt-3'>
                                                         Сумма: {totalSum} руб.
                                                     </h6>
-                                                    <DocumentStorageButton agreementId={agreementId} stage={stage} />
                                                 </div>
 
 
@@ -584,7 +599,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                                                     <Button
                                                         variant="outline-danger"
                                                         size="sm"
-                                                        onClick={() => handleDeleteStage(stage.id)}
+                                                        onClick={() => handleDeleteStage(stage.elementId)}
                                                         hidden={isEditing !== true}
                                                     >
                                                         Удалить
@@ -619,8 +634,8 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                                                     <Button
                                                         variant="outline-success"
                                                         size="sm"
-                                                        onClick={() => handleApprove(stage.id, stage.children, stage)}
-                                                        hidden={isEditing !== null}
+                                                        onClick={() => handleApprove(stage.elementId, stage.children, stage)}
+                                                        hidden={isEditing === true}
                                                     // hiiden={isEditing !== null}
 
                                                     >
@@ -640,7 +655,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                                                                 const newStartDate = e.target.value;
                                                                 setStages((prevStages) =>
                                                                     prevStages.map((s) =>
-                                                                        s.id === stage.id ? { ...s, startDate: newStartDate } : s
+                                                                        s.elementId === stage.elementId ? { ...s, startDate: newStartDate } : s
                                                                     )
                                                                 );
                                                             }
@@ -657,7 +672,7 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                                                                 const newFinishDate = e.target.value;
                                                                 setStages((prevStages) =>
                                                                     prevStages.map((s) =>
-                                                                        s.id === stage.id ? { ...s, finishDate: newFinishDate } : s
+                                                                        s.elementId === stage.elementId ? { ...s, finishDate: newFinishDate } : s
                                                                     )
                                                                 );
                                                             }
@@ -674,8 +689,8 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                                                 stage.children.map((child, index) => (
                                                     <Draggable
 
-                                                        key={child.id}
-                                                        draggableId={child.id}
+                                                        key={child.elementId}
+                                                        draggableId={child.elementId}
                                                         index={index}
                                                         isDragDisabled={isBothApproved || isLocalApproved || isEditing !== true}
                                                     >
@@ -722,8 +737,8 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                                 >
                                     {rawStages.map((rawStage, index) => (
                                         <Draggable
-                                            key={rawStage.id}
-                                            draggableId={rawStage.id}
+                                            key={rawStage.elementId}
+                                            draggableId={rawStage.elementId}
                                             index={index}
                                             isDragDisabled={isEditing !== true}
                                         >

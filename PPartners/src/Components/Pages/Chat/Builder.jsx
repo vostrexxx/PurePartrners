@@ -32,6 +32,7 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
 
     const [triggerEstimate, setTriggerEstimate] = useState(false);
     const [triggerChangeCards, setTriggerChangeCards] = useState(false);
+    const [triggerDoc, setTriggerDoc] = useState(false);
 
 
     const [modalOpen, setModalOpen] = useState(false); // Состояние открытия модального окна
@@ -110,6 +111,66 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
         return () => {
             console.log("0 - SSE соединение ДЛЯ СМЕТЫ разорвано");
             eventSource.close();
+        };
+    }, [agreementId, authToken, url]);
+
+
+    const eventQueueDoc = useRef([]); // Очередь для обработки событий
+    const isProcessingQueueDoc = useRef(false); // Флаг для обработки очереди
+    // useEffect(() => { console.log('trigger otrabotal') }, [triggerDoc]);
+    useEffect(() => {
+        const processEventQueueDoc = () => {
+            if (eventQueueDoc.current.length > 0 && !isProcessingQueueDoc.current) {
+                isProcessingQueueDoc.current = true;
+                const event = eventQueueDoc.current.shift();
+
+                console.log("Обрабатывается событие:", event);
+
+                if (event === 'triggerDocument') {
+                    setTriggerDoc((prev) => !prev);
+                }
+
+                // Устанавливаем задержку перед обработкой следующего события
+                setTimeout(() => {
+                    isProcessingQueueDoc.current = false;
+                    processEventQueueDoc(); // Обрабатываем следующее событие
+                }, 1000); // Задержка 1 секунда
+            }
+        };
+
+        const eventSourceDoc = new EventSourcePolyfill(`${url}/document/events/${agreementId}`, {
+            headers: {
+                Authorization: `Bearer ${authToken}`,
+            },
+        });
+
+        eventSourceDoc.onopen = () => {
+            console.log("1 - SSE соединение ДЛЯ ДОКУМЕНТА СМЕТЫ установлено");
+        };
+
+        eventSourceDoc.onmessage = (event) => {
+            if (event.data.trim() === ':ping') {
+                // Игнорируем пинг
+                return;
+            }
+
+            console.log("SSE msg: event.data - ", event.data);
+
+            // Добавляем событие в очередь
+            eventQueueDoc.current.push(event.data);
+
+            // Запускаем обработку очереди
+            processEventQueueDoc();
+        };
+
+        eventSourceDoc.onerror = (error) => {
+            console.error("Ошибка SSE:", error);
+            eventSourceDoc.close();
+        };
+
+        return () => {
+            console.log("0 - SSE соединение ДЛЯ ДОКУМЕНТА СМЕТЫ разорвано");
+            eventSourceDoc.close();
         };
     }, [agreementId, authToken, url]);
 
@@ -343,157 +404,6 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
             prev.map((orange) => (orange.elementId === orangeId ? { ...orange, subWorkCategoryName: value } : orange))
         );
     };
-
-    // const generateChanges = (original, updated) => {
-    //     const changes = [];
-
-    //     // Добавленные элементы
-    //     const added = updated.filter(item => !original.some(orig => orig.elementId === item.elementId));
-    //     added.forEach(item => {
-    //         changes.push({
-    //             operation: 'add',
-    //             type: item.type,
-    //             elementId: item.elementId,
-    //             updatedFields: {
-    //                 subWorkCategoryName: item.subWorkCategoryName,
-    //                 agreementId,
-    //                 nodeId: item.nodeId,
-    //             },
-    //             subSubCategories: item.subSubWorkCategories.map(sub => ({
-    //                 elementId: sub.elementId,
-    //                 subSubWorkCategoryName: sub.subSubWorkCategoryName,
-    //                 workAmount: sub.workAmount,
-    //                 measureUnit: sub.measureUnit,
-    //                 price: sub.price,
-    //                 nodeId: sub.nodeId,
-    //             })),
-    //         });
-    //     });
-
-    //     // Удалённые элементы
-    //     const removed = original.filter(item => !updated.some(upd => upd.elementId === item.elementId));
-    //     removed.forEach(item => {
-    //         changes.push({
-    //             operation: 'delete',
-    //             type: item.type,
-    //             elementId: item.elementId,
-    //             updatedFields: {
-    //                 subWorkCategoryName: item.subWorkCategoryName,
-    //                 agreementId,
-    //                 nodeId: item.nodeId,
-    //             },
-    //             subSubCategories: item.subSubWorkCategories.map(sub => ({
-    //                 elementId: sub.elementId,
-    //                 subSubWorkCategoryName: sub.subSubWorkCategoryName,
-    //                 workAmount: sub.workAmount,
-    //                 measureUnit: sub.measureUnit,
-    //                 price: sub.price,
-    //                 nodeId: sub.nodeId,
-    //             })),
-    //         });
-    //     });
-
-    //     // Обновлённые элементы
-    //     updated.forEach(item => {
-    //         const originalItem = original.find(orig => orig.elementId === item.elementId);
-    //         if (originalItem) {
-    //             const updatedFields = {};
-
-    //             if (originalItem.subWorkCategoryName !== item.subWorkCategoryName) {
-    //                 updatedFields.subWorkCategoryName = item.subWorkCategoryName;
-    //             }
-
-    //             if (Object.keys(updatedFields).length > 0) {
-    //                 updatedFields.agreementId = agreementId;
-    //                 updatedFields.nodeId = item.nodeId;
-    //                 changes.push({
-    //                     operation: 'update',
-    //                     type: item.type,
-    //                     elementId: item.elementId,
-    //                     updatedFields,
-    //                 });
-    //             }
-
-    //             // Обработка вложенных subSubWorkCategories
-    //             const subChanges = generateSubCategoryChanges(originalItem.subSubWorkCategories, item.subSubWorkCategories, item.elementId);
-    //             changes.push(...subChanges);
-    //         }
-    //     });
-
-    //     return changes;
-    // };
-
-    // const generateSubCategoryChanges = (originalSub, updatedSub, parentId) => {
-    //     const subChanges = [];
-
-    //     // Добавленные подкатегории
-    //     const added = updatedSub.filter(sub => !originalSub.some(orig => orig.elementId === sub.elementId));
-    //     added.forEach(sub => {
-    //         subChanges.push({
-    //             operation: 'add',
-    //             type: 2,
-    //             updatedFields: {
-    //                 subSubWorkCategoryName: sub.subSubWorkCategoryName,
-    //                 workAmount: sub.workAmount,
-    //                 measureUnit: sub.measureUnit,
-    //                 price: sub.price,
-    //                 nodeId: sub.nodeId,
-    //             },
-    //             parentId,
-    //         });
-    //     });
-
-    //     // Удалённые подкатегории
-    //     const removed = originalSub.filter(sub => !updatedSub.some(upd => upd.elementId === sub.elementId));
-    //     removed.forEach(sub => {
-    //         subChanges.push({
-    //             operation: 'delete',
-    //             type: 2,
-    //             elementId: sub.elementId,
-    //             updatedFields: {
-    //                 subSubWorkCategoryName: sub.subSubWorkCategoryName,
-    //                 workAmount: sub.workAmount,
-    //                 measureUnit: sub.measureUnit,
-    //                 price: sub.price,
-    //                 nodeId: sub.nodeId,
-    //             },
-    //             parentId,
-    //         });
-    //     });
-
-    //     // Обновлённые подкатегории
-    //     updatedSub.forEach(sub => {
-    //         const originalSubItem = originalSub.find(orig => orig.elementId === sub.elementId);
-    //         if (originalSubItem) {
-    //             const updatedFields = {};
-
-    //             if (originalSubItem.subSubWorkCategoryName !== sub.subSubWorkCategoryName) {
-    //                 updatedFields.subSubWorkCategoryName = sub.subSubWorkCategoryName;
-    //             }
-    //             if (originalSubItem.workAmount !== sub.workAmount) {
-    //                 updatedFields.workAmount = sub.workAmount;
-    //             }
-    //             if (originalSubItem.measureUnit !== sub.measureUnit) {
-    //                 updatedFields.measureUnit = sub.measureUnit;
-    //             }
-    //             if (originalSubItem.price !== sub.price) {
-    //                 updatedFields.price = sub.price;
-    //             }
-
-    //             if (Object.keys(updatedFields).length > 0) {
-    //                 updatedFields.nodeId = sub.nodeId;
-    //                 subChanges.push({
-    //                     operation: 'update',
-    //                     type: 2,
-    //                     elementId: sub.elementId,
-    //                     updatedFields,
-    //                 });
-    //             }
-    //         }
-    //     });
-
-    //     return subChanges;
-    // };
 
     const generateChanges = (original, updated) => {
         const changes = [];
@@ -1012,7 +922,7 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
             {/* Документ менеджер */}
             {
                 Array.isArray(estimate) && estimate.length > 0 && (
-                    <DocumentManager agreementId={agreementId} firstId={initiatorId} secondId={receiverId} />
+                    <DocumentManager agreementId={agreementId} firstId={initiatorId} secondId={receiverId} triggerDoc={triggerDoc} />
                 )
             }
 

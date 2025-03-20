@@ -12,7 +12,7 @@ const DocumentStorageModalWnd = ({ isOpen, onClose, agreementId, stage }) => {
 
 
     const handleDownload = (type) => {
-        const params = new URLSearchParams({ agreementId, type, order: stageData.stageOrder });
+        const params = new URLSearchParams({ agreementId, type, order: stage.order });
         fetch(`${url}/document?${params.toString()}`, {
             method: 'GET',
             headers: {
@@ -183,13 +183,13 @@ const DocumentStorageModalWnd = ({ isOpen, onClose, agreementId, stage }) => {
             // Формируем данные для отправки
             const projectData = {
                 agreementId,
-                workCategories: stageData.name || stageData.stageTitle,
+                workCategories: stage.name || stage.stageTitle,
                 address: announcementData.announcementInfo.address,
-                startDate: stageData.startDate,
-                finishDate: stageData.finishDate,
-                totalPrice: stageData.totalPrice,
+                startDate: stage.startDate,
+                finishDate: stage.finishDate,
+                totalPrice: stage.totalPrice,
                 guarantee: announcementData.announcementInfo.guarantee,
-                stageOrder: stageData.stageOrder
+                stageOrder: stage.stageOrder
             };
 
             const contractorData = {
@@ -222,13 +222,14 @@ const DocumentStorageModalWnd = ({ isOpen, onClose, agreementId, stage }) => {
             };
 
             if (type === "estimate") {
+                console.log(stage)
                 const response = await fetch(`${url}/categories/estimate-stages`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${authToken}`,
                     },
-                    body: JSON.stringify({ subStages: stageData.subStages }),
+                    body: JSON.stringify({ subStages: stage.children }),
                 });
                 // alert(`${type === 'contract' ? 'Договор' : 'Акт'} успешно сформирован`);
 
@@ -237,8 +238,8 @@ const DocumentStorageModalWnd = ({ isOpen, onClose, agreementId, stage }) => {
                 }
 
                 const estimateResponse = await response.json();
-                console.log(estimateResponse.estimate)
-                console.log(stageData)
+                console.log('estimate', estimateResponse.estimate)
+                console.log(stage)
 
                 const responseEstimate = await fetch(`${url}/document/estimate`, {
                     method: 'POST',
@@ -246,7 +247,7 @@ const DocumentStorageModalWnd = ({ isOpen, onClose, agreementId, stage }) => {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${authToken}`,
                     },
-                    body: JSON.stringify({ estimate: estimateResponse.estimate, agreementId, firstId: initiatorId, secondId: receiverId, stageOrder: stageData.stageOrder }),
+                    body: JSON.stringify({ estimate: estimateResponse.estimate, agreementId, firstId: initiatorId, secondId: receiverId, stageOrder: stage.stageOrder }),
                 });
 
                 if (!responseEstimate.ok) {
@@ -271,7 +272,7 @@ const DocumentStorageModalWnd = ({ isOpen, onClose, agreementId, stage }) => {
                 }
 
             }
-            setTrigger(prev => !prev);
+            // setTrigger(prev => !prev);
         } catch (error) {
             console.error(`Ошибка при формировании ${type}:`, error.message);
         }
@@ -299,12 +300,14 @@ const DocumentStorageModalWnd = ({ isOpen, onClose, agreementId, stage }) => {
 
                 <Box sx={{ mt: 2 }}>
 
-                    <button onClick={() => {
+                    {/* <button onClick={() => {
                         console.log("Все доки", isDocsReady)
                         console.log('договор', isContractReady)
                         console.log('смета', isEstimateReady)
                         console.log('акт', isActReady)
-                    }}>Проверка</ button >
+                    }}>Проверка</ button > */}
+
+                    {!(isContractReady || isEstimateReady || isActReady) ? <div> Хранилище пустое, так как вы еще не сформировали документы</div> : null}
 
 
                     {isContractReady ? (

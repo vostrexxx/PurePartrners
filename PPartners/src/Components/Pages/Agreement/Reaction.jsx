@@ -85,6 +85,8 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode, receiverItemName })
                 navigate(`/agreement`)
                 showToast("Отлик успешно отправлен", "success");
                 // onClose(); // Закрываем окно
+            } else {
+                throw new Error(`Ошибка сети: ${contractorResponse.status}`);
             }
 
         } catch (error) {

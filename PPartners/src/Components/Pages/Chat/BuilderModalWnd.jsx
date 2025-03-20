@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Modal, Box, Typography, Button, TextField } from '@mui/material';
-
+import { useToast } from '../../Notification/ToastContext';
 const BuilderModalWnd = ({ isOpen, onClose, agreementId, }) => {
+    const showToast = useToast()
     const authToken = localStorage.getItem('authToken');
     const url = localStorage.getItem('url');
     const [file, setFile] = useState(null); // Состояние для файла
@@ -45,12 +46,12 @@ const BuilderModalWnd = ({ isOpen, onClose, agreementId, }) => {
             if (!response.ok) {
                 throw new Error(`Ошибка при отправке файла: ${response.status}`);
             }
+            onClose(); // Закрываем модальное окно
 
             // Успешная отправка
             // alert('Файл успешно отправлен');
             showToast('Файл успешно отправлен', 'success')
             setFile(null); // Сбрасываем файл после успешной отправки
-            onClose(); // Закрываем модальное окно
 
         } catch (error) {
             // setError(`Не удалось отправить файл: ${error.message}`);

@@ -3,7 +3,7 @@ import { FaFileWord, FaFileExcel, FaFilePdf } from 'react-icons/fa';
 import { useToast } from '../../Notification/ToastContext'
 const getAuthToken = () => localStorage.getItem('authToken');
 let url = localStorage.getItem('url');
-const DocumentManager = ({ agreementId, firstId, secondId }) => {
+const DocumentManager = ({ agreementId, firstId, secondId, triggerDoc }) => {
     const showToast = useToast();
 
     const [isContractReady, setIsContractReady] = useState(false);
@@ -13,7 +13,7 @@ const DocumentManager = ({ agreementId, firstId, secondId }) => {
     const [trigger, setTrigger] = useState(false)
     // Проверка состояния документов
 
-    // useEffect(() => {console.log( 'айдишники',firstId, secondId)},[ firstId, secondId])
+    useEffect(() => { console.log(triggerDoc) }, [triggerDoc])
 
     useEffect(() => {
         const params = new URLSearchParams({ agreementId });
@@ -37,7 +37,7 @@ const DocumentManager = ({ agreementId, firstId, secondId }) => {
             .catch((error) => {
                 console.error(`Ошибка при получении информации по документам: ${error.message}`);
             });
-    }, [agreementId, trigger]);
+    }, [agreementId, trigger, triggerDoc]);
 
     // Скачивание документов
     const handleDownload = (type) => {
@@ -282,8 +282,8 @@ const DocumentManager = ({ agreementId, firstId, secondId }) => {
     return (
         <div
             style={{
-                backgroundColor: '#1a1a1a',
-                padding: '20px',
+                // backgroundColor: '#1a1a1a',
+                // padding: '20px',
                 borderRadius: '10px',
                 boxShadow: '0 4px 10px rgba(0, 0, 0, 0.3)',
                 margin: '20px auto',
@@ -291,7 +291,7 @@ const DocumentManager = ({ agreementId, firstId, secondId }) => {
                 color: 'white',
             }}
         >
-            <h3 style={{ textAlign: 'center', marginBottom: '20px' }}>Управление документами</h3>
+            {/* <h3 style={{ textAlign: 'center', marginBottom: '20px' }}>Управление документами</h3> */}
 
             {[
                 // { label: 'Договор', isReady: isContractReady, type: 'contract', icon: <FaFileWord size={24} /> },

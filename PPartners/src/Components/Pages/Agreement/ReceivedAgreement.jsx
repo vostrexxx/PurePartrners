@@ -60,25 +60,25 @@ const ReceivedAgreement = () => {
                 <Row>
                     {agreements.map((item, index) => (
                         <Col key={index} className="mb-4">
-                            <Card className="shadow-sm">
-                                <Card.Body>
-                                    <Agreement
-                                        id={item.id}
-                                        mode={item.mode}
-                                        initiatorId={item.initiatorId}
-                                        initiatorItemId={item.initiatorItemId}
-                                        receiverId={item.receiverId}
-                                        receiverItemId={item.receiverItemId}
-                                        localizedStatus={item.localizedStatus}
-                                        comment={item.comment}
-                                        updateDate={item.updateDate}
-                                        isReceiver={true}
-                                        chatId={item.chatId}
-                                        isSpecialist={isSpecialist}
-                                        onTrigger={toggleTrigger}
-                                    />
-                                </Card.Body>
-                            </Card>
+                            {/* <Card className="shadow-sm"> */}
+                            <Card.Body>
+                                <Agreement
+                                    id={item.id}
+                                    mode={item.mode}
+                                    initiatorId={item.initiatorId}
+                                    initiatorItemId={item.initiatorItemId}
+                                    receiverId={item.receiverId}
+                                    receiverItemId={item.receiverItemId}
+                                    localizedStatus={item.localizedStatus}
+                                    comment={item.comment}
+                                    updateDate={item.updateDate}
+                                    isReceiver={true}
+                                    chatId={item.chatId}
+                                    isSpecialist={isSpecialist}
+                                    onTrigger={toggleTrigger}
+                                />
+                            </Card.Body>
+                            {/* </Card> */}
                         </Col>
                     ))}
                 </Row>

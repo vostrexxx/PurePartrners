@@ -370,7 +370,8 @@ const MainPage = () => {
                                         </div>
 
                                         {/* Минимальная цена */}
-                                        <div>
+                                        <div
+                                            hidden="true">
                                             <h5>Минимальная цена</h5>
                                             <Row className="align-items-center">
                                                 <Col xs={12}>

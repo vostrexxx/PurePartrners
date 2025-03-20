@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Container, Row, Col } from 'react-bootstrap'; // Импортируем компоненты Bootstrap
 import { useNavigate } from 'react-router-dom';
-
+import { useToast } from '../Notification/ToastContext';
 const Agreement = ({
     id, mode, initiatorItemId, receiverItemId, comment, localizedStatus,
     isReceiver, initiatorId, receiverId, chatId, isSpecialist, onTrigger
 }) => {
+    const showToast = useToast()
     const [questionnaireId, setQuestionnaireId] = useState(null);
     const [announcementId, setAnnouncementId] = useState(null);
     const [questionnaireData, setQuestionnaireData] = useState(null);
@@ -105,18 +106,12 @@ const Agreement = ({
                 >
                     <Card.Title>{data.workCategories}</Card.Title>
                     <Card.Text>
-                        Стоимость: {data.totalCost} руб.<br />
-                        Адрес: {data.address}<br />
-                        Опыт работы: {data.workExp} лет<br />
-                        {data.hasTeam ? 'Имеется команда' : 'Нет команды'}<br />
-                        {data.hasEdu ? 'Есть образование' : 'Нет образования'}
-
+                        <div>{data.totalCost ? (<>Стоимость: {data.totalCost} руб.</>) : null}</div>
+                        <div>{data.address ? (<>Адрес: {data.address}</>) : null}</div>
+                        <div>{data.workExp ? (<>Опыт работы: {data.workExp} лет</>) : null}</div>
+                        <div>{data.hasTeam ? (<>Имеется команда </>) : null}</div>
+                        <div>{data.hasEdu ? (<>Есть образование</>) : null}</div>
                     </Card.Text>
-                    {/* <Button
-                        variant="primary"
-                    >
-                        Подробнее
-                    </Button> */}
                 </Card.Body>
             </Card>
         );
@@ -145,8 +140,11 @@ const Agreement = ({
             if (data.success === 1) {
                 onTrigger();
             }
+            showToast('Соглашение успешно отклонено', 'success')
+
         } catch (error) {
-            console.error('Ошибка при отклонении:', error);
+            // console.error('Ошибка при отклонении:', error);
+            showToast('Ошибка при отклонении', 'danger')
         }
     };
 
@@ -212,9 +210,12 @@ const Agreement = ({
                     .catch((error) => {
                         console.error('Ошибка:', error.message);
                     });
+                showToast('Чат успешно создан', 'success')
+
             })
             .catch((error) => {
                 console.error('Ошибка:', error.message);
+                showToast('Ошибка создания чата', 'danger')
             });
     };
 
@@ -277,8 +278,9 @@ const Agreement = ({
                             {!isSpecialist ? <h4>Ваше объявление:</h4> : <h4>Объяовление:</h4>}
                             {renderCard(announcementData, 'announcement')}
 
-                            <h4>Комментарий откликнувшегося:</h4>
-                            <p>{comment}</p>
+
+                            {comment.length > 0 ? (<><h4>Комментарий откликнувшегося:</h4>
+                                <p>{comment}</p></>) : null}
 
                             <h2>{localizedStatus}</h2>
                         </div>

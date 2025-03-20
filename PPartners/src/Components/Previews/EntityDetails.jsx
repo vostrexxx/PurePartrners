@@ -84,7 +84,7 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
 
     const handleDeleteClick = async () => {
         try {
-            const who = isSpecialist ? "contractor/" : "customer";
+            const who = isSpecialist ? "contractor" : "customer";
 
             if (isLegalEntity) {
                 const entityParams = new URLSearchParams();
@@ -138,48 +138,69 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
 
     const handleSaveClick = async () => {
         try {
-            let id = entityData.id
-            entityData.id = null
+            if (!entityData.isLegalEntity) {
+                let id = entityData.id
+                entityData.id = null
 
-            const who = isSpecialist ? "contractor" : "customer";
+                const who = isSpecialist ? "contractor" : "customer";
 
-            if (who === "customer") {
-                const responseContractor = await fetch(`${url}/${"contractor"}`, {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${getAuthToken()}`,
-                    },
-                    body: JSON.stringify(entityData),
-                });
-                entityData.id = id
-                const responseCustomer = await fetch(`${url}/${"customer"}`, {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${getAuthToken()}`,
-                    },
-                    body: JSON.stringify(entityData),
-                });
+                if (who === "customer") {
+                    const responseContractor = await fetch(`${url}/${"contractor"}`, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${getAuthToken()}`,
+                        },
+                        body: JSON.stringify(entityData),
+                    });
+                    entityData.id = id
+                    const responseCustomer = await fetch(`${url}/${"customer"}`, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${getAuthToken()}`,
+                        },
+                        body: JSON.stringify(entityData),
+                    });
 
-                if (!responseCustomer.ok) {
-                    throw new Error(`Ошибка при сохранении данных: ${responseCustomer.status}`);
-                }
+                    if (!responseCustomer.ok) {
+                        throw new Error(`Ошибка при сохранении данных: ${responseCustomer.status}`);
+                    }
 
-                if (!responseContractor.ok) {
-                    throw new Error(`Ошибка при сохранении данных: ${responseContractor.status}`);
+                    if (!responseContractor.ok) {
+                        throw new Error(`Ошибка при сохранении данных: ${responseContractor.status}`);
+                    }
+                } else {
+                    const responseContractor = await fetch(`${url}/${"customer"}`, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${getAuthToken()}`,
+                        },
+                        body: JSON.stringify(entityData),
+                    });
+                    entityData.id = id
+                    const responseCustomer = await fetch(`${url}/${"contractor"}`, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${getAuthToken()}`,
+                        },
+                        body: JSON.stringify(entityData),
+                    });
+
+                    if (!responseCustomer.ok) {
+                        throw new Error(`Ошибка при сохранении данных: ${responseCustomer.status}`);
+                    }
+
+                    if (!responseContractor.ok) {
+                        throw new Error(`Ошибка при сохранении данных: ${responseContractor.status}`);
+                    }
+
                 }
             } else {
-                const responseContractor = await fetch(`${url}/${"customer"}`, {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${getAuthToken()}`,
-                    },
-                    body: JSON.stringify(entityData),
-                });
-                entityData.id = id
-                const responseCustomer = await fetch(`${url}/${"contractor"}`, {
+                const who = isSpecialist ? "contractor" : "customer";
+                const response = await fetch(`${url}/${who}`, {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
@@ -188,14 +209,9 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
                     body: JSON.stringify(entityData),
                 });
 
-                if (!responseCustomer.ok) {
-                    throw new Error(`Ошибка при сохранении данных: ${responseCustomer.status}`);
+                if (!response.ok) {
+                    throw new Error(`Ошибка при сохранении данных: ${response.status}`);
                 }
-
-                if (!responseContractor.ok) {
-                    throw new Error(`Ошибка при сохранении данных: ${responseContractor.status}`);
-                }
-
             }
 
             onTrigger()
