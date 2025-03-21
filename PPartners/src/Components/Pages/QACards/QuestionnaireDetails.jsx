@@ -7,7 +7,10 @@ import EntityCard from '../../Previews/EntityCard'
 import { useToast } from '../../Notification/ToastContext'
 import { Button, Card, Container, Form, ListGroup, Row, Col, Spinner, Image, Modal, ButtonGroup } from "react-bootstrap";
 import Swal from "sweetalert2";
+import TextField from "@mui/material/TextField";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 const QuestionnaireDetails = () => {
     const showToast = useToast();
 
@@ -399,22 +402,21 @@ const QuestionnaireDetails = () => {
                                 boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.5)",
                             }}
                         >
-                            <Card.Text>
+                            <Card.Body >
+
                                 <Button
                                     onClick={handleGoBack}
                                     variant="secondary"
                                     style={{
-                                        marginTop: '10px',
-                                        padding: '10px 20px',
+                                        // marginTop: '10px',
+                                        // padding: '10px 20px',
                                         borderRadius: '8px',
-                                        width: '100%'
+                                        // width: '100%'
                                     }}
                                 >
-                                    Назад
-                                </Button>
-                            </Card.Text>
+                                    <FontAwesomeIcon icon={faArrowLeft} />
 
-                            <Card.Body >
+                                </Button>
                                 <h2 className="text-center mb-4" style={{ color: "#ff7f00", fontWeight: "bold" }}>
                                     Детали анкеты
                                 </h2>
@@ -422,20 +424,33 @@ const QuestionnaireDetails = () => {
                                 <Form>
                                     <Form.Group className="mb-3">
                                         <Form.Label>Категории работ</Form.Label>
-                                        <Form.Control
+                                        <TextField
                                             type="text"
-                                            style={{
-                                                backgroundColor: "#333",
-                                                color: "white",
-                                                border: "1px solid #555",
-                                            }}
+
                                             name="workCategories"
                                             id="workCategories"
                                             value={questionnaire.workCategories || ''}
                                             onChange={handleInputChange}
                                             disabled={!isEditable}
                                             // style={styles.input}
-                                            className="form-control-placeholder"
+                                            className="w-100"
+                                            sx={{
+                                                "& .MuiInputBase-input": {
+                                                    color: "white", // Белый цвет текста
+                                                },
+                                                "& .MuiOutlinedInput-notchedOutline": {
+                                                    borderColor: "white", // Белый цвет обводки (опционально)
+                                                },
+                                                "& .MuiInputLabel-root": {
+                                                    color: "white", // Белый цвет placeholder
+                                                },
+                                                "& .MuiInputLabel-root.Mui-focused": {
+                                                    color: "white", // Белый цвет placeholder при фокусе
+                                                },
+                                            }}
+                                            multiline
+                                            minRows={1}
+                                            maxRows={4}
                                         />
                                     </Form.Group>
 
@@ -462,18 +477,31 @@ const QuestionnaireDetails = () => {
                                         {questionnaire.hasTeam && (
                                             <>
                                                 <Form.Label>Команда:</Form.Label>
-                                                <Form.Control
+                                                <TextField
                                                     type="text"
-                                                    style={{
-                                                        backgroundColor: "#333",
-                                                        color: "white",
-                                                        border: "1px solid #555",
-                                                    }}
+                                                    multiline
+                                                    minRows={1}
+                                                    maxRows={4}
                                                     name="team"
                                                     id="team"
                                                     value={questionnaire.team || ''}
                                                     onChange={handleInputChange}
                                                     disabled={!isEditable}
+                                                    className='w-100'
+                                                    sx={{
+                                                        "& .MuiInputBase-input": {
+                                                            color: "white", // Белый цвет текста
+                                                        },
+                                                        "& .MuiOutlinedInput-notchedOutline": {
+                                                            borderColor: "white", // Белый цвет обводки (опционально)
+                                                        },
+                                                        "& .MuiInputLabel-root": {
+                                                            color: "white", // Белый цвет placeholder
+                                                        },
+                                                        "& .MuiInputLabel-root.Mui-focused": {
+                                                            color: "white", // Белый цвет placeholder при фокусе
+                                                        },
+                                                    }}
                                                 />
                                             </>
                                         )}
@@ -575,34 +603,60 @@ const QuestionnaireDetails = () => {
 
                                     <Form.Group className="mb-3">
                                         <Form.Label>Дополнительная информация</Form.Label>
-                                        <Form.Control
+                                        <TextField
                                             type="text"
                                             name="selfInfo"
                                             id="selfInfo"
                                             value={questionnaire.selfInfo || ''}
                                             onChange={handleInputChange}
                                             disabled={!isEditable}
-                                            style={{
-                                                backgroundColor: "#333",
-                                                color: "white",
-                                                border: "1px solid #555",
+                                            multiline
+                                            minRows={1}
+                                            maxRows={4}
+                                            className='w-100'
+                                            sx={{
+                                                "& .MuiInputBase-input": {
+                                                    color: "white", // Белый цвет текста
+                                                },
+                                                "& .MuiOutlinedInput-notchedOutline": {
+                                                    borderColor: "white", // Белый цвет обводки (опционально)
+                                                },
+                                                "& .MuiInputLabel-root": {
+                                                    color: "white", // Белый цвет placeholder
+                                                },
+                                                "& .MuiInputLabel-root.Mui-focused": {
+                                                    color: "white", // Белый цвет placeholder при фокусе
+                                                },
                                             }}
                                         />
                                     </Form.Group>
 
                                     <Form.Group className="mb-3">
                                         <Form.Label>Расценки</Form.Label>
-                                        <Form.Control
+                                        <TextField
                                             type="text"
                                             name="prices"
                                             id="prices"
                                             value={questionnaire.prices || ''}
                                             onChange={handleInputChange}
                                             disabled={!isEditable}
-                                            style={{
-                                                backgroundColor: "#333",
-                                                color: "white",
-                                                border: "1px solid #555",
+                                            multiline
+                                            minRows={1}
+                                            maxRows={4}
+                                            fullWidth
+                                            sx={{
+                                                "& .MuiInputBase-input": {
+                                                    color: "white", // Белый цвет текста
+                                                },
+                                                "& .MuiOutlinedInput-notchedOutline": {
+                                                    borderColor: "white", // Белый цвет обводки (опционально)
+                                                },
+                                                "& .MuiInputLabel-root": {
+                                                    color: "white", // Белый цвет placeholder
+                                                },
+                                                "& .MuiInputLabel-root.Mui-focused": {
+                                                    color: "white", // Белый цвет placeholder при фокусе
+                                                },
                                             }}
                                         />
                                     </Form.Group>

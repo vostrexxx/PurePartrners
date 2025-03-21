@@ -8,7 +8,7 @@ import MetroAutocomplete from '../SearchComponent/AutoCompleteMetro.jsx';
 import { Button, Card, Container, Form, ListGroup, Row, Col, Spinner } from "react-bootstrap";
 import './global.css'
 import { useToast } from '../../Notification/ToastContext'
-
+import TextField from "@mui/material/TextField";
 const Entities = ({ onSelectEntity }) => {
   const url = localStorage.getItem("url");
   const authToken = localStorage.getItem("authToken");
@@ -395,18 +395,26 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
                       <Form.Label style={{ color: "white" }}>
                         Образовательное учреждение
                       </Form.Label>
-                      <Form.Control
+                      <TextField
                         type="text"
                         name="eduEst"
                         placeholder="Введите образовательное учреждение"
                         value={formData.eduEst}
                         onChange={handleInputChange}
-                        style={{
-                          backgroundColor: "#333",
-                          color: "white",
-                          border: "1px solid #555",
-                        }}
-                        className="form-control-placeholder"
+                        sx={{
+                          "& .MuiInputBase-input": {
+                            color: "white", // Белый цвет текста
+                          },
+                          "& .MuiOutlinedInput-notchedOutline": {
+                            borderColor: "white", // Белый цвет обводки (опционально)
+                          },
+                          "& .MuiInputLabel-root": {
+                            color: "white", // Белый цвет placeholder
+                          },
+                          "& .MuiInputLabel-root.Mui-focused": {
+                            color: "white", // Белый цвет placeholder при фокусе
+                          },
+                        }} className="form-control-placeholder w-100"
                       />
                     </Form.Group>
 
@@ -468,18 +476,30 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
                 {formData.hasTeam && (
                   <Form.Group className="mb-3">
                     <Form.Label style={{ color: "white" }}>Команда</Form.Label>
-                    <Form.Control
+                    <TextField
                       type="text"
                       name="team"
                       placeholder="Опишите команду"
                       value={formData.team}
                       onChange={handleInputChange}
-                      style={{
-                        backgroundColor: "#333",
-                        color: "white",
-                        border: "1px solid #555",
+                      multiline
+                      minRows={2}
+                      maxRows={4}
+                      className="form-control-placeholder w-100"
+                      sx={{
+                        "& .MuiInputBase-input": {
+                          color: "white", // Белый цвет текста
+                        },
+                        "& .MuiOutlinedInput-notchedOutline": {
+                          borderColor: "white", // Белый цвет обводки (опционально)
+                        },
+                        "& .MuiInputLabel-root": {
+                          color: "white", // Белый цвет placeholder
+                        },
+                        "& .MuiInputLabel-root.Mui-focused": {
+                          color: "white", // Белый цвет placeholder при фокусе
+                        },
                       }}
-                      className="form-control-placeholder"
                     />
                   </Form.Group>
                 )}
@@ -489,18 +509,30 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
                   <Col xs={12} md={6}>
                     <Form.Group>
                       <Form.Label style={{ color: "white" }}>Расценки</Form.Label>
-                      <Form.Control
+                      <TextField
                         type="text"
                         name="prices"
                         placeholder="Например, 50к"
                         value={formData.prices}
                         onChange={handleInputChange}
-                        style={{
-                          backgroundColor: "#333",
-                          color: "white",
-                          border: "1px solid #555",
+                        className="form-control-placeholder w-100"
+                        sx={{
+                          "& .MuiInputBase-input": {
+                            color: "white", // Белый цвет текста
+                          },
+                          "& .MuiOutlinedInput-notchedOutline": {
+                            borderColor: "white", // Белый цвет обводки (опционально)
+                          },
+                          "& .MuiInputLabel-root": {
+                            color: "white", // Белый цвет placeholder
+                          },
+                          "& .MuiInputLabel-root.Mui-focused": {
+                            color: "white", // Белый цвет placeholder при фокусе
+                          },
                         }}
-                        className="form-control-placeholder"
+                        multiline
+                        minRows={1}
+                        maxRows={4}
                       />
                     </Form.Group>
                   </Col>
@@ -509,18 +541,27 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
                       <Form.Label style={{ color: "white" }}>
                         Опыт работы (лет)
                       </Form.Label>
-                      <Form.Control
+                      <TextField
                         type="number"
                         name="workExp"
                         placeholder="Введите опыт работы"
                         value={formData.workExp}
                         onChange={handleInputChange}
-                        style={{
-                          backgroundColor: "#333",
-                          color: "white",
-                          border: "1px solid #555",
+                        sx={{
+                          "& .MuiInputBase-input": {
+                            color: "white", // Белый цвет текста
+                          },
+                          "& .MuiOutlinedInput-notchedOutline": {
+                            borderColor: "white", // Белый цвет обводки (опционально)
+                          },
+                          "& .MuiInputLabel-root": {
+                            color: "white", // Белый цвет placeholder
+                          },
+                          "& .MuiInputLabel-root.Mui-focused": {
+                            color: "white", // Белый цвет placeholder при фокусе
+                          },
                         }}
-                        className="form-control-placeholder"
+                        className="form-control-placeholder w-100"
                       />
                     </Form.Group>
                   </Col>
@@ -531,9 +572,26 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
                   <Form.Label style={{ color: "white" }}>
                     Информация о себе
                   </Form.Label>
-                  <Form.Control
+                  <TextField
                     type="text"
                     name="selfInfo"
+                    multiline
+                    minRows={2}
+                    maxRows={4}
+                    sx={{
+                      "& .MuiInputBase-input": {
+                        color: "white", // Белый цвет текста
+                      },
+                      "& .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "white", // Белый цвет обводки (опционально)
+                      },
+                      "& .MuiInputLabel-root": {
+                        color: "white", // Белый цвет placeholder
+                      },
+                      "& .MuiInputLabel-root.Mui-focused": {
+                        color: "white", // Белый цвет placeholder при фокусе
+                      },
+                    }}
                     placeholder="Опишите свои навыки и достижения"
                     value={formData.selfInfo}
                     onChange={handleInputChange}
@@ -542,7 +600,7 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
                       color: "white",
                       border: "1px solid #555",
                     }}
-                    className="form-control-placeholder"
+                    className="form-control-placeholder w-100"
                   />
                 </Form.Group>
 
@@ -778,18 +836,29 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
                 {/* Стоимость */}
                 <Form.Group className="mb-3">
                   <Form.Label style={{ color: "white" }}>Общая стоимость</Form.Label>
-                  <Form.Control
+                  <TextField
                     type="number"
                     name="totalCost"
                     placeholder="10000"
                     value={formData.totalCost}
+                    className='w-100'
                     onChange={handleInputChange}
-                    style={{
-                      backgroundColor: "#333",
-                      color: "white",
-                      border: "1px solid #555",
+                    sx={{
+                      "& .MuiInputBase-input": {
+                        color: "white", // Белый цвет текста
+                      },
+                      "& .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "white", // Белый цвет обводки (опционально)
+                      },
+                      "& .MuiInputLabel-root": {
+                        color: "white", // Белый цвет placeholder
+                      },
+                      "& .MuiInputLabel-root.Mui-focused": {
+                        color: "white", // Белый цвет placeholder при фокусе
+                      },
                     }}
-                    className="form-control-placeholder"
+
+                  // className="form-control-placeholder"
                   />
                   <style>
                     {`
@@ -826,7 +895,34 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
                 {/* Адрес */}
                 <Form.Group className="mb-3">
                   <Form.Label style={{ color: "white" }}>Адрес</Form.Label>
-                  <Form.Control
+
+                  <TextField
+                    type="text"
+                    name="address"
+                    placeholder="Адрес будущих работ"
+                    size="small"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    className="w-100"
+                    multiline
+                    minRows={1}
+                    maxRows={4}
+                    sx={{
+                      "& .MuiInputBase-input": {
+                        color: "white", // Белый цвет текста
+                      },
+                      "& .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "white", // Белый цвет обводки (опционально)
+                      },
+                      "& .MuiInputLabel-root": {
+                        color: "white", // Белый цвет placeholder
+                      },
+                      "& .MuiInputLabel-root.Mui-focused": {
+                        color: "white", // Белый цвет placeholder при фокусе
+                      },
+                    }}
+                  />
+                  {/* <Form.Control
                     type="text"
                     name="address"
                     placeholder="Адрес будущих работ"
@@ -838,7 +934,7 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
                       border: "1px solid #555",
                     }}
                     className="form-control-placeholder"
-                  />
+                  /> */}
                 </Form.Group>
                 <Row className="g-3 mb-3">
                   <Col xs={12} md={6}>
@@ -871,6 +967,7 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
                           color: "white",
                           border: "1px solid #555",
                         }}
+
                         className="form-control-placeholder"
                       />
                     </Form.Group>
@@ -881,18 +978,30 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
                 {/* Комментарии */}
                 <Form.Group className="mb-3">
                   <Form.Label style={{ color: "white" }}>Комментарии</Form.Label>
-                  <Form.Control
+                  <TextField
                     type="text"
                     name="comments"
                     placeholder="Комментарии"
+                    multiline
+                    minRows={1}
+                    maxRows={8}
                     value={formData.comments}
                     onChange={handleInputChange}
-                    style={{
-                      backgroundColor: "#333",
-                      color: "white",
-                      border: "1px solid #555",
+                    sx={{
+                      "& .MuiInputBase-input": {
+                        color: "white", // Белый цвет текста
+                      },
+                      "& .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "white", // Белый цвет обводки (опционально)
+                      },
+                      "& .MuiInputLabel-root": {
+                        color: "white", // Белый цвет placeholder
+                      },
+                      "& .MuiInputLabel-root.Mui-focused": {
+                        color: "white", // Белый цвет placeholder при фокусе
+                      },
                     }}
-                    className="form-control-placeholder"
+                    className="form-control-placeholder w-100"
                   />
                 </Form.Group>
 

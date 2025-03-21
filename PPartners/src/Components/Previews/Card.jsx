@@ -28,18 +28,22 @@ const Card = ({ title, totalCost, address, onClick, isSelected, type, hasEdu, ha
 
                 {type === 'announcement' ? (
                     <div>
-                        <p className="card-text">Стоимость: {totalCost} руб.</p>
-                        <p className="card-text">Адрес: {address}</p>
+                        {totalCost ? (<p className="card-text">Стоимость: {totalCost} руб.</p>) : null}
+                        {address ? (<p className="card-text">Адрес: {address}</p>) : null}
+
                     </div>
                 ) : (
                     <div>
-                        <p className="card-text">
+                        {hasEdu ? (<p className="card-text">
                             {hasEdu ? 'Имеется профильное образование' : 'Не имеется профильное образование'}
-                        </p>
-                        <p className="card-text">
+                        </p>) : null}
+                        {hasTeam ? (<p className="card-text">
                             {hasTeam ? 'Имеется команда' : 'Не имеется команды'}
-                        </p>
-                        <p className="card-text">Опыт работы: {getYearWord(workExp)}</p>
+                        </p>) : null}
+                        {workExp ? (<p className="card-text">Опыт работы: {getYearWord(workExp)}</p>) : null}
+
+
+
                     </div>
                 )}
             </div>

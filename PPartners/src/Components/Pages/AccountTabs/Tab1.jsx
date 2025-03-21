@@ -532,10 +532,10 @@ const ProfilePage = () => {
                                 {/* Кнопки */}
                                 <div className="d-grid gap-2">
                                     {isEditable ? (
-                                        <div className="d-flex justify-content-between">
+                                        <div className="d-flex gap-2">
                                             <Button
                                                 variant="danger"
-                                                className="rounded-pill w-50"
+                                                className="w-50"
                                                 style={{ fontSize: "18px" }}
                                                 onClick={() => setIsEditable(false)}
                                             >
@@ -543,7 +543,7 @@ const ProfilePage = () => {
                                             </Button>
                                             <Button
                                                 variant="success"
-                                                className="rounded-pill w-50"
+                                                className="w-50"
                                                 style={{ fontSize: "18px" }}
                                                 onClick={handleSave}
                                             >

@@ -579,18 +579,31 @@ const AnnouncementDetails = () => {
                                     {/* Категории работ */}
                                     <Form.Group className="mb-3">
                                         <Form.Label>Категории работ</Form.Label>
-                                        <Form.Control
-                                            style={{
-                                                backgroundColor: "#333",
-                                                color: "white",
-                                                border: "1px solid #555",
-                                            }}
+                                        <TextField
                                             type="text"
                                             name="workCategories"
                                             value={announcement.workCategories}
                                             onChange={handleInputChange}
                                             disabled={!isEditable}
+                                            fullWidth
                                             className="form-control-placeholder"
+                                            multiline
+                                            minRows={1}
+                                            maxRows={4}
+                                            sx={{
+                                                "& .MuiInputBase-input": {
+                                                    color: "white", // Белый цвет текста
+                                                },
+                                                "& .MuiOutlinedInput-notchedOutline": {
+                                                    borderColor: "white", // Белый цвет обводки (опционально)
+                                                },
+                                                "& .MuiInputLabel-root": {
+                                                    color: "white", // Белый цвет placeholder
+                                                },
+                                                "& .MuiInputLabel-root.Mui-focused": {
+                                                    color: "white", // Белый цвет placeholder при фокусе
+                                                },
+                                            }}
                                         />
                                     </Form.Group>
 
@@ -656,18 +669,31 @@ const AnnouncementDetails = () => {
                                     {/* Адрес */}
                                     <Form.Group className="mb-3">
                                         <Form.Label>Полный адрес</Form.Label>
-                                        <Form.Control
-                                            style={{
-                                                backgroundColor: "#333",
-                                                color: "white",
-                                                border: "1px solid #555",
-                                            }}
+                                        <TextField
                                             type="text"
                                             name="address"
                                             value={announcement.address}
                                             onChange={handleInputChange}
+                                            fullWidth
                                             disabled={!isEditable}
                                             className="form-control-placeholder"
+                                            multiline
+                                            sx={{
+                                                "& .MuiInputBase-input": {
+                                                    color: "white", // Белый цвет текста
+                                                },
+                                                "& .MuiOutlinedInput-notchedOutline": {
+                                                    borderColor: "white", // Белый цвет обводки (опционально)
+                                                },
+                                                "& .MuiInputLabel-root": {
+                                                    color: "white", // Белый цвет placeholder
+                                                },
+                                                "& .MuiInputLabel-root.Mui-focused": {
+                                                    color: "white", // Белый цвет placeholder при фокусе
+                                                },
+                                            }}
+                                            minRows={1}
+                                            maxRows={4}
                                         />
                                     </Form.Group>
 
@@ -714,19 +740,32 @@ const AnnouncementDetails = () => {
                                     {/* Комментарий */}
                                     <Form.Group className="mb-3">
                                         <Form.Label>Комментарий</Form.Label>
-                                        <Form.Control
-                                            style={{
-                                                backgroundColor: "#333",
-                                                color: "white",
-                                                border: "1px solid #555",
-                                            }}
-                                            as="textarea"
+                                        <TextField
+                                            type="text"
                                             name="comments"
                                             placeholder="Добавьте комментарий"
                                             value={announcement.comments}
                                             onChange={handleInputChange}
                                             disabled={!isEditable}
                                             className="form-control-placeholder"
+                                            multiline
+                                            minRows={1}
+                                            maxRows={4}
+                                            fullWidth
+                                            sx={{
+                                                "& .MuiInputBase-input": {
+                                                    color: "white", // Белый цвет текста
+                                                },
+                                                "& .MuiOutlinedInput-notchedOutline": {
+                                                    borderColor: "white", // Белый цвет обводки (опционально)
+                                                },
+                                                "& .MuiInputLabel-root": {
+                                                    color: "white", // Белый цвет placeholder
+                                                },
+                                                "& .MuiInputLabel-root.Mui-focused": {
+                                                    color: "white", // Белый цвет placeholder при фокусе
+                                                },
+                                            }}
                                         />
                                     </Form.Group>
                                 </Form>

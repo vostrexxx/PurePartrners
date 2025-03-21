@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Form } from "react-bootstrap";
-
+import TextField from "@mui/material/TextField";
 const AutoCompleteInput = ({ name, placeholder, onCategorySelect }) => {
     const [inputValue, setInputValue] = useState("");
     const [searchSuggestions, setSearchSuggestions] = useState([]);
@@ -62,19 +62,33 @@ const AutoCompleteInput = ({ name, placeholder, onCategorySelect }) => {
     return (
         <div style={{ position: "relative" }}>
             <Form.Label style={{ color: "white" }}>Ваша категория работ</Form.Label>
-            <Form.Control
+            <TextField
                 type="text"
                 name={name}
                 placeholder={placeholder}
                 value={inputValue}
                 onChange={handleInputChange}
                 onFocus={() => setShowSuggestions(true)}
-                style={{
-                    backgroundColor: "#333",
-                    color: "white",
-                    border: "1px solid #555",
+                // style={{
+                //     backgroundColor: "#333",
+                //     color: "white",
+                //     border: "1px solid #555",
+                // }}
+                className="autocomplete-input w-100"
+                sx={{
+                    "& .MuiInputBase-input": {
+                        color: "white", // Белый цвет текста
+                    },
+                    "& .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "white", // Белый цвет обводки (опционально)
+                    },
+                    "& .MuiInputLabel-root": {
+                        color: "white", // Белый цвет placeholder
+                    },
+                    "& .MuiInputLabel-root.Mui-focused": {
+                        color: "white", // Белый цвет placeholder при фокусе
+                    },
                 }}
-                className="autocomplete-input"
             />
             <style>
                 {`

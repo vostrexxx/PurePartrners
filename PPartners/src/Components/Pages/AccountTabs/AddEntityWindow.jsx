@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Button, Form, Dropdown, Card } from "react-bootstrap";
 import { useProfile } from "../../Context/ProfileContext";
-import { useToast } from '../../Notification/ToastContext'
-// import { useEffect } from "react";
+import { useToast } from '../../Notification/ToastContext';
+
 const EntityModal = ({ isOpen, onClose, fullName, onTrigger, gotPerson }) => {
   const authToken = localStorage.getItem("authToken");
   const showToast = useToast();
@@ -24,9 +24,20 @@ const EntityModal = ({ isOpen, onClose, fullName, onTrigger, gotPerson }) => {
     firm: "",
   });
 
+  // Автоматически устанавливаем тип лица при открытии модального окна
   useEffect(() => {
-    console.log('имеется физ лицо', gotPerson)
-  }, [gotPerson]);
+    if (isOpen) {
+      if (gotPerson) {
+        // Если физическое лицо уже есть, выбираем юридическое лицо
+        setEntity("Юридическое лицо");
+        setIsLegalEntity(true);
+      } else {
+        // Если физического лица нет, сбрасываем выбор
+        setEntity(null);
+        setIsLegalEntity(null);
+      }
+    }
+  }, [isOpen, gotPerson]); // Зависимость от isOpen и gotPerson
 
   const handleSelectOption = (option) => {
     setEntity(option);
@@ -144,7 +155,7 @@ const EntityModal = ({ isOpen, onClose, fullName, onTrigger, gotPerson }) => {
     }
   };
 
-  const options = [!gotPerson ? "Физическое лицо" : null, "Юридическое лицо"]
+  const options = [!gotPerson ? "Физическое лицо" : null, "Юридическое лицо"].filter(option => option !== null);
 
   return (
     <Modal show={isOpen} onHide={onClose} centered>
@@ -152,151 +163,156 @@ const EntityModal = ({ isOpen, onClose, fullName, onTrigger, gotPerson }) => {
         <Modal.Title>Добавить новое лицо</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {/* Выпадающий список */}
-        <Dropdown onSelect={handleSelectOption}>
-          <Dropdown.Toggle variant="primary" className="w-100">
-            {entity || "Выберите тип лица"}
-          </Dropdown.Toggle>
-          <Dropdown.Menu className="w-100">
-            {options.map((option, index) => (
-              <Dropdown.Item key={index} eventKey={option}>
-                {option}
-              </Dropdown.Item>
-            ))}
-          </Dropdown.Menu>
-        </Dropdown>
+        {/* Выпадающий список показываем только если есть выбор */}
+        {options.length > 1 && (
+          <Dropdown onSelect={handleSelectOption}>
+            <Dropdown.Toggle variant="primary" className="w-100">
+              {entity || "Выберите тип лица"}
+            </Dropdown.Toggle>
+            <Dropdown.Menu className="w-100">
+              {options.map((option, index) => (
+                <Dropdown.Item key={index} eventKey={option}>
+                  {option}
+                </Dropdown.Item>
+              ))}
+            </Dropdown.Menu>
+          </Dropdown>
+        )}
 
-        {entity && (
-          <Card className="mt-3 p-3">
-            <Form>
-              {/* ФИО */}
-              <Form.Group className="mb-3">
-                <Form.Label>ФИО</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="fullName"
-                  value={formData.fullName}
-                  onChange={handleInputChange}
-                />
-              </Form.Group>
+        {/* Если выбора нет (только юридическое лицо), сразу показываем форму */}
+        {(entity || options.length === 1) && (
+          <>
+            <h5 className="text-center">Создание юридического лица</h5>
 
-              {/* Адрес */}
-              <Form.Group className="mb-3">
-                <Form.Label>Адрес</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleInputChange}
-                />
-              </Form.Group>
+            <Card className="mt-3 p-3">
+              {/* <Card.Title>фывфывфыв</Card.Title> */}
+              <Form>
+                {/* ФИО */}
+                <Form.Group className="mb-3">
+                  <Form.Label>ФИО</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleInputChange}
+                  />
+                </Form.Group>
 
-              {/* ИНН */}
-              <Form.Group className="mb-3">
-                <Form.Label>ИНН</Form.Label>
-                <Form.Control
-                  type="number"
-                  name="inn"
-                  value={formData.inn}
-                  onChange={handleInputChange}
-                  className="no-spinner"
-                />
-              </Form.Group>
+                {/* Адрес */}
+                <Form.Group className="mb-3">
+                  <Form.Label>Адрес</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                  />
+                </Form.Group>
 
-              {/* КПП, Банк, Расчетный счет, Корреспондентский счет, БИК */}
-              {(isLegalEntity || entity === "Физическое лицо") && (
-                <>
-                  {isLegalEntity && (
-                    <>
-                      {/* Юридическое лицо - Название фирмы и Должность */}
-                      <Form.Group className="mb-3">
-                        <Form.Label>Название фирмы</Form.Label>
-                        <Form.Control
-                          type="text"
-                          name="firm"
-                          value={formData.firm}
-                          onChange={handleInputChange}
-                        />
-                      </Form.Group>
+                {/* ИНН */}
+                <Form.Group className="mb-3">
+                  <Form.Label>ИНН</Form.Label>
+                  <Form.Control
+                    type="number"
+                    name="inn"
+                    value={formData.inn}
+                    onChange={handleInputChange}
+                    className="no-spinner"
+                  />
+                </Form.Group>
 
-                      <Form.Group className="mb-3">
-                        <Form.Label>Должность</Form.Label>
-                        <Form.Control
-                          type="text"
-                          name="position"
-                          value={formData.position}
-                          onChange={handleInputChange}
-                          className="no-spinner"
-                        />
-                      </Form.Group>
-                    </>
-                  )}
+                {/* КПП, Банк, Расчетный счет, Корреспондентский счет, БИК */}
+                {(isLegalEntity || entity === "Физическое лицо") && (
+                  <>
+                    {isLegalEntity && (
+                      <>
+                        {/* Юридическое лицо - Название фирмы и Должность */}
+                        <Form.Group className="mb-3">
+                          <Form.Label>Название фирмы</Form.Label>
+                          <Form.Control
+                            type="text"
+                            name="firm"
+                            value={formData.firm}
+                            onChange={handleInputChange}
+                          />
+                        </Form.Group>
 
-                  {/* Общие поля для обоих типов */}
-                  <Form.Group className="mb-3">
-                    <Form.Label>КПП</Form.Label>
-                    <Form.Control
-                      type="number"
-                      name="kpp"
-                      value={formData.kpp}
-                      onChange={handleInputChange}
-                      className="no-spinner"
-                    />
-                  </Form.Group>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Должность</Form.Label>
+                          <Form.Control
+                            type="text"
+                            name="position"
+                            value={formData.position}
+                            onChange={handleInputChange}
+                            className="no-spinner"
+                          />
+                        </Form.Group>
+                      </>
+                    )}
 
-                  <Form.Group className="mb-3">
-                    <Form.Label>Банк</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="bank"
-                      value={formData.bank}
-                      onChange={handleInputChange}
-                    />
-                  </Form.Group>
+                    {/* Общие поля для обоих типов */}
+                    <Form.Group className="mb-3">
+                      <Form.Label>КПП</Form.Label>
+                      <Form.Control
+                        type="number"
+                        name="kpp"
+                        value={formData.kpp}
+                        onChange={handleInputChange}
+                        className="no-spinner"
+                      />
+                    </Form.Group>
 
-                  <Form.Group className="mb-3">
-                    <Form.Label>Расчетный счет</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="currAcc"
-                      value={formData.currAcc}
-                      onChange={handleInputChange}
-                      className="no-spinner"
-                    />
-                  </Form.Group>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Банк</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="bank"
+                        value={formData.bank}
+                        onChange={handleInputChange}
+                      />
+                    </Form.Group>
 
-                  <Form.Group className="mb-3">
-                    <Form.Label>Корреспондентский счет</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="corrAcc"
-                      value={formData.corrAcc}
-                      onChange={handleInputChange}
-                      className="no-spinner"
-                    />
-                  </Form.Group>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Расчетный счет</Form.Label>
+                      <Form.Control
+                        type="number"
+                        name="currAcc"
+                        value={formData.currAcc}
+                        onChange={handleInputChange}
+                        className="no-spinner"
+                      />
+                    </Form.Group>
 
-                  <Form.Group className="mb-3">
-                    <Form.Label>БИК</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="bik"
-                      value={formData.bik}
-                      onChange={handleInputChange}
-                      className="no-spinner"
-                    />
-                  </Form.Group>
-                </>
-              )}
-            </Form>
-          </Card>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Корреспондентский счет</Form.Label>
+                      <Form.Control
+                        type="number"
+                        name="corrAcc"
+                        value={formData.corrAcc}
+                        onChange={handleInputChange}
+                        className="no-spinner"
+                      />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                      <Form.Label>БИК</Form.Label>
+                      <Form.Control
+                        type="number"
+                        name="bik"
+                        value={formData.bik}
+                        onChange={handleInputChange}
+                        className="no-spinner"
+                      />
+                    </Form.Group>
+                  </>
+                )}
+              </Form>
+            </Card></>
+
         )}
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={onClose}>
-          Закрыть
-        </Button>
-        <Button variant="success" onClick={handleSave}>
+        <Button variant="success" onClick={handleSave} className="w-100">
           Сохранить
         </Button>
       </Modal.Footer>

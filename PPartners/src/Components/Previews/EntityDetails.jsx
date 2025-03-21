@@ -376,12 +376,12 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
                 {/* <Button variant="secondary" onClick={onClose}>
                     Закрыть
                 </Button> */}
-                <div className="d-flex justify-content-center">
+                <div className="d-flex gap-1 w-100">
                     {!isEditable ? (
                         <Button
                             variant="primary"
-                            className="rounded-pill px-4 py-2"
-                            style={{ fontSize: "16px" }}
+                            className="flex-grow-1"
+                            style={{ fontSize: "15px" }}
                             onClick={handleEditClick}
                         >
                             Редактировать
@@ -390,17 +390,17 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
                         <>
                             <Button
                                 variant="success"
-                                className="rounded-pill px-4 py-2"
-                                style={{ fontSize: "16px" }}
+                                className="flex-grow-1"
+                                style={{ fontSize: "15px" }}
                                 onClick={handleSaveClick}
                             >
                                 Сохранить
                             </Button>
                             <Button
                                 variant="warning"
-                                className="rounded-pill px-4 py-2 text-white"
+                                className="flex-grow-1"
                                 style={{
-                                    fontSize: "16px",
+                                    fontSize: "15px",
                                     backgroundColor: "#ff7101",
                                     border: "none",
                                 }}
@@ -412,8 +412,8 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
                     )}
                     <Button
                         variant="danger"
-                        className="rounded-pill px-4 py-2"
-                        style={{ fontSize: "16px" }}
+                        className="flex-grow-1"
+                        style={{ fontSize: "15px" }}
                         onClick={handleDeleteClick}
                     >
                         Удалить

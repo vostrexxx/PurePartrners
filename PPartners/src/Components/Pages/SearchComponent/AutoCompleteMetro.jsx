@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Form } from "react-bootstrap";
-
+import TextField from "@mui/material/TextField";
 const MetroAutocomplete = ({ onSelect, value }) => {
   const [query, setQuery] = useState(value || "");
   const [results, setResults] = useState([]);
@@ -54,17 +54,26 @@ const MetroAutocomplete = ({ onSelect, value }) => {
   return (
     <div style={{ position: "relative" }}>
       <Form.Label style={{ color: "white" }}>Станция метро</Form.Label>
-      <Form.Control
+      <TextField
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Введите станцию метро"
-        style={{
-          backgroundColor: "#333",
-          color: "white",
-          border: "1px solid #555",
+        className="metro-input w-100"
+        sx={{
+          "& .MuiInputBase-input": {
+            color: "white", // Белый цвет текста
+          },
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderColor: "white", // Белый цвет обводки (опционально)
+          },
+          "& .MuiInputLabel-root": {
+            color: "white", // Белый цвет placeholder
+          },
+          "& .MuiInputLabel-root.Mui-focused": {
+            color: "white", // Белый цвет placeholder при фокусе
+          },
         }}
-        className="metro-input"
       />
 
       {results.length > 0 && (
