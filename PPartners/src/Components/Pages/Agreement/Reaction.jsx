@@ -98,9 +98,8 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode, receiverItemName })
         isOpen && (
             <div style={styles.overlay}>
                 <div style={styles.modal}>
-                    <h5 className='text-black mb-5 text-center'>Выберите {isSpecialist ? "вашу анкету" : "ваше объявление"} и оставьте комментарий</h5>
+                    <h5 className='text-black text-center'>Выберите {isSpecialist ? "вашу анкету" : "ваше объявление"} и оставьте комментарий</h5>
 
-                    {/* Список превью */}
                     <div style={styles.previewList}>
                         {previews.length > 0 ? (
                             previews.map((preview) => (
@@ -132,7 +131,6 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode, receiverItemName })
                         )}
                     </div>
 
-                    {/* Поле комментария */}
                     <TextField
                         label="Комментарий"
                         multiline
@@ -151,10 +149,10 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode, receiverItemName })
 
                     {/* Кнопки */}
                     <div style={styles.buttons}>
-                        <Button variant="contained" color="primary" onClick={handleSubmit}>
-                            Отправить
+                        <Button variant="outlined" color="success" onClick={handleSubmit}>
+                            Сохранить
                         </Button>
-                        <Button variant="outlined" color="secondary" onClick={onClose}>
+                        <Button variant="outlined" color="error" onClick={onClose}>
                             Отмена
                         </Button>
                     </div>

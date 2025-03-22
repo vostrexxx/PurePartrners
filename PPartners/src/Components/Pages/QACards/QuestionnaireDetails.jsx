@@ -8,6 +8,13 @@ import { useToast } from '../../Notification/ToastContext'
 import { Button, Card, Container, Form, ListGroup, Row, Col, Spinner, Image, Modal, ButtonGroup } from "react-bootstrap";
 import Swal from "sweetalert2";
 import TextField from "@mui/material/TextField";
+import {
+    Select,
+    MenuItem,
+    FormControl,
+    InputLabel,
+    Checkbox
+} from "@mui/material";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
@@ -402,21 +409,23 @@ const QuestionnaireDetails = () => {
                                 boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.5)",
                             }}
                         >
-                            <Card.Body >
-
+                            <Card.Text>
                                 <Button
                                     onClick={handleGoBack}
                                     variant="secondary"
                                     style={{
-                                        // marginTop: '10px',
-                                        // padding: '10px 20px',
+                                        marginTop: '10px',
+                                        padding: '10px 20px',
                                         borderRadius: '8px',
-                                        // width: '100%'
+                                        width: '100%'
                                     }}
                                 >
-                                    <FontAwesomeIcon icon={faArrowLeft} />
-
+                                    Назад
                                 </Button>
+                            </Card.Text>
+                            <Card.Body >
+
+
                                 <h2 className="text-center mb-4" style={{ color: "#ff7f00", fontWeight: "bold" }}>
                                     Детали анкеты
                                 </h2>
@@ -457,20 +466,39 @@ const QuestionnaireDetails = () => {
                                     <Form.Group className="mb-3">
                                         <Form.Label>Есть ли команда:</Form.Label>
                                         {/* <label></label> */}
-                                        <Form.Select
-                                            style={{
-                                                backgroundColor: "#333",
-                                                color: "white",
-                                                border: "1px solid #555",
-                                            }}
+                                        <Select
+                                            labelId="hasTeam-label"
+                                            id="hasTeam"
                                             name="hasTeam"
-                                            value={questionnaire.hasTeam ? 'Да' : 'Нет'}
-                                            onChange={(e) => handleInputChange({ target: { name: 'hasTeam', value: e.target.value === 'Да' } })}
+                                            value={questionnaire.hasTeam ? "Да" : "Нет"}
+                                            onChange={(e) =>
+                                                handleInputChange({
+                                                    target: { name: "hasTeam", value: e.target.value === "Да" },
+                                                })
+                                            }
+                                            className='w-100'
                                             disabled={!isEditable}
+                                            sx={{
+                                                "& .MuiInputBase-input": {
+                                                    color: "white",
+                                                },
+                                                "& .MuiOutlinedInput-notchedOutline": {
+                                                    borderColor: "white",
+                                                },
+                                                "& .MuiInputLabel-root": {
+                                                    color: "white",
+                                                },
+                                                "& .MuiInputLabel-root.Mui-focused": {
+                                                    color: "white", // Белый цвет placeholder при фокусе
+                                                },
+                                                "& .MuiSelect-icon": {
+                                                    display: isEditable ? "inline-block" : "none", // Скрываем стрелочку, если disabled
+                                                },
+                                            }}
                                         >
-                                            <option>Да</option>
-                                            <option>Нет</option>
-                                        </Form.Select>
+                                            <MenuItem value="Да">Да</MenuItem>
+                                            <MenuItem value="Нет">Нет</MenuItem>
+                                        </Select>
                                     </Form.Group>
 
                                     <Form.Group className="mb-3">
@@ -511,20 +539,39 @@ const QuestionnaireDetails = () => {
                                     <Form.Group className="mb-3">
                                         <Form.Label>Есть ли образование:</Form.Label>
                                         {/* <label></label> */}
-                                        <Form.Select
+                                        <Select
+                                            labelId="hasEdu-label"
+                                            id="hasEdu"
                                             name="hasEdu"
-                                            style={{
-                                                backgroundColor: "#333",
-                                                color: "white",
-                                                border: "1px solid #555",
-                                            }}
-                                            value={questionnaire.hasEdu ? 'Да' : 'Нет'}
-                                            onChange={(e) => handleInputChange({ target: { name: 'hasEdu', value: e.target.value === 'Да' } })}
+                                            value={questionnaire.hasEdu ? "Да" : "Нет"}
+                                            onChange={(e) =>
+                                                handleInputChange({
+                                                    target: { name: "hasEdu", value: e.target.value === "Да" },
+                                                })
+                                            }
                                             disabled={!isEditable}
+                                            className='w-100'
+                                            sx={{
+                                                "& .MuiInputBase-input": {
+                                                    color: "white", // Белый цвет текста
+                                                },
+                                                "& .MuiOutlinedInput-notchedOutline": {
+                                                    borderColor: "white", // Белый цвет обводки (опционально)
+                                                },
+                                                "& .MuiInputLabel-root": {
+                                                    color: "white", // Белый цвет placeholder
+                                                },
+                                                "& .MuiInputLabel-root.Mui-focused": {
+                                                    color: "white", // Белый цвет placeholder при фокусе
+                                                },
+                                                "& .MuiSelect-icon": {
+                                                    display: isEditable ? "inline-block" : "none", // Скрываем стрелочку, если disabled
+                                                },
+                                            }}
                                         >
-                                            <option>Да</option>
-                                            <option>Нет</option>
-                                        </Form.Select>
+                                            <MenuItem value="Да">Да</MenuItem>
+                                            <MenuItem value="Нет">Нет</MenuItem>
+                                        </Select>
                                     </Form.Group>
 
 
@@ -533,52 +580,80 @@ const QuestionnaireDetails = () => {
                                         {questionnaire.hasEdu && (
                                             <>
                                                 <Form.Label>Учебное заведение</Form.Label>
-                                                <Form.Control
+                                                <TextField
                                                     type="text"
                                                     name="eduEst"
                                                     id="eduEst"
                                                     value={questionnaire.eduEst || ''}
                                                     onChange={handleInputChange}
                                                     disabled={!isEditable}
-                                                    style={{
-                                                        backgroundColor: "#333",
-                                                        color: "white",
-                                                        border: "1px solid #555",
+                                                    // className=''
+                                                    sx={{
+                                                        "& .MuiInputBase-input": {
+                                                            color: "white", // Белый цвет текста
+                                                        },
+                                                        "& .MuiOutlinedInput-notchedOutline": {
+                                                            borderColor: "white", // Белый цвет обводки (опционально)
+                                                        },
+                                                        "& .MuiInputLabel-root": {
+                                                            color: "white", // Белый цвет placeholder
+                                                        },
+                                                        "& .MuiInputLabel-root.Mui-focused": {
+                                                            color: "white", // Белый цвет placeholder при фокусе
+                                                        },
                                                     }}
-                                                    className="mb-3"
+                                                    className="mb-3 w-100"
                                                 />
 
                                                 <Form.Label>Дата начала обучения</Form.Label>
-                                                <Form.Control
+                                                <TextField
                                                     type="date"
                                                     name="eduDateStart"
                                                     id="eduDateStart"
                                                     value={questionnaire.eduDateStart || ''}
                                                     onChange={handleInputChange}
                                                     disabled={!isEditable}
-                                                    style={{
-                                                        backgroundColor: "#333",
-                                                        color: "white",
-                                                        border: "1px solid #555",
+                                                    sx={{
+                                                        "& .MuiInputBase-input": {
+                                                            color: "white", // Белый цвет текста
+                                                        },
+                                                        "& .MuiOutlinedInput-notchedOutline": {
+                                                            borderColor: "white", // Белый цвет обводки (опционально)
+                                                        },
+                                                        "& .MuiInputLabel-root": {
+                                                            color: "white", // Белый цвет placeholder
+                                                        },
+                                                        "& .MuiInputLabel-root.Mui-focused": {
+                                                            color: "white", // Белый цвет placeholder при фокусе
+                                                        },
                                                     }}
-                                                    className="mb-3"
+                                                    className="mb-3 w-100"
 
                                                 />
 
                                                 <Form.Label htmlFor="eduDateEnd">Дата окончания обучения</Form.Label>
-                                                <Form.Control
+                                                <TextField
                                                     type="date"
                                                     name="eduDateEnd"
                                                     id="eduDateEnd"
                                                     value={questionnaire.eduDateEnd || ''}
                                                     onChange={handleInputChange}
                                                     disabled={!isEditable}
-                                                    style={{
-                                                        backgroundColor: "#333",
-                                                        color: "white",
-                                                        border: "1px solid #555",
+                                                    sx={{
+                                                        "& .MuiInputBase-input": {
+                                                            color: "white", // Белый цвет текста
+                                                        },
+                                                        "& .MuiOutlinedInput-notchedOutline": {
+                                                            borderColor: "white", // Белый цвет обводки (опционально)
+                                                        },
+                                                        "& .MuiInputLabel-root": {
+                                                            color: "white", // Белый цвет placeholder
+                                                        },
+                                                        "& .MuiInputLabel-root.Mui-focused": {
+                                                            color: "white", // Белый цвет placeholder при фокусе
+                                                        },
                                                     }}
-                                                    className="mb-3"
+                                                    className="mb-3 w-100"
                                                 />
                                             </>
                                         )}
@@ -586,17 +661,27 @@ const QuestionnaireDetails = () => {
 
                                     <Form.Group className="mb-3">
                                         <Form.Label>Опыт работы</Form.Label>
-                                        <Form.Control
-                                            type="text"
+                                        <TextField
+                                            type="number"
                                             name="workExp"
                                             id="workExp"
                                             value={questionnaire.workExp || ''}
                                             onChange={handleInputChange}
                                             disabled={!isEditable}
-                                            style={{
-                                                backgroundColor: "#333",
-                                                color: "white",
-                                                border: "1px solid #555",
+                                            className='w-100'
+                                            sx={{
+                                                "& .MuiInputBase-input": {
+                                                    color: "white", // Белый цвет текста
+                                                },
+                                                "& .MuiOutlinedInput-notchedOutline": {
+                                                    borderColor: "white", // Белый цвет обводки (опционально)
+                                                },
+                                                "& .MuiInputLabel-root": {
+                                                    color: "white", // Белый цвет placeholder
+                                                },
+                                                "& .MuiInputLabel-root.Mui-focused": {
+                                                    color: "white", // Белый цвет placeholder при фокусе
+                                                },
                                             }}
                                         />
                                     </Form.Group>
@@ -665,7 +750,7 @@ const QuestionnaireDetails = () => {
                                     <Col>
                                         <Row>
                                             <Col>
-                                                <h5 className="mt-4" style={{ color: "#ff7f00" }}>
+                                                <h5 className="mt-2 mb-4 text-center" style={{ color: "#ff7f00" }}>
                                                     Прикрепленные фотографии:
                                                 </h5>
 
@@ -710,7 +795,7 @@ const QuestionnaireDetails = () => {
                                                         ))}
                                                     </Row>
                                                 ) : (
-                                                    <p>Фотографии отсутствуют</p>
+                                                    <p className='text-center'>Фотографии отсутствуют</p>
                                                 )}
                                             </Col>
                                         </Row>
@@ -740,16 +825,27 @@ const QuestionnaireDetails = () => {
                                                                     <li key={index}>{file.name}</li>
                                                                 ))}
                                                             </ul>
-                                                            <Button
-                                                                variant="success"
-                                                                onClick={handleUploadImages}
-                                                                className="me-2"
-                                                            >
-                                                                Сохранить
-                                                            </Button>
-                                                            <Button variant="danger" onClick={handleCancelUpload}>
-                                                                Отменить
-                                                            </Button>
+
+                                                            <div className="d-flex gap-2">
+                                                                <Button
+                                                                    variant="success"
+                                                                    onClick={handleUploadImages}
+                                                                    className="w-50"
+                                                                    style={{ fontSize: "18px" }}
+
+                                                                >
+                                                                    Сохранить
+                                                                </Button>
+                                                                <Button
+                                                                    variant="danger"
+                                                                    onClick={handleCancelUpload}
+                                                                    className="w-50"
+                                                                    style={{ fontSize: "18px" }}
+
+                                                                >
+                                                                    Отменить
+                                                                </Button>
+                                                            </div>
                                                         </div>
                                                     )}
                                                 </Col>
@@ -775,7 +871,7 @@ const QuestionnaireDetails = () => {
                                         )}
 
                                         {location.state?.fromLk === null ? null : (
-                                            <div>
+                                            <div className='mt-4'>
                                                 {!isEditable && canEditOrDelete ? (
                                                     <>
                                                         <h5 className="text-center mb-2" style={{ color: "#ff7f00" }}>Данные по лицу</h5>

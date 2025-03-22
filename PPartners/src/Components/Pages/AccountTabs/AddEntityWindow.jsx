@@ -182,7 +182,7 @@ const EntityModal = ({ isOpen, onClose, fullName, onTrigger, gotPerson }) => {
         {/* Если выбора нет (только юридическое лицо), сразу показываем форму */}
         {(entity || options.length === 1) && (
           <>
-            <h5 className="text-center">Создание юридического лица</h5>
+            {/* <h5 className="text-center">Создание юридического лица</h5> */}
 
             <Card className="mt-3 p-3">
               {/* <Card.Title>фывфывфыв</Card.Title> */}

@@ -418,42 +418,76 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
                       />
                     </Form.Group>
 
-                    <Row className="g-3">
+                    <Row className="">
                       <Col xs={12} md={6}>
                         <Form.Group className="mb-3">
-                          <Form.Label style={{ color: "white" }}>
+                          <Form.Label style={{
+                            color: "white",
+                            whiteSpace: "nowrap", // Запрещает перенос текста
+                            overflow: "hidden",   // Скрывает текст, выходящий за пределы
+                            textOverflow: "ellipsis", // Добавляет троеточие
+                            display: "inline-block",  // Чтобы элемент занимал только необходимую ширину
+                            maxWidth: "100%",         // Ограничивает ширину элемента
+                          }}>
                             Дата начала обучения
                           </Form.Label>
-                          <Form.Control
+                          <TextField
                             type="date"
                             name="eduDateStart"
                             value={formData.eduDateStart}
                             onChange={handleInputChange}
-                            style={{
-                              backgroundColor: "#333",
-                              color: "white",
-                              border: "1px solid #555",
+                            sx={{
+                              "& .MuiInputBase-input": {
+                                color: "white", // Белый цвет текста
+                              },
+                              "& .MuiOutlinedInput-notchedOutline": {
+                                borderColor: "white", // Белый цвет обводки (опционально)
+                              },
+                              "& .MuiInputLabel-root": {
+                                color: "white", // Белый цвет placeholder
+                              },
+                              "& .MuiInputLabel-root.Mui-focused": {
+                                color: "white", // Белый цвет placeholder при фокусе
+                              },
                             }}
-                            className="form-control-placeholder"
+                            className="form-control-placeholder w-100"
                           />
                         </Form.Group>
                       </Col>
                       <Col xs={12} md={6}>
                         <Form.Group className="mb-3">
-                          <Form.Label style={{ color: "white" }}>
+                          <Form.Label
+                            style={{
+                              color: "white",
+                              whiteSpace: "nowrap", // Запрещает перенос текста
+                              overflow: "hidden",   // Скрывает текст, выходящий за пределы
+                              textOverflow: "ellipsis", // Добавляет троеточие
+                              display: "inline-block",  // Чтобы элемент занимал только необходимую ширину
+                              maxWidth: "100%",         // Ограничивает ширину элемента
+                            }}
+                          >
                             Дата окончания обучения
                           </Form.Label>
-                          <Form.Control
+                          <TextField
                             type="date"
                             name="eduDateEnd"
                             value={formData.eduDateEnd}
                             onChange={handleInputChange}
-                            style={{
-                              backgroundColor: "#333",
-                              color: "white",
-                              border: "1px solid #555",
+                            sx={{
+                              "& .MuiInputBase-input": {
+                                color: "white", // Белый цвет текста
+                              },
+                              "& .MuiOutlinedInput-notchedOutline": {
+                                borderColor: "white", // Белый цвет обводки (опционально)
+                              },
+                              "& .MuiInputLabel-root": {
+                                color: "white", // Белый цвет placeholder
+                              },
+                              "& .MuiInputLabel-root.Mui-focused": {
+                                color: "white", // Белый цвет placeholder при фокусе
+                              },
                             }}
-                            className="form-control-placeholder"
+                            className="form-control-placeholder w-100"
                           />
                         </Form.Group>
                       </Col>
@@ -595,11 +629,6 @@ const QuestionnaireForm = ({ onSubmit, onCancel }) => {
                     placeholder="Опишите свои навыки и достижения"
                     value={formData.selfInfo}
                     onChange={handleInputChange}
-                    style={{
-                      backgroundColor: "#333",
-                      color: "white",
-                      border: "1px solid #555",
-                    }}
                     className="form-control-placeholder w-100"
                   />
                 </Form.Group>
@@ -940,35 +969,53 @@ const AnnouncementForm = ({ onSubmit, onCancel }) => {
                   <Col xs={12} md={6}>
                     <Form.Group>
                       <Form.Label style={{ color: "white" }}>Дата начала</Form.Label>
-                      <Form.Control
+                      <TextField
                         type="date"
                         name="startDate"
                         value={formData.startDate}
                         onChange={handleInputChange}
-                        style={{
-                          backgroundColor: "#333",
-                          color: "white",
-                          border: "1px solid #555",
+                        sx={{
+                          "& .MuiInputBase-input": {
+                            color: "white", // Белый цвет текста
+                          },
+                          "& .MuiOutlinedInput-notchedOutline": {
+                            borderColor: "white", // Белый цвет обводки (опционально)
+                          },
+                          "& .MuiInputLabel-root": {
+                            color: "white", // Белый цвет placeholder
+                          },
+                          "& .MuiInputLabel-root.Mui-focused": {
+                            color: "white", // Белый цвет placeholder при фокусе
+                          },
                         }}
-                        className="form-control-placeholder"
+                        className="form-control-placeholder w-100"
                       />
                     </Form.Group>
                   </Col>
                   <Col xs={12} md={6}>
                     <Form.Group>
                       <Form.Label style={{ color: "white" }}>Дата окончания</Form.Label>
-                      <Form.Control
+                      <TextField
                         type="date"
                         name="finishDate"
                         value={formData.finishDate}
                         onChange={handleInputChange}
-                        style={{
-                          backgroundColor: "#333",
-                          color: "white",
-                          border: "1px solid #555",
+                        sx={{
+                          "& .MuiInputBase-input": {
+                            color: "white", // Белый цвет текста
+                          },
+                          "& .MuiOutlinedInput-notchedOutline": {
+                            borderColor: "white", // Белый цвет обводки (опционально)
+                          },
+                          "& .MuiInputLabel-root": {
+                            color: "white", // Белый цвет placeholder
+                          },
+                          "& .MuiInputLabel-root.Mui-focused": {
+                            color: "white", // Белый цвет placeholder при фокусе
+                          },
                         }}
 
-                        className="form-control-placeholder"
+                        className="form-control-placeholder w-100"
                       />
                     </Form.Group>
                   </Col>
@@ -1233,7 +1280,7 @@ const MainPage = () => {
         <div>
           <Row className="align-items-center mb-4">
             <Col>
-              <h2 className="text-white mb-0">{(isSpecialist ? "Анкеты" : "Объявления")}</h2>
+              <h2 className="text-white">{(isSpecialist ? "Анкеты" : "Объявления")}</h2>
             </Col>
             <Col xs="auto">
               <Button

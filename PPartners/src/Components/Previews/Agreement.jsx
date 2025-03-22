@@ -259,7 +259,7 @@ const Agreement = ({
             );
         } else if (!isReceiver && isChatExists) {
             bottomEl = (
-                <Button variant="primary" onClick={handleOpenChat}>Открыть чат</Button>
+                <Button variant="primary" className='w-100 mt-3' onClick={handleOpenChat}>Открыть чат</Button>
             );
         }
     } else {
@@ -282,7 +282,7 @@ const Agreement = ({
                             {comment.length > 0 ? (<><h4>Комментарий откликнувшегося:</h4>
                                 <p>{comment}</p></>) : null}
 
-                            <h2>{localizedStatus}</h2>
+                            <h2>Статус: {localizedStatus}</h2>
                         </div>
                     ) : (
                         <div>

@@ -926,6 +926,13 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                 )
             }
 
+            {estimate.length === 0 ? (
+                <div className='text-center'>Вы пока не добавили смету,
+                    вы можете её загрузить согласно шаблону
+                    или создать вручную, перейдя в режим редактирования
+                </div>
+            ) : null}
+
             {/* Стили для адаптива */}
             <style>
                 {`

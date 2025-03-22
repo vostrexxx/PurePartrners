@@ -8,6 +8,15 @@ import { Button, Card, Container, Form, ListGroup, Row, Col, Spinner, Image, Mod
 import { useToast } from '../../Notification/ToastContext'
 import TextField from "@mui/material/TextField";
 import Swal from "sweetalert2";
+import { Delete } from '@mui/icons-material'; // Импортируем иконку корзины
+
+import {
+    Select,
+    MenuItem,
+    FormControl,
+    InputLabel,
+    Checkbox
+} from "@mui/material";
 const AnnouncementDetails = () => {
     const showToast = useToast();
 
@@ -610,23 +619,32 @@ const AnnouncementDetails = () => {
                                     {/* Стоимость */}
                                     <Form.Group className="mb-3">
                                         <Form.Label>Общая стоимость</Form.Label>
-                                        <Form.Control
-                                            style={{
-                                                backgroundColor: "#333",
-                                                color: "white",
-                                                border: "1px solid #555",
+                                        <TextField
+                                            sx={{
+                                                "& .MuiInputBase-input": {
+                                                    color: "white", // Белый цвет текста
+                                                },
+                                                "& .MuiOutlinedInput-notchedOutline": {
+                                                    borderColor: "white", // Белый цвет обводки (опционально)
+                                                },
+                                                "& .MuiInputLabel-root": {
+                                                    color: "white", // Белый цвет placeholder
+                                                },
+                                                "& .MuiInputLabel-root.Mui-focused": {
+                                                    color: "white", // Белый цвет placeholder при фокусе
+                                                },
                                             }}
                                             type="text"
                                             name="totalCost"
                                             value={announcement.totalCost}
                                             onChange={handleInputChange}
                                             disabled={!isEditable}
-                                            className="form-control-placeholder"
+                                            className="form-control-placeholder w-100"
                                         />
                                     </Form.Group>
 
                                     {/* Цена по договору */}
-                                    <Form.Group className="mb-3">
+                                    <Form.Group className="mb-3" hidden={true}>
                                         <Form.Label>Цена по договору</Form.Label>
                                         <Form.Select
                                             style={{
@@ -651,18 +669,27 @@ const AnnouncementDetails = () => {
                                     {/* Метро */}
                                     <Form.Group className="mb-3">
                                         <Form.Label>Ближайшее метро</Form.Label>
-                                        <Form.Control
-                                            style={{
-                                                backgroundColor: "#333",
-                                                color: "white",
-                                                border: "1px solid #555",
+                                        <TextField
+                                            sx={{
+                                                "& .MuiInputBase-input": {
+                                                    color: "white", // Белый цвет текста
+                                                },
+                                                "& .MuiOutlinedInput-notchedOutline": {
+                                                    borderColor: "white", // Белый цвет обводки (опционально)
+                                                },
+                                                "& .MuiInputLabel-root": {
+                                                    color: "white", // Белый цвет placeholder
+                                                },
+                                                "& .MuiInputLabel-root.Mui-focused": {
+                                                    color: "white", // Белый цвет placeholder при фокусе
+                                                },
                                             }}
                                             type="text"
                                             name="metro"
                                             value={announcement.metro}
                                             onChange={handleInputChange}
                                             disabled={!isEditable}
-                                            className="form-control-placeholder"
+                                            className="form-control-placeholder w-100"
                                         />
                                     </Form.Group>
 
@@ -702,36 +729,55 @@ const AnnouncementDetails = () => {
                                         <Col xs={12} md={6}>
                                             <Form.Group>
                                                 <Form.Label>Дата начала</Form.Label>
-                                                <Form.Control
-                                                    style={{
-                                                        backgroundColor: "#333",
-                                                        color: "white",
-                                                        border: "1px solid #555",
+                                                <TextField
+                                                    sx={{
+                                                        "& .MuiInputBase-input": {
+                                                            color: "white", // Белый цвет текста
+                                                        },
+                                                        "& .MuiOutlinedInput-notchedOutline": {
+                                                            borderColor: "white", // Белый цвет обводки (опционально)
+                                                        },
+                                                        "& .MuiInputLabel-root": {
+                                                            color: "white", // Белый цвет placeholder
+                                                        },
+                                                        "& .MuiInputLabel-root.Mui-focused": {
+                                                            color: "white", // Белый цвет placeholder при фокусе
+                                                        },
                                                     }}
+
                                                     type="date"
                                                     name="startDate"
                                                     value={announcement.startDate}
                                                     onChange={handleInputChange}
                                                     disabled={!isEditable}
-                                                    className="form-control-placeholder"
+                                                    className="form-control-placeholder w-100"
                                                 />
                                             </Form.Group>
                                         </Col>
                                         <Col xs={12} md={6}>
                                             <Form.Group>
                                                 <Form.Label>Дата окончания</Form.Label>
-                                                <Form.Control
-                                                    style={{
-                                                        backgroundColor: "#333",
-                                                        color: "white",
-                                                        border: "1px solid #555",
+                                                <TextField
+                                                    sx={{
+                                                        "& .MuiInputBase-input": {
+                                                            color: "white", // Белый цвет текста
+                                                        },
+                                                        "& .MuiOutlinedInput-notchedOutline": {
+                                                            borderColor: "white", // Белый цвет обводки (опционально)
+                                                        },
+                                                        "& .MuiInputLabel-root": {
+                                                            color: "white", // Белый цвет placeholder
+                                                        },
+                                                        "& .MuiInputLabel-root.Mui-focused": {
+                                                            color: "white", // Белый цвет placeholder при фокусе
+                                                        },
                                                     }}
                                                     type="date"
                                                     name="finishDate"
                                                     value={announcement.finishDate}
                                                     onChange={handleInputChange}
                                                     disabled={!isEditable}
-                                                    className="form-control-placeholder"
+                                                    className="form-control-placeholder w-100"
                                                 />
                                             </Form.Group>
                                         </Col>
@@ -773,7 +819,7 @@ const AnnouncementDetails = () => {
 
                                 <Row>
                                     <Col>
-                                        <h5 className="mt-4" style={{ color: "#ff7f00" }}>
+                                        <h5 className="mt-4 mb-3 text-center" style={{ color: "#ff7f00" }}>
                                             Прикрепленные фотографии:
                                         </h5>
 
@@ -818,7 +864,7 @@ const AnnouncementDetails = () => {
                                                 ))}
                                             </Row>
                                         ) : (
-                                            <p>Фотографии отсутствуют</p>
+                                            <p className='text-center'>Фотографии отсутствуют</p>
                                         )}
                                     </Col>
                                 </Row>
@@ -848,16 +894,21 @@ const AnnouncementDetails = () => {
                                                             <li key={index}>{file.name}</li>
                                                         ))}
                                                     </ul>
-                                                    <Button
-                                                        variant="success"
-                                                        onClick={handleUploadImages}
-                                                        className="me-2"
-                                                    >
-                                                        Сохранить
-                                                    </Button>
-                                                    <Button variant="danger" onClick={handleCancelUpload}>
-                                                        Отменить
-                                                    </Button>
+                                                    <div className="d-flex gap-2">
+
+                                                        <Button
+                                                            variant="success"
+                                                            onClick={handleUploadImages}
+                                                            className="w-50"
+                                                        // className="me-2 "
+                                                        >
+                                                            Сохранить
+                                                        </Button>
+                                                        <Button variant="danger" onClick={handleCancelUpload} className="w-50">
+
+                                                            Отменить
+                                                        </Button>
+                                                    </div>
                                                 </div>
                                             )}
                                         </Col>
@@ -882,44 +933,64 @@ const AnnouncementDetails = () => {
                                     </Modal>
                                 )}
 
-                                <div>
-                                    <h5 className="mt-4" style={{ color: "#ff7f00" }}>
+                                <div className="mt-4">
+                                    <h5 className="text-center" style={{ color: "#ff7f00" }}>
                                         Прикрепленные файлы:
                                     </h5>
 
                                     {files.length > 0 ? (
-                                        <ul>
+                                        <ul style={{ paddingLeft: "20px", listStyleType: "none" }}>
                                             {files.map((file, index) => (
-                                                <li key={index} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                <li
+                                                    key={index}
+                                                    style={{
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        gap: "10px",
+                                                        marginBottom: "10px",
+                                                    }}
+                                                >
                                                     <span>📄</span>
                                                     <span
-                                                        style={{ cursor: 'pointer', color: 'grey', textDecoration: 'underline', marginBottom: "10px" }}
-                                                        onClick={() => handleDownloadFile(file.storedFileName, file.originalFileName)}
+                                                        style={{
+                                                            cursor: "pointer",
+                                                            color: "grey",
+                                                            textDecoration: "underline",
+                                                            whiteSpace: "nowrap", // Запрет переноса текста
+                                                            overflow: "hidden", // Скрытие текста, выходящего за пределы
+                                                            textOverflow: "ellipsis", // Добавление троеточия
+                                                            maxWidth: "200px", // Максимальная ширина текста
+                                                            flex: 1, // Занимает всё доступное пространство
+                                                        }}
+                                                        onClick={() =>
+                                                            handleDownloadFile(file.storedFileName, file.originalFileName)
+                                                        }
                                                     >
                                                         {file.originalFileName}
                                                     </span>
                                                     {isEditable && (
                                                         <Button
                                                             onClick={() => handleDeleteFile(file.storedFileName)}
-                                                            style={{ background: 'red', color: 'white', border: 'none', cursor: 'pointer' }}
+                                                            variant="danger"
+                                                            style={{ padding: "5px", marginLeft: "auto" }} // Прижимаем кнопку к правому краю
                                                         >
-                                                            x
+                                                            <Delete sx={{ fontSize: "20px" }} /> {/* Уменьшаем размер иконки */}
                                                         </Button>
                                                     )}
                                                 </li>
                                             ))}
                                         </ul>
                                     ) : (
-                                        <p>Файлы отсутствуют</p>
+                                        <p className="text-center mb-4">Файлы отсутствуют</p>
                                     )}
                                 </div>
 
                                 {isEditable && (
-                                    <div style={{ marginTop: '20px' }}>
+                                    <div style={{ marginTop: "20px" }}>
                                         <h6>Добавить новые файлы:</h6>
                                         <Form.Control
                                             type="file"
-                                            accept=".doc,.docx,.xls,.xlsx,.pdf" // Поддерживаемые форматы
+                                            accept=".doc,.docx,.xls,.xlsx,.pdf"
                                             multiple
                                             onChange={handleAddFiles}
                                             style={{
@@ -931,45 +1002,65 @@ const AnnouncementDetails = () => {
                                         {newFiles.length > 0 && (
                                             <div className="mt-3">
                                                 <h6>Выбранные файлы:</h6>
-                                                <ul>
+                                                <ul style={{ paddingLeft: "20px", listStyleType: "none" }}>
                                                     {newFiles.map((file, index) => (
-                                                        <li key={index} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                            📄 {file.name}
-                                                            <button
-                                                                onClick={() => handleRemoveNewFile(index)}
-                                                                style={{ background: 'red', color: 'white', border: 'none', padding: '5px', cursor: 'pointer' }}
+                                                        <li
+                                                            key={index}
+                                                            style={{
+                                                                display: "flex",
+                                                                alignItems: "center",
+                                                                gap: "10px",
+                                                                marginBottom: "10px",
+                                                            }}
+                                                        >
+                                                            <span>📄</span>
+                                                            <span
+                                                                style={{
+                                                                    whiteSpace: "nowrap", // Запрет переноса текста
+                                                                    overflow: "hidden", // Скрытие текста, выходящего за пределы
+                                                                    textOverflow: "ellipsis", // Добавление троеточия
+                                                                    maxWidth: "200px", // Максимальная ширина текста
+                                                                }}
                                                             >
-                                                                Удалить
-                                                            </button>
+                                                                {file.name}
+                                                            </span>
+                                                            <Button
+                                                                onClick={() => handleRemoveNewFile(index)}
+                                                                variant='danger'
+                                                                style={{ padding: "5px", marginLeft: "auto" }} // Прижимаем кнопку к правому краю
+
+                                                            >
+                                                                <Delete sx={{ fontSize: "20px" }} /> {/* Уменьшаем размер иконки */}
+
+                                                            </Button>
                                                         </li>
                                                     ))}
                                                 </ul>
+                                                <div className="d-flex gap-2">
+                                                    <Button
+                                                        variant="success"
+                                                        onClick={handleUploadFiles}
+                                                        className="w-100"
+
+                                                    >
+                                                        Сохранить
+                                                    </Button>
+                                                    <Button variant="danger"
+
+                                                        className="w-100"
+
+                                                        onClick={() => setNewFiles([])}>
+                                                        Отменить
+                                                    </Button>
+                                                </div>
 
 
-
-
-
-                                                <Button
-                                                    variant="success"
-                                                    onClick={handleUploadFiles}
-                                                    className="me-2"
-
-                                                >
-                                                    Сохранить
-                                                </Button>
-                                                <Button
-                                                    variant="danger"
-                                                    onClick={() => setNewFiles([])}
-                                                >
-                                                    Отменить
-                                                </Button>
                                             </div>
                                         )}
                                     </div>
                                 )}
 
-
-                                <div >
+                                <div className='mt-3'>
                                     {location.state?.fromLk === null ? null : (
                                         <div>
                                             {!isEditable && canEditOrDelete ? (

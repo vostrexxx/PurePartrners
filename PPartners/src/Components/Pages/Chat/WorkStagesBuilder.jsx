@@ -579,21 +579,29 @@ const WorkStagesBuilder = ({ agreementId, initiatorId, receiverId }) => {
                                 <Droppable key={stage.elementId} droppableId={stage.elementId} isDropDisabled={isBothApproved || isEditing !== true}>
                                     {(provided) => (
                                         <div ref={provided.innerRef} {...provided.droppableProps} className="p-3 mb-3 border rounded">
-                                            <div className="d-flex justify-content-between align-items-center">
-                                                <div className='two-lines'>
-                                                    <div style={{ display: 'flex', alignItems: 'center', width: '100%', gap: '10px' }}>
-                                                        <h3 className='text-white' style={{ margin: 0 }}>
+                                            <div className="d-flex justify-content-between align-items-center" style={{ overflow: 'hidden' }}>
+                                                <div className='two-lines' style={{ maxWidth: "100%" }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', width: '100%', gap: '10px', overflow: 'hidden' }}>
+                                                        <h3 className='text-white' style={{ margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                                             {stage.order}. {stage.name}
                                                         </h3>
-                                                        <div style={{ marginLeft: 'auto' }}>
+                                                        <div style={{ marginLeft: 'auto', flexShrink: 0 }}>
                                                             <DocumentStorageButton agreementId={agreementId} stage={stage} />
                                                         </div>
                                                     </div>
-                                                    <h6 className='text-white mt-3'>
+                                                    <h6
+                                                        className='text-white mt-3'
+                                                        style={{
+                                                            whiteSpace: "nowrap",
+                                                            overflow: "hidden",
+                                                            textOverflow: "ellipsis",
+                                                            display: "inline-block",
+                                                            width: "100%",
+                                                        }}
+                                                    >
                                                         Сумма: {totalSum} руб.
                                                     </h6>
                                                 </div>
-
 
                                                 {!isBothApproved && (
                                                     <Button

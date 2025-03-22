@@ -18,7 +18,7 @@ const DocumentStorageButton = ({ agreementId, stage }) => {
 
     return (
         <>
-            <Button variant='success' onClick={handleButtonClick}>
+            <Button variant='primary' onClick={handleButtonClick}>
                 <FaFile />
             </Button>
             <DocumentStorageModalWnd agreementId={agreementId} isOpen={isModalOpen} onClose={handleCloseModal} stage={stage} />

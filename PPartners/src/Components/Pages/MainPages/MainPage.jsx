@@ -296,7 +296,7 @@ const MainPage = () => {
                     <Col xs={12} md={10} lg={8}>
 
                         {/* <div style={styles.mainContent}> */}
-                        <h2 className="text-white">{isSpecialist ? "Поиск объявлений" : "Поиск анкет"}</h2>
+                        <h2 className="text-white">{isSpecialist ? "Поиск объявленийййй" : "Поиск анкетттт"}</h2>
                         {/* </div> */}
 
                         <ErrorMessage message={cardsError} errorCode={null} />
@@ -315,11 +315,10 @@ const MainPage = () => {
 
                         <Drawer anchor="right" open={isFilterOpen} onClose={toggleFilterDrawer}>
                             <div style={{ width: '300px', padding: '20px' }}>
-                                <h2>Фильтры</h2>
+                                <h2 className='mb-3'>Фильтры</h2>
                                 {!isSpecialist ? (
                                     <div>
-                                        {/* Команда */}
-                                        <div>
+                                        <div className='mb-3'>
                                             <h5>Имеется ли команда?</h5>
                                             <FormControl component="fieldset">
                                                 <RadioGroup
@@ -334,9 +333,8 @@ const MainPage = () => {
                                             </FormControl>
                                         </div>
 
-                                        {/* Профильное образование */}
-                                        <div>
-                                            <h5>Имеется ли профильное образование?</h5>
+                                        <div className='mb-3'>
+                                            <h5>Профильное образование</h5>
                                             <FormControlLabel
                                                 control={
                                                     <Checkbox
@@ -349,16 +347,15 @@ const MainPage = () => {
                                             />
                                         </div>
 
-                                        {/* Минимальный опыт работы */}
-                                        <div>
-                                            <h5>Минимальный опыт работы (лет)</h5>
+                                        <div className='mb-3'>
+                                            <h5>Минимальный опыт работы</h5>
                                             <Row className="align-items-center">
                                                 <Col xs={12}>
                                                     <Form.Control
                                                         type="number"
                                                         value={questionnaireFilterParams.experience}
                                                         onChange={(e) => {
-                                                            const value = e.target.value; // Сохраняем как строку
+                                                            const value = e.target.value;
                                                             handleQuestionnaireFilterChange('experience', value);
                                                         }}
                                                         min={0}
@@ -379,7 +376,7 @@ const MainPage = () => {
                                                         type="number"
                                                         value={questionnaireFilterParams.minPrice}
                                                         onChange={(e) => {
-                                                            const value = e.target.value; // Сохраняем как строку
+                                                            const value = e.target.value;
                                                             handleQuestionnaireFilterChange('minPrice', value);
                                                         }}
                                                         style={{ width: '150px' }}
@@ -390,69 +387,70 @@ const MainPage = () => {
                                     </div>
                                 ) : (
                                     <div>
-                                        {/* Фильтры по дате */}
-                                        <h5>Даты проведения работ</h5>
-                                        <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                            <DatePicker
-                                                label="Дата начала"
-                                                value={announcementParams.startDate}
-                                                onChange={(date) => handleAnnouncementDateChange('startDate', date)}
-                                                renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
-                                                className='mb-2'
-                                            />
-                                            <DatePicker
-                                                label="Дата окончания"
-                                                value={announcementParams.finishDate}
-                                                onChange={(date) => handleAnnouncementDateChange('finishDate', date)}
-                                                renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
-                                            />
-                                        </LocalizationProvider>
-
-                                        {/* Фильтр по стоимости (от и до) */}
-                                        <h5>Общая стоимость</h5>
-                                        <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
-                                            <TextField
-                                                label="От"
-                                                name="minCost"
-                                                value={announcementParams.minCost}
-                                                onChange={handleAnnouncementCostChange}
-                                                type="number"
-                                                fullWidth
-                                                margin="normal"
-                                                sx={{
-                                                    "& input[type='number']": {
-                                                        MozAppearance: "textfield", // Для Firefox
-                                                    },
-                                                    "& input[type='number']::-webkit-inner-spin-button, & input[type='number']::-webkit-outer-spin-button": {
-                                                        WebkitAppearance: "none", // Для Chrome и Safari
-                                                        margin: 0,
-                                                    },
-                                                }}
-                                            />
-                                            <span>-</span>
-                                            <TextField
-                                                label="До"
-                                                name="maxCost"
-                                                value={announcementParams.maxCost}
-                                                onChange={handleAnnouncementCostChange}
-                                                type="number"
-                                                fullWidth
-                                                margin="normal"
-                                                sx={{
-                                                    "& input[type='number']": {
-                                                        MozAppearance: "textfield", // Для Firefox
-                                                    },
-                                                    "& input[type='number']::-webkit-inner-spin-button, & input[type='number']::-webkit-outer-spin-button": {
-                                                        WebkitAppearance: "none", // Для Chrome и Safari
-                                                        margin: 0,
-                                                    },
-                                                }}
-                                            />
+                                        <div className='mb-3'>
+                                            <h5>Даты проведения работ</h5>
+                                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                                <DatePicker
+                                                    label="Дата начала"
+                                                    value={announcementParams.startDate}
+                                                    onChange={(date) => handleAnnouncementDateChange('startDate', date)}
+                                                    renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
+                                                    className='mb-2'
+                                                />
+                                                <DatePicker
+                                                    label="Дата окончания"
+                                                    value={announcementParams.finishDate}
+                                                    onChange={(date) => handleAnnouncementDateChange('finishDate', date)}
+                                                    renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
+                                                />
+                                            </LocalizationProvider>
+                                        </div>
+                                        <div className='mb-3'>
+                                            <h5>Общая стоимость</h5>
+                                            <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+                                                <TextField
+                                                    label="От"
+                                                    name="minCost"
+                                                    value={announcementParams.minCost}
+                                                    onChange={handleAnnouncementCostChange}
+                                                    type="number"
+                                                    fullWidth
+                                                    // margin="normal"
+                                                    sx={{
+                                                        "& input[type='number']": {
+                                                            MozAppearance: "textfield",
+                                                        },
+                                                        "& input[type='number']::-webkit-inner-spin-button, & input[type='number']::-webkit-outer-spin-button": {
+                                                            WebkitAppearance: "none",
+                                                            margin: 0,
+                                                        },
+                                                    }}
+                                                />
+                                                <span>-</span>
+                                                <TextField
+                                                    label="До"
+                                                    name="maxCost"
+                                                    value={announcementParams.maxCost}
+                                                    onChange={handleAnnouncementCostChange}
+                                                    type="number"
+                                                    fullWidth
+                                                    // margin="normal"
+                                                    sx={{
+                                                        "& input[type='number']": {
+                                                            MozAppearance: "textfield", // Для Firefox
+                                                        },
+                                                        "& input[type='number']::-webkit-inner-spin-button, & input[type='number']::-webkit-outer-spin-button": {
+                                                            WebkitAppearance: "none", // Для Chrome и Safari
+                                                            margin: 0,
+                                                        },
+                                                    }}
+                                                />
+                                            </div>
                                         </div>
                                     </div>
                                 )}
 
-                                <Button color="primary" onClick={applyFilters} fullWidth>
+                                <Button color="primary" className='w-100' onClick={applyFilters} fullWidth>
                                     Применить
                                 </Button>
                             </div>

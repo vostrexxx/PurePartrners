@@ -182,6 +182,8 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
             const estimateReady = checkEstimatePresence(isDocsReady, stageData);
             setIsEstimateReady(estimateReady);
         }
+
+        console.log('data', stageData)
     }, [isLoading, isDocsReady, stageData]);
 
 
@@ -426,7 +428,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
 
             // Проверяем, пришел ли success: 1
             if (data.success === 1) {
-                // console.log('с кайфом за')
+                console.log('СТЭЙДЖ ДАТА', stageData)
                 // Второй запрос
                 const response_ = await fetch(`${url}/balance/payment`, {
                     method: 'PUT',
@@ -438,7 +440,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                         stagePrice: stageData.totalPrice,
                         workCategories: announcementData.announcementInfo.workCategories,
                         address: announcementData.announcementInfo.address,
-                        stageTitle: stageData.name,
+                        stageTitle: stageData.stageTitle,
                         mode: 'Заморозка средств',
                         firstId,
                         secondId
@@ -662,12 +664,12 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                 } else if (mode === 'customer') {
                     return <div>
                         {balance > stageData.totalPrice ?
-                            <Typography color="textSecondary">Ваш текущий баланс {balance}</Typography> : 'Недостаточно средств'
+                            <Typography color="textSecondary">Баланс: {balance} руб.</Typography> : 'Недостаточно средств'
                         }
                         <Typography color="textSecondary">Стоимость этапа: {stageData.totalPrice}</Typography>
 
                         {balance > stageData.totalPrice ? (
-                            <Button onClick={() => handleTopUp()} variant="contained" color="primary">
+                            <Button onClick={() => handleTopUp()} variant="contained" color="primary" className='w-100'>
                                 Заморозить средства
                             </Button>) : (
                             <Button onClick={() => navigate(`/balance`)} variant="contained" color="primary">
@@ -683,16 +685,16 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
             case 'Не начато':
                 if (mode === 'contractor') {
                     return <div>
-                        <Typography color="textSecondary">Статус средств: замороженная сумма: {stageData.stageBalance}</Typography>
+                        <Typography color="textSecondary">Замороженная сумма: {stageData.stageBalance} руб.</Typography>
 
                         <Typography color="textSecondary">Статус: Вы еще не приступили к работам</Typography>
-                        <Button onClick={() => handleChangeStageStatus("В процессе")} variant="contained" color="primary">
+                        <Button onClick={() => handleChangeStageStatus("В процессе")} variant="contained" color="primary" className='w-100'>
                             Приступить
                         </Button>
                     </div>
                 } else if (mode === 'customer') {
                     return <div>
-                        <Typography color="textSecondary">Статус средств: замороженная сумма: {stageData.stageBalance}</Typography>
+                        <Typography color="textSecondary">Замороженная сумма: {stageData.stageBalance} руб.</Typography>
 
                         <Typography color="textSecondary">Статус: Подрядчик еще не приступил к работам</Typography>
                     </div>
@@ -745,23 +747,24 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
 
                         <TextField
                             label="Номер счета"
+                            type='number'
                             variant="outlined"
                             value={account}
+                            className='w-100 mb-2 mb-2'
                             onChange={(e) => {
                                 const onlyNumbers = e.target.value.replace(/\D/g, ""); // Удаляем все нецифровые символы
                                 setAccount(onlyNumbers);
                             }}
-                            multiline
-                            rows={1}
-                            InputProps={{
-                                inputMode: "numeric",
-                                pattern: "[0-9]*"
-                            }}
-                        />
 
-                        <Button onClick={() => handlePostAccount()} variant="contained" color="primary">
-                            Отправить
-                        </Button>
+                        />
+                        <div>
+                            <Button onClick={() => handlePostAccount()}
+                                variant="contained" color="primary"
+                                className='w-100'>
+                                Отправить
+                            </Button>
+                        </div>
+
                     </div>
                 } else if (mode === 'customer') {
                     return <div>
@@ -781,8 +784,8 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                     </div>
                 } else if (mode === 'customer') {
                     return <div>
-                        <Typography color="textSecondary">Статус: Заказчик подтвердил успешность выполнение всех работ и должен в скором времени оплатить работы</Typography>
-                        <Button onClick={() => handleChangeStageStatus("Оплачено")} variant="contained" color="primary">
+                        <Typography color="textSecondary">Статус: Необходимо оплатить этап </Typography>
+                        <Button onClick={() => handleChangeStageStatus("Оплачено")} variant="contained" color="primary" className='w-100'>
                             Оплатить
                         </Button>
                     </div>
@@ -829,8 +832,9 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                     minWidth: 300,
                 }}
             >
-                <Typography id="modal-title" variant="h6" component="h2" color='black'>
-                    {mode === 'contractor' ? 'Статус для подрядчика' : 'Статус для заказчика'}
+                <Typography id="modal-title" variant="h6" component="h2" color='black' className='text-center'>
+                    {/* {mode === 'contractor' ? 'Сведения этапа' : 'Статус для заказчика'} */}
+                    Сведения этапа
                 </Typography>
 
                 <Box sx={{ mt: 2 }}>
@@ -1010,7 +1014,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                                         }}
                                     >
                                         <FaFileWord size={24} color="#f44336" />
-                                        <h4 style={{ margin: '10px 0', color: 'white' }}>Акт выполненных работ</h4>
+                                        <h4 style={{ margin: '10px 0', color: 'white' }}>Акт</h4>
                                         <button
                                             onClick={() => handleGenerateContractOrAct('act')}
                                             style={{
@@ -1029,7 +1033,6 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                             </div>
                         ) : null}
 
-                        {renderStatus(mode, stageData.stageStatus)}
                     </div>
                 </Box>
 
@@ -1135,11 +1138,8 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                     </div>
                 </Box>
 
-
-                <Box sx={{ mt: 4, textAlign: 'right' }}>
-                    <Button onClick={onClose} variant="contained" color="primary">
-                        Закрыть
-                    </Button>
+                <Box>
+                    {renderStatus(mode, stageData.stageStatus)}
                 </Box>
             </Box>
         </Modal>
