@@ -23,16 +23,19 @@ const PageWithTabs = () => {
     <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
       <TopBar />
       <Container
+        className="BG"
+
         fluid
         style={{
-          backgroundColor: "#242582",
+          // backgroundColor: "#242582",
           flex: 1,
           padding: "20px",
         }}
+
       >
         <Row className="justify-content-center">
           <Col xs={12} md={10} lg={8}>
-            <h2 className="text-center mb-4 text-white">Личный кабинет</h2>
+            <h1 className="text-center mb-4 text-white">Личный кабинет</h1>
             <Tab.Container defaultActiveKey="tab1">
               <Nav
                 variant="pills"
@@ -86,7 +89,7 @@ const PageWithTabs = () => {
           .custom-tab {
             padding: 10px 20px;
             background-color: #e9ecef;
-            color: #242582;
+            color: black;
             transition: background-color 0.3s, color 0.3s;
           }
 

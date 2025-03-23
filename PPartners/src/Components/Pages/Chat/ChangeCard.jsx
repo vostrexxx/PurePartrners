@@ -52,9 +52,17 @@ const ChangeCard = ({ operation, data, url, authToken, agreementId, userId, firs
         if (data.type === 1) {
             // Отображаем название категории и подкатегории, если они есть
             return (
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <Box sx={{
+                    display: 'flex', flexDirection: 'column', gap: '8px', wordWrap: 'break-word', // Перенос текста на новую строку
+                    whiteSpace: 'normal',   // Разрешить перенос слов
+                    maxWidth: '100%',
+                }}>
+                    <Typography variant="body3" sx={{ color: '#ffa726', fontWeight: 'bold' }}>
+                        Название категории:
+                    </Typography>
+
                     <Typography variant="body2" sx={{ color: '#ffa726' }}>
-                        Название: {data.updatedFields?.subWorkCategoryName || 'Не указано'}
+                        {data.updatedFields?.subWorkCategoryName || 'Не указано'}
                     </Typography>
 
                     {/* Отображение подкатегорий, если они есть */}
@@ -93,26 +101,54 @@ const ChangeCard = ({ operation, data, url, authToken, agreementId, userId, firs
         } else if (data.type === 2) {
             // Отображаем все поля для белых элементов
             return (
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <Box sx={{
+                    display: 'flex', flexDirection: 'column', gap: '8px', wordWrap: 'break-word', // Перенос текста на новую строку
+                    whiteSpace: 'normal',   // Разрешить перенос слов
+                    maxWidth: '100%',
+                }}>
                     {data.updatedFields.subSubWorkCategoryName && (
-                        <Typography variant="body2" sx={{ color: '#fff' }}>
-                            Наименование: {data.updatedFields.subSubWorkCategoryName}
-                        </Typography>
+                        <>
+                            {/* <Typography variant="body3" sx={{ color: '#fff', fontWeight: 'bold' }}>
+                                Название подкатегории:
+                            </Typography> */}
+                            <Typography variant="body2" sx={{ color: '#fff', fontWeight: 'bold' }}>
+                                {data.updatedFields.subSubWorkCategoryName}
+                            </Typography>
+                        </>
                     )}
                     {data.updatedFields.workAmount && (
-                        <Typography variant="body2" sx={{ color: '#fff' }}>
-                            Объем работ: {data.updatedFields.workAmount}
-                        </Typography>
+                        <>
+                            {/* <Typography variant="body3" sx={{ color: '#fff', fontWeight: 'bold' }}>
+
+                            </Typography> */}
+                            <Typography variant="body2" sx={{ color: '#fff' }}>
+                                Объем работ: {data.updatedFields.workAmount}
+                            </Typography>
+                        </>
+
+
                     )}
                     {data.updatedFields.measureUnit && (
-                        <Typography variant="body2" sx={{ color: '#fff' }}>
-                            Единица измерения: {data.updatedFields.measureUnit}
-                        </Typography>
+                        <>
+                            {/* <Typography variant="body3" sx={{ color: '#fff', fontWeight: 'bold' }}>
+                                
+                            </Typography> */}
+                            <Typography variant="body2" sx={{ color: '#fff' }}>
+                                Единица измерения: {data.updatedFields.measureUnit}
+                            </Typography>
+                        </>
+
                     )}
                     {data.updatedFields.price && (
-                        <Typography variant="body2" sx={{ color: '#fff' }}>
-                            Цена: {data.updatedFields.price}
-                        </Typography>
+                        <>
+                            {/* <Typography variant="body3" sx={{ color: '#fff', fontWeight: 'bold' }}>
+
+                            </Typography> */}
+                            <Typography variant="body2" sx={{ color: '#fff' }}>
+                                Цена: {data.updatedFields.price}
+                            </Typography>
+                        </>
+
                     )}
                 </Box>
             );
@@ -133,6 +169,8 @@ const ChangeCard = ({ operation, data, url, authToken, agreementId, userId, firs
                 alignItems: { xs: 'flex-start', sm: 'center' }, // Выравнивание по левому краю на маленьких экранах
                 gap: '16px',
                 margin: '10px',
+                maxWidth: '100%', // Ограничиваем ширину контейнера
+                overflow: 'hidden',
             }}
         >
             {/* Наименование операции */}

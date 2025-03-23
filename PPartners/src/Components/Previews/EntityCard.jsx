@@ -66,14 +66,14 @@ const EntityCard = ({ onSelectEntity }) => {
         <Row style={{ gap: '10px' }}>
             {/* Левый столбец - Юридические лица */}
             <Col style={{ flex: 1 }}>
-                <h5 style={{ textAlign: 'center', color: 'white' }}>Ваши юридические лица</h5>
+                <h5 style={{ textAlign: 'center' }}>Ваши юридические лица</h5>
                 {legalEntities.length > 0 ? (legalEntities.map((entity) => (
                     <Card
                         key={entity.id}
                         onClick={() => handleSelectEntity(entity.id)}
                         style={{
                             margin: '5px 0',
-                            backgroundColor: selectedEntity === entity.id ? 'grey' : 'white',
+                            backgroundColor: selectedEntity === entity.id ? '#D5D5D5' : 'white',
                             border: '1px solid blue',
                             borderRadius: '5px',
                             cursor: 'pointer',
@@ -89,15 +89,15 @@ const EntityCard = ({ onSelectEntity }) => {
 
             {/* Правый столбец - Физические лица */}
             <Col style={{ flex: 1 }}>
-                <h5 style={{ textAlign: 'center', color: 'white' }}>Ваши физические лица</h5>
+                <h5 style={{ textAlign: 'center' }}>Ваши физические лица</h5>
                 {persons.length > 0 ? (persons.map((person) => (
                     <Card
                         key={person.id}
                         onClick={() => handleSelectEntity(person.id)}
                         style={{
                             margin: '5px 0',
-                            backgroundColor: selectedEntity === person.id ? 'grey' : 'white',
-                            border: '1px solid green',
+                            backgroundColor: selectedEntity === person.id ? '#D5D5D5' : 'white',
+                            border: '1px solid blue',
                             borderRadius: '5px',
                             cursor: 'pointer',
                         }}

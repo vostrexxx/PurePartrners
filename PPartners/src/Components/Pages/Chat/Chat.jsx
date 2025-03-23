@@ -246,7 +246,7 @@ const Chat = ({ chatId }) => {
                 {messages.map((msg, index) => (
                     <div key={index} className={`d-flex mb-3 ${msg.initiatorId === userId ? 'justify-content-end' : 'justify-content-start'}`}>
                         <div
-                            className={`p-2 rounded ${msg.initiatorId === userId ? 'bg-warning' : 'bg-primary text-white'}`}
+                            className={`p-2 rounded ${msg.initiatorId === userId ? 'bg-warning' : 'bg-primary text-black'}`}
                             style={{ maxWidth: '75%', wordWrap: 'break-word' }}
                         >
                             <div>{msg.message}</div>
@@ -381,12 +381,12 @@ const Chat = ({ chatId }) => {
     }
 
     .bg-warning {
-        background-color: #ffc107 !important;
+        background-color: #d6e0d4 !important;
         color: black;
     }
 
     .bg-primary {
-        background-color: #0d6efd !important;
+        background-color: #a7bfd0 !important;
         color: white;
     }
     `}

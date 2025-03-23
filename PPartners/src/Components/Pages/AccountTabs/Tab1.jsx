@@ -129,7 +129,7 @@ const Entities = ({ onSelectEntity, triggerGet, onTrigger, onGotPerson }) => {
                 <Col md={6}>
                     <Card className="shadow-lg">
                         <Card.Body>
-                            <h4 className="text-center text-primary mb-4">Юридические лица</h4>
+                            <h4 className="text-center mb-4">Юридические лица</h4>
                             <ListGroup>
                                 {legalEntities.length > 0 ? (
                                     legalEntities.map((entity) => (
@@ -161,7 +161,7 @@ const Entities = ({ onSelectEntity, triggerGet, onTrigger, onGotPerson }) => {
                 <Col md={6}>
                     <Card className="shadow-lg">
                         <Card.Body>
-                            <h4 className="text-center text-primary mb-4">Физические лица</h4>
+                            <h4 className="text-center mb-4">Физические лица</h4>
                             <ListGroup>
                                 {persons.length > 0 ? (
                                     persons.map((person) => (
@@ -424,19 +424,25 @@ const ProfilePage = () => {
     };
 
     return (
-        <Container fluid className="py-4" style={{ backgroundColor: "#242582", minHeight: "100vh" }}>
+        <Container fluid className="py-4" style={{ minHeight: "100vh" }}>
             <Row className="justify-content-center">
 
                 {/* Личные данные */}
                 <Col xs={12} lg={10} className="mb-4">
-                    <Card className="p-4 shadow-lg">
+                    <Card className="p-2 shadow-lg">
                         <Card.Body>
-                            <h2 className="text-center mb-4 text-primary">Ваши данные</h2>
+                            <h2 className="text-center text-">Ваши данные</h2>
+                            <hr className=''
+                                style={{
+                                    height: '2px',
+                                    background: "white",
+                                    // margin: margin,
+                                }} />
                             {error && <p className="text-danger text-center">{error}</p>}
                             <Form>
                                 {/* Номер телефона */}
                                 <Form.Group controlId="formPhoneNumber" className="mb-3">
-                                    <Form.Label className="fw-bold">Номер телефона</Form.Label>
+                                    <Form.Label className="fw-bold ms-4 ">Номер телефона</Form.Label>
                                     <Form.Control
                                         type="text"
                                         value={localStorage.getItem("phoneNumber")}
@@ -447,7 +453,7 @@ const ProfilePage = () => {
                                 </Form.Group>
 
                                 <Form.Group controlId="formSurname" className="mb-3">
-                                    <Form.Label className="fw-bold">Фамилия</Form.Label>
+                                    <Form.Label className="fw-bold ms-4">Фамилия</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="surname"
@@ -464,7 +470,7 @@ const ProfilePage = () => {
 
                                 {/* Имя */}
                                 <Form.Group controlId="formName" className="mb-3">
-                                    <Form.Label className="fw-bold">Имя</Form.Label>
+                                    <Form.Label className="fw-bold ms-4">Имя</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="name"
@@ -484,7 +490,7 @@ const ProfilePage = () => {
 
                                 {/* Отчество */}
                                 <Form.Group controlId="formPatronymic" className="mb-3">
-                                    <Form.Label className="fw-bold">Отчество</Form.Label>
+                                    <Form.Label className="fw-bold ms-4">Отчество</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="patronymic"
@@ -504,7 +510,7 @@ const ProfilePage = () => {
 
                                 {/* Почта */}
                                 <Form.Group controlId="formEmail" className="mb-3">
-                                    <Form.Label className="fw-bold">Почта</Form.Label>
+                                    <Form.Label className="fw-bold ms-4">Почта</Form.Label>
                                     <Form.Control
                                         type="email"
                                         name="email"
@@ -518,7 +524,7 @@ const ProfilePage = () => {
 
                                 {/* Дата рождения */}
                                 <Form.Group controlId="formBirthday" className="mb-4">
-                                    <Form.Label className="fw-bold">Дата рождения</Form.Label>
+                                    <Form.Label className="fw-bold ms-4">Дата рождения</Form.Label>
                                     <Form.Control
                                         type="date"
                                         name="birthday"
@@ -570,8 +576,12 @@ const ProfilePage = () => {
                 <Col xs={12} lg={10} className="mb-4">
                     <Card className="p-4 shadow-lg">
                         <Card.Body>
-                            <h2 className="text-center mb-4 text-primary">Данные по лицам</h2>
-
+                            <h2 className="text-center ">Данные по лицам</h2>
+                            <hr className=''
+                                style={{
+                                    height: '2px',
+                                    background: "white",
+                                }} />
                             {/* handleShowToast('Данные профиля не сохранены!', 'error') */}
                             <Entities onSelectEntity={handleSelectEntity} triggerGet={triggerGet} onTrigger={() => toggleTriggerGet()} onGotPerson={handleGotPerson} />
 
@@ -586,7 +596,7 @@ const ProfilePage = () => {
                 </Col>
 
                 {/* Фото профиля */}
-                <Col xs={12} lg={10}>
+                <Col xs={12} lg={10} hidden={true}>
                     <Card className="p-4 shadow-lg">
                         <Card.Body>
                             <div className="d-flex flex-column align-items-center">

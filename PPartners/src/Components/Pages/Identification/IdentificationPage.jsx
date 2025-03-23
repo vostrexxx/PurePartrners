@@ -34,7 +34,7 @@ const IdentificationPage = () => {
         setErrorMessage(null);
     };
 
-    const handleEnter = async () => {
+    const handleSubmit = async () => {
         if (isValid) {
             try {
                 const response = await fetch(url + "/auth/checkPhoneNumber", {
@@ -69,21 +69,21 @@ const IdentificationPage = () => {
             <NotAuthTopBar />
             <Container
                 fluid
-                className="d-flex align-items-center justify-content-center"
+                className="BG d-flex align-items-center justify-content-center"
                 style={{
-                    backgroundColor: "#242582",
+                    // backgroundColor: "#242582",
                     flex: 1, // Занимает оставшееся пространство
                 }}
             >
                 <Row
-                    className="w-100"
+                    className=" w-100"
                     style={{
                         position: "relative",
                         top: "-150px", // Поднимет блок выше
                     }}
                 >
                     <Col xs={12} md={8} lg={4} className="mx-auto">
-                        <h2 className="text-center text-white mb-4">Вход и регистрация</h2>
+                        <h2 className="HLL text-center mb-4">Вход и регистрация</h2>
                         <Form className="text-center">
                             <Form.Group controlId="formPhoneNumber">
                                 {/* Поле ввода с маской */}
@@ -97,9 +97,9 @@ const IdentificationPage = () => {
                                         <Form.Control
                                             type="text"
                                             placeholder="Введите номер телефона"
-                                            className="rounded-pill p-3 text-center"
+                                            className="IF rounded-pill p-3 text-center"
                                             style={{
-                                                backgroundColor: "#ffffff",
+                                                // backgroundColor: "#ffffff",
                                                 border: isValid ? "none" : "1px solid red",
                                                 boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
                                             }}
@@ -112,14 +112,14 @@ const IdentificationPage = () => {
                                 </Form.Control.Feedback>
                             </Form.Group>
                             <Button
-                                className="mt-4 rounded-pill"
+                                className="mt-3 rounded-pill"
                                 style={{
-                                    backgroundColor: "#ff7101",
+                                    // backgroundColor: "#ff7101",
                                     border: "none",
                                     padding: "10px 30px",
                                     fontSize: "18px",
                                 }}
-                                onClick={() => handleEnter()}
+                                onClick={handleSubmit}
                                 disabled={!isValid}
                             >
                                 Продолжить

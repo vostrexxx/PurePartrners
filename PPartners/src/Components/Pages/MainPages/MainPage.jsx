@@ -11,6 +11,7 @@ import SearchComponent from '../SearchComponent/SearchComponent';
 import TopBar from '../TopBar/TopBar';
 import ErrorMessage from '../../ErrorHandling/ErrorMessage';
 import { Container, Row, Col, Nav, Button, Tab, Form } from "react-bootstrap";
+import { FaFilter } from 'react-icons/fa';
 
 const MainPage = () => {
     const { isSpecialist, toggleProfile } = useProfile();
@@ -21,8 +22,6 @@ const MainPage = () => {
     const [questionnaires, setQuestionnaires] = useState([]);
     const [loading, setLoading] = useState(false);
     const [cardsError, setCardsError] = useState(null);
-
-
 
     let url = localStorage.getItem('url');
     const getAuthToken = () => localStorage.getItem('authToken');
@@ -287,16 +286,17 @@ const MainPage = () => {
             <Container
                 fluid
                 style={{
-                    backgroundColor: "#242582",
+                    // backgroundColor: "#242582",
                     flex: 1,
                     padding: "20px",
                 }}
+                className='BG'
             >
                 <Row className="justify-content-center">
                     <Col xs={12} md={10} lg={8}>
 
                         {/* <div style={styles.mainContent}> */}
-                        <h2 className="text-white">{isSpecialist ? "Поиск объявленийййй" : "Поиск анкетттт"}</h2>
+                        <h2 className="text-white">{isSpecialist ? "Поиск объявлений" : "Поиск анкет"}</h2>
                         {/* </div> */}
 
                         <ErrorMessage message={cardsError} errorCode={null} />
@@ -304,12 +304,12 @@ const MainPage = () => {
                         <div className='mb-3'>
                             <SearchComponent onSearch={handleSearch} />
                             <Button
-                                variant="primary"
-                                className="w-100 mt-3"
+                                // variant="primary"
+                                // className="w-100 mt-3"
                                 onClick={toggleFilterDrawer}
-
+                                style={styles.fixedButton}
                             >
-                                Фильтры 🔍
+                                <FaFilter />
                             </Button>
                         </div>
 
@@ -455,8 +455,13 @@ const MainPage = () => {
                                 </Button>
                             </div>
                         </Drawer>
-
-                        <div>
+                        <hr className=''
+                            style={{
+                                height: '2px',
+                                background: "white",
+                                // margin: margin,
+                            }} />
+                        <div className=''>
                             {!isSpecialist ? (
                                 <div>
                                     {/* <h2 className="w-100 mt-3 text-white" >Анкеты:</h2> */}
@@ -578,6 +583,22 @@ const styles = {
     mainContent: {
         // padding: '70px 20px 20px',
     },
+
+    fixedButton: {
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+        zIndex: 1000,
+        borderRadius: '50%',
+        width: '50px',
+        height: '50px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+
+
+
 };
 
 export default MainPage;

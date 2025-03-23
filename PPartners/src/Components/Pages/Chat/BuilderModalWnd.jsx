@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Box, Typography, Button, TextField } from '@mui/material';
+import { Form } from "react-bootstrap";
+
 import { useToast } from '../../Notification/ToastContext';
 const BuilderModalWnd = ({ isOpen, onClose, agreementId, }) => {
     const showToast = useToast()
@@ -50,7 +52,7 @@ const BuilderModalWnd = ({ isOpen, onClose, agreementId, }) => {
 
             // Успешная отправка
             // alert('Файл успешно отправлен');
-            showToast('Файл успешно отправлен', 'success')
+            showToast('Смета успешно сохранена', 'success')
             setFile(null); // Сбрасываем файл после успешной отправки
 
         } catch (error) {
@@ -61,7 +63,8 @@ const BuilderModalWnd = ({ isOpen, onClose, agreementId, }) => {
     };
 
     return (
-        <Modal open={isOpen} onClose={onClose} aria-labelledby="modal-title" aria-describedby="modal-description">
+        <Modal
+            open={isOpen} onClose={onClose} aria-labelledby="modal-title" aria-describedby="modal-description">
             <Box
                 sx={{
                     position: 'absolute',
@@ -83,18 +86,22 @@ const BuilderModalWnd = ({ isOpen, onClose, agreementId, }) => {
                 </Typography> */}
 
                 <Box sx={{ mt: 3 }}>
-                    <input
+                    <Form.Control
                         type="file"
                         accept=".xls,.xlsx"
                         onChange={handleFileChange}
-                        style={{ marginBottom: '10px' }}
+                        style={{
+                            // backgroundColor: "#333",
+                            // color: "white",
+                            border: "1px solid #555",
+                        }}
                     />
                     {error && <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>}
                 </Box>
 
                 <Box sx={{ mt: 4, display: 'flex', justifyContent: 'space-between' }}>
                     <Button onClick={handleSubmit} variant="contained" color="primary" disabled={!file}>
-                        Отправить
+                        Сохранить
                     </Button>
                     <Button onClick={onClose} variant="outlined" color="secondary">
                         Закрыть

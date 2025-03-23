@@ -12,7 +12,7 @@ const SearchComponent = ({ onSearch }) => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <Form.Control
                 type="text"
-                placeholder="Поиск"
+                placeholder="Категория работ"
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
                 style={{ flexGrow: 1 }}

@@ -3,8 +3,8 @@ import { Switch } from "@mui/material";
 import { useProfile } from "../../Context/ProfileContext"; // Импортируем хук профиля
 import { useNavigate } from "react-router-dom";
 import { Navbar, Dropdown, Container } from "react-bootstrap";
-import { MdPerson} from "react-icons/md"; // Импортируем нужные иконки
-import { MdBusinessCenter  } from "react-icons/md"; // Импортируем нужные иконки
+import { MdPerson } from "react-icons/md"; // Импортируем нужные иконки
+import { MdBusinessCenter } from "react-icons/md"; // Импортируем нужные иконки
 import { FaHardHat } from "react-icons/fa"; // Импортируем нужные иконки
 
 import logo from "../../../Images/logo.png";
@@ -23,9 +23,9 @@ const NotAuthTopBar = () => {
     return (
         <Navbar
             expand="lg"
-            className="shadow-sm"
+            className="shadow-sm TopBar"
             style={{
-                backgroundColor: "#1a1a5b",
+                // backgroundColor: "#1a1a5b",
             }}
         >
             <Container className="d-flex justify-content-between align-items-center">

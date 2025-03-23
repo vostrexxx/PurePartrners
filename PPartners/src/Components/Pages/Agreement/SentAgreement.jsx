@@ -51,7 +51,7 @@ const SentAgreement = () => {
             ) : agreements.length > 0 ? (
                 <Row >
                     {agreements.map((item, index) => (
-                        <Col xs={12} md={6} lg={4} key={index} className="mb-4">
+                        <Col xs={12} md={6} lg={4} key={index} className="mb-2">
                             <Agreement {...item} isReceiver={false} isSpecialist={isSpecialist} />
                         </Col>
                     ))}

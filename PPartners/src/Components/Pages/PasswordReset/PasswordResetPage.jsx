@@ -44,9 +44,9 @@ const PasswordResetPage = () => {
             <NotAuthTopBar />
             <Container
                 fluid
-                className="d-flex align-items-center justify-content-center"
+                className="BG d-flex align-items-center justify-content-center"
                 style={{
-                    backgroundColor: "#242582",
+                    // backgroundColor: "#242582",
                     flex: 1,
                 }}
             >

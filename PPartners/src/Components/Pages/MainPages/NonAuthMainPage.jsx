@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import NotAuthTopBar from "../TopBar/NotAuthTopBar";
 import { useProfile } from "../../Context/ProfileContext";
 import { Container, Row, Col, Button, Card } from "react-bootstrap";
+
 const NonAuthMinPage = () => {
     const navigate = useNavigate();
     const { isSpecialist } = useProfile();
@@ -16,9 +17,9 @@ const NonAuthMinPage = () => {
             <NotAuthTopBar />
             <Container
                 fluid
-                className="py-5"
+                className="py-5 BG"
                 style={{
-                    backgroundColor: "#242582",
+                    // backgroundColor: "#242582",
                     flex: 1
                 }}
             >
@@ -28,7 +29,7 @@ const NonAuthMinPage = () => {
                             <Card.Body>
                                 {isSpecialist ? (
                                     <div>
-                                        <h1 className="text-primary text-center">Специалист</h1>
+                                        <h1 className="HLD text-center">Специалист</h1>
                                         <p className="text-muted fs-5 text-center">
                                             Тут должна быть информация по Специалисту, что сервис может предоставить специалистам.
                                         </p>
@@ -41,7 +42,7 @@ const NonAuthMinPage = () => {
                                     </div>
                                 ) : (
                                     <div>
-                                        <h1 className="text-primary text-center">Заказчик</h1>
+                                        <h1 className="HLD text-center">Заказчик</h1>
                                         <p className="text-muted fs-5 text-center">
                                             Тут должна быть информация по Заказчику, что сервис может предоставить заказчикам.
                                         </p>

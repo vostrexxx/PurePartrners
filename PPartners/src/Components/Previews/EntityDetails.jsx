@@ -376,18 +376,45 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
                 {/* <Button variant="secondary" onClick={onClose}>
                     Закрыть
                 </Button> */}
-                <div className="d-flex gap-1 w-100">
+                <div className="d-flex gap-2 w-100">
+
                     {!isEditable ? (
-                        <Button
-                            variant="primary"
-                            className="flex-grow-1"
-                            style={{ fontSize: "15px" }}
-                            onClick={handleEditClick}
-                        >
-                            Редактировать
-                        </Button>
+                        <>
+                            <Button
+                                variant="danger"
+                                className="flex-grow-1"
+                                style={{ fontSize: "15px" }}
+                                onClick={handleDeleteClick}
+                            >
+                                Удалить
+                            </Button>
+                            <Button
+                                variant="success"
+                                className="flex-grow-1"
+                                style={{ fontSize: "15px" }}
+                                onClick={handleEditClick}
+                            >
+                                Редактировать
+                            </Button>
+
+                        </>
+
                     ) : (
                         <>
+
+                            <Button
+                                variant="danger"
+                                className="flex-grow-1"
+                                // style={{
+                                //     fontSize: "15px",
+                                //     backgroundColor: "#ff7101",
+                                //     border: "none",
+                                // }}
+                                onClick={handleCancelClick}
+                            >
+                                Отмена
+                            </Button>
+
                             <Button
                                 variant="success"
                                 className="flex-grow-1"
@@ -396,28 +423,9 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
                             >
                                 Сохранить
                             </Button>
-                            <Button
-                                variant="warning"
-                                className="flex-grow-1"
-                                style={{
-                                    fontSize: "15px",
-                                    backgroundColor: "#ff7101",
-                                    border: "none",
-                                }}
-                                onClick={handleCancelClick}
-                            >
-                                Отмена
-                            </Button>
                         </>
                     )}
-                    <Button
-                        variant="danger"
-                        className="flex-grow-1"
-                        style={{ fontSize: "15px" }}
-                        onClick={handleDeleteClick}
-                    >
-                        Удалить
-                    </Button>
+
                 </div>
             </Modal.Footer>
         </Modal>

@@ -49,17 +49,17 @@ const CodeEnteringPage = () => {
             <NotAuthTopBar />
             <Container
                 fluid
-                className="d-flex align-items-center justify-content-center"
+                className="BG d-flex align-items-center justify-content-center"
                 style={{
-                    backgroundColor: "#242582",
+                    // backgroundColor: "#242582",
                     flex: 1,
                 }}
             >
                 <Row className="w-100">
                     <Col xs={12} md={8} lg={4} className="mx-auto">
-                        <Card className="p-4 shadow-lg">
+                        <Card className=" CD p-4 shadow-lg">
                             <Card.Body>
-                                <h2 className="text-center mb-4">Подтверждение номера</h2>
+                                <h2 className="HLW text-center mb-4">Подтверждение номера</h2>
                                 <Form>
                                     <Form.Group controlId="formPhoneNumber" className="mb-3">
                                         {/* <Form.Label>Ваш номер телефона</Form.Label> */}

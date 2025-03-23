@@ -59,7 +59,7 @@ const ReceivedAgreement = () => {
             ) : agreements.length > 0 ? (
                 <Row>
                     {agreements.map((item, index) => (
-                        <Col key={index} className="mb-4">
+                        <Col key={index} className="mb-2">
                             {/* <Card className="shadow-sm"> */}
                             <Card.Body>
                                 <Agreement

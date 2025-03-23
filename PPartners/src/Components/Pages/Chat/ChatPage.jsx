@@ -70,12 +70,17 @@ const ChatPage = () => {
     return (
         <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
             <TopBar />
-            <Container fluid style={{ backgroundColor: "#242582", flex: 1, padding: "20px" }}>
+            <Container fluid style={{ flex: 1, padding: "20px" }}
+                className="BG"
+
+            >
                 <Nav variant="tabs" className="justify-content-center mb-3">
                     <Nav.Item>
                         <Nav.Link
                             className={`text-white ${activeTab === 'chat' ? 'active fw-bold' : ''}`}
                             onClick={() => handleTabChange('chat')}
+                            style={{ padding: '8px 12px' }}
+
                         >
                             Чат
                         </Nav.Link>
@@ -84,6 +89,8 @@ const ChatPage = () => {
                         <Nav.Link
                             className={`text-white ${activeTab === 'context' ? 'active fw-bold' : ''}`}
                             onClick={() => handleTabChange('context')}
+                            style={{ padding: '8px 12px' }}
+
                         >
                             Соглашение
                         </Nav.Link>
@@ -92,6 +99,7 @@ const ChatPage = () => {
                         <Nav.Link
                             className={`text-white ${activeTab === 'builder' ? 'active fw-bold' : ''}`}
                             onClick={() => handleTabChange('builder')}
+                            style={{ padding: '8px 12px' }}
                         >
                             Смета
                         </Nav.Link>
@@ -100,13 +108,14 @@ const ChatPage = () => {
                         <Nav.Link
                             className={`text-white ${activeTab === 'stages' ? 'active fw-bold' : ''}`}
                             onClick={() => handleTabChange('stages')}
+                            style={{ padding: '8px 12px' }}
                         >
                             Этапы
                         </Nav.Link>
                     </Nav.Item>
                 </Nav>
 
-                <Tab.Content>
+                <Tab.Content >
                     {activeTab === 'chat' && <Chat chatId={chatId} />}
                     {activeTab === 'context' && <ChatContext agreementId={agreementId} />}
                     {activeTab === 'builder' && (

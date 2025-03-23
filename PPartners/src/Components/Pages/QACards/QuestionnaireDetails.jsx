@@ -8,6 +8,7 @@ import { useToast } from '../../Notification/ToastContext'
 import { Button, Card, Container, Form, ListGroup, Row, Col, Spinner, Image, Modal, ButtonGroup } from "react-bootstrap";
 import Swal from "sweetalert2";
 import TextField from "@mui/material/TextField";
+import { FaArrowLeft } from 'react-icons/fa';
 import {
     Select,
     MenuItem,
@@ -15,9 +16,10 @@ import {
     InputLabel,
     Checkbox
 } from "@mui/material";
-
+// import './styles.css'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { Delete } from '@mui/icons-material'; // Импортируем иконку корзины
+
 const QuestionnaireDetails = () => {
     const showToast = useToast();
 
@@ -393,19 +395,21 @@ const QuestionnaireDetails = () => {
             <Container
                 fluid
                 style={{
-                    backgroundColor: "#242582",
+                    // backgroundColor: "#242582",
                     flex: 1,
                     padding: "20px",
                 }}
+
+                className="BG"
             >
                 <Row className="justify-content-center">
                     <Col md={8} style={{ padding: "20px" }}>
                         <Card
                             style={{
-                                backgroundColor: "#222",
-                                color: "white",
+                                // backgroundColor: "#091E34",
+                                // color: "white",
                                 borderRadius: "12px",
-                                padding: "20px",
+                                padding: "10px",
                                 boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.5)",
                             }}
                         >
@@ -413,22 +417,25 @@ const QuestionnaireDetails = () => {
                                 <Button
                                     onClick={handleGoBack}
                                     variant="secondary"
-                                    style={{
-                                        marginTop: '10px',
-                                        padding: '10px 20px',
-                                        borderRadius: '8px',
-                                        width: '100%'
-                                    }}
+                                    style={styles.fixedButton}
                                 >
-                                    Назад
+                                    <FaArrowLeft />
                                 </Button>
                             </Card.Text>
                             <Card.Body >
-
-
-                                <h2 className="text-center mb-4" style={{ color: "#ff7f00", fontWeight: "bold" }}>
+                                <h2 className="text-center" style={{
+                                    color: "#ff7f00", cafontWeight: "bold"
+                                }}>
                                     Детали анкеты
                                 </h2>
+
+                                <hr className=''
+                                    style={{
+                                        height: '2px',
+                                        background: "white",
+                                        // margin: margin,
+                                    }}
+                                />
 
                                 <Form>
                                     <Form.Group className="mb-3">
@@ -443,28 +450,43 @@ const QuestionnaireDetails = () => {
                                             disabled={!isEditable}
                                             // style={styles.input}
                                             className="w-100"
-                                            sx={{
-                                                "& .MuiInputBase-input": {
-                                                    color: "white", // Белый цвет текста
-                                                },
-                                                "& .MuiOutlinedInput-notchedOutline": {
-                                                    borderColor: "white", // Белый цвет обводки (опционально)
-                                                },
-                                                "& .MuiInputLabel-root": {
-                                                    color: "white", // Белый цвет placeholder
-                                                },
-                                                "& .MuiInputLabel-root.Mui-focused": {
-                                                    color: "white", // Белый цвет placeholder при фокусе
-                                                },
-                                            }}
                                             multiline
                                             minRows={1}
                                             maxRows={4}
+                                            sx={{
+                                                // Стили для обычного состояния
+                                                '& .MuiInputBase-input': {
+                                                    color: 'black', // Черный цвет текста
+                                                },
+                                                '& .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: 'black', // Черный цвет рамки
+                                                },
+                                                '& .MuiInputLabel-root': {
+                                                    color: 'black', // Черный цвет placeholder
+                                                },
+                                                '& .MuiInputLabel-root.Mui-focused': {
+                                                    color: 'black', // Черный цвет placeholder при фокусе
+                                                },
+
+                                                // Стили для disabled состояния
+                                                '& .MuiInputBase-root.Mui-disabled': {
+                                                    '& .MuiInputBase-input': {
+                                                        color: 'black', // Черный цвет текста, даже если disabled
+                                                        WebkitTextFillColor: 'black', // Для Safari и других браузеров на WebKit
+                                                    },
+                                                    '& .MuiOutlinedInput-notchedOutline': {
+                                                        borderColor: 'black', // Черный цвет рамки
+                                                    },
+                                                    '& .MuiInputLabel-root': {
+                                                        color: 'black', // Черный цвет placeholder
+                                                    },
+                                                },
+                                            }}
                                         />
                                     </Form.Group>
 
                                     <Form.Group className="mb-3">
-                                        <Form.Label>Есть ли команда:</Form.Label>
+                                        <Form.Label>Имеется ли команда?</Form.Label>
                                         {/* <label></label> */}
                                         <Select
                                             labelId="hasTeam-label"
@@ -479,22 +501,38 @@ const QuestionnaireDetails = () => {
                                             className='w-100'
                                             disabled={!isEditable}
                                             sx={{
-                                                "& .MuiInputBase-input": {
-                                                    color: "white",
+                                                // Стили для обычного состояния
+                                                '& .MuiSelect-select': {
+                                                    color: 'black', // Черный цвет текста
                                                 },
-                                                "& .MuiOutlinedInput-notchedOutline": {
-                                                    borderColor: "white",
+                                                '& .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: 'black', // Черный цвет рамки
                                                 },
-                                                "& .MuiInputLabel-root": {
-                                                    color: "white",
+                                                '& .MuiInputLabel-root': {
+                                                    color: 'black', // Черный цвет placeholder
                                                 },
-                                                "& .MuiInputLabel-root.Mui-focused": {
-                                                    color: "white", // Белый цвет placeholder при фокусе
+                                                '& .MuiInputLabel-root.Mui-focused': {
+                                                    color: 'black', // Черный цвет placeholder при фокусе
                                                 },
-                                                "& .MuiSelect-icon": {
-                                                    display: isEditable ? "inline-block" : "none", // Скрываем стрелочку, если disabled
+                                                '& .MuiSelect-icon': {
+                                                    display: isEditable ? 'inline-block' : 'none', // Скрываем стрелочку, если disabled
+                                                },
+
+                                                // Стили для disabled состояния
+                                                '&.Mui-disabled': {
+                                                    '& .MuiSelect-select': {
+                                                        color: 'black', // Черный цвет текста, даже если disabled
+                                                        WebkitTextFillColor: 'black', // Для Safari и других браузеров на WebKit
+                                                    },
+                                                    '& .MuiOutlinedInput-notchedOutline': {
+                                                        borderColor: 'black', // Черный цвет рамки
+                                                    },
+                                                    '& .MuiInputLabel-root': {
+                                                        color: 'black', // Черный цвет placeholder
+                                                    },
                                                 },
                                             }}
+
                                         >
                                             <MenuItem value="Да">Да</MenuItem>
                                             <MenuItem value="Нет">Нет</MenuItem>
@@ -504,7 +542,7 @@ const QuestionnaireDetails = () => {
                                     <Form.Group className="mb-3">
                                         {questionnaire.hasTeam && (
                                             <>
-                                                <Form.Label>Команда:</Form.Label>
+                                                <Form.Label>Описание команды</Form.Label>
                                                 <TextField
                                                     type="text"
                                                     multiline
@@ -512,22 +550,38 @@ const QuestionnaireDetails = () => {
                                                     maxRows={4}
                                                     name="team"
                                                     id="team"
-                                                    value={questionnaire.team || ''}
+                                                    value={questionnaire.team || ""}
                                                     onChange={handleInputChange}
                                                     disabled={!isEditable}
                                                     className='w-100'
+                                                    // placeholder="Незаполенено"
                                                     sx={{
-                                                        "& .MuiInputBase-input": {
-                                                            color: "white", // Белый цвет текста
+                                                        // Стили для обычного состояния
+                                                        '& .MuiInputBase-input': {
+                                                            color: 'black', // Черный цвет текста
                                                         },
-                                                        "& .MuiOutlinedInput-notchedOutline": {
-                                                            borderColor: "white", // Белый цвет обводки (опционально)
+                                                        '& .MuiOutlinedInput-notchedOutline': {
+                                                            borderColor: 'black', // Черный цвет рамки
                                                         },
-                                                        "& .MuiInputLabel-root": {
-                                                            color: "white", // Белый цвет placeholder
+                                                        '& .MuiInputLabel-root': {
+                                                            color: 'black', // Черный цвет placeholder
                                                         },
-                                                        "& .MuiInputLabel-root.Mui-focused": {
-                                                            color: "white", // Белый цвет placeholder при фокусе
+                                                        '& .MuiInputLabel-root.Mui-focused': {
+                                                            color: 'black', // Черный цвет placeholder при фокусе
+                                                        },
+
+                                                        // Стили для disabled состояния
+                                                        '& .MuiInputBase-root.Mui-disabled': {
+                                                            '& .MuiInputBase-input': {
+                                                                color: 'black', // Черный цвет текста, даже если disabled
+                                                                WebkitTextFillColor: 'black', // Для Safari и других браузеров на WebKit
+                                                            },
+                                                            '& .MuiOutlinedInput-notchedOutline': {
+                                                                borderColor: 'black', // Черный цвет рамки
+                                                            },
+                                                            '& .MuiInputLabel-root': {
+                                                                color: 'black', // Черный цвет placeholder
+                                                            },
                                                         },
                                                     }}
                                                 />
@@ -537,7 +591,7 @@ const QuestionnaireDetails = () => {
                                     </Form.Group>
 
                                     <Form.Group className="mb-3">
-                                        <Form.Label>Есть ли образование:</Form.Label>
+                                        <Form.Label>Имеется ли профильное образование?</Form.Label>
                                         {/* <label></label> */}
                                         <Select
                                             labelId="hasEdu-label"
@@ -552,20 +606,35 @@ const QuestionnaireDetails = () => {
                                             disabled={!isEditable}
                                             className='w-100'
                                             sx={{
-                                                "& .MuiInputBase-input": {
-                                                    color: "white", // Белый цвет текста
+                                                // Стили для обычного состояния
+                                                '& .MuiSelect-select': {
+                                                    color: 'black', // Черный цвет текста
                                                 },
-                                                "& .MuiOutlinedInput-notchedOutline": {
-                                                    borderColor: "white", // Белый цвет обводки (опционально)
+                                                '& .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: 'black', // Черный цвет рамки
                                                 },
-                                                "& .MuiInputLabel-root": {
-                                                    color: "white", // Белый цвет placeholder
+                                                '& .MuiInputLabel-root': {
+                                                    color: 'black', // Черный цвет placeholder
                                                 },
-                                                "& .MuiInputLabel-root.Mui-focused": {
-                                                    color: "white", // Белый цвет placeholder при фокусе
+                                                '& .MuiInputLabel-root.Mui-focused': {
+                                                    color: 'black', // Черный цвет placeholder при фокусе
                                                 },
-                                                "& .MuiSelect-icon": {
-                                                    display: isEditable ? "inline-block" : "none", // Скрываем стрелочку, если disabled
+                                                '& .MuiSelect-icon': {
+                                                    display: isEditable ? 'inline-block' : 'none', // Скрываем стрелочку, если disabled
+                                                },
+
+                                                // Стили для disabled состояния
+                                                '&.Mui-disabled': {
+                                                    '& .MuiSelect-select': {
+                                                        color: 'black', // Черный цвет текста, даже если disabled
+                                                        WebkitTextFillColor: 'black', // Для Safari и других браузеров на WebKit
+                                                    },
+                                                    '& .MuiOutlinedInput-notchedOutline': {
+                                                        borderColor: 'black', // Черный цвет рамки
+                                                    },
+                                                    '& .MuiInputLabel-root': {
+                                                        color: 'black', // Черный цвет placeholder
+                                                    },
                                                 },
                                             }}
                                         >
@@ -576,7 +645,7 @@ const QuestionnaireDetails = () => {
 
 
 
-                                    <Form.Group className="mb-3">
+                                    <Form.Group>
                                         {questionnaire.hasEdu && (
                                             <>
                                                 <Form.Label>Учебное заведение</Form.Label>
@@ -588,21 +657,36 @@ const QuestionnaireDetails = () => {
                                                     onChange={handleInputChange}
                                                     disabled={!isEditable}
                                                     // className=''
+                                                    className="mb-3 w-100"
                                                     sx={{
-                                                        "& .MuiInputBase-input": {
-                                                            color: "white", // Белый цвет текста
+                                                        // Стили для обычного состояния
+                                                        '& .MuiInputBase-input': {
+                                                            color: 'black', // Черный цвет текста
                                                         },
-                                                        "& .MuiOutlinedInput-notchedOutline": {
-                                                            borderColor: "white", // Белый цвет обводки (опционально)
+                                                        '& .MuiOutlinedInput-notchedOutline': {
+                                                            borderColor: 'black', // Черный цвет рамки
                                                         },
-                                                        "& .MuiInputLabel-root": {
-                                                            color: "white", // Белый цвет placeholder
+                                                        '& .MuiInputLabel-root': {
+                                                            color: 'black', // Черный цвет placeholder
                                                         },
-                                                        "& .MuiInputLabel-root.Mui-focused": {
-                                                            color: "white", // Белый цвет placeholder при фокусе
+                                                        '& .MuiInputLabel-root.Mui-focused': {
+                                                            color: 'black', // Черный цвет placeholder при фокусе
+                                                        },
+
+                                                        // Стили для disabled состояния
+                                                        '& .MuiInputBase-root.Mui-disabled': {
+                                                            '& .MuiInputBase-input': {
+                                                                color: 'black', // Черный цвет текста, даже если disabled
+                                                                WebkitTextFillColor: 'black', // Для Safari и других браузеров на WebKit
+                                                            },
+                                                            '& .MuiOutlinedInput-notchedOutline': {
+                                                                borderColor: 'black', // Черный цвет рамки
+                                                            },
+                                                            '& .MuiInputLabel-root': {
+                                                                color: 'black', // Черный цвет placeholder
+                                                            },
                                                         },
                                                     }}
-                                                    className="mb-3 w-100"
                                                 />
 
                                                 <Form.Label>Дата начала обучения</Form.Label>
@@ -614,17 +698,32 @@ const QuestionnaireDetails = () => {
                                                     onChange={handleInputChange}
                                                     disabled={!isEditable}
                                                     sx={{
-                                                        "& .MuiInputBase-input": {
-                                                            color: "white", // Белый цвет текста
+                                                        // Стили для обычного состояния
+                                                        '& .MuiInputBase-input': {
+                                                            color: 'black', // Черный цвет текста
                                                         },
-                                                        "& .MuiOutlinedInput-notchedOutline": {
-                                                            borderColor: "white", // Белый цвет обводки (опционально)
+                                                        '& .MuiOutlinedInput-notchedOutline': {
+                                                            borderColor: 'black', // Черный цвет рамки
                                                         },
-                                                        "& .MuiInputLabel-root": {
-                                                            color: "white", // Белый цвет placeholder
+                                                        '& .MuiInputLabel-root': {
+                                                            color: 'black', // Черный цвет placeholder
                                                         },
-                                                        "& .MuiInputLabel-root.Mui-focused": {
-                                                            color: "white", // Белый цвет placeholder при фокусе
+                                                        '& .MuiInputLabel-root.Mui-focused': {
+                                                            color: 'black', // Черный цвет placeholder при фокусе
+                                                        },
+
+                                                        // Стили для disabled состояния
+                                                        '& .MuiInputBase-root.Mui-disabled': {
+                                                            '& .MuiInputBase-input': {
+                                                                color: 'black', // Черный цвет текста, даже если disabled
+                                                                WebkitTextFillColor: 'black', // Для Safari и других браузеров на WebKit
+                                                            },
+                                                            '& .MuiOutlinedInput-notchedOutline': {
+                                                                borderColor: 'black', // Черный цвет рамки
+                                                            },
+                                                            '& .MuiInputLabel-root': {
+                                                                color: 'black', // Черный цвет placeholder
+                                                            },
                                                         },
                                                     }}
                                                     className="mb-3 w-100"
@@ -639,21 +738,36 @@ const QuestionnaireDetails = () => {
                                                     value={questionnaire.eduDateEnd || ''}
                                                     onChange={handleInputChange}
                                                     disabled={!isEditable}
+                                                    className="mb-3 w-100"
                                                     sx={{
-                                                        "& .MuiInputBase-input": {
-                                                            color: "white", // Белый цвет текста
+                                                        // Стили для обычного состояния
+                                                        '& .MuiInputBase-input': {
+                                                            color: 'black', // Черный цвет текста
                                                         },
-                                                        "& .MuiOutlinedInput-notchedOutline": {
-                                                            borderColor: "white", // Белый цвет обводки (опционально)
+                                                        '& .MuiOutlinedInput-notchedOutline': {
+                                                            borderColor: 'black', // Черный цвет рамки
                                                         },
-                                                        "& .MuiInputLabel-root": {
-                                                            color: "white", // Белый цвет placeholder
+                                                        '& .MuiInputLabel-root': {
+                                                            color: 'black', // Черный цвет placeholder
                                                         },
-                                                        "& .MuiInputLabel-root.Mui-focused": {
-                                                            color: "white", // Белый цвет placeholder при фокусе
+                                                        '& .MuiInputLabel-root.Mui-focused': {
+                                                            color: 'black', // Черный цвет placeholder при фокусе
+                                                        },
+
+                                                        // Стили для disabled состояния
+                                                        '& .MuiInputBase-root.Mui-disabled': {
+                                                            '& .MuiInputBase-input': {
+                                                                color: 'black', // Черный цвет текста, даже если disabled
+                                                                WebkitTextFillColor: 'black', // Для Safari и других браузеров на WebKit
+                                                            },
+                                                            '& .MuiOutlinedInput-notchedOutline': {
+                                                                borderColor: 'black', // Черный цвет рамки
+                                                            },
+                                                            '& .MuiInputLabel-root': {
+                                                                color: 'black', // Черный цвет placeholder
+                                                            },
                                                         },
                                                     }}
-                                                    className="mb-3 w-100"
                                                 />
                                             </>
                                         )}
@@ -670,19 +784,35 @@ const QuestionnaireDetails = () => {
                                             disabled={!isEditable}
                                             className='w-100'
                                             sx={{
-                                                "& .MuiInputBase-input": {
-                                                    color: "white", // Белый цвет текста
+                                                // Стили для обычного состояния
+                                                '& .MuiInputBase-input': {
+                                                    color: 'black', // Черный цвет текста
                                                 },
-                                                "& .MuiOutlinedInput-notchedOutline": {
-                                                    borderColor: "white", // Белый цвет обводки (опционально)
+                                                '& .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: 'black', // Черный цвет рамки
                                                 },
-                                                "& .MuiInputLabel-root": {
-                                                    color: "white", // Белый цвет placeholder
+                                                '& .MuiInputLabel-root': {
+                                                    color: 'black', // Черный цвет placeholder
                                                 },
-                                                "& .MuiInputLabel-root.Mui-focused": {
-                                                    color: "white", // Белый цвет placeholder при фокусе
+                                                '& .MuiInputLabel-root.Mui-focused': {
+                                                    color: 'black', // Черный цвет placeholder при фокусе
+                                                },
+
+                                                // Стили для disabled состояния
+                                                '& .MuiInputBase-root.Mui-disabled': {
+                                                    '& .MuiInputBase-input': {
+                                                        color: 'black', // Черный цвет текста, даже если disabled
+                                                        WebkitTextFillColor: 'black', // Для Safari и других браузеров на WebKit
+                                                    },
+                                                    '& .MuiOutlinedInput-notchedOutline': {
+                                                        borderColor: 'black', // Черный цвет рамки
+                                                    },
+                                                    '& .MuiInputLabel-root': {
+                                                        color: 'black', // Черный цвет placeholder
+                                                    },
                                                 },
                                             }}
+
                                         />
                                     </Form.Group>
 
@@ -700,19 +830,35 @@ const QuestionnaireDetails = () => {
                                             maxRows={4}
                                             className='w-100'
                                             sx={{
-                                                "& .MuiInputBase-input": {
-                                                    color: "white", // Белый цвет текста
+                                                // Стили для обычного состояния
+                                                '& .MuiInputBase-input': {
+                                                    color: 'black', // Черный цвет текста
                                                 },
-                                                "& .MuiOutlinedInput-notchedOutline": {
-                                                    borderColor: "white", // Белый цвет обводки (опционально)
+                                                '& .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: 'black', // Черный цвет рамки
                                                 },
-                                                "& .MuiInputLabel-root": {
-                                                    color: "white", // Белый цвет placeholder
+                                                '& .MuiInputLabel-root': {
+                                                    color: 'black', // Черный цвет placeholder
                                                 },
-                                                "& .MuiInputLabel-root.Mui-focused": {
-                                                    color: "white", // Белый цвет placeholder при фокусе
+                                                '& .MuiInputLabel-root.Mui-focused': {
+                                                    color: 'black', // Черный цвет placeholder при фокусе
+                                                },
+
+                                                // Стили для disabled состояния
+                                                '& .MuiInputBase-root.Mui-disabled': {
+                                                    '& .MuiInputBase-input': {
+                                                        color: 'black', // Черный цвет текста, даже если disabled
+                                                        WebkitTextFillColor: 'black', // Для Safari и других браузеров на WebKit
+                                                    },
+                                                    '& .MuiOutlinedInput-notchedOutline': {
+                                                        borderColor: 'black', // Черный цвет рамки
+                                                    },
+                                                    '& .MuiInputLabel-root': {
+                                                        color: 'black', // Черный цвет placeholder
+                                                    },
                                                 },
                                             }}
+
                                         />
                                     </Form.Group>
 
@@ -730,17 +876,32 @@ const QuestionnaireDetails = () => {
                                             maxRows={4}
                                             fullWidth
                                             sx={{
-                                                "& .MuiInputBase-input": {
-                                                    color: "white", // Белый цвет текста
+                                                // Стили для обычного состояния
+                                                '& .MuiInputBase-input': {
+                                                    color: 'black', // Черный цвет текста
                                                 },
-                                                "& .MuiOutlinedInput-notchedOutline": {
-                                                    borderColor: "white", // Белый цвет обводки (опционально)
+                                                '& .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: 'black', // Черный цвет рамки
                                                 },
-                                                "& .MuiInputLabel-root": {
-                                                    color: "white", // Белый цвет placeholder
+                                                '& .MuiInputLabel-root': {
+                                                    color: 'black', // Черный цвет placeholder
                                                 },
-                                                "& .MuiInputLabel-root.Mui-focused": {
-                                                    color: "white", // Белый цвет placeholder при фокусе
+                                                '& .MuiInputLabel-root.Mui-focused': {
+                                                    color: 'black', // Черный цвет placeholder при фокусе
+                                                },
+
+                                                // Стили для disabled состояния
+                                                '& .MuiInputBase-root.Mui-disabled': {
+                                                    '& .MuiInputBase-input': {
+                                                        color: 'black', // Черный цвет текста, даже если disabled
+                                                        WebkitTextFillColor: 'black', // Для Safari и других браузеров на WebKit
+                                                    },
+                                                    '& .MuiOutlinedInput-notchedOutline': {
+                                                        borderColor: 'black', // Черный цвет рамки
+                                                    },
+                                                    '& .MuiInputLabel-root': {
+                                                        color: 'black', // Черный цвет placeholder
+                                                    },
                                                 },
                                             }}
                                         />
@@ -751,7 +912,7 @@ const QuestionnaireDetails = () => {
                                         <Row>
                                             <Col>
                                                 <h5 className="mt-2 mb-4 text-center" style={{ color: "#ff7f00" }}>
-                                                    Прикрепленные фотографии:
+                                                    Прикрепленные фотографии
                                                 </h5>
 
                                                 {images.length > 0 ? (
@@ -795,7 +956,7 @@ const QuestionnaireDetails = () => {
                                                         ))}
                                                     </Row>
                                                 ) : (
-                                                    <p className='text-center'>Фотографии отсутствуют</p>
+                                                    <div className='text-center'>Фотографии отсутствуют</div>
                                                 )}
                                             </Col>
                                         </Row>
@@ -811,8 +972,8 @@ const QuestionnaireDetails = () => {
                                                         onChange={handleAddImages}
                                                         // hidden={uploading}
                                                         style={{
-                                                            backgroundColor: "#333",
-                                                            color: "white",
+                                                            // backgroundColor: "#333",
+                                                            // color: "white",
                                                             border: "1px solid #555",
                                                         }}
                                                     />
@@ -828,15 +989,6 @@ const QuestionnaireDetails = () => {
 
                                                             <div className="d-flex gap-2">
                                                                 <Button
-                                                                    variant="success"
-                                                                    onClick={handleUploadImages}
-                                                                    className="w-50"
-                                                                    style={{ fontSize: "18px" }}
-
-                                                                >
-                                                                    Сохранить
-                                                                </Button>
-                                                                <Button
                                                                     variant="danger"
                                                                     onClick={handleCancelUpload}
                                                                     className="w-50"
@@ -845,6 +997,16 @@ const QuestionnaireDetails = () => {
                                                                 >
                                                                     Отменить
                                                                 </Button>
+                                                                <Button
+                                                                    variant="success"
+                                                                    onClick={handleUploadImages}
+                                                                    className="w-50"
+                                                                    style={{ fontSize: "18px" }}
+
+                                                                >
+                                                                    Сохранить
+                                                                </Button>
+
                                                             </div>
                                                         </div>
                                                     )}
@@ -882,17 +1044,23 @@ const QuestionnaireDetails = () => {
                                                                 <div>
                                                                     <div className="mb-4" >Выберите лицо, которое хотите привязать</div>
                                                                     <EntityCard onSelectEntity={handleSelectEntity} />
-                                                                    <Button className='mt-2'
-                                                                        style={{
-                                                                            width: '100%',
-                                                                            backgroundColor: "#ffb300",
-                                                                            border: "none",
-                                                                            color: "black",
-                                                                            fontWeight: "bold",
-                                                                            padding: "10px",
-                                                                            borderRadius: "8px",
-                                                                            transition: "background-color 0.3s",
-                                                                        }}
+                                                                    <Button
+
+
+
+                                                                        className='mt-2 w-100'
+                                                                        // style={{
+                                                                        //     width: '100%',
+                                                                        //     backgroundColor: "#ffb300",
+                                                                        //     border: "none",
+                                                                        //     color: "black",
+                                                                        //     fontWeight: "bold",
+                                                                        //     padding: "10px",
+                                                                        //     borderRadius: "8px",
+                                                                        //     transition: "background-color 0.3s",
+                                                                        // }}
+                                                                        variant='success'
+                                                                        // className=''
                                                                         onClick={() => handleEventEntity("link")}>Привязать лицо</Button>
 
 
@@ -902,12 +1070,12 @@ const QuestionnaireDetails = () => {
                                                                     {entityData ? (
                                                                         isLegalEntity ? (
                                                                             <div>
-                                                                                <h5 style={{ textAlign: 'center', color: 'white' }}>Ваше юридическое лицо</h5>
+                                                                                <h5 style={{ textAlign: 'center' }}>Ваше юридическое лицо</h5>
                                                                                 <div
                                                                                     style={{
                                                                                         padding: '10px',
                                                                                         margin: '5px 0',
-                                                                                        backgroundColor: 'grey',
+                                                                                        // backgroundColor: 'grey',
                                                                                         border: '1px solid green',
                                                                                         borderRadius: '5px',
                                                                                         cursor: 'pointer',
@@ -919,12 +1087,12 @@ const QuestionnaireDetails = () => {
                                                                             </div>
                                                                         ) : (
                                                                             <div>
-                                                                                <h5 style={{ textAlign: 'center', color: 'white' }}>Ваше физическое лицо</h5>
+                                                                                <h5 style={{ textAlign: 'center', }}>Ваше физическое лицо</h5>
                                                                                 <div
                                                                                     style={{
                                                                                         padding: '10px',
                                                                                         margin: '5px 0',
-                                                                                        backgroundColor: 'grey',
+                                                                                        // backgroundColor: 'grey',
                                                                                         border: '1px solid green',
                                                                                         borderRadius: '5px',
                                                                                         cursor: 'pointer',
@@ -943,20 +1111,8 @@ const QuestionnaireDetails = () => {
                                                                     <div style={{ width: "100%", boxSizing: "border-box", marginTop: "3px" }}>
                                                                         {/* Кнопка "Отвязать лицо" */}
                                                                         <Button
-                                                                            style={{
-                                                                                width: "100%", // Занимает всю ширину контейнера
-                                                                                backgroundColor: "#ffb300",
-                                                                                border: "none",
-                                                                                color: "black",
-                                                                                fontWeight: "bold",
-                                                                                padding: "10px",
-                                                                                borderRadius: "8px",
-                                                                                transition: "background-color 0.3s",
-                                                                                marginTop: "10px",
-                                                                                fontSize: "16px", // Размер текста для лучшей видимости
-                                                                                cursor: "pointer",
-                                                                                boxSizing: "border-box", // Учитывает padding и border в ширину
-                                                                            }}
+                                                                            variant='danger'
+                                                                            className='w-100 mt-2'
                                                                             onClick={() => handleEventEntity("unlink")}
                                                                         >
                                                                             Отвязать лицо
@@ -970,25 +1126,29 @@ const QuestionnaireDetails = () => {
                                                         }
                                                         <ButtonGroup style={styles.buttonContainer}>
                                                             <Button
+                                                                onClick={handleDeleteClick}
+                                                                // style={styles.deleteButton}
+                                                                variant='danger'
+                                                            >
+                                                                <Delete />
+                                                            </Button>
+                                                            <Button
                                                                 onClick={handleEditClick}
-                                                                style={styles.editButton}
+                                                                // style={styles.editButton}
+                                                                variant='success'
                                                             >
                                                                 Редактировать
                                                             </Button>
 
-                                                            <Button
-                                                                onClick={handleDeleteClick}
-                                                                style={styles.deleteButton}
-                                                            >
-                                                                Удалить
-                                                            </Button>
+
                                                         </ButtonGroup>
                                                     </>
                                                 ) : isEditable ? (
                                                     <ButtonGroup style={styles.buttonContainer}>
                                                         <Button
                                                             onClick={handleSaveClick}
-                                                            style={styles.editButton}
+                                                            // style={styles.editButton}
+                                                            variant='success'
                                                         >
                                                             Сохранить
                                                         </Button>
@@ -1025,7 +1185,7 @@ const QuestionnaireDetails = () => {
                     </Col>
                 </Row>
             </Container>
-        </div>
+        </div >
     );
 };
 
@@ -1047,7 +1207,7 @@ const styles = {
         display: 'flex',
         gap: "10px", // Расстояние между кнопками
         justifyContent: 'center', // Выравнивание по центру
-        marginTop: '50px', // Отступ сверху
+        marginTop: '20px', // Отступ сверху
     },
     editButton: {
         backgroundColor: '#4caf50',
@@ -1070,6 +1230,18 @@ const styles = {
         borderRadius: '8px',
         cursor: 'pointer',
         transition: 'background-color 0.3s',
+    },
+    fixedButton: {
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+        zIndex: 1000,
+        borderRadius: '50%',
+        width: '50px',
+        height: '50px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 
 };

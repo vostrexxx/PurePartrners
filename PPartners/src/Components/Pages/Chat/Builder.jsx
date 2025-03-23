@@ -735,9 +735,9 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
             {/* Смета */}
             <div className="mb-4">
                 {estimate.map((orange) => (
-                    <div key={orange.nodeId} className="p-3 mb-4 bg-warning rounded shadow">
+                    <div key={orange.nodeId} className="p-3 mb-3 bg-warning rounded shadow">
                         {/* Категория */}
-                        <div className="d-flex flex-nowrap align-items-center gap-3">
+                        <div className="d-flex flex-nowrap align-items-center gap-2">
                             <strong>{orange.nodeId}</strong>
                             <TextField
                                 placeholder="Введите наименование категории"
@@ -746,12 +746,16 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                                 onChange={(e) => handleOrangeTextChange(orange.elementId, e.target.value)}
                                 disabled={!isEditing}
                                 className="flex-fill"
+                                multiline
+                                minRowsrows={1}
+                                maxRows={6}
                             />
                             <IconButton
                                 variant="danger"
                                 onClick={() => handleRemoveOrangeItem(orange.elementId)}
-                                disabled={!isEditing}
+                                hidden={!isEditing}
                                 color="error" // Цвет для кнопки удаления (красный)
+                            // style={{ backgroundColor: "black" }}
                             >
                                 <Delete /> {/* Иконка минуса */}
                             </IconButton>
@@ -841,7 +845,7 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                                     <Button
                                         variant="outline-danger"
                                         onClick={() => handleRemoveSubItem(orange.elementId, subItem.elementId)}
-                                        disabled={!isEditing}
+                                        hidden={!isEditing}
                                         color="error"
                                     >
                                         Удалить

@@ -73,10 +73,13 @@ const BalancePage = () => {
 
             <Container fluid
                 style={{
-                    backgroundColor: "#242582",
+                    // backgroundColor: "#242582",
                     flex: 1,
                     padding: "20px",
-                }}>
+                }}
+                className="BG"
+
+            >
                 <h2 className="text-center mb-4 text-white">Ваш баланс: {currBalance} руб.</h2>
 
                 {isTopUpFormVisible ? (

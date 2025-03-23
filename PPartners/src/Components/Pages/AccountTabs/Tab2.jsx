@@ -6,7 +6,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import AutoCompleteInput from './AutoCompleteInput.jsx';
 import MetroAutocomplete from '../SearchComponent/AutoCompleteMetro.jsx';
 import { Button, Card, Container, Form, ListGroup, Row, Col, Spinner } from "react-bootstrap";
-import './global.css'
+// import './global.css'
 import { useToast } from '../../Notification/ToastContext'
 import TextField from "@mui/material/TextField";
 const Entities = ({ onSelectEntity }) => {
@@ -1278,7 +1278,7 @@ const MainPage = () => {
     <Container fluid>
       {!isCreating ? (
         <div>
-          <Row className="align-items-center mb-4">
+          <Row className="align-items-center mt-4 mb-3">
             <Col>
               <h2 className="text-white">{(isSpecialist ? "Анкеты" : "Объявления")}</h2>
             </Col>

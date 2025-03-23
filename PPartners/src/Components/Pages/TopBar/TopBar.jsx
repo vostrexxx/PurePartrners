@@ -23,9 +23,9 @@ const NotAuthTopBar = () => {
   return (
     <Navbar
       expand="lg"
-      className="shadow-sm"
+      className="shadow-sm TopBar"
       style={{
-        backgroundColor: "#1a1a5b",
+        // backgroundColor: "#1a1a5b",
       }}
     >
       <Container className="d-flex justify-content-between align-items-center">
@@ -113,9 +113,9 @@ const NotAuthTopBar = () => {
               </Dropdown.Item>
             )}
             {/* {!isSpecialist && ( */}
-              <Dropdown.Item onClick={() => navigate("/")}>
-                Выйти
-              </Dropdown.Item>
+            <Dropdown.Item onClick={() => navigate("/")}>
+              Выйти
+            </Dropdown.Item>
             {/* } */}
           </Dropdown.Menu>
         </Dropdown>

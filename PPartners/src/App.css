@@ -8,3 +8,49 @@ input[type="number"]::-webkit-outer-spin-button {
 input[type="number"] {
     -moz-appearance: textfield;
 }
+
+/* Красим основные элементы */
+.TopBar {
+    background-color: #091E34;
+}
+
+.BG {
+    background-color: #0E3055;
+}
+
+.HLD {
+    color: var(--bs-secondary-color) !important
+}
+
+.HLL {
+    color: white;
+}
+
+.TL {
+    color: aqua;
+}
+
+.TD {
+    color: mediumvioletred;
+}
+
+
+/* index.css */
+.btn-primary {
+    background-color: #ff7101 !important;
+    /* Переопределяем цвет фона */
+    border: none !important;
+    /* Убираем границу */
+    /* font-size: 18px !important; */
+    /* Задаем размер шрифта */
+    /* border-radius: 50px !important; */
+    /* Добавляем rounded-pill */
+}
+
+.card {
+    background-color: white;
+}
+
+/* h1 h2 h3 h4 h5 {
+    color: #091E34
+} */

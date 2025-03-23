@@ -84,10 +84,12 @@ const AllChatsPage = () => {
             <Container
                 fluid
                 style={{
-                    backgroundColor: "#242582",
+                    // backgroundColor: "#242582",
                     flex: 1,
                     padding: "20px",
                 }}
+                className="BG"
+
             >
                 <Row className="justify-content-center">
                     <Col xs={12} md={10} lg={8}>
@@ -98,7 +100,7 @@ const AllChatsPage = () => {
                         chatPreviews.map((item) =>
                             (<Chat title={item.title} lastMessage={item.lastMessage} lastMessageTime={item.lastMessageTime} onClick={() => handleChatPreviewClick(item.chatId)} key={item.id}></Chat>)
                         )) : (
-                        <p className='text-white'>У вас пока что нет чатов </p>
+                        <p className='text-white text-center'>У вас пока что нет чатов </p>
                     )}
                 </Row>
 
