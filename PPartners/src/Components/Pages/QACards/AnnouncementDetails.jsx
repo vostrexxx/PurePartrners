@@ -78,7 +78,7 @@ const AnnouncementDetails = () => {
 
                 if (data.success === 1 && data.announcementInfo) {
                     setAnnouncement(data.announcementInfo);
-                    // console.log('asdasdad',announcement.)
+                    console.log('Объявление', data.announcementInfo)
 
                     // Шаг 2: Получение данных лица
                     const entityId = data.announcementInfo.entityId; // Получаем ID лица из объявления

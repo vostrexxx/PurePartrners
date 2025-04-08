@@ -312,6 +312,7 @@ const DocumentStorageModalWnd = ({ isOpen, onClose, agreementId, stage }) => {
 
                     {isContractReady ? (
                         <div
+                            className='mb-3'
                             style={{
                                 display: 'flex',
                                 flexDirection: 'column',
@@ -368,6 +369,8 @@ const DocumentStorageModalWnd = ({ isOpen, onClose, agreementId, stage }) => {
 
                     {isEstimateReady ? (
                         <div
+                            className='mb-3'
+
                             style={{
                                 display: 'flex',
                                 flexDirection: 'column',
@@ -426,6 +429,8 @@ const DocumentStorageModalWnd = ({ isOpen, onClose, agreementId, stage }) => {
 
                     {isActReady ? (
                         <div
+                            className='mb-3'
+
                             style={{
                                 display: 'flex',
                                 flexDirection: 'column',
