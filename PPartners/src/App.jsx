@@ -27,6 +27,8 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import NotAuthTopBar from './Components/Pages/TopBar/NotAuthTopBar'
 import { ToastProvider } from './Components/Notification/ToastContext';
 
+import NewMain from './Components/Struct/NewMain'
+
 import './App.css'
 global.global = global;
 const App = () => {
@@ -58,6 +60,10 @@ const App = () => {
           <Route path="/entity/:id" element={< EntityDetailes />} />
           <Route path="/balance" element={< BalancePage />} />
           <Route path="/NotAuthTopBar" element={< NotAuthTopBar />} />
+
+
+          <Route path="/new-main" element={< NewMain />} />
+
 
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
