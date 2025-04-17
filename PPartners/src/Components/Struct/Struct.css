@@ -18,26 +18,8 @@
 }
 
 .main-icon {
-    /* Размер иконки */
     font-size: 24px;
-    /* Альтернатива: width/height (для SVG) */
-
-    /* Цвет */
-    /* color: #3498db; */
-    /* Синий (можно использовать HEX, RGB, названия) */
-
-    /* Отступы */
-    /* margin: 8px;
-    padding: 4px; */
-
-    /* Анимация и эффекты */
     transition: all 0.3s ease;
-    /* transform: rotate(15deg); */
-    /* Поворот */
-
-    /* Курсор */
     cursor: pointer;
-
-    /* Тень (если нужно) */
     filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.2));
 }
