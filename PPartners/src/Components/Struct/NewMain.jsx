@@ -13,12 +13,52 @@ import {
     faHandshake,
     faWallet,
     faComments,
-    faNewspaper,
     faStairs,
     faFileExcel,
     faUser
 } from '@fortawesome/free-solid-svg-icons'
 const NewMain = () => {
+
+    const fetchPreviewData = async (id, type) => {
+        if (!id) return;
+
+        try {
+            const params = new URLSearchParams();
+            if (type === 'questionnaire') {
+                params.append('questionnaireId', id);
+            } else {
+                params.append('announcementId', id);
+            }
+
+            const endpoint = type === 'questionnaire' ? 'questionnaire/preview' : 'announcement/preview';
+
+            const response = await fetch(`${url}/${endpoint}?${params.toString()}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getAuthToken()}`,
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (type === 'questionnaire') {
+                    // setQuestionnaireData(data);
+                    console.log('анкета', data)
+                } else {
+                    // setAnnouncementData(data);
+                    console.log('объява', data)
+
+                }
+            } else {
+                console.error(`Ошибка при загрузке данных (${type}):`, response.status);
+            }
+        } catch (error) {
+            console.error(`Ошибка при выполнении запроса (${type}):`, error);
+        }
+    };
+
+
     const [chatPreviews, setChatPreviews] = useState([]);
     const getAuthToken = () => localStorage.getItem('authToken');
     let url = localStorage.getItem('url');
@@ -41,14 +81,171 @@ const NewMain = () => {
         navigate(`/all-chats`)
     };
 
-    const handleClickEstimate = () => {
-        // navigate(`/main`)
-        alert('Сделать страницу со всеми сметами')
-    };
 
-    const handleClickStages = () => {
+    // if (agreementData.agreementInfo.mode === 1) {
+    //     customerId = agreementData.agreementInfo.initiatorId;
+    //     customerItemId = agreementData.agreementInfo.initiatorItemId;
+
+    //     contractorId = agreementData.agreementInfo.receiverId;
+    //     contractorItemId = agreementData.agreementInfo.receiverItemId;
+    // }
+
+
+    const handleClickEstimate = async () => {
+        const response = await fetch(url + '/agreement/agreements', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getAuthToken()}`,
+            }
+        });
+        const data = await response.json();
+        let agreementIds = data.agreementIds;
+
+        agreementIds.map(async (agreementId) => {
+            const response = await fetch(url + `/categories/previews`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getAuthToken()}`,
+                },
+                body: JSON.stringify({ agreementIds: agreementIds }),
+            });
+            // return response.json();
+            console.log(response.json())
+        })
+
+
+        // console.log(data, typeof data)
+        // navigate('/estimates', {
+        //     state: {
+        //         agreementIds: agreementIds
+        //     }
+        // });
+
+
+        // const responses = await Promise.all(
+        //     agreementIds.map(async (agreementId) => {
+        //         const response = await fetch(url + `/agreement?agreementId=${agreementId}`, {
+        //             method: 'GET',
+        //             headers: {
+        //                 'Content-Type': 'application/json',
+        //                 'Authorization': `Bearer ${getAuthToken()}`,
+        //             }
+        //         });
+        //         return response.json();
+        //     })
+        // );
+
+        // console.log(responses);
+
+
+        // responses.forEach(response => {
+        //     let agreementInfo = response.agreementInfo;
+        //     // if (response.userId === agreementInfo.initiatorId) {
+        //     // выводим только то, что принадлежит текущему пользователю 
+        //     if (agreementInfo.mode) {
+        //         fetchPreviewData(agreementInfo.receiverItemId, 'questionnaire');
+        //         fetchPreviewData(agreementInfo.initiatorItemId, 'announcement');
+        //     } else {
+        //         fetchPreviewData(agreementInfo.initiatorItemId, 'questionnaire');
+        //         fetchPreviewData(agreementInfo.receiverItemId, 'announcement');
+        //     }
+        //     // } else {
+
+        //     // }
+        // });
+        // // Запрос на получение объяв
+        // const responsesCustomer = await Promise.all(
+        //     responses.map(async (agreementId) => {
+        //         const responseCustomer = await fetch(url + `/agreement?agreementId=${agreementId}`, {
+        //             method: 'GET',
+        //             headers: {
+        //                 'Content-Type': 'application/json',
+        //                 'Authorization': `Bearer ${getAuthToken()}`,
+        //             }
+        //         });
+        //         return responseCustomer.json();
+        //     })
+        // );
+
+        // console.log("responsesCustomer", responsesCustomer)
+
+        // // Запрос на получение анкет
+        // const responsesContractor = await Promise.all(
+        //     responses.map(async (agreementId) => {
+        //         const responseCustomer = await fetch(url + `/agreement?agreementId=${agreementId}`, {
+        //             method: 'GET',
+        //             headers: {
+        //                 'Content-Type': 'application/json',
+        //                 'Authorization': `Bearer ${getAuthToken()}`,
+        //             }
+        //         });
+        //         return responseCustomer.json();
+        //     })
+        // );
+        // console.log("responsesContractor", responsesContractor)
+    };
+    // const handleClickEstimate = async () => {
+    //     try {
+    //         const response = await fetch(url + '/agreement/agreements', {
+    //             method: 'GET',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'Authorization': `Bearer ${getAuthToken()}`,
+    //             }
+    //         });
+
+    //         if (!response.ok) {
+    //             throw new Error(`Ошибка HTTP: ${response.status}`);
+    //         }
+
+    //         const data = await response.json();
+
+    //         // Проверяем, что data.response — массив
+    //         if (!Array.isArray(data?.response)) {
+    //             throw new Error('Ожидался массив agreementIds');
+    //         }
+
+    //         navigate('/estimates', {
+    //             state: {
+    //                 agreementIds: data.response // Передаём массив
+    //             }
+    //         });
+    //     } catch (error) {
+    //         console.error('Ошибка при загрузке agreementIds:', error);
+    //         alert('Не удалось загрузить данные. Проверьте консоль.');
+    //     }
+    // };
+
+    const handleClickStages = async () => {
         // navigate(`/main`)
-        alert('Сделать страницу со всеми стадиями')
+
+
+        const response = await fetch(url + '/agreement/agreements', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getAuthToken()}`,
+            }
+        });
+        const data = await response.json();
+        let agreementIds = data.agreementIds;
+
+        agreementIds.map(async () => {
+            const response = await fetch(url + `/stages/previews`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getAuthToken()}`,
+                },
+                body: JSON.stringify({ agreementIds: agreementIds }),
+            });
+            // return response.json();
+            console.log(response.json())
+        })
+
+        // alert('Сделать страницу со всеми стадиями')
 
     };
 

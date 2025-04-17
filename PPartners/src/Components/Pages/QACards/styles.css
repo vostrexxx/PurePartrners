@@ -1,0 +1,30 @@
+/* TextFieldStyles.css */
+
+/* Стили для текста внутри поля ввода */
+.custom-textfield .MuiInputBase-input {
+    color: white !important;
+}
+
+/* Стили для обводки (границы) */
+.custom-textfield .MuiOutlinedInput-notchedOutline {
+    border-color: white !important;
+}
+
+/* Стили для placeholder (лейбла) */
+.custom-textfield .MuiInputLabel-root {
+    color: white !important;
+}
+
+/* Стили для placeholder при фокусе */
+.custom-textfield .MuiInputLabel-root.Mui-focused {
+    color: white !important;
+}
+
+/* Скрытие стрелочки для Select, если поле disabled */
+.custom-textfield .MuiSelect-icon {
+    display: none;
+}
+
+.custom-textfield .MuiSelect-icon.Mui-disabled {
+    display: none;
+}

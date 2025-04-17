@@ -16,7 +16,6 @@ import AgreementPage from './Components/Pages/Agreement/AgreementPage';
 import ChatPage from './Components/Pages/Chat/ChatPage';
 import global from 'global';
 import AllChatsPage from './Components/Pages/Chat/AllChatsPage';
-// import AC from './Components/Pages/AccountTabs/AutoCompleteInput';
 import EntityDetailes from './Components/Previews/EntityDetails'
 import BalancePage from './Components/Pages/Balance/BalancePage';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -28,6 +27,7 @@ import NotAuthTopBar from './Components/Pages/TopBar/NotAuthTopBar'
 import { ToastProvider } from './Components/Notification/ToastContext';
 
 import NewMain from './Components/Struct/NewMain'
+import EstimatesPage from './Components/Pages/Chat/EstimatesPage'
 
 import './App.css'
 global.global = global;
@@ -63,6 +63,7 @@ const App = () => {
 
 
           <Route path="/new-main" element={< NewMain />} />
+          <Route path="/estimates" element={< EstimatesPage />} />
 
 
           <Route path="*" element={<NotFoundPage />} />
