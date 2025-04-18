@@ -19,6 +19,31 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 const NewMain = () => {
 
+    const getAuthToken = () => localStorage.getItem('authToken');
+    let url = localStorage.getItem('url');
+    const { isSpecialist } = useProfile();
+    const navigate = useNavigate();
+
+    const [agreementIds, setAgreementIds] = useState([]);
+
+    useEffect(() => {
+
+        const fetchAgreementIds = async () => {
+            const response = await fetch(url + '/agreement/agreements', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getAuthToken()}`,
+                }
+            });
+            const data = await response.json();
+            setAgreementIds(data.agreementIds);
+        };
+
+        fetchAgreementIds();
+
+    }, [])
+
     const fetchPreviewData = async (id, type) => {
         if (!id) return;
 
@@ -58,13 +83,6 @@ const NewMain = () => {
         }
     };
 
-
-    const [chatPreviews, setChatPreviews] = useState([]);
-    const getAuthToken = () => localStorage.getItem('authToken');
-    let url = localStorage.getItem('url');
-    const { isSpecialist } = useProfile();
-    const navigate = useNavigate();
-
     const handleClickCreate = () => {
         navigate(`/account-actions?tab=offers`)
     };
@@ -92,31 +110,22 @@ const NewMain = () => {
 
 
     const handleClickEstimate = async () => {
-        const response = await fetch(url + '/agreement/agreements', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${getAuthToken()}`,
-            }
-        });
-        const data = await response.json();
-        let agreementIds = data.agreementIds;
 
-        agreementIds.map(async (agreementId) => {
-            const response = await fetch(url + `/categories/previews`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${getAuthToken()}`,
-                },
-                body: JSON.stringify({ agreementIds: agreementIds }),
-            });
-            // return response.json();
-            console.log(response.json())
-        })
+        // agreementIds.map(async (agreementId) => {
+        //     const response = await fetch(url + `/categories/previews`, {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //             'Authorization': `Bearer ${getAuthToken()}`,
+        //         },
+        //         body: JSON.stringify({ agreementIds: agreementIds }),
+        //     });
+        //     // return response.json();
+        //     console.log(response.json())
+        // })
 
 
-        // console.log(data, typeof data)
+        console.log(agreementIds)
         // navigate('/estimates', {
         //     state: {
         //         agreementIds: agreementIds
