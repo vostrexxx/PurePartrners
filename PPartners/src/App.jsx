@@ -27,7 +27,9 @@ import NotAuthTopBar from './Components/Pages/TopBar/NotAuthTopBar'
 import { ToastProvider } from './Components/Notification/ToastContext';
 
 import NewMain from './Components/Struct/NewMain'
-import EstimatesPage from './Components/Pages/Chat/EstimatesPage'
+import EstimatesPage from './Components/Pages/Chat/EstimatePage/EstimatesPage'
+import StagesPage from './Components/Pages/Chat/StagePage/StagesPage'
+import AgreementsPage from './Components/Pages/Chat/AgreementPage/AgreementsPage'
 
 import './App.css'
 global.global = global;
@@ -43,7 +45,7 @@ const App = () => {
           <Route path="/identification" element={<IdentificationPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegistrationPage />} />
-          <Route path="/main" element={<MainPage />} />
+          <Route path="/search" element={<MainPage />} />
           <Route path="/personal-information" element={<ProfilePage />} /
 
 
@@ -62,8 +64,11 @@ const App = () => {
           <Route path="/NotAuthTopBar" element={< NotAuthTopBar />} />
 
 
-          <Route path="/new-main" element={< NewMain />} />
+          <Route path="/main" element={< NewMain />} />
           <Route path="/estimates" element={< EstimatesPage />} />
+          <Route path="/stages" element={< StagesPage />} />
+          <Route path="/agreements" element={< AgreementsPage />} />
+
 
 
           <Route path="*" element={<NotFoundPage />} />

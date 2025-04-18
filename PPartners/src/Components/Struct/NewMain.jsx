@@ -27,9 +27,10 @@ const NewMain = () => {
     const [agreementIds, setAgreementIds] = useState([]);
 
     useEffect(() => {
-
+        const params = new URLSearchParams();
+        params.append('isSpecialist', isSpecialist);
         const fetchAgreementIds = async () => {
-            const response = await fetch(url + '/agreement/agreements', {
+            const response = await fetch(url + `/agreement/agreements?${params.toString()}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -42,7 +43,7 @@ const NewMain = () => {
 
         fetchAgreementIds();
 
-    }, [])
+    }, [isSpecialist])
 
     const fetchPreviewData = async (id, type) => {
         if (!id) return;
@@ -88,7 +89,7 @@ const NewMain = () => {
     };
 
     const handleClickSearch = () => {
-        navigate(`/main`)
+        navigate(`/search`)
     };
 
     const handleClickResponse = () => {
@@ -107,8 +108,6 @@ const NewMain = () => {
     //     contractorId = agreementData.agreementInfo.receiverId;
     //     contractorItemId = agreementData.agreementInfo.receiverItemId;
     // }
-
-
     const handleClickEstimate = async () => {
 
         // agreementIds.map(async (agreementId) => {
@@ -125,14 +124,8 @@ const NewMain = () => {
         // })
 
 
-        console.log(agreementIds)
-        // navigate('/estimates', {
-        //     state: {
-        //         agreementIds: agreementIds
-        //     }
-        // });
-
-
+        // console.log(agreementIds)
+        navigate('/estimates');
         // const responses = await Promise.all(
         //     agreementIds.map(async (agreementId) => {
         //         const response = await fetch(url + `/agreement?agreementId=${agreementId}`, {
@@ -229,39 +222,15 @@ const NewMain = () => {
 
     const handleClickStages = async () => {
         // navigate(`/main`)
+        navigate('/stages');
 
-
-        const response = await fetch(url + '/agreement/agreements', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${getAuthToken()}`,
-            }
-        });
-        const data = await response.json();
-        let agreementIds = data.agreementIds;
-
-        agreementIds.map(async () => {
-            const response = await fetch(url + `/stages/previews`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${getAuthToken()}`,
-                },
-                body: JSON.stringify({ agreementIds: agreementIds }),
-            });
-            // return response.json();
-            console.log(response.json())
-        })
 
         // alert('Сделать страницу со всеми стадиями')
 
     };
 
     const handleClickView = () => {
-        // navigate(`/main`)
-        alert('Сделать страницу со всеми соглашениями')
-
+        navigate(`/agreements`)
     };
 
     const handleClickPersonal = () => {
