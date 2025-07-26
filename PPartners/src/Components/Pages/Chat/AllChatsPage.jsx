@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Chat from '../../Previews/Chat';
-import TopBar from '../TopBar/TopBar'
+import TopBar from '../../TopBars/TopBar'
 import { useProfile } from '../../Context/ProfileContext';
 import { Container, Row, Col, Nav, Tab } from "react-bootstrap";
 

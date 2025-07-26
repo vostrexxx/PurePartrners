@@ -1,9 +1,7 @@
-import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import NonAuthMainPage from './Components/Pages/MainPages/NonAuthMainPage';
 import IdentificationPage from './Components/Pages/Identification/IdentificationPage';
 import LoginPage from './Components/Pages/Login/LoginPage';
-import PhoneNumberEnteringPage from './Components/Pages/PasswordReset/PhoneNumberEnterPage';
 import EnterCodePage from './Components/Pages/PasswordReset/PasscodeEnterPage';
 import PasswordResetPage from './Components/Pages/PasswordReset/PasswordResetPage';
 import RegistrationPage from './Components/Pages/Registration/RegistrationPage';
@@ -22,20 +20,16 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import NotFoundPage from './Components/Previews/NotFoundPage'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-
-import NotAuthTopBar from './Components/Pages/TopBar/NotAuthTopBar'
+import NotAuthTopBar from './Components/TopBars/NotAuthTopBar'
 import { ToastProvider } from './Components/Notification/ToastContext';
-
 import NewMain from './Components/Struct/NewMain'
 import EstimatesPage from './Components/Pages/Chat/EstimatePage/EstimatesPage'
 import StagesPage from './Components/Pages/Chat/StagePage/StagesPage'
 import AgreementsPage from './Components/Pages/Chat/AgreementPage/AgreementsPage'
-
 import './App.css'
+
 global.global = global;
 const App = () => {
-
-
   return (
     <ToastProvider>
       <Router>
@@ -46,10 +40,7 @@ const App = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegistrationPage />} />
           <Route path="/search" element={<MainPage />} />
-          <Route path="/personal-information" element={<ProfilePage />} /
-
-
-          >
+          <Route path="/personal-information" element={<ProfilePage />} />
           {/* <Route path="/phone-enter" element={<PhoneNumberEnteringPage />} /> */}
           <Route path="/passcode-enter" element={<EnterCodePage />} />
           <Route path="/password-reset" element={<PasswordResetPage />} />
@@ -62,14 +53,10 @@ const App = () => {
           <Route path="/entity/:id" element={< EntityDetailes />} />
           <Route path="/balance" element={< BalancePage />} />
           <Route path="/NotAuthTopBar" element={< NotAuthTopBar />} />
-
-
           <Route path="/main" element={< NewMain />} />
           <Route path="/estimates" element={< EstimatesPage />} />
           <Route path="/stages" element={< StagesPage />} />
           <Route path="/agreements" element={< AgreementsPage />} />
-
-
 
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

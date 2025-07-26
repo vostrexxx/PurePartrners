@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Container, Row, Col, Form, Card } from "react-bootstrap";
-import NotAuthTopBar from "../TopBar/NotAuthTopBar";
+import NotAuthTopBar from "../../TopBars/NotAuthTopBar";
 import InputMask from "react-input-mask";
 
 const PhoneNumberEnteringPage = () => {

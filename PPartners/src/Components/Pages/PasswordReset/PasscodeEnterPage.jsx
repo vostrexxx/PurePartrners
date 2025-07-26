@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Container, Row, Col, Form, Card } from "react-bootstrap";
-import NotAuthTopBar from "../TopBar/NotAuthTopBar";
+import NotAuthTopBar from "../../TopBars/NotAuthTopBar";
 import InputMask from "react-input-mask"; // Импортируем библиотеку для маски
 
 const CodeEnteringPage = () => {
@@ -13,7 +13,7 @@ const CodeEnteringPage = () => {
     const url = localStorage.getItem("url");
 
     const ChangePhoneNumber = () => {
-        navigate("/phone-enter");
+        navigate("/identification");
     };
 
     const PasscodeEnter = async () => {
@@ -59,7 +59,7 @@ const CodeEnteringPage = () => {
                     <Col xs={12} md={8} lg={4} className="mx-auto">
                         <Card className=" CD p-4 shadow-lg">
                             <Card.Body>
-                                <h2 className="HLW text-center mb-4">Подтверждение номера</h2>
+                                <h2 className="HLD text-center mb-4">Подтверждение номера</h2>
                                 <Form>
                                     <Form.Group controlId="formPhoneNumber" className="mb-3">
                                         {/* <Form.Label>Ваш номер телефона</Form.Label> */}
@@ -76,7 +76,7 @@ const CodeEnteringPage = () => {
                                         />
                                     </Form.Group>
                                     <Form.Group controlId="formCode" className="mb-3">
-                                        <Form.Label>Вам поступит звонок, введите четыре последние цифры номера телефона</Form.Label>
+                                        {/* <Form.Label></Form.Label> */}
                                         <InputMask
                                             mask="9999" // Маска для ввода кода (4 цифры)
                                             value={code}
@@ -86,7 +86,7 @@ const CodeEnteringPage = () => {
                                             {() => (
                                                 <Form.Control
                                                     type="text"
-                                                    placeholder="0000"
+                                                    placeholder="Введите код подтверждения"
                                                     className="rounded-pill p-3 text-center"
                                                     style={{
                                                         backgroundColor: "#ffffff",
@@ -115,7 +115,7 @@ const CodeEnteringPage = () => {
                                         </Button>
                                         <Button
                                             variant="link"
-                                            className="text-decoration-none text-center"
+                                            className="text-decoration-underline text-center"
                                             style={{ color: "#ff7101" }}
                                             onClick={ChangePhoneNumber}
                                         >

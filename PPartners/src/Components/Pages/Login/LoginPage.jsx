@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button, Container, Row, Col, Form, Card } from "react-bootstrap";
-import NotAuthTopBar from "../TopBar/NotAuthTopBar";
+import EmptyTopBar from "../../TopBars/EmptyTopBar";
 import ErrorMessage from "../../ErrorHandling/ErrorMessage";
 import { requestPermission } from "../../../../firebase";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -11,7 +11,7 @@ const LoginPage = () => {
     const [errorMessage, setErrorMessage] = useState(null);
     const [phoneNumber, setPhoneNumber] = useState(localStorage.getItem("phoneNumber"));
     const [password, setPassword] = useState("");
-    const [rememberMe, setRememberMe] = useState(false);
+    // const [rememberMe, setRememberMe] = useState(false);
     const navigate = useNavigate();
     const url = localStorage.getItem("url");
     const [showPassword, setShowPassword] = useState(false);
@@ -52,30 +52,7 @@ const LoginPage = () => {
         }
     };
 
-    const handlePasswordReset = () => navigate("/phone-enter");
     const ChangePhoneNumber = () => navigate("/identification");
-    function formatPhoneNumber(phone) {
-        // Удаляем все символы, кроме цифр и знака "+"
-        const cleaned = phone.replace(/[^\d+]/g, '');
-
-        // Проверяем, начинается ли номер с "+7"
-        if (cleaned.startsWith('+7')) {
-            return cleaned; // Если номер уже в правильном формате, возвращаем его
-        }
-
-        // Если номер начинается с "7" (без "+"), добавляем "+" в начало
-        if (cleaned.startsWith('7')) {
-            return `+${cleaned}`;
-        }
-
-        // Если номер начинается с "8" (российский формат), заменяем "8" на "+7"
-        if (cleaned.startsWith('8')) {
-            return `+7${cleaned.slice(1)}`;
-        }
-
-        // Если номер не соответствует ни одному из вышеуказанных форматов, возвращаем его как есть
-        return cleaned;
-    }
 
     const handleEnterPhoneNumber = async () => {
         try {
@@ -105,7 +82,7 @@ const LoginPage = () => {
 
     return (
         <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-            <NotAuthTopBar />
+            <EmptyTopBar />
             <Container
                 fluid
                 className="BG d-flex align-items-center justify-content-center"
@@ -157,16 +134,8 @@ const LoginPage = () => {
                                             onClick={() => setShowPassword(!showPassword)}
                                         />
                                     </Form.Group>
-                                    {/* <Form.Group controlId="formRememberMe" className="mb-3">
-                                        <Form.Check
-                                            type="checkbox"
-                                            label="Запомнить меня"
-                                            checked={rememberMe}
-                                            onChange={(e) => setRememberMe(e.target.checked)}
-                                        />
-                                    </Form.Group> */}
                                     <ErrorMessage message={errorMessage} />
-                                    <div className="d-grid gap-2">
+                                    <div className="d-grid">
                                         <Button
                                             variant="primary"
                                             className="rounded-pill"
@@ -181,7 +150,7 @@ const LoginPage = () => {
                                         </Button>
                                         <Button
                                             variant="link"
-                                            className="text-decoration-none text-center"
+                                            className="text-decoration-underline text-center mt-2"
                                             style={{ color: "#ff7101" }}
                                             onClick={handleEnterPhoneNumber}
                                         >
@@ -189,7 +158,7 @@ const LoginPage = () => {
                                         </Button>
                                         <Button
                                             variant="link"
-                                            className="text-decoration-none text-center"
+                                            className="text-decoration-underline text-center"
                                             style={{ color: "#ff7101" }}
                                             onClick={ChangePhoneNumber}
                                         >

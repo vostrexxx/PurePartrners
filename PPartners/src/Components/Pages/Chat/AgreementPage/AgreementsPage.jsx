@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import TopBar from '../../TopBar/TopBar';
+import TopBar from '../../../TopBars/TopBar';
 import { useProfile } from '../../../Context/ProfileContext';
 import { Container, Row, Col } from "react-bootstrap";
 import AgreementCard from './AgreementCard';

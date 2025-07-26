@@ -5,7 +5,7 @@ import Chat from './Chat';
 import ChatContext from './ChatContext';
 import Builder from './Builder';
 import WorkStagesBuilder from './WorkStagesBuilder';
-import TopBar from '../TopBar/UnswitchTopBar';
+import TopBar from '../../TopBars/UnswitchTopBar';
 
 const ChatPage = () => {
     const { chatId } = useParams();

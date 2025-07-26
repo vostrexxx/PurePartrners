@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import TopBar from '../TopBar/TopBar';
+import TopBar from '../../TopBars/TopBar';
 import ReceivedAgreement from './ReceivedAgreement';
 import SentAgreement from './SentAgreement';
 import { useProfile } from '../../Context/ProfileContext';

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Container, Row, Col, Form, Card } from "react-bootstrap";
-import NotAuthTopBar from "../TopBar/NotAuthTopBar";
+import NotAuthTopBar from "../../TopBars/NotAuthTopBar";
 
 const PasswordResetPage = () => {
     const navigate = useNavigate();
@@ -54,7 +54,7 @@ const PasswordResetPage = () => {
                     <Col xs={12} md={8} lg={4} className="mx-auto">
                         <Card className="p-4 shadow-lg">
                             <Card.Body>
-                                <h2 className="text-center mb-4">Сброс пароля</h2>
+                                <h2 className="HLD text-center mb-4">Сброс пароля</h2>
                                 <Form>
                                     <Form.Group controlId="formNewPassword" className="mb-3">
                                         {/* <Form.Label>Введите новый пароль</Form.Label> */}

@@ -8,7 +8,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { format } from 'date-fns';
 import Card from '../../Previews/Card';
 import SearchComponent from '../SearchComponent/SearchComponent';
-import TopBar from '../TopBar/TopBar';
+import TopBar from '../../TopBars/TopBar';
 import ErrorMessage from '../../ErrorHandling/ErrorMessage';
 import { Container, Row, Col, Nav, Button, Tab, Form } from "react-bootstrap";
 import { FaFilter } from 'react-icons/fa';

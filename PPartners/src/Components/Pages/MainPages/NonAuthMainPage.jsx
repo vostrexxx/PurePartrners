@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import NotAuthTopBar from "../TopBar/NotAuthTopBar";
+import NotAuthTopBar from "../../TopBars/NotAuthTopBar";
 import { useProfile } from "../../Context/ProfileContext";
 import { Container, Row, Col, Button, Card } from "react-bootstrap";
 
@@ -8,9 +8,9 @@ const NonAuthMinPage = () => {
     const navigate = useNavigate();
     const { isSpecialist } = useProfile();
 
-    const handleIdentification = () => {
-        navigate("/identification");
-    };
+    // const handleIdentification = () => {
+    //     navigate("/identification");
+    // };
 
     return (
         <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
@@ -19,7 +19,6 @@ const NonAuthMinPage = () => {
                 fluid
                 className="py-5 BG"
                 style={{
-                    // backgroundColor: "#242582",
                     flex: 1
                 }}
             >

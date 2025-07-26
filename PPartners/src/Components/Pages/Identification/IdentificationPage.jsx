@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Container, Row, Col, Form } from "react-bootstrap";
-import NotAuthTopBar from "../TopBar/NotAuthTopBar";
-import InputMask from "react-input-mask"; // Подключаем библиотеку для маски
+import EmptyTopBar from "../../TopBars/EmptyTopBar";
+import InputMask from "react-input-mask";
 
 const IdentificationPage = () => {
     const [phoneNumber, setPhoneNumber] = useState("");
@@ -13,6 +13,7 @@ const IdentificationPage = () => {
     localStorage.setItem("phoneNumber", phoneNumber);
     // localStorage.setItem("url", "http://192.168.1.12:8887");
     localStorage.setItem("url", "https://api.партнеры.online");
+    // localStorage.setItem("url", "https://partners-online.ru");
 
 
     localStorage.setItem("authToken", null);
@@ -21,14 +22,12 @@ const IdentificationPage = () => {
     const handleInputChange = (e) => {
         let value = e.target.value;
 
-        // Если ввод начинается с "8", заменяем её на "+7"
         if (value.startsWith("8")) {
             value = value.replace("8", "+7");
         }
 
         setPhoneNumber(value);
 
-        // Проверка валидности
         const isValidPhone = /^\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}$/.test(value);
         setIsValid(isValidPhone);
         setErrorMessage(null);
@@ -66,7 +65,7 @@ const IdentificationPage = () => {
 
     return (
         <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-            <NotAuthTopBar />
+            <EmptyTopBar />
             <Container
                 fluid
                 className="BG d-flex align-items-center justify-content-center"

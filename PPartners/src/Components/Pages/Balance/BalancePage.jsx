@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Spinner, Alert, Button, Form } from 'react-bootstrap';
-import TopBar from '../TopBar/TopBar';
+import TopBar from '../../TopBars/TopBar';
 
 const getAuthToken = () => localStorage.getItem('authToken');
 let url = localStorage.getItem('url');

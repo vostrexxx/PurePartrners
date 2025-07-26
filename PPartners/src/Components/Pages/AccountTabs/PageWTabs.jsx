@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Container, Row, Col, Nav, Tab } from "react-bootstrap";
-import TopBar from "../TopBar/TopBar";
+import TopBar from "../../TopBars/TopBar";
 import Tab1 from "./Tab1";
 import Tab2 from "./Tab2";
 import Tab4 from "./Tab4";

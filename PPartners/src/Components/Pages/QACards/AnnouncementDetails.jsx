@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import ReactionWindow from '../Agreement/Reaction';
 import { useProfile } from '../../Context/ProfileContext';
-import TopBar from '../TopBar/TopBar';
+import TopBar from '../../TopBars/TopBar';
 import EntityCard from '../../Previews/EntityCard'
 import { useToast } from '../../Notification/ToastContext'
 import { Button, Card, Container, Form, ListGroup, Row, Col, Spinner, Image, Modal, ButtonGroup } from "react-bootstrap";
