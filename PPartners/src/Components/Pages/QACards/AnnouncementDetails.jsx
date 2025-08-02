@@ -1,30 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import {useEffect, useState} from 'react';
+import {useParams, useLocation, useNavigate} from 'react-router-dom';
 import ReactionWindow from '../Agreement/Reaction';
-import { useProfile } from '../../Context/ProfileContext';
+import {useProfile} from '../../Context/ProfileContext';
 import TopBar from '../../TopBars/TopBar';
 import EntityCard from '../../Previews/EntityCard'
-import { useToast } from '../../Notification/ToastContext'
-import { Button, Card, Container, Form, ListGroup, Row, Col, Spinner, Image, Modal, ButtonGroup } from "react-bootstrap";
-import Swal from "sweetalert2";
+import {useToast} from '../../Notification/ToastContext'
+import {Button, Card, Container, Form, Row, Col, Image, Modal, ButtonGroup} from "react-bootstrap";
 import TextField from "@mui/material/TextField";
-import { FaArrowLeft, FaEdit } from 'react-icons/fa';
-import {
-    Select,
-    MenuItem,
-    FormControl,
-    InputLabel,
-    Checkbox
-} from "@mui/material";
-// import './styles.css'
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-// import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { Delete } from '@mui/icons-material'; // Импортируем иконку корзины
+import {FaArrowLeft} from 'react-icons/fa';
+
+import {Delete} from '@mui/icons-material';
 
 const AnnouncementDetails = () => {
     const showToast = useToast();
 
-    const { id } = useParams();
+    const {id} = useParams();
     const [announcement, setAnnouncement] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -37,7 +27,6 @@ const AnnouncementDetails = () => {
     const [selectedEntityId, setSelectedEntityId] = useState(null)
 
     const url = localStorage.getItem('url');
-    const { isSpecialist } = useProfile();
     const navigate = useNavigate();
     const getAuthToken = () => {
         return localStorage.getItem('authToken');
@@ -61,7 +50,7 @@ const AnnouncementDetails = () => {
         const fetchData = async () => {
             try {
                 // Шаг 1: Получение данных объявления
-                const params = new URLSearchParams({ announcementId: id });
+                const params = new URLSearchParams({announcementId: id});
                 const response = await fetch(`${url}/announcement?${params.toString()}`, {
                     method: 'GET',
                     headers: {
@@ -85,7 +74,7 @@ const AnnouncementDetails = () => {
                     setEntityId(entityId);
                     if (entityId) {
                         const fetchEntity = async (id) => {
-                            const entityParams = new URLSearchParams({ customerId: id });
+                            const entityParams = new URLSearchParams({customerId: id});
                             const entityResponse = await fetch(`${url}/customer?${entityParams.toString()}`, {
                                 method: 'GET',
                                 headers: {
@@ -128,7 +117,7 @@ const AnnouncementDetails = () => {
             if (announcement?.announcementImages) {
                 const loadedImages = await Promise.all(
                     announcement.announcementImages.map(async (imagePath) => {
-                        const params = new URLSearchParams({ imagePath });
+                        const params = new URLSearchParams({imagePath});
                         const response = await fetch(`${url}/announcement/image?${params.toString()}`, {
                             method: 'GET',
                             headers: {
@@ -179,7 +168,7 @@ const AnnouncementDetails = () => {
 
     const handleDownloadFile = async (storedFileName, originalFileName) => {
         try {
-            const params = new URLSearchParams({ filePath: storedFileName });
+            const params = new URLSearchParams({filePath: storedFileName});
             const response = await fetch(`${url}/announcement/document?${params.toString()}`, {
                 method: 'GET',
                 headers: {
@@ -207,40 +196,29 @@ const AnnouncementDetails = () => {
     };
 
     const handleDeleteFile = async (storedFileName) => {
-        Swal.fire({
-            title: "Вы уверены, что хотите удалить файл?",
-            // text: "",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Да, удалить!",
-            cancelButtonText: "Отмена",
-        }).then(async (result) => {
-            if (result.isConfirmed) {
 
-                try {
-                    const params = new URLSearchParams({ filePath: storedFileName });
-                    const response = await fetch(`${url}/announcement/file?${params.toString()}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Authorization': `Bearer ${getAuthToken()}`,
-                        },
-                    });
 
-                    if (!response.ok) {
-                        throw new Error(`Ошибка удаления файла: ${response.status}`);
-                    }
+        try {
+            const params = new URLSearchParams({filePath: storedFileName});
+            const response = await fetch(`${url}/announcement/file?${params.toString()}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${getAuthToken()}`,
+                },
+            });
 
-                    showToast("Файл успешно удален", "success")
-
-                    setFiles((prevFiles) => prevFiles.filter((file) => file.storedFileName !== storedFileName));
-                } catch (error) {
-                    showToast("Не удалось удалить файл", "danger")
-
-                }
+            if (!response.ok) {
+                throw new Error(`Ошибка удаления файла: ${response.status}`);
             }
-        });
+
+            showToast("Файл успешно удален", "success")
+
+            setFiles((prevFiles) => prevFiles.filter((file) => file.storedFileName !== storedFileName));
+        } catch (error) {
+            showToast("Не удалось удалить файл", "danger")
+
+        }
+
     };
 
     const handleUploadFiles = async () => {
@@ -308,7 +286,7 @@ const AnnouncementDetails = () => {
     };
 
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         setAnnouncement((prev) => ({
             ...prev,
             [name]: value,
@@ -358,49 +336,36 @@ const AnnouncementDetails = () => {
 
 
     const handleDeleteImage = async (filePath) => {
-        Swal.fire({
-            title: "Вы уверены, что хотите удалить изображение?",
-            // text: "Сброшенные этапы невозможно будет восстановить",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Да, удалить!",
-            cancelButtonText: "Отмена",
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                try {
-                    const params = new URLSearchParams({ filePath });
-                    const response = await fetch(`${url}/announcement/file?${params.toString()}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Authorization': `Bearer ${getAuthToken()}`,
-                        },
-                    });
 
-                    if (!response.ok) {
-                        throw new Error(`Ошибка при удалении изображения: ${response.status}`);
-                    }
+        try {
+            const params = new URLSearchParams({filePath});
+            const response = await fetch(`${url}/announcement/file?${params.toString()}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${getAuthToken()}`,
+                },
+            });
 
-                    // alert('Изображение успешно удалено.');
-                    showToast("Изображение успешно удалено", "success")
-
-
-                    // Удаляем изображение из локального состояния после успешного удаления
-                    setImages((prevImages) => prevImages.filter((img) => img !== filePath));
-                    setAnnouncement((prev) => ({
-                        ...prev,
-                        announcementImages: prev.announcementImages.filter((img) => img !== filePath),
-                    }));
-                } catch (error) {
-                    // console.error('Ошибка при удалении изображения:', error);
-                    // alert('Не удалось удалить изображение.');
-                    showToast("Не удалось удалить изображение", "danger")
-
-                }
+            if (!response.ok) {
+                throw new Error(`Ошибка при удалении изображения: ${response.status}`);
             }
-        });
 
+            // alert('Изображение успешно удалено.');
+            showToast("Изображение успешно удалено", "success")
+
+
+            // Удаляем изображение из локального состояния после успешного удаления
+            setImages((prevImages) => prevImages.filter((img) => img !== filePath));
+            setAnnouncement((prev) => ({
+                ...prev,
+                announcementImages: prev.announcementImages.filter((img) => img !== filePath),
+            }));
+        } catch (error) {
+            // console.error('Ошибка при удалении изображения:', error);
+            // alert('Не удалось удалить изображение.');
+            showToast("Не удалось удалить изображение", "danger")
+
+        }
     };
 
 
@@ -435,48 +400,37 @@ const AnnouncementDetails = () => {
     };
 
     const handleDeleteClick = async () => {
-        Swal.fire({
-            title: "Вы уверены что хотите удалить объявление?",
-            text: "Работа с удаленным объявлением невозможна",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Да, удалить!",
-            cancelButtonText: "Отмена",
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                try {
-                    const params = new URLSearchParams({
-                        announcementId: id,
-                    });
 
-                    const response = await fetch(`${url}/announcement?${params.toString()}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Authorization': `Bearer ${getAuthToken()}`,
-                        },
-                    });
+        try {
+            const params = new URLSearchParams({
+                announcementId: id,
+            });
+
+            const response = await fetch(`${url}/announcement?${params.toString()}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${getAuthToken()}`,
+                },
+            });
 
 
-                    if (!response.ok) {
-                        throw new Error(`Ошибка при удалении объявления: ${response.status}`);
-                    }
-
-                    const data = await response.json();
-                    if (data.success === 1) {
-                        showToast("Объявление успешно удалено", "success")
-                        navigate('/account-actions'); // Перенаправление после успешного удаления
-                    } else {
-                        setError('Не удалось удалить анкету');
-                    }
-                } catch (error) {
-                    // setError(`Ошибка при удалении: ${error.message}`);
-                    showToast("Ошибка удаления", "danger")
-
-                }
+            if (!response.ok) {
+                throw new Error(`Ошибка при удалении объявления: ${response.status}`);
             }
-        });
+
+            const data = await response.json();
+            if (data.success === 1) {
+                showToast("Объявление успешно удалено", "success")
+                navigate('/account-actions'); // Перенаправление после успешного удаления
+            } else {
+                setError('Не удалось удалить анкету');
+            }
+        } catch (error) {
+            // setError(`Ошибка при удалении: ${error.message}`);
+            showToast("Ошибка удаления", "danger")
+
+        }
+
     };
 
     const handleEventEntity = async (mode) => {
@@ -488,22 +442,25 @@ const AnnouncementDetails = () => {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${getAuthToken()}`,
                     },
-                    body: JSON.stringify({ announcementId: id, mode: "link", entityId: selectedEntityId }),
+                    body: JSON.stringify({announcementId: id, mode: "link", entityId: selectedEntityId}),
                 });
 
                 if (!response.ok) {
                     throw new Error(`Ошибка применения изменения: ${response.status}`);
                 }
 
-                if (selectedEntityId) { showToast("Лицо успешно привязано", "success") } else { showToast("Выберите лицо, которое хотите привязать", "danger") }
+                if (selectedEntityId) {
+                    showToast("Лицо успешно привязано", "success")
+                } else {
+                    showToast("Выберите лицо, которое хотите привязать", "danger")
+                }
             } catch (error) {
                 // console.error('Ошибка применения изменения:', error);
                 // alert('Не удалось одобрить изменение.');
                 showToast("Не удалось привязать лицо", "danger")
 
             }
-        }
-        else if (mode === "unlink") {//
+        } else if (mode === "unlink") {//
             try {
                 const response = await fetch(`${url}/announcement/entity`, {
                     method: 'PUT',
@@ -511,7 +468,7 @@ const AnnouncementDetails = () => {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${getAuthToken()}`,
                     },
-                    body: JSON.stringify({ announcementId: id, mode: "unlink" }),
+                    body: JSON.stringify({announcementId: id, mode: "unlink"}),
                 });
 
                 if (!response.ok) {
@@ -544,11 +501,9 @@ const AnnouncementDetails = () => {
     if (error) return <div>Ошибка: {error}</div>;
 
 
-
-
     return (
-        <div style={{ display: "flex", flexDirection: "column", height: "100vh" }} >
-            <TopBar />
+        <div style={{display: "flex", flexDirection: "column", height: "100vh"}}>
+            <TopBar/>
             <Container
                 fluid
                 style={{
@@ -563,7 +518,7 @@ const AnnouncementDetails = () => {
             >
 
                 <Row className="justify-content-center">
-                    <Col md={8} style={{ padding: "20px" }}>
+                    <Col md={8} style={{padding: "20px"}}>
                         <Card
                             style={{
                                 // backgroundColor: "#222",
@@ -580,7 +535,7 @@ const AnnouncementDetails = () => {
                                     style={styles.fixedButton}
 
                                 >
-                                    <FaArrowLeft />
+                                    <FaArrowLeft/>
                                 </Button>
                             </Card.Text>
 
@@ -700,7 +655,7 @@ const AnnouncementDetails = () => {
                                             value={announcement.isNonFixedPrice ? "Да" : "Нет"}
                                             onChange={(e) =>
                                                 handleInputChange({
-                                                    target: { name: "isNonFixedPrice", value: e.target.value === "Да" },
+                                                    target: {name: "isNonFixedPrice", value: e.target.value === "Да"},
                                                 })
                                             }
                                             disabled={!isEditable}
@@ -938,14 +893,15 @@ const AnnouncementDetails = () => {
 
                                 <Row>
                                     <Col>
-                                        <h5 className="mt-2 mb-4 text-center" style={{ color: "#ff7f00" }}>
+                                        <h5 className="mt-2 mb-4 text-center" style={{color: "#ff7f00"}}>
                                             Прикрепленные фотографии
                                         </h5>
 
                                         {images.length > 0 ? (
                                             <Row className="g-3">
                                                 {announcement.announcementImages.map((imagePath, index) => (
-                                                    <Col key={index} xs={6} md={4} lg={3} style={{ position: "relative" }}>
+                                                    <Col key={index} xs={6} md={4} lg={3}
+                                                         style={{position: "relative"}}>
                                                         <Image
                                                             src={images[index]}
                                                             alt={`Фото ${index + 1}`}
@@ -1019,11 +975,12 @@ const AnnouncementDetails = () => {
                                                             variant="success"
                                                             onClick={handleUploadImages}
                                                             className="w-50"
-                                                        // className="me-2 "
+                                                            // className="me-2 "
                                                         >
                                                             Сохранить
                                                         </Button>
-                                                        <Button variant="danger" onClick={handleCancelUpload} className="w-50">
+                                                        <Button variant="danger" onClick={handleCancelUpload}
+                                                                className="w-50">
 
                                                             Отменить
                                                         </Button>
@@ -1053,12 +1010,12 @@ const AnnouncementDetails = () => {
                                 )}
 
                                 <div className="mt-4">
-                                    <h5 className="text-center" style={{ color: "#ff7f00" }}>
+                                    <h5 className="text-center" style={{color: "#ff7f00"}}>
                                         Прикрепленные файлы
                                     </h5>
 
                                     {files.length > 0 ? (
-                                        <ul style={{ paddingLeft: "1px", listStyleType: "none" }}>
+                                        <ul style={{paddingLeft: "1px", listStyleType: "none"}}>
                                             {files.map((file, index) => (
                                                 <li
                                                     key={index}
@@ -1091,9 +1048,13 @@ const AnnouncementDetails = () => {
                                                         <Button
                                                             onClick={() => handleDeleteFile(file.storedFileName)}
                                                             variant="danger"
-                                                            style={{ padding: "5px", marginLeft: "auto" }} // Прижимаем кнопку к правому краю
+                                                            style={{
+                                                                padding: "5px",
+                                                                marginLeft: "auto"
+                                                            }} // Прижимаем кнопку к правому краю
                                                         >
-                                                            <Delete sx={{ fontSize: "20px" }} /> {/* Уменьшаем размер иконки */}
+                                                            <Delete
+                                                                sx={{fontSize: "20px"}}/> {/* Уменьшаем размер иконки */}
                                                         </Button>
                                                     )}
                                                 </li>
@@ -1105,7 +1066,7 @@ const AnnouncementDetails = () => {
                                 </div>
 
                                 {isEditable && (
-                                    <div style={{ marginTop: "20px" }}>
+                                    <div style={{marginTop: "20px"}}>
                                         <h6>Добавить новые файлы:</h6>
                                         <Form.Control
                                             type="file"
@@ -1121,7 +1082,7 @@ const AnnouncementDetails = () => {
                                         {newFiles.length > 0 && (
                                             <div className="mt-3">
                                                 <h6>Выбранные файлы:</h6>
-                                                <ul style={{ paddingLeft: "20px", listStyleType: "none" }}>
+                                                <ul style={{paddingLeft: "20px", listStyleType: "none"}}>
                                                     {newFiles.map((file, index) => (
                                                         <li
                                                             key={index}
@@ -1146,10 +1107,14 @@ const AnnouncementDetails = () => {
                                                             <Button
                                                                 onClick={() => handleRemoveNewFile(index)}
                                                                 variant='danger'
-                                                                style={{ padding: "5px", marginLeft: "auto" }} // Прижимаем кнопку к правому краю
+                                                                style={{
+                                                                    padding: "5px",
+                                                                    marginLeft: "auto"
+                                                                }} // Прижимаем кнопку к правому краю
 
                                                             >
-                                                                <Delete sx={{ fontSize: "20px" }} /> {/* Уменьшаем размер иконки */}
+                                                                <Delete
+                                                                    sx={{fontSize: "20px"}}/> {/* Уменьшаем размер иконки */}
 
                                                             </Button>
                                                         </li>
@@ -1157,8 +1122,8 @@ const AnnouncementDetails = () => {
                                                 </ul>
                                                 <div className="d-flex gap-2">
                                                     <Button variant="danger"
-                                                        className="w-100"
-                                                        onClick={() => setNewFiles([])}>
+                                                            className="w-100"
+                                                            onClick={() => setNewFiles([])}>
                                                         Отменить
                                                     </Button>
                                                     <Button
@@ -1182,25 +1147,30 @@ const AnnouncementDetails = () => {
                                         <div>
                                             {!isEditable && canEditOrDelete ? (
                                                 <>
-                                                    <h5 className="text-center mb-2" style={{ color: "#ff7f00" }}>Данные по лицу</h5>
+                                                    <h5 className="text-center mb-2" style={{color: "#ff7f00"}}>Данные
+                                                        по лицу</h5>
 
                                                     {/* <h3>Данные по лицу</h3> */}
                                                     {!entityId ?
                                                         (
                                                             <div>
-                                                                <div className="mb-4" >Выберите лицо, которое хотите привязать</div>
-                                                                <EntityCard onSelectEntity={handleSelectEntity} />
+                                                                <div className="mb-4">Выберите лицо, которое хотите
+                                                                    привязать
+                                                                </div>
+                                                                <EntityCard onSelectEntity={handleSelectEntity}/>
                                                                 <Button
                                                                     className='mt-2 w-100'
                                                                     variant='success'
-                                                                    onClick={() => handleEventEntity("link")}>Привязать лицо</Button>
+                                                                    onClick={() => handleEventEntity("link")}>Привязать
+                                                                    лицо</Button>
                                                             </div>
                                                         ) : (
                                                             <>
                                                                 {entityData ? (
                                                                     isLegalEntity ? (
                                                                         <div>
-                                                                            <h5 style={{ textAlign: 'center' }}>Ваше юридическое лицо</h5>
+                                                                            <h5 style={{textAlign: 'center'}}>Ваше
+                                                                                юридическое лицо</h5>
                                                                             <div
                                                                                 style={{
                                                                                     padding: '10px',
@@ -1217,7 +1187,8 @@ const AnnouncementDetails = () => {
                                                                         </div>
                                                                     ) : (
                                                                         <div>
-                                                                            <h5 style={{ textAlign: 'center' }}>Ваше физическое лицо</h5>
+                                                                            <h5 style={{textAlign: 'center'}}>Ваше
+                                                                                физическое лицо</h5>
                                                                             <div
                                                                                 style={{
                                                                                     padding: '10px',
@@ -1238,7 +1209,11 @@ const AnnouncementDetails = () => {
                                                                 )}
 
                                                                 {/* Контейнер для кнопок */}
-                                                                <div style={{ width: "100%", boxSizing: "border-box", marginTop: "3px" }}>
+                                                                <div style={{
+                                                                    width: "100%",
+                                                                    boxSizing: "border-box",
+                                                                    marginTop: "3px"
+                                                                }}>
                                                                     {/* Кнопка "Отвязать лицо" */}
                                                                     <Button
                                                                         variant='danger'
@@ -1261,7 +1236,7 @@ const AnnouncementDetails = () => {
                                                             // style={styles.deleteButton}
                                                             variant='danger'
                                                         >
-                                                            <Delete />
+                                                            <Delete/>
                                                         </Button>
                                                         <Button
                                                             onClick={handleEditClick}
@@ -1304,7 +1279,6 @@ const AnnouncementDetails = () => {
                                 />
 
 
-
                             </Card.Body>
                         </Card>
 
@@ -1319,9 +1293,9 @@ const AnnouncementDetails = () => {
 
                     </Col>
                 </Row>
-            </Container >
+            </Container>
 
-        </div >
+        </div>
     );
 
 };

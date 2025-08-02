@@ -1,29 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import  {useEffect, useState} from 'react';
+import {useParams, useLocation, useNavigate} from 'react-router-dom';
 import ReactionWindow from '../Agreement/Reaction';
-import { useProfile } from '../../Context/ProfileContext';
 import TopBar from '../../TopBars/TopBar';
 import EntityCard from '../../Previews/EntityCard'
-import { useToast } from '../../Notification/ToastContext'
-import { Button, Card, Container, Form, ListGroup, Row, Col, Spinner, Image, Modal, ButtonGroup } from "react-bootstrap";
-import Swal from "sweetalert2";
+import {useToast} from '../../Notification/ToastContext'
+import {Button, Card, Container, Form, Row, Col, Image, Modal, ButtonGroup} from "react-bootstrap";
 import TextField from "@mui/material/TextField";
-import { FaArrowLeft } from 'react-icons/fa';
+import {FaArrowLeft} from 'react-icons/fa';
 import {
     Select,
     MenuItem,
-    FormControl,
-    InputLabel,
-    Checkbox
 } from "@mui/material";
-// import './styles.css'
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Delete } from '@mui/icons-material'; // Импортируем иконку корзины
+import {Delete} from '@mui/icons-material';
 
 const QuestionnaireDetails = () => {
     const showToast = useToast();
 
-    const { id } = useParams();
+    const {id} = useParams();
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -52,7 +45,7 @@ const QuestionnaireDetails = () => {
         const fetchData = async () => {
             try {
                 // Шаг 1: Получение анкеты
-                const params = new URLSearchParams({ questionnaireId: id });
+                const params = new URLSearchParams({questionnaireId: id});
                 const response = await fetch(`${url}/questionnaire?${params.toString()}`, {
                     method: 'GET',
                     headers: {
@@ -75,7 +68,7 @@ const QuestionnaireDetails = () => {
                     setEntityId(entityId);
                     if (entityId) {
                         const fetchEntity = async (id) => {
-                            const entityParams = new URLSearchParams({ contractorId: id });
+                            const entityParams = new URLSearchParams({contractorId: id});
                             const entityResponse = await fetch(`${url}/contractor?${entityParams.toString()}`, {
                                 method: 'GET',
                                 headers: {
@@ -116,7 +109,7 @@ const QuestionnaireDetails = () => {
             if (questionnaire?.questionnaireImages) {
                 const loadedImages = await Promise.all(
                     questionnaire.questionnaireImages.map(async (imagePath) => {
-                        const params = new URLSearchParams({ imagePath });
+                        const params = new URLSearchParams({imagePath});
                         const response = await fetch(`${url}/questionnaire/image?${params.toString()}`, {
                             method: 'GET',
                             headers: {
@@ -206,52 +199,40 @@ const QuestionnaireDetails = () => {
     };
 
     const handleDeleteImage = async (filePath) => {
-        Swal.fire({
-            title: "Вы уверены, что хотите удалить изображение?",
-            // text: "Сброшенные этапы невозможно будет восстановить",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Да, удалить!",
-            cancelButtonText: "Отмена",
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                try {
-                    const params = new URLSearchParams({ filePath });
-                    const response = await fetch(`${url}/questionnaire/file?${params.toString()}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Authorization': `Bearer ${getAuthToken()}`,
-                        },
-                    });
 
-                    if (!response.ok) {
-                        throw new Error(`Ошибка при удалении изображения: ${response.status}`);
-                    }
+        try {
+            const params = new URLSearchParams({filePath});
+            const response = await fetch(`${url}/questionnaire/file?${params.toString()}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${getAuthToken()}`,
+                },
+            });
 
-                    // alert('Изображение успешно удалено.');
-                    showToast("Изображение успешно удалено", "success")
-
-
-                    // Удаляем изображение из локального состояния после успешного удаления
-                    setImages((prevImages) => prevImages.filter((img) => img !== filePath));
-                    setQuestionnaire((prev) => ({
-                        ...prev,
-                        questionnaireImages: prev.questionnaireImages.filter((img) => img !== filePath),
-                    }));
-                } catch (error) {
-                    // console.error('Ошибка при удалении изображения:', error);
-                    // alert('Не удалось удалить изображение.');
-                    showToast("Не удалось удалить изображение", "error")
-
-                }
+            if (!response.ok) {
+                throw new Error(`Ошибка при удалении изображения: ${response.status}`);
             }
-        });
+
+            // alert('Изображение успешно удалено.');
+            showToast("Изображение успешно удалено", "success")
+
+
+            // Удаляем изображение из локального состояния после успешного удаления
+            setImages((prevImages) => prevImages.filter((img) => img !== filePath));
+            setQuestionnaire((prev) => ({
+                ...prev,
+                questionnaireImages: prev.questionnaireImages.filter((img) => img !== filePath),
+            }));
+        } catch (error) {
+            // console.error('Ошибка при удалении изображения:', error);
+            // alert('Не удалось удалить изображение.');
+            showToast("Не удалось удалить изображение", "error")
+
+        }
     };
 
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         setQuestionnaire((prev) => ({
             ...prev,
             [name]: value,
@@ -289,44 +270,31 @@ const QuestionnaireDetails = () => {
     };
 
     const handleDeleteClick = async () => {
-        Swal.fire({
-            title: "Вы уверены, что хотите удалить анкету?",
-            // text: "Сброшенные этапы невозможно будет восстановить",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Да, удалить!",
-            cancelButtonText: "Отмена",
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                try {
-                    const params = new URLSearchParams({ questionnaireId: id });
+        try {
+            const params = new URLSearchParams({questionnaireId: id});
 
-                    const response = await fetch(`${url}/questionnaire?${params.toString()}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Authorization': `Bearer ${getAuthToken()}`,
-                        },
-                    });
+            const response = await fetch(`${url}/questionnaire?${params.toString()}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${getAuthToken()}`,
+                },
+            });
 
-                    showToast("", "error")
+            showToast("", "error")
 
-                    if (!response.ok) {
-                        throw new Error(`Ошибка при удалении: ${response.status}`);
-                    }
-
-                    const data = await response.json();
-                    if (data.success === 1) {
-                        navigate('/account-actions');
-                    } else {
-                        setError('Не удалось удалить анкету');
-                    }
-                } catch (error) {
-                    setError(`Ошибка при удалении: ${error.message}`);
-                }
+            if (!response.ok) {
+                throw new Error(`Ошибка при удалении: ${response.status}`);
             }
-        });
+
+            const data = await response.json();
+            if (data.success === 1) {
+                navigate('/account-actions');
+            } else {
+                setError('Не удалось удалить анкету');
+            }
+        } catch (error) {
+            setError(`Ошибка при удалении: ${error.message}`);
+        }
     };
 
     const handleEventEntity = async (mode) => {
@@ -338,7 +306,7 @@ const QuestionnaireDetails = () => {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${getAuthToken()}`,
                     },
-                    body: JSON.stringify({ questionnaireId: id, mode: "link", entityId: selectedEntityId }),
+                    body: JSON.stringify({questionnaireId: id, mode: "link", entityId: selectedEntityId}),
                 });
 
                 if (!response.ok) {
@@ -351,8 +319,7 @@ const QuestionnaireDetails = () => {
                 showToast("Не удалось одобрить изменение", "error")
 
             }
-        }
-        else if (mode === "unlink") {//
+        } else if (mode === "unlink") {//
             try {
                 const response = await fetch(`${url}/questionnaire/entity`, {
                     method: 'PUT',
@@ -360,7 +327,7 @@ const QuestionnaireDetails = () => {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${getAuthToken()}`,
                     },
-                    body: JSON.stringify({ questionnaireId: id, mode: "unlink" }),
+                    body: JSON.stringify({questionnaireId: id, mode: "unlink"}),
                 });
 
                 if (!response.ok) {
@@ -390,8 +357,8 @@ const QuestionnaireDetails = () => {
     if (error) return <div>Ошибка: {error}</div>;
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", height: "100vh" }} >
-            <TopBar />
+        <div style={{display: "flex", flexDirection: "column", height: "100vh"}}>
+            <TopBar/>
             <Container
                 fluid
                 style={{
@@ -403,7 +370,7 @@ const QuestionnaireDetails = () => {
                 className="BG"
             >
                 <Row className="justify-content-center">
-                    <Col md={8} style={{ padding: "20px" }}>
+                    <Col md={8} style={{padding: "20px"}}>
                         <Card
                             style={{
                                 // backgroundColor: "#091E34",
@@ -419,10 +386,10 @@ const QuestionnaireDetails = () => {
                                     variant="secondary"
                                     style={styles.fixedButton}
                                 >
-                                    <FaArrowLeft />
+                                    <FaArrowLeft/>
                                 </Button>
                             </Card.Text>
-                            <Card.Body >
+                            <Card.Body>
                                 <h2 className="text-center" style={{
                                     color: "#ff7f00", cafontWeight: "bold"
                                 }}>
@@ -495,7 +462,7 @@ const QuestionnaireDetails = () => {
                                             value={questionnaire.hasTeam ? "Да" : "Нет"}
                                             onChange={(e) =>
                                                 handleInputChange({
-                                                    target: { name: "hasTeam", value: e.target.value === "Да" },
+                                                    target: {name: "hasTeam", value: e.target.value === "Да"},
                                                 })
                                             }
                                             className='w-100'
@@ -600,7 +567,7 @@ const QuestionnaireDetails = () => {
                                             value={questionnaire.hasEdu ? "Да" : "Нет"}
                                             onChange={(e) =>
                                                 handleInputChange({
-                                                    target: { name: "hasEdu", value: e.target.value === "Да" },
+                                                    target: {name: "hasEdu", value: e.target.value === "Да"},
                                                 })
                                             }
                                             disabled={!isEditable}
@@ -642,7 +609,6 @@ const QuestionnaireDetails = () => {
                                             <MenuItem value="Нет">Нет</MenuItem>
                                         </Select>
                                     </Form.Group>
-
 
 
                                     <Form.Group>
@@ -911,14 +877,15 @@ const QuestionnaireDetails = () => {
                                     <Col>
                                         <Row>
                                             <Col>
-                                                <h5 className="mt-2 mb-4 text-center" style={{ color: "#ff7f00" }}>
+                                                <h5 className="mt-2 mb-4 text-center" style={{color: "#ff7f00"}}>
                                                     Прикрепленные фотографии
                                                 </h5>
 
                                                 {images.length > 0 ? (
                                                     <Row className="g-3">
                                                         {questionnaire.questionnaireImages.map((imagePath, index) => (
-                                                            <Col key={index} xs={6} md={4} lg={3} style={{ position: "relative" }}>
+                                                            <Col key={index} xs={6} md={4} lg={3}
+                                                                 style={{position: "relative"}}>
                                                                 <Image
                                                                     src={images[index]}
                                                                     alt={`Фото ${index + 1}`}
@@ -992,7 +959,7 @@ const QuestionnaireDetails = () => {
                                                                     variant="danger"
                                                                     onClick={handleCancelUpload}
                                                                     className="w-50"
-                                                                    style={{ fontSize: "18px" }}
+                                                                    style={{fontSize: "18px"}}
 
                                                                 >
                                                                     Отменить
@@ -1001,7 +968,7 @@ const QuestionnaireDetails = () => {
                                                                     variant="success"
                                                                     onClick={handleUploadImages}
                                                                     className="w-50"
-                                                                    style={{ fontSize: "18px" }}
+                                                                    style={{fontSize: "18px"}}
 
                                                                 >
                                                                     Сохранить
@@ -1036,16 +1003,18 @@ const QuestionnaireDetails = () => {
                                             <div className='mt-4'>
                                                 {!isEditable && canEditOrDelete ? (
                                                     <>
-                                                        <h5 className="text-center mb-2" style={{ color: "#ff7f00" }}>Данные по лицу</h5>
+                                                        <h5 className="text-center mb-2"
+                                                            style={{color: "#ff7f00"}}>Данные по лицу</h5>
 
                                                         {/* <h3>Данные по лицу</h3> */}
                                                         {!entityId ?
                                                             (
                                                                 <div>
-                                                                    <div className="mb-4" >Выберите лицо, которое хотите привязать</div>
-                                                                    <EntityCard onSelectEntity={handleSelectEntity} />
+                                                                    <div className="mb-4">Выберите лицо, которое хотите
+                                                                        привязать
+                                                                    </div>
+                                                                    <EntityCard onSelectEntity={handleSelectEntity}/>
                                                                     <Button
-
 
 
                                                                         className='mt-2 w-100'
@@ -1061,7 +1030,8 @@ const QuestionnaireDetails = () => {
                                                                         // }}
                                                                         variant='success'
                                                                         // className=''
-                                                                        onClick={() => handleEventEntity("link")}>Привязать лицо</Button>
+                                                                        onClick={() => handleEventEntity("link")}>Привязать
+                                                                        лицо</Button>
 
 
                                                                 </div>
@@ -1070,7 +1040,8 @@ const QuestionnaireDetails = () => {
                                                                     {entityData ? (
                                                                         isLegalEntity ? (
                                                                             <div>
-                                                                                <h5 style={{ textAlign: 'center' }}>Ваше юридическое лицо</h5>
+                                                                                <h5 style={{textAlign: 'center'}}>Ваше
+                                                                                    юридическое лицо</h5>
                                                                                 <div
                                                                                     style={{
                                                                                         padding: '10px',
@@ -1087,7 +1058,8 @@ const QuestionnaireDetails = () => {
                                                                             </div>
                                                                         ) : (
                                                                             <div>
-                                                                                <h5 style={{ textAlign: 'center', }}>Ваше физическое лицо</h5>
+                                                                                <h5 style={{textAlign: 'center',}}>Ваше
+                                                                                    физическое лицо</h5>
                                                                                 <div
                                                                                     style={{
                                                                                         padding: '10px',
@@ -1108,7 +1080,11 @@ const QuestionnaireDetails = () => {
                                                                     )}
 
                                                                     {/* Контейнер для кнопок */}
-                                                                    <div style={{ width: "100%", boxSizing: "border-box", marginTop: "3px" }}>
+                                                                    <div style={{
+                                                                        width: "100%",
+                                                                        boxSizing: "border-box",
+                                                                        marginTop: "3px"
+                                                                    }}>
                                                                         {/* Кнопка "Отвязать лицо" */}
                                                                         <Button
                                                                             variant='danger'
@@ -1130,7 +1106,7 @@ const QuestionnaireDetails = () => {
                                                                 // style={styles.deleteButton}
                                                                 variant='danger'
                                                             >
-                                                                <Delete />
+                                                                <Delete/>
                                                             </Button>
                                                             <Button
                                                                 onClick={handleEditClick}
@@ -1178,14 +1154,14 @@ const QuestionnaireDetails = () => {
                                         </style>
 
 
-                                    </Col >
-                                </Row >
+                                    </Col>
+                                </Row>
                             </Card.Body>
                         </Card>
                     </Col>
                 </Row>
             </Container>
-        </div >
+        </div>
     );
 };
 
