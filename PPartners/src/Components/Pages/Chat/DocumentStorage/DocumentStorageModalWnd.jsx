@@ -222,7 +222,7 @@ const DocumentStorageModalWnd = ({ isOpen, onClose, agreementId, stage }) => {
             };
 
             if (type === "estimate") {
-                console.log(stage)
+                // console.log(stage)
                 const response = await fetch(`${url}/categories/estimate-stages`, {
                     method: 'POST',
                     headers: {
@@ -238,8 +238,8 @@ const DocumentStorageModalWnd = ({ isOpen, onClose, agreementId, stage }) => {
                 }
 
                 const estimateResponse = await response.json();
-                console.log('estimate', estimateResponse.estimate)
-                console.log(stage)
+                // console.log('estimate', estimateResponse.estimate)
+                // console.log(stage)
 
                 const responseEstimate = await fetch(`${url}/document/estimate`, {
                     method: 'POST',

@@ -1,27 +1,29 @@
-import React, { useEffect, useState } from 'react';
-import { Switch, Drawer, TextField, Checkbox, FormControlLabel, Slider, Radio, RadioGroup, FormControl, FormLabel } from '@mui/material';
-import { useProfile } from '../../Context/ProfileContext';
-import { useNavigate } from 'react-router-dom';
-import { FaUserCircle } from 'react-icons/fa';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { format } from 'date-fns';
+import React, {useEffect, useState} from 'react';
+import {Drawer, TextField, Checkbox, FormControlLabel, Radio, RadioGroup, FormControl} from '@mui/material';
+import {useProfile} from '../../Context/ProfileContext';
+import {useNavigate} from 'react-router-dom';
+
+import {DatePicker, LocalizationProvider} from '@mui/x-date-pickers';
+import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
+import {format} from 'date-fns';
 import Card from '../../Previews/Card';
 import SearchComponent from '../SearchComponent/SearchComponent';
 import TopBar from '../../TopBars/TopBar';
 import ErrorMessage from '../../ErrorHandling/ErrorMessage';
-import { Container, Row, Col, Nav, Button, Tab, Form } from "react-bootstrap";
-import { FaFilter } from 'react-icons/fa';
+import {Container, Row, Col, Nav, Button, Tab, Form} from "react-bootstrap";
+import {FaFilter} from 'react-icons/fa';
 
 const MainPage = () => {
-    const { isSpecialist, toggleProfile } = useProfile();
+    const {isSpecialist, toggleProfile} = useProfile();
     const navigate = useNavigate();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [announcements, setAnnouncements] = useState([]);
     const [questionnaires, setQuestionnaires] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [cardsError, setCardsError] = useState(null);
+
+    const [error, setError] = useState(null);
+
 
     let url = localStorage.getItem('url');
     const getAuthToken = () => localStorage.getItem('authToken');
@@ -51,103 +53,72 @@ const MainPage = () => {
     const handleSearch = async (searchText) => {
         setLoading(true);
 
-        try {
-            const params = new URLSearchParams();
+        const params = new URLSearchParams();
 
-            // Поисковый текст
-            params.append('text', searchText || '');
+        params.append('text', searchText || '');
 
-            // Если это запрос для анкет
-            if (!isSpecialist) {
-                // Фильтры для анкет
-                if (appliedQuestionnaireFilters.minPrice) {
-                    params.append('minPrice', appliedQuestionnaireFilters.minPrice);
-                }
-                if (appliedQuestionnaireFilters.experience) {
-                    params.append('minWorkExp', appliedQuestionnaireFilters.experience);
-                }
-                if (appliedQuestionnaireFilters.hasEdu) {
-                    params.append('hasEdu', 'true');
-                }
-                if (appliedQuestionnaireFilters.hasTeam === 'yes') {
-                    params.append('hasTeam', 'true');
-                }
-                if (appliedQuestionnaireFilters.hasTeam === 'no') {
-                    params.append('hasTeam', 'false');
-                }
+        if (!isSpecialist) {
+            if (appliedQuestionnaireFilters.minPrice) {
+                params.append('minPrice', appliedQuestionnaireFilters.minPrice);
             }
-
-            // Если это запрос для объявлений
-            if (isSpecialist) {
-                // Фильтры для объявлений
-                if (appliedAnnouncementFilters.minCost) {
-                    params.append('minCost', appliedAnnouncementFilters.minCost);
-                }
-                if (appliedAnnouncementFilters.maxCost) {
-                    params.append('maxCost', appliedAnnouncementFilters.maxCost);
-                }
-                if (appliedAnnouncementFilters.startDate) {
-                    params.append('startDate', formatDate(appliedAnnouncementFilters.startDate));
-                }
-                if (appliedAnnouncementFilters.finishDate) {
-                    params.append('finishDate', formatDate(appliedAnnouncementFilters.finishDate));
-                }
+            if (appliedQuestionnaireFilters.experience) {
+                params.append('minWorkExp', appliedQuestionnaireFilters.experience);
             }
+            if (appliedQuestionnaireFilters.hasEdu) {
+                params.append('hasEdu', 'true');
+            }
+            if (appliedQuestionnaireFilters.hasTeam === 'yes') {
+                params.append('hasTeam', 'true');
+            }
+            if (appliedQuestionnaireFilters.hasTeam === 'no') {
+                params.append('hasTeam', 'false');
+            }
+        }
 
-            // Формируем URL с параметрами
-            const urlWithParams = isSpecialist
-                ? `${url}/announcement/filter?${params.toString()}`
-                : `${url}/questionnaire/filter?${params.toString()}`;
+        if (isSpecialist) {
+            if (appliedAnnouncementFilters.minCost) {
+                params.append('minCost', appliedAnnouncementFilters.minCost);
+            }
+            if (appliedAnnouncementFilters.maxCost) {
+                params.append('maxCost', appliedAnnouncementFilters.maxCost);
+            }
+            if (appliedAnnouncementFilters.startDate) {
+                params.append('startDate', formatDate(appliedAnnouncementFilters.startDate));
+            }
+            if (appliedAnnouncementFilters.finishDate) {
+                params.append('finishDate', formatDate(appliedAnnouncementFilters.finishDate));
+            }
+        }
 
-            // Выполняем запрос
-            const response = await fetch(urlWithParams, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${getAuthToken()}`,
-                },
-            });
+        const urlWithParams = isSpecialist
+            ? `${url}/announcement/filter?${params.toString()}`
+            : `${url}/questionnaire/filter?${params.toString()}`;
 
-            const data = await response.json();
+        const response = await fetch(urlWithParams, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${getAuthToken()}`,
+            },
+        });
 
-            // Обновляем состояние на основе роли пользователя
+        const data = await response.json();
+
+        if (response.ok) {
             if (isSpecialist) {
                 setAnnouncements(data.previews || []);
             } else {
                 setQuestionnaires(data.previews || []);
             }
-        } catch (error) {
-            setCardsError('Ошибка загрузки данных');
-        } finally {
-            setLoading(false);
+        } else {
+            setError({message: data.userFriendlyMessage, status: data.status});
         }
+
     };
 
     const formatDate = (date) => {
         if (!date) return '';
         return format(date, 'yyyy-MM-dd');
-    };
-
-
-    const handleFilterChange = (key, value) => {
-        setFilterParams({
-            ...filterParams,
-            [key]: value
-        });
-    };
-
-    const handleDateChange = (name, date) => {
-        setFilterParams((prev) => ({
-            ...prev,
-            [name]: date, // Сохраняем дату в состояние
-        }));
-    };
-
-    const handleHasTeamChange = (event) => {
-        setFilterParams({
-            ...filterParams,
-            hasTeam: event.target.value,
-        });
     };
 
     const applyFilters = () => {
@@ -166,75 +137,48 @@ const MainPage = () => {
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
-            setCardsError(null);
-            try {
-                let response;
-                const params = new URLSearchParams({ text: "" });
+            setError(null);
 
-                if (isSpecialist) {
-                    response = await fetch(`${url}/announcement/filter?${params.toString()}`, {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${getAuthToken()}`,
-                        },
-                    });
-                } else {
-                    response = await fetch(`${url}/questionnaire/filter?${params.toString()}`, {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${getAuthToken()}`,
-                        },
-                    });
-                }
 
-                if (!response.ok) {
-                    const errorText = await response.text();
+            let response;
+            const params = new URLSearchParams({text: ""});
 
-                    try {
-                        const errorData = JSON.parse(errorText);
-                        throw new Error(errorData.message || `Ошибка ${response.status}`);
-                    } catch (parseError) {
+            if (isSpecialist) {
+                response = await fetch(`${url}/announcement/filter?${params.toString()}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getAuthToken()}`,
+                    },
+                });
+            } else {
+                response = await fetch(`${url}/questionnaire/filter?${params.toString()}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getAuthToken()}`,
+                    },
+                });
+            }
 
-                        throw new Error(errorText || `Ошибка ${response.status}`);
-                    }
-                }
-
-                const data = await response.json();
+            const data = await response.json();
+            // console.log(data)
+            if (response.ok) {
                 if (isSpecialist) {
                     setAnnouncements(data.previews || []);
                 } else {
                     setQuestionnaires(data.previews || []);
                 }
-            } catch (error) {
-                setCardsError(error.message);
-                console.error('Произошла ошибка:', error);
-            } finally {
-                setLoading(false);
+            } else {
+                setError({message: data.userFriendlyMessage, status: data.status});
             }
+
         };
 
         fetchData();
     }, [isSpecialist]);
 
 
-    // const [filterParams, setFilterParams] = useState({
-    //     hasTeam: 'any',
-    //     hasEdu: false,
-    //     experience: 0,
-    //     minPrice: 0,
-    // });
-
-    // const handleHasTeamChange = (event) => {
-    //     setFilterParams({ ...filterParams, hasTeam: event.target.value });
-    // };
-
-    // const handleFilterChange = (name, value) => {
-    //     setFilterParams({ ...filterParams, [name]: value });
-    // };
-
-    // Вспомогательный компонент для группировки фильтров
 
     const [questionnaireFilterParams, setQuestionnaireFilterParams] = useState({
         minPrice: "",
@@ -255,7 +199,6 @@ const MainPage = () => {
     };
 
 
-
     const [announcementParams, setAnnouncementFilterParams] = useState({
         startDate: null, // Начальная дата
         finishDate: null, // Конечная дата
@@ -273,7 +216,7 @@ const MainPage = () => {
 
     // Обработка изменения текстовых полей (стоимость)
     const handleAnnouncementCostChange = (e) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         setAnnouncementFilterParams(prevState => ({
             ...prevState,
             [name]: value,
@@ -281,8 +224,8 @@ const MainPage = () => {
     };
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-            <TopBar />
+        <div style={{display: "flex", flexDirection: "column", height: "100vh"}}>
+            <TopBar/>
             <Container
                 fluid
                 style={{
@@ -299,22 +242,23 @@ const MainPage = () => {
                         <h2 className="text-white">{isSpecialist ? "Поиск объявлений" : "Поиск анкет"}</h2>
                         {/* </div> */}
 
-                        <ErrorMessage message={cardsError} errorCode={null} />
+                        <ErrorMessage
+                            message={error?.message}
+                            statusCode={error?.status}
+                        />
 
                         <div className='mb-3'>
-                            <SearchComponent onSearch={handleSearch} />
+                            <SearchComponent onSearch={handleSearch}/>
                             <Button
-                                // variant="primary"
-                                // className="w-100 mt-3"
                                 onClick={toggleFilterDrawer}
                                 style={styles.fixedButton}
                             >
-                                <FaFilter />
+                                <FaFilter/>
                             </Button>
                         </div>
 
                         <Drawer anchor="right" open={isFilterOpen} onClose={toggleFilterDrawer}>
-                            <div style={{ width: '300px', padding: '20px' }}>
+                            <div style={{width: '300px', padding: '20px'}}>
                                 <h2 className='mb-3'>Фильтры</h2>
                                 {!isSpecialist ? (
                                     <div>
@@ -326,9 +270,9 @@ const MainPage = () => {
                                                     value={questionnaireFilterParams.hasTeam}
                                                     onChange={handleQuestionnaireHasTeamChange}
                                                 >
-                                                    <FormControlLabel value="any" control={<Radio />} label="Неважно" />
-                                                    <FormControlLabel value="yes" control={<Radio />} label="Да" />
-                                                    <FormControlLabel value="no" control={<Radio />} label="Нет" />
+                                                    <FormControlLabel value="any" control={<Radio/>} label="Неважно"/>
+                                                    <FormControlLabel value="yes" control={<Radio/>} label="Да"/>
+                                                    <FormControlLabel value="no" control={<Radio/>} label="Нет"/>
                                                 </RadioGroup>
                                             </FormControl>
                                         </div>
@@ -360,7 +304,7 @@ const MainPage = () => {
                                                         }}
                                                         min={0}
                                                         max={50}
-                                                        style={{ width: '150px' }}
+                                                        style={{width: '150px'}}
                                                     />
                                                 </Col>
                                             </Row>
@@ -379,7 +323,7 @@ const MainPage = () => {
                                                             const value = e.target.value;
                                                             handleQuestionnaireFilterChange('minPrice', value);
                                                         }}
-                                                        style={{ width: '150px' }}
+                                                        style={{width: '150px'}}
                                                     />
                                                 </Col>
                                             </Row>
@@ -394,20 +338,22 @@ const MainPage = () => {
                                                     label="Дата начала"
                                                     value={announcementParams.startDate}
                                                     onChange={(date) => handleAnnouncementDateChange('startDate', date)}
-                                                    renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
+                                                    renderInput={(params) => <TextField {...params} fullWidth
+                                                                                        margin="normal"/>}
                                                     className='mb-2'
                                                 />
                                                 <DatePicker
                                                     label="Дата окончания"
                                                     value={announcementParams.finishDate}
                                                     onChange={(date) => handleAnnouncementDateChange('finishDate', date)}
-                                                    renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
+                                                    renderInput={(params) => <TextField {...params} fullWidth
+                                                                                        margin="normal"/>}
                                                 />
                                             </LocalizationProvider>
                                         </div>
                                         <div className='mb-3'>
                                             <h5>Общая стоимость</h5>
-                                            <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+                                            <div style={{display: 'flex', gap: '5px', alignItems: 'center'}}>
                                                 <TextField
                                                     label="От"
                                                     name="minCost"
@@ -460,29 +406,27 @@ const MainPage = () => {
                                 height: '2px',
                                 background: "white",
                                 // margin: margin,
-                            }} />
+                            }}/>
                         <div className=''>
                             {!isSpecialist ? (
                                 <div>
-                                    {/* <h2 className="w-100 mt-3 text-white" >Анкеты:</h2> */}
                                     {questionnaires.length > 0 ? (
                                         questionnaires.map((item) => (
                                             <Card
                                                 title={item.workCategories}
-                                                onClick={() => navigate(`/questionnaire/${item.id}`, { state: { fromLk: false } })}
+                                                onClick={() => navigate(`/questionnaire/${item.id}`, {state: {fromLk: false}})}
                                                 key={item.id}
-
                                                 totalCost={item.totalCost}
                                                 address={item.address}
                                                 workExp={item.workExp}
                                                 hasTeam={item.hasTeam}
                                                 hasEdu={item.hasEdu}
-                                                // onClick={() => navigate(`/${type}/${data.id}`, { state: { fromLk: null } })}
                                                 type={"questionnaire"}
                                             />
                                         ))
                                     ) : (
-                                        <p className='text-white text-center'>Нет анкет, удовлетворяюищих вашему запросу</p>
+                                        <p className='text-white text-center'>Нет анкет, удовлетворяющих вашему
+                                            запросу</p>
                                     )}
                                 </div>
                             ) : (
@@ -492,7 +436,7 @@ const MainPage = () => {
                                         announcements.map((item) => (
                                             <Card
                                                 title={item.workCategories}
-                                                onClick={() => navigate(`/announcement/${item.id}`, { state: { fromLk: false } })}
+                                                onClick={() => navigate(`/announcement/${item.id}`, {state: {fromLk: false}})}
                                                 key={item.id}
                                                 totalCost={item.totalCost}
                                                 address={item.address}
@@ -504,7 +448,8 @@ const MainPage = () => {
                                             />
                                         ))
                                     ) : (
-                                        <p className='text-white text-center'>Нет объявлений, удовлетворяюищих вашему запросу</p>
+                                        <p className='text-white text-center'>Нет объявлений, удовлетворяющих вашему
+                                            запросу</p>
                                     )}
                                 </div>
                             )}
@@ -513,7 +458,7 @@ const MainPage = () => {
                 </Row>
 
 
-            </Container >
+            </Container>
         </div>
     );
 };
@@ -596,7 +541,6 @@ const styles = {
         alignItems: 'center',
         justifyContent: 'center',
     },
-
 
 
 };

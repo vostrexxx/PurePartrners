@@ -50,7 +50,7 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
                     }
 
                     const data = await response.json();
-                    console.log(isLegalEntity)
+                    // console.log(isLegalEntity)
                     setEntityData(data);
                     setIsLegalEntity(data.isLegalEntity);
                     setOrigData(data)
@@ -388,14 +388,14 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
                             >
                                 Удалить
                             </Button>
-                            <Button
-                                variant="success"
-                                className="flex-grow-1"
-                                style={{ fontSize: "15px" }}
-                                onClick={handleEditClick}
-                            >
-                                Редактировать
-                            </Button>
+                            {/*<Button*/}
+                            {/*    variant="success"*/}
+                            {/*    className="flex-grow-1"*/}
+                            {/*    style={{ fontSize: "15px" }}*/}
+                            {/*    onClick={handleEditClick}*/}
+                            {/*>*/}
+                            {/*    Редактировать*/}
+                            {/*</Button>*/}
 
                         </>
 

@@ -1,20 +1,23 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button, Container, Row, Col, Form, Card } from "react-bootstrap";
+import React, {useState} from "react";
+import {useNavigate} from "react-router-dom";
+import {Button, Container, Row, Col, Form, Card} from "react-bootstrap";
 import NotAuthTopBar from "../../TopBars/NotAuthTopBar";
 import ErrorMessage from "../../ErrorHandling/ErrorMessage";
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useToast } from '../../Notification/ToastContext'
+import {faEye, faEyeSlash} from '@fortawesome/free-solid-svg-icons';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {useToast} from '../../Notification/ToastContext'
+
 const RegistrationPage = () => {
     const showToast = useToast();
-    const [errorMessage, setErrorMessage] = useState(null);
-    const [errorCode, setErrorCode] = useState(null);
+    // const [errorMessage, setErrorMessage] = useState(null);
+    // const [errorCode, setErrorCode] = useState(null);
     const [phoneNumber, setPhoneNumber] = useState(localStorage.getItem("phoneNumber"));
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+    const [error, setError] = useState(null);
 
     const navigate = useNavigate();
 
@@ -26,36 +29,31 @@ const RegistrationPage = () => {
 
     const handleRegister = async () => {
         if (password !== confirmPassword) {
-            showToast("Пароли не совпадают", 'warning');
+            setError({message: "Пароли не совпадают"});
             return;
         }
 
-        try {
-            const response = await fetch(url + "/auth/register", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ phoneNumber, password }),
-            });
+        const response = await fetch(url + "/auth/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({phoneNumber, password}),
+        });
 
-            if (!response.ok) {
-                setErrorCode(response.status);
-                setErrorMessage("Ошибка регистрации. Проверьте данные.");
-                return;
-            } else {
-                const data = await response.json();
-                navigate("/login", { state: { phoneNumber } });
-            }
-        } catch (error) {
-            setErrorCode(null);
-            setErrorMessage("Произошла ошибка регистрации.");
+        const data = await response.json();
+        if (response.ok) {
+            navigate("/login", {state: {phoneNumber}});
+
+        } else {
+            setError({message: data.userFriendlyMessage, status: data.status});
         }
+
     };
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-            <NotAuthTopBar />
+        <div style={{display: "flex", flexDirection: "column", height: "100vh"}}>
+            <NotAuthTopBar/>
             <Container
                 fluid
                 className="BG d-flex align-items-center justify-content-center"
@@ -101,7 +99,7 @@ const RegistrationPage = () => {
                                         <FontAwesomeIcon
                                             icon={showPassword ? faEyeSlash : faEye}
                                             className="position-absolute top-50 end-0 translate-middle-y me-3"
-                                            style={{ cursor: "pointer", color: "#888" }}
+                                            style={{cursor: "pointer", color: "#888"}}
                                             onClick={() => setShowPassword(!showPassword)}
                                         />
                                     </Form.Group>
@@ -121,11 +119,14 @@ const RegistrationPage = () => {
                                         <FontAwesomeIcon
                                             icon={showConfirmPassword ? faEyeSlash : faEye}
                                             className="position-absolute top-50 end-0 translate-middle-y me-3"
-                                            style={{ cursor: "pointer", color: "#888" }}
+                                            style={{cursor: "pointer", color: "#888"}}
                                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                         />
                                     </Form.Group>
-                                    <ErrorMessage message={errorMessage} errorCode={errorCode} />
+                                    <ErrorMessage
+                                        message={error?.message}
+                                        statusCode={error?.status}
+                                    />
                                     <div className="d-grid gap-2 mt-4">
                                         <Button
                                             variant="primary"
@@ -142,7 +143,7 @@ const RegistrationPage = () => {
                                         <Button
                                             variant="link"
                                             className="text-decoration-underline text-center"
-                                            style={{ color: "#ff7101" }}
+                                            style={{color: "#ff7101"}}
                                             onClick={ChangePhoneNumber}
                                         >
                                             Изменить номер телефона

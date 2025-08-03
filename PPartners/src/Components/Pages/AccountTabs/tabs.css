@@ -1,0 +1,8 @@
+.dark-chx .form-check-input {
+    /*filter: brightness(0.7) contrast(1.2);*/
+    border: 2px solid rgb(255, 127, 0);
+}
+.dark-chx .form-check-input:checked {
+    background-color: rgb(255, 127, 0);
+    border-color: rgb(255, 127, 0);
+}

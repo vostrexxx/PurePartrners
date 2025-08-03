@@ -13,7 +13,7 @@ const DocumentManager = ({ agreementId, firstId, secondId, triggerDoc }) => {
     const [trigger, setTrigger] = useState(false)
     // Проверка состояния документов
 
-    useEffect(() => { console.log(triggerDoc) }, [triggerDoc])
+    // useEffect(() => { console.log(triggerDoc) }, [triggerDoc])
 
     useEffect(() => {
         const params = new URLSearchParams({ agreementId });

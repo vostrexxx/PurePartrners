@@ -1,7 +1,7 @@
 import React from 'react';
 
 const Chat = ({ title, lastMessage, key, onClick, lastMessageTime }) => {
-    console.log('lastMessage', lastMessage)
+    // console.log('lastMessage', lastMessage)
     return (
         <div style={styles.card} onClick={onClick} className='mb-3'>
             <h3>{title}</h3>

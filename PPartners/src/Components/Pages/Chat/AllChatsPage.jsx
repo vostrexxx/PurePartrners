@@ -13,11 +13,11 @@ const AllChatsPage = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        console.log("Данные из localStorage:");
+        // console.log("Данные из localStorage:");
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i); // Получаем ключ по индексу
             const value = localStorage.getItem(key); // Получаем значение по ключу
-            console.log(`${key}: ${value}`);
+            // console.log(`${key}: ${value}`);
         }
     })
 
@@ -69,7 +69,7 @@ const AllChatsPage = () => {
                 return response.json();
             })
             .then((response) => {
-                console.log(response.agreementId)
+                // console.log(response.agreementId)
                 navigate(`/chat/${chatId}`, { state: { agreementId: response.agreementId } });
                 localStorage.setItem('agreementId', response.agreementId);
             })

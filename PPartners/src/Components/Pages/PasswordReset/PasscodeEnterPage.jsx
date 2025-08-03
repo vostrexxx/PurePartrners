@@ -1,8 +1,9 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button, Container, Row, Col, Form, Card } from "react-bootstrap";
+import React, {useState} from "react";
+import {useNavigate} from "react-router-dom";
+import {Button, Container, Row, Col, Form, Card} from "react-bootstrap";
 import NotAuthTopBar from "../../TopBars/NotAuthTopBar";
 import InputMask from "react-input-mask"; // Импортируем библиотеку для маски
+import ErrorMessage from "../../ErrorHandling/ErrorMessage.jsx";
 
 const CodeEnteringPage = () => {
     const navigate = useNavigate();
@@ -17,36 +18,28 @@ const CodeEnteringPage = () => {
     };
 
     const PasscodeEnter = async () => {
-        try {
-            const response = await fetch(`${url}/auth/password/code/verification`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ phoneNumber, code }),
-            });
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                try {
-                    const errorData = JSON.parse(errorText);
-                    throw new Error(errorData.message || `Ошибка ${response.status}`);
-                } catch (parseError) {
-                    throw new Error(errorText || `Ошибка ${response.status}`);
-                }
-            }
+        const response = await fetch(`${url}/auth/password/code/verification`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({phoneNumber, code}),
+        });
+        const data = await response.json();
 
+        if (response.ok) {
             setError(null);
             navigate("/password-reset");
-        } catch (error) {
-            setError(error.message);
-            console.error("Произошла ошибка:", error);
+        } else {
+            setError({message: data.userFriendlyMessage, status: data.status});
         }
+
     };
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-            <NotAuthTopBar />
+        <div style={{display: "flex", flexDirection: "column", height: "100vh"}}>
+            <NotAuthTopBar/>
             <Container
                 fluid
                 className="BG d-flex align-items-center justify-content-center"
@@ -97,9 +90,10 @@ const CodeEnteringPage = () => {
                                             )}
                                         </InputMask>
                                     </Form.Group>
-                                    {error && (
-                                        <p className="text-danger text-center mt-2">Ошибка: {error}</p>
-                                    )}
+                                    <ErrorMessage
+                                        message={error?.message}
+                                        statusCode={error?.status}
+                                    />
                                     <div className="d-grid gap-2">
                                         <Button
                                             variant="primary"
@@ -116,7 +110,7 @@ const CodeEnteringPage = () => {
                                         <Button
                                             variant="link"
                                             className="text-decoration-underline text-center"
-                                            style={{ color: "#ff7101" }}
+                                            style={{color: "#ff7101"}}
                                             onClick={ChangePhoneNumber}
                                         >
                                             Изменить номер телефона

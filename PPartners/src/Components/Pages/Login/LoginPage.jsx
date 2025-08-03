@@ -1,14 +1,14 @@
-import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { Button, Container, Row, Col, Form, Card } from "react-bootstrap";
+import React, {useState} from "react";
+import {useLocation, useNavigate} from "react-router-dom";
+import {Button, Container, Row, Col, Form, Card} from "react-bootstrap";
 import EmptyTopBar from "../../TopBars/EmptyTopBar";
 import ErrorMessage from "../../ErrorHandling/ErrorMessage";
-import { requestPermission } from "../../../../firebase";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import {requestPermission} from "../../../../firebase";
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faEye, faEyeSlash} from '@fortawesome/free-solid-svg-icons';
 
 const LoginPage = () => {
-    const [errorMessage, setErrorMessage] = useState(null);
+    const [error, setError] = useState(null);
     const [phoneNumber, setPhoneNumber] = useState(localStorage.getItem("phoneNumber"));
     const [password, setPassword] = useState("");
     // const [rememberMe, setRememberMe] = useState(false);
@@ -17,21 +17,17 @@ const LoginPage = () => {
     const [showPassword, setShowPassword] = useState(false);
 
     const handleLogin = async () => {
-        try {
-            const response = await fetch(`${url}/auth/login`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ phoneNumber, password }),
-            });
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(errorText || `Ошибка ${response.status}`);
-            }
+        const response = await fetch(`${url}/auth/login`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({phoneNumber, password}),
+        });
+        const data = await response.json();
 
-            const data = await response.json();
+        if (response.ok) {
             const token = data.token;
             const userId = data.userId;
 
@@ -47,42 +43,35 @@ const LoginPage = () => {
             });
 
             navigate("/main");
-        } catch (error) {
-            setErrorMessage(error.message);
+        } else {
+            setError({message: data.userFriendlyMessage, status: data.status});
         }
     };
 
     const ChangePhoneNumber = () => navigate("/identification");
 
     const handleEnterPhoneNumber = async () => {
-        try {
-            const response = await fetch(url + "/auth/password/code", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ phoneNumber }),
-            });
+        const response = await fetch(url + "/auth/password/code", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({phoneNumber}),
+        });
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                try {
-                    const errorData = JSON.parse(errorText);
-                    throw new Error(errorData.message || `Ошибка ${response.status}`);
-                } catch (parseError) {
-                    throw new Error(errorText || `Ошибка ${response.status}`);
-                }
-            }
+        const data = await response.json();
 
+        if (response.ok) {
             navigate("/passcode-enter");
-        } catch (error) {
-            setErrorMessage(error.message);
+
+        } else {
+            setError({message: data.userFriendlyMessage, status: data.status});
         }
     };
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-            <EmptyTopBar />
+        <div style={{display: "flex", flexDirection: "column", height: "100vh"}}>
+            <EmptyTopBar/>
             <Container
                 fluid
                 className="BG d-flex align-items-center justify-content-center"
@@ -130,11 +119,14 @@ const LoginPage = () => {
                                         <FontAwesomeIcon
                                             icon={showPassword ? faEyeSlash : faEye}
                                             className="position-absolute top-50 end-0 translate-middle-y me-3"
-                                            style={{ cursor: "pointer", color: "#888" }}
+                                            style={{cursor: "pointer", color: "#888"}}
                                             onClick={() => setShowPassword(!showPassword)}
                                         />
                                     </Form.Group>
-                                    <ErrorMessage message={errorMessage} />
+                                    <ErrorMessage
+                                        message={error?.message}
+                                        statusCode={error?.status}
+                                    />
                                     <div className="d-grid">
                                         <Button
                                             variant="primary"
@@ -151,7 +143,7 @@ const LoginPage = () => {
                                         <Button
                                             variant="link"
                                             className="text-decoration-underline text-center mt-2"
-                                            style={{ color: "#ff7101" }}
+                                            style={{color: "#0E3055"}}
                                             onClick={handleEnterPhoneNumber}
                                         >
                                             Забыли пароль?
@@ -159,7 +151,7 @@ const LoginPage = () => {
                                         <Button
                                             variant="link"
                                             className="text-decoration-underline text-center"
-                                            style={{ color: "#ff7101" }}
+                                            style={{color: "#0E3055"}}
                                             onClick={ChangePhoneNumber}
                                         >
                                             Изменить номер телефона

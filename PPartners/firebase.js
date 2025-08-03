@@ -51,7 +51,8 @@ export const requestPermission = async () => {
  */
 export const sendTokenToServer = async (token) => {
   try {
-    const response = await fetch('https://api.партнеры.online/notifications/token', { // Укажите полный URL бэкенда
+    // const response = await fetch('https://api.партнеры.online/notifications/token', { // Укажите полный URL бэкенда
+    const response = await fetch('https://192.192.168.1.12:8887/notifications/token', { // Укажите полный URL бэкенда
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -61,7 +62,7 @@ export const sendTokenToServer = async (token) => {
     });
 
     if (response.ok) {
-      console.log('Токен успешно отправлен на сервер.');
+      // console.log('Токен успешно отправлен на сервер.');
     } else {
       console.error('Ошибка при отправке токена на сервер:', response.status, response.statusText);
     }

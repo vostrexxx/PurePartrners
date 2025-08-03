@@ -482,7 +482,6 @@ const WorkStagesBuilder = ({agreementId, initiatorId, receiverId}) => {
                         throw new Error(`Ошибка сети: ${response.status}`);
                     }
 
-                    const data = await response.json();
                     // setTrigger(!trigger)
 
                 } catch (error) {

@@ -32,7 +32,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
     useEffect(() => {
         const fetchStageData = async () => {
             try {
-                console.log('стэйдж', stage)
+                // console.log('стэйдж', stage)
                 const response = await fetch(`${url}/stages/stage?elementId=${stage.elementId}`, {
                     method: 'GET',
                     headers: {
@@ -183,7 +183,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
             setIsEstimateReady(estimateReady);
         }
 
-        console.log('data', stageData)
+        // console.log('data', stageData)
     }, [isLoading, isDocsReady, stageData]);
 
 
@@ -229,7 +229,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
 
             const announcementData = await announcementResponse.json();
 
-            console.log(announcementData)
+            // console.log(announcementData)
             // Шаг 3: Получение данных о подрядчике (анкета)
             const questionnaireResponse = await fetch(`${url}/questionnaire?questionnaireId=${contractorItemId}`, {
                 method: 'GET',
@@ -332,10 +332,10 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                 }
 
                 const estimateResponse = await response.json();
-                console.log('ответы сметана', estimateResponse.estimate)
-
-                console.log('сметана', estimateResponse.estimate)
-                console.log(stageData)
+                // console.log('ответы сметана', estimateResponse.estimate)
+                //
+                // console.log('сметана', estimateResponse.estimate)
+                // console.log(stageData)
 
                 const responseEstimate = await fetch(`${url}/document/estimate`, {
                     method: 'POST',
@@ -428,7 +428,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
 
             // Проверяем, пришел ли success: 1
             if (data.success === 1) {
-                console.log('СТЭЙДЖ ДАТА', stageData)
+                // console.log('СТЭЙДЖ ДАТА', stageData)
                 // Второй запрос
                 const response_ = await fetch(`${url}/balance/payment`, {
                     method: 'PUT',
@@ -541,7 +541,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
                     showToast('Этап не оплачен, пополниите баланс', 'warning');
                 }
             } else {
-                console.log(stageData.id, stageStatus, firstId, secondId)
+                // console.log(stageData.id, stageStatus, firstId, secondId)
                 const response = await fetch(`${url}/stages/status`, {
                     method: 'PUT',
                     headers: {
@@ -602,7 +602,7 @@ const StageModalWnd = ({ isOpen, onClose, mode, stage, agreementId, triggerStage
             }
 
             const agreementData = await agreementResponse.json();
-            console.log(agreementData)
+            // console.log(agreementData)
             const { mode, initiatorId, initiatorItemId, receiverId, receiverItemId } = agreementData.agreementInfo;
 
             // Определяем заказчика и подрядчика

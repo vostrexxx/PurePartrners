@@ -1,19 +1,18 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Container, Row, Col, Form } from "react-bootstrap";
 import EmptyTopBar from "../../TopBars/EmptyTopBar";
 import InputMask from "react-input-mask";
+import ErrorMessage from "../../ErrorHandling/ErrorMessage.jsx";
 
 const IdentificationPage = () => {
     const [phoneNumber, setPhoneNumber] = useState("");
     const [isValid, setIsValid] = useState(true);
-    const [errorMessage, setErrorMessage] = useState(null);
+    const [error, setError] = useState(null);
     const navigate = useNavigate();
 
     localStorage.setItem("phoneNumber", phoneNumber);
-    // localStorage.setItem("url", "http://192.168.1.12:8887");
-    localStorage.setItem("url", "https://api.партнеры.online");
-    // localStorage.setItem("url", "https://partners-online.ru");
+    localStorage.setItem("url", "http://192.168.1.12:8887");
 
 
     localStorage.setItem("authToken", null);
@@ -30,12 +29,12 @@ const IdentificationPage = () => {
 
         const isValidPhone = /^\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}$/.test(value);
         setIsValid(isValidPhone);
-        setErrorMessage(null);
+        setError(null);
     };
 
     const handleSubmit = async () => {
         if (isValid) {
-            try {
+
                 const response = await fetch(url + "/auth/checkPhoneNumber", {
                     method: "POST",
                     headers: {
@@ -44,22 +43,17 @@ const IdentificationPage = () => {
                     body: JSON.stringify({ phoneNumber }),
                 });
 
-                if (!response.ok) {
-                    return;
-                }
-
                 const data = await response.json();
 
-                if (data.success === 1) {
-                    navigate("/login", { state: { phoneNumber } });
-                } else if (data.success === 0) {
-                    navigate("/register", { state: { phoneNumber } });
+                if (response.ok) {
+                    if (data.success === 1) {
+                        navigate("/login", { state: { phoneNumber } });
+                    } else if (data.success === 0) {
+                        navigate("/register", { state: { phoneNumber } });
+                    }
+                } else {
+                    setError({message: data.userFriendlyMessage, status: data.status});
                 }
-            } catch (error) {
-                setErrorMessage("Произошла ошибка. Проверьте соединение с интернетом.");
-            }
-        } else {
-            setErrorMessage("Неверный формат номера телефона. Введите корректный номер.");
         }
     };
 
@@ -90,7 +84,7 @@ const IdentificationPage = () => {
                                     mask="+7 (999) 999-99-99" // Маска для российского номера
                                     value={phoneNumber}
                                     onChange={handleInputChange}
-                                    onFocus={() => setErrorMessage(null)}
+                                    onFocus={() => setError(null)}
                                 >
                                     {() => (
                                         <Form.Control
@@ -106,9 +100,11 @@ const IdentificationPage = () => {
                                         />
                                     )}
                                 </InputMask>
-                                <Form.Control.Feedback type="invalid">
-                                    {errorMessage}
-                                </Form.Control.Feedback>
+                                <ErrorMessage
+                                    message={error?.message}
+                                    statusCode={error?.status}
+                                />
+
                             </Form.Group>
                             <Button
                                 className="mt-3 rounded-pill"

@@ -1,23 +1,21 @@
 import {useEffect, useState} from 'react';
 import {useParams, useLocation, useNavigate} from 'react-router-dom';
 import ReactionWindow from '../Agreement/Reaction';
-import {useProfile} from '../../Context/ProfileContext';
 import TopBar from '../../TopBars/TopBar';
 import EntityCard from '../../Previews/EntityCard'
 import {useToast} from '../../Notification/ToastContext'
 import {Button, Card, Container, Form, Row, Col, Image, Modal, ButtonGroup} from "react-bootstrap";
 import TextField from "@mui/material/TextField";
 import {FaArrowLeft} from 'react-icons/fa';
-
 import {Delete} from '@mui/icons-material';
+import ErrorMessage from "../../ErrorHandling/ErrorMessage.jsx";
+import LoadingPlug from "../../LoadingPlug/LoadingPlug.jsx";
 
 const AnnouncementDetails = () => {
     const showToast = useToast();
 
     const {id} = useParams();
-    const [announcement, setAnnouncement] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [announcement, setAnnouncement] = useState({});
     const [isEditable, setIsEditable] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -33,44 +31,42 @@ const AnnouncementDetails = () => {
     };
 
     const location = useLocation();
-    const canEditOrDelete = location.state?.fromLk || false; // Показывать кнопки только если fromLk === true
+    const canEditOrDelete = location.state?.fromLk || false;
 
     const [trigger, setTrigger] = useState(false);
 
     const [images, setImages] = useState([]);
-    const [newImages, setNewImages] = useState([]); // Для хранения новых фотографий
+    const [newImages, setNewImages] = useState([]);
 
     const [selectedImage, setSelectedImage] = useState(null);
 
-    const [files, setFiles] = useState([]); // Список файлов
-    const [newFiles, setNewFiles] = useState([]); // Новые загружаемые файлы
+    const [files, setFiles] = useState([]);
+    const [newFiles, setNewFiles] = useState([]);
 
+    const [announcementError, setAnnouncementError] = useState(null);
+    const [filesError, setFilesError] = useState(null);
+    const [imagesError, setImagesError] = useState(null);
 
     useEffect(() => {
+
         const fetchData = async () => {
-            try {
-                // Шаг 1: Получение данных объявления
-                const params = new URLSearchParams({announcementId: id});
-                const response = await fetch(`${url}/announcement?${params.toString()}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${getAuthToken()}`,
-                    },
-                });
+            const params = new URLSearchParams({announcementId: id});
+            const response = await fetch(`${url}/announcement?${params.toString()}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getAuthToken()}`,
+                },
+            });
 
-                if (!response.ok) {
-                    throw new Error(`Ошибка при получении объявления: ${response.status}`);
-                }
+            const data = await response.json();
 
-                const data = await response.json();
-
+            if (response.ok) {
                 if (data.success === 1 && data.announcementInfo) {
                     setAnnouncement(data.announcementInfo);
-                    console.log('Объявление', data.announcementInfo)
 
                     // Шаг 2: Получение данных лица
-                    const entityId = data.announcementInfo.entityId; // Получаем ID лица из объявления
+                    const entityId = data.announcementInfo.entityId;
                     setEntityId(entityId);
                     if (entityId) {
                         const fetchEntity = async (id) => {
@@ -90,22 +86,12 @@ const AnnouncementDetails = () => {
                             const entityData = await entityResponse.json();
                             setIsLegalEntity(entityData.isLegalEntity)
                             setEntityData(entityData)
-                            // console.log('Данные лица:', entityData); // Логируем данные лица
                         };
-
-                        await fetchEntity(entityId); // Выполняем запрос для получения данных лица
-                    } else {
-                        // console.error('ID лица отсутствует в данных объявления');
-                        // showToast("Не выбрано лицо в данных объявления", "error")
-
+                        await fetchEntity(entityId);
                     }
-                } else {
-                    setError('Информация об объявлении не найдена');
                 }
-            } catch (error) {
-                setError(`Ошибка при выполнении запросов: ${error.message}`);
-            } finally {
-                setLoading(false);
+            } else {
+                setAnnouncementError({message: data.userFriendlyMessage, status: data.status});
             }
         };
 
@@ -124,20 +110,20 @@ const AnnouncementDetails = () => {
                                 'Authorization': `Bearer ${getAuthToken()}`,
                             },
                         });
+                        const blob = await (response.blob() || response.json());
 
-                        if (!response.ok) {
-                            // console.error(`Ошибка загрузки изображения: ${imagePath}`);
-                            showToast("Ошибка загрузки изображения", "danger")
+                        if (response.ok) {
+                            return URL.createObjectURL(blob); // Создаем объект URL для изображения
 
-                            return null;
+                        } else {
+                            setImagesError({message: blob.userFriendlyMessage, status: blob.status});
+                            return null
                         }
 
-                        const blob = await response.blob();
-                        return URL.createObjectURL(blob); // Создаем объект URL для изображения
                     })
                 );
 
-                setImages(loadedImages.filter((img) => img !== null)); // Исключаем неудачные загрузки
+                setImages(loadedImages.filter((img) => img !== null));
             }
         };
 
@@ -176,47 +162,40 @@ const AnnouncementDetails = () => {
                 },
             });
 
-            if (!response.ok) {
-                showToast("Ошибка скачивания файла", "danger")
-                throw new Error(`Ошибка скачивания файла: ${response.status}`);
+            const blob = await (response.blob() || response.json());
 
+            if (response.ok) {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = originalFileName;
+                link.click();
+            } else {
+                setFilesError({message: blob.userFriendlyMessage, status: blob.status});
             }
-            // showToast("Ошибка создания объявления", "error")
 
-            const blob = await response.blob();
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = originalFileName;
-            link.click();
         } catch (error) {
-            // console.error('Ошибка скачивания файла:', error);
-            // alert('Не удалось скачать файл.');
             showToast("Не удалось скачать файл", "danger")
         }
     };
 
     const handleDeleteFile = async (storedFileName) => {
 
+        const params = new URLSearchParams({filePath: storedFileName});
+        const response = await fetch(`${url}/announcement/file?${params.toString()}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${getAuthToken()}`,
+            },
+        });
 
-        try {
-            const params = new URLSearchParams({filePath: storedFileName});
-            const response = await fetch(`${url}/announcement/file?${params.toString()}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${getAuthToken()}`,
-                },
-            });
+        const data = await response.json();
 
-            if (!response.ok) {
-                throw new Error(`Ошибка удаления файла: ${response.status}`);
-            }
-
+        if (response.ok) {
             showToast("Файл успешно удален", "success")
-
             setFiles((prevFiles) => prevFiles.filter((file) => file.storedFileName !== storedFileName));
-        } catch (error) {
-            showToast("Не удалось удалить файл", "danger")
 
+        } else {
+            setFilesError({message: data.userFriendlyMessage, status: data.status});
         }
 
     };
@@ -246,14 +225,12 @@ const AnnouncementDetails = () => {
                 throw new Error(`Ошибка загрузки файлов: ${response.status}`);
             }
 
-            // alert('Файлы успешно загружены.');
             showToast("Файлы успешно загружены", "success")
 
             setNewFiles([]); // Очищаем локальное состояние
             setTrigger(!trigger); // Обновляем данные
         } catch (error) {
-            // console.error('Ошибка загрузки файлов:', error);
-            // alert('Не удалось загрузить файлы.');
+
             showToast("Не удалось загрузить файлы", "danger")
 
         }
@@ -266,7 +243,7 @@ const AnnouncementDetails = () => {
 
     const handleAddImages = (e) => {
         const files = Array.from(e.target.files);
-        setNewImages((prev) => [...prev, ...files]); // Добавляем новые файлы к уже выбранным
+        setNewImages((prev) => [...prev, ...files]);
     };
 
 
@@ -434,7 +411,7 @@ const AnnouncementDetails = () => {
     };
 
     const handleEventEntity = async (mode) => {
-        if (mode === "link") {//annId, mode, enityId
+        if (mode === "link") {
             try {
                 const response = await fetch(`${url}/announcement/entity`, {
                     method: 'PUT',
@@ -497,9 +474,7 @@ const AnnouncementDetails = () => {
         // console.log(id)
     };
 
-    if (loading) return <div>Загрузка данных анкеты...</div>;
-    if (error) return <div>Ошибка: {error}</div>;
-
+    // if (loading) return (<LoadingPlug/>);
 
     return (
         <div style={{display: "flex", flexDirection: "column", height: "100vh"}}>
@@ -509,69 +484,84 @@ const AnnouncementDetails = () => {
                 style={{
                     // backgroundColor: "#242582",
                     flex: 1,
-                    padding: "20px",
+                    // padding: "20px",
                 }}
-
-
                 className="BG"
-
             >
 
                 <Row className="justify-content-center">
-                    <Col md={8} style={{padding: "20px"}}>
-                        <Card
-                            style={{
-                                // backgroundColor: "#222",
-                                // color: "white",
-                                borderRadius: "12px",
-                                padding: "20px",
-                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.5)",
-                            }}
-                        >
-                            <Card.Text>
-                                <Button
-                                    onClick={handleGoBack}
-                                    variant="secondary"
-                                    style={styles.fixedButton}
+                    <Col md={8}
+                         style={{padding: "20px"}}
+                    >
+                        if announcement && {<Card
+                        style={{
+                            borderRadius: "12px",
+                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.5)",
+                        }}
+                        className='p-0'
+                    >
+                        <Card.Text className='p-0 m-0'>
+                            <Button
+                                onClick={handleGoBack}
+                                variant="secondary"
+                                style={styles.fixedButton}
 
-                                >
-                                    <FaArrowLeft/>
-                                </Button>
-                            </Card.Text>
+                            >
+                                <FaArrowLeft/>
+                            </Button>
+                        </Card.Text>
 
-                            <Card.Body>
-                                <h2 className="text-center" style={{
-                                    color: "#ff7f00", cafontWeight: "bold"
-                                }}>
-                                    Детали объявления
-                                </h2>
+                        <Card.Body>
+                            <h2 className="text-center" style={{
+                                color: "#ff7f00", cafontWeight: "bold"
+                            }}>
+                                Детали объявления
+                            </h2>
+                            <ErrorMessage
+                                message={announcementError?.message}
+                                statusCode={announcementError?.status}
+                            />
+                            <hr
+                                style={{
+                                    height: '2px',
+                                    background: "white",
+                                }}
+                            />
+                            <Form>
+                                {/* Категории работ */}
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Категории работ</Form.Label>
+                                    <TextField
+                                        type="text"
+                                        name="workCategories"
+                                        value={announcement.workCategories}
+                                        onChange={handleInputChange}
+                                        disabled={!isEditable}
+                                        fullWidth
+                                        className="form-control-placeholder"
+                                        multiline
+                                        minRows={1}
+                                        maxRows={4}
+                                        sx={{
+                                            // Стили для обычного состояния
+                                            '& .MuiInputBase-input': {
+                                                color: 'black', // Черный цвет текста
+                                            },
+                                            '& .MuiOutlinedInput-notchedOutline': {
+                                                borderColor: 'black', // Черный цвет рамки
+                                            },
+                                            '& .MuiInputLabel-root': {
+                                                color: 'black', // Черный цвет placeholder
+                                            },
+                                            '& .MuiInputLabel-root.Mui-focused': {
+                                                color: 'black', // Черный цвет placeholder при фокусе
+                                            },
 
-                                <hr className=''
-                                    style={{
-                                        height: '2px',
-                                        background: "white",
-                                        // margin: margin,
-                                    }}
-                                />
-                                <Form>
-                                    {/* Категории работ */}
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Категории работ</Form.Label>
-                                        <TextField
-                                            type="text"
-                                            name="workCategories"
-                                            value={announcement.workCategories}
-                                            onChange={handleInputChange}
-                                            disabled={!isEditable}
-                                            fullWidth
-                                            className="form-control-placeholder"
-                                            multiline
-                                            minRows={1}
-                                            maxRows={4}
-                                            sx={{
-                                                // Стили для обычного состояния
+                                            // Стили для disabled состояния
+                                            '& .MuiInputBase-root.Mui-disabled': {
                                                 '& .MuiInputBase-input': {
-                                                    color: 'black', // Черный цвет текста
+                                                    color: 'black', // Черный цвет текста, даже если disabled
+                                                    WebkitTextFillColor: 'black', // Для Safari и других браузеров на WebKit
                                                 },
                                                 '& .MuiOutlinedInput-notchedOutline': {
                                                     borderColor: 'black', // Черный цвет рамки
@@ -579,35 +569,35 @@ const AnnouncementDetails = () => {
                                                 '& .MuiInputLabel-root': {
                                                     color: 'black', // Черный цвет placeholder
                                                 },
-                                                '& .MuiInputLabel-root.Mui-focused': {
-                                                    color: 'black', // Черный цвет placeholder при фокусе
-                                                },
+                                            },
+                                        }}
+                                    />
+                                </Form.Group>
 
-                                                // Стили для disabled состояния
-                                                '& .MuiInputBase-root.Mui-disabled': {
-                                                    '& .MuiInputBase-input': {
-                                                        color: 'black', // Черный цвет текста, даже если disabled
-                                                        WebkitTextFillColor: 'black', // Для Safari и других браузеров на WebKit
-                                                    },
-                                                    '& .MuiOutlinedInput-notchedOutline': {
-                                                        borderColor: 'black', // Черный цвет рамки
-                                                    },
-                                                    '& .MuiInputLabel-root': {
-                                                        color: 'black', // Черный цвет placeholder
-                                                    },
-                                                },
-                                            }}
-                                        />
-                                    </Form.Group>
+                                {/* Стоимость */}
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Общая стоимость</Form.Label>
+                                    <TextField
+                                        sx={{
+                                            // Стили для обычного состояния
+                                            '& .MuiInputBase-input': {
+                                                color: 'black', // Черный цвет текста
+                                            },
+                                            '& .MuiOutlinedInput-notchedOutline': {
+                                                borderColor: 'black', // Черный цвет рамки
+                                            },
+                                            '& .MuiInputLabel-root': {
+                                                color: 'black', // Черный цвет placeholder
+                                            },
+                                            '& .MuiInputLabel-root.Mui-focused': {
+                                                color: 'black', // Черный цвет placeholder при фокусе
+                                            },
 
-                                    {/* Стоимость */}
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Общая стоимость</Form.Label>
-                                        <TextField
-                                            sx={{
-                                                // Стили для обычного состояния
+                                            // Стили для disabled состояния
+                                            '& .MuiInputBase-root.Mui-disabled': {
                                                 '& .MuiInputBase-input': {
-                                                    color: 'black', // Черный цвет текста
+                                                    color: 'black', // Черный цвет текста, даже если disabled
+                                                    WebkitTextFillColor: 'black', // Для Safari и других браузеров на WebKit
                                                 },
                                                 '& .MuiOutlinedInput-notchedOutline': {
                                                     borderColor: 'black', // Черный цвет рамки
@@ -615,64 +605,64 @@ const AnnouncementDetails = () => {
                                                 '& .MuiInputLabel-root': {
                                                     color: 'black', // Черный цвет placeholder
                                                 },
-                                                '& .MuiInputLabel-root.Mui-focused': {
-                                                    color: 'black', // Черный цвет placeholder при фокусе
-                                                },
+                                            },
+                                        }}
+                                        type="text"
+                                        name="totalCost"
+                                        value={announcement.totalCost}
+                                        onChange={handleInputChange}
+                                        disabled={!isEditable}
+                                        className="form-control-placeholder w-100"
+                                    />
+                                </Form.Group>
 
-                                                // Стили для disabled состояния
-                                                '& .MuiInputBase-root.Mui-disabled': {
-                                                    '& .MuiInputBase-input': {
-                                                        color: 'black', // Черный цвет текста, даже если disabled
-                                                        WebkitTextFillColor: 'black', // Для Safari и других браузеров на WebKit
-                                                    },
-                                                    '& .MuiOutlinedInput-notchedOutline': {
-                                                        borderColor: 'black', // Черный цвет рамки
-                                                    },
-                                                    '& .MuiInputLabel-root': {
-                                                        color: 'black', // Черный цвет placeholder
-                                                    },
-                                                },
-                                            }}
-                                            type="text"
-                                            name="totalCost"
-                                            value={announcement.totalCost}
-                                            onChange={handleInputChange}
-                                            disabled={!isEditable}
-                                            className="form-control-placeholder w-100"
-                                        />
-                                    </Form.Group>
+                                {/* Цена по договору */}
+                                <Form.Group className="mb-3" hidden={true}>
+                                    <Form.Label>Цена по договору</Form.Label>
+                                    <Form.Select
+                                        style={{
+                                            backgroundColor: "#333",
+                                            color: "white",
+                                            border: "1px solid #555",
+                                        }}
+                                        name="isNonFixedPrice"
+                                        value={announcement.isNonFixedPrice ? "Да" : "Нет"}
+                                        onChange={(e) =>
+                                            handleInputChange({
+                                                target: {name: "isNonFixedPrice", value: e.target.value === "Да"},
+                                            })
+                                        }
+                                        disabled={!isEditable}
+                                    >
+                                        <option>Да</option>
+                                        <option>Нет</option>
+                                    </Form.Select>
+                                </Form.Group>
 
-                                    {/* Цена по договору */}
-                                    <Form.Group className="mb-3" hidden={true}>
-                                        <Form.Label>Цена по договору</Form.Label>
-                                        <Form.Select
-                                            style={{
-                                                backgroundColor: "#333",
-                                                color: "white",
-                                                border: "1px solid #555",
-                                            }}
-                                            name="isNonFixedPrice"
-                                            value={announcement.isNonFixedPrice ? "Да" : "Нет"}
-                                            onChange={(e) =>
-                                                handleInputChange({
-                                                    target: {name: "isNonFixedPrice", value: e.target.value === "Да"},
-                                                })
-                                            }
-                                            disabled={!isEditable}
-                                        >
-                                            <option>Да</option>
-                                            <option>Нет</option>
-                                        </Form.Select>
-                                    </Form.Group>
+                                {/* Метро */}
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Ближайшее метро</Form.Label>
+                                    <TextField
+                                        sx={{
+                                            // Стили для обычного состояния
+                                            '& .MuiInputBase-input': {
+                                                color: 'black', // Черный цвет текста
+                                            },
+                                            '& .MuiOutlinedInput-notchedOutline': {
+                                                borderColor: 'black', // Черный цвет рамки
+                                            },
+                                            '& .MuiInputLabel-root': {
+                                                color: 'black', // Черный цвет placeholder
+                                            },
+                                            '& .MuiInputLabel-root.Mui-focused': {
+                                                color: 'black', // Черный цвет placeholder при фокусе
+                                            },
 
-                                    {/* Метро */}
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Ближайшее метро</Form.Label>
-                                        <TextField
-                                            sx={{
-                                                // Стили для обычного состояния
+                                            // Стили для disabled состояния
+                                            '& .MuiInputBase-root.Mui-disabled': {
                                                 '& .MuiInputBase-input': {
-                                                    color: 'black', // Черный цвет текста
+                                                    color: 'black', // Черный цвет текста, даже если disabled
+                                                    WebkitTextFillColor: 'black', // Для Safari и других браузеров на WebKit
                                                 },
                                                 '& .MuiOutlinedInput-notchedOutline': {
                                                     borderColor: 'black', // Черный цвет рамки
@@ -680,49 +670,49 @@ const AnnouncementDetails = () => {
                                                 '& .MuiInputLabel-root': {
                                                     color: 'black', // Черный цвет placeholder
                                                 },
-                                                '& .MuiInputLabel-root.Mui-focused': {
-                                                    color: 'black', // Черный цвет placeholder при фокусе
-                                                },
+                                            },
+                                        }}
+                                        type="text"
+                                        name="metro"
+                                        value={announcement.metro}
+                                        onChange={handleInputChange}
+                                        disabled={!isEditable}
+                                        className="form-control-placeholder w-100"
+                                    />
+                                </Form.Group>
 
-                                                // Стили для disabled состояния
-                                                '& .MuiInputBase-root.Mui-disabled': {
-                                                    '& .MuiInputBase-input': {
-                                                        color: 'black', // Черный цвет текста, даже если disabled
-                                                        WebkitTextFillColor: 'black', // Для Safari и других браузеров на WebKit
-                                                    },
-                                                    '& .MuiOutlinedInput-notchedOutline': {
-                                                        borderColor: 'black', // Черный цвет рамки
-                                                    },
-                                                    '& .MuiInputLabel-root': {
-                                                        color: 'black', // Черный цвет placeholder
-                                                    },
-                                                },
-                                            }}
-                                            type="text"
-                                            name="metro"
-                                            value={announcement.metro}
-                                            onChange={handleInputChange}
-                                            disabled={!isEditable}
-                                            className="form-control-placeholder w-100"
-                                        />
-                                    </Form.Group>
+                                {/* Адрес */}
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Полный адрес</Form.Label>
+                                    <TextField
+                                        type="text"
+                                        name="address"
+                                        value={announcement.address}
+                                        onChange={handleInputChange}
+                                        fullWidth
+                                        disabled={!isEditable}
+                                        className="form-control-placeholder"
+                                        multiline
+                                        sx={{
+                                            // Стили для обычного состояния
+                                            '& .MuiInputBase-input': {
+                                                color: 'black', // Черный цвет текста
+                                            },
+                                            '& .MuiOutlinedInput-notchedOutline': {
+                                                borderColor: 'black', // Черный цвет рамки
+                                            },
+                                            '& .MuiInputLabel-root': {
+                                                color: 'black', // Черный цвет placeholder
+                                            },
+                                            '& .MuiInputLabel-root.Mui-focused': {
+                                                color: 'black', // Черный цвет placeholder при фокусе
+                                            },
 
-                                    {/* Адрес */}
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Полный адрес</Form.Label>
-                                        <TextField
-                                            type="text"
-                                            name="address"
-                                            value={announcement.address}
-                                            onChange={handleInputChange}
-                                            fullWidth
-                                            disabled={!isEditable}
-                                            className="form-control-placeholder"
-                                            multiline
-                                            sx={{
-                                                // Стили для обычного состояния
+                                            // Стили для disabled состояния
+                                            '& .MuiInputBase-root.Mui-disabled': {
                                                 '& .MuiInputBase-input': {
-                                                    color: 'black', // Черный цвет текста
+                                                    color: 'black', // Черный цвет текста, даже если disabled
+                                                    WebkitTextFillColor: 'black', // Для Safari и других браузеров на WebKit
                                                 },
                                                 '& .MuiOutlinedInput-notchedOutline': {
                                                     borderColor: 'black', // Черный цвет рамки
@@ -730,15 +720,23 @@ const AnnouncementDetails = () => {
                                                 '& .MuiInputLabel-root': {
                                                     color: 'black', // Черный цвет placeholder
                                                 },
-                                                '& .MuiInputLabel-root.Mui-focused': {
-                                                    color: 'black', // Черный цвет placeholder при фокусе
-                                                },
+                                            },
+                                        }}
+                                        minRows={1}
+                                        maxRows={4}
+                                    />
+                                </Form.Group>
 
-                                                // Стили для disabled состояния
-                                                '& .MuiInputBase-root.Mui-disabled': {
+                                {/* Даты */}
+                                <Row className="g-3 mb-3">
+                                    <Col xs={12} md={6}>
+                                        <Form.Group>
+                                            <Form.Label>Дата начала</Form.Label>
+                                            <TextField
+                                                sx={{
+                                                    // Стили для обычного состояния
                                                     '& .MuiInputBase-input': {
-                                                        color: 'black', // Черный цвет текста, даже если disabled
-                                                        WebkitTextFillColor: 'black', // Для Safari и других браузеров на WebKit
+                                                        color: 'black', // Черный цвет текста
                                                     },
                                                     '& .MuiOutlinedInput-notchedOutline': {
                                                         borderColor: 'black', // Черный цвет рамки
@@ -746,23 +744,15 @@ const AnnouncementDetails = () => {
                                                     '& .MuiInputLabel-root': {
                                                         color: 'black', // Черный цвет placeholder
                                                     },
-                                                },
-                                            }}
-                                            minRows={1}
-                                            maxRows={4}
-                                        />
-                                    </Form.Group>
+                                                    '& .MuiInputLabel-root.Mui-focused': {
+                                                        color: 'black', // Черный цвет placeholder при фокусе
+                                                    },
 
-                                    {/* Даты */}
-                                    <Row className="g-3 mb-3">
-                                        <Col xs={12} md={6}>
-                                            <Form.Group>
-                                                <Form.Label>Дата начала</Form.Label>
-                                                <TextField
-                                                    sx={{
-                                                        // Стили для обычного состояния
+                                                    // Стили для disabled состояния
+                                                    '& .MuiInputBase-root.Mui-disabled': {
                                                         '& .MuiInputBase-input': {
-                                                            color: 'black', // Черный цвет текста
+                                                            color: 'black', // Черный цвет текста, даже если disabled
+                                                            WebkitTextFillColor: 'black', // Для Safari и других браузеров на WebKit
                                                         },
                                                         '& .MuiOutlinedInput-notchedOutline': {
                                                             borderColor: 'black', // Черный цвет рамки
@@ -770,113 +760,26 @@ const AnnouncementDetails = () => {
                                                         '& .MuiInputLabel-root': {
                                                             color: 'black', // Черный цвет placeholder
                                                         },
-                                                        '& .MuiInputLabel-root.Mui-focused': {
-                                                            color: 'black', // Черный цвет placeholder при фокусе
-                                                        },
+                                                    },
+                                                }}
 
-                                                        // Стили для disabled состояния
-                                                        '& .MuiInputBase-root.Mui-disabled': {
-                                                            '& .MuiInputBase-input': {
-                                                                color: 'black', // Черный цвет текста, даже если disabled
-                                                                WebkitTextFillColor: 'black', // Для Safari и других браузеров на WebKit
-                                                            },
-                                                            '& .MuiOutlinedInput-notchedOutline': {
-                                                                borderColor: 'black', // Черный цвет рамки
-                                                            },
-                                                            '& .MuiInputLabel-root': {
-                                                                color: 'black', // Черный цвет placeholder
-                                                            },
-                                                        },
-                                                    }}
-
-                                                    type="date"
-                                                    name="startDate"
-                                                    value={announcement.startDate}
-                                                    onChange={handleInputChange}
-                                                    disabled={!isEditable}
-                                                    className="form-control-placeholder w-100"
-                                                />
-                                            </Form.Group>
-                                        </Col>
-                                        <Col xs={12} md={6}>
-                                            <Form.Group>
-                                                <Form.Label>Дата окончания</Form.Label>
-                                                <TextField
-                                                    sx={{
-                                                        // Стили для обычного состояния
-                                                        '& .MuiInputBase-input': {
-                                                            color: 'black', // Черный цвет текста
-                                                        },
-                                                        '& .MuiOutlinedInput-notchedOutline': {
-                                                            borderColor: 'black', // Черный цвет рамки
-                                                        },
-                                                        '& .MuiInputLabel-root': {
-                                                            color: 'black', // Черный цвет placeholder
-                                                        },
-                                                        '& .MuiInputLabel-root.Mui-focused': {
-                                                            color: 'black', // Черный цвет placeholder при фокусе
-                                                        },
-
-                                                        // Стили для disabled состояния
-                                                        '& .MuiInputBase-root.Mui-disabled': {
-                                                            '& .MuiInputBase-input': {
-                                                                color: 'black', // Черный цвет текста, даже если disabled
-                                                                WebkitTextFillColor: 'black', // Для Safari и других браузеров на WebKit
-                                                            },
-                                                            '& .MuiOutlinedInput-notchedOutline': {
-                                                                borderColor: 'black', // Черный цвет рамки
-                                                            },
-                                                            '& .MuiInputLabel-root': {
-                                                                color: 'black', // Черный цвет placeholder
-                                                            },
-                                                        },
-                                                    }}
-                                                    type="date"
-                                                    name="finishDate"
-                                                    value={announcement.finishDate}
-                                                    onChange={handleInputChange}
-                                                    disabled={!isEditable}
-                                                    className="form-control-placeholder w-100"
-                                                />
-                                            </Form.Group>
-                                        </Col>
-                                    </Row>
-
-                                    {/* Комментарий */}
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Комментарий</Form.Label>
-                                        <TextField
-                                            type="text"
-                                            name="comments"
-                                            placeholder="Добавьте комментарий"
-                                            value={announcement.comments}
-                                            onChange={handleInputChange}
-                                            disabled={!isEditable}
-                                            // className="form-control-placeholder"
-                                            multiline
-                                            minRows={1}
-                                            maxRows={4}
-                                            fullWidth
-                                            sx={{
-                                                // Стили для обычного состояния
-                                                '& .MuiInputBase-input': {
-                                                    color: 'black', // Черный цвет текста
-                                                },
-                                                '& .MuiOutlinedInput-notchedOutline': {
-                                                    borderColor: 'black', // Черный цвет рамки
-                                                },
-                                                '& .MuiInputLabel-root': {
-                                                    color: 'black', // Черный цвет placeholder
-                                                },
-                                                '& .MuiInputLabel-root.Mui-focused': {
-                                                    color: 'black', // Черный цвет placeholder при фокусе
-                                                },
-
-                                                // Стили для disabled состояния
-                                                '& .MuiInputBase-root.Mui-disabled': {
+                                                type="date"
+                                                name="startDate"
+                                                value={announcement.startDate}
+                                                onChange={handleInputChange}
+                                                disabled={!isEditable}
+                                                className="form-control-placeholder w-100"
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col xs={12} md={6}>
+                                        <Form.Group>
+                                            <Form.Label>Дата окончания</Form.Label>
+                                            <TextField
+                                                sx={{
+                                                    // Стили для обычного состояния
                                                     '& .MuiInputBase-input': {
-                                                        color: 'black', // Черный цвет текста, даже если disabled
-                                                        WebkitTextFillColor: 'black', // Для Safari и других браузеров на WebKit
+                                                        color: 'black', // Черный цвет текста
                                                     },
                                                     '& .MuiOutlinedInput-notchedOutline': {
                                                         borderColor: 'black', // Черный цвет рамки
@@ -884,403 +787,477 @@ const AnnouncementDetails = () => {
                                                     '& .MuiInputLabel-root': {
                                                         color: 'black', // Черный цвет placeholder
                                                     },
-                                                },
-                                            }}
-                                        />
-                                    </Form.Group>
-                                </Form>
+                                                    '& .MuiInputLabel-root.Mui-focused': {
+                                                        color: 'black', // Черный цвет placeholder при фокусе
+                                                    },
 
-
-                                <Row>
-                                    <Col>
-                                        <h5 className="mt-2 mb-4 text-center" style={{color: "#ff7f00"}}>
-                                            Прикрепленные фотографии
-                                        </h5>
-
-                                        {images.length > 0 ? (
-                                            <Row className="g-3">
-                                                {announcement.announcementImages.map((imagePath, index) => (
-                                                    <Col key={index} xs={6} md={4} lg={3}
-                                                         style={{position: "relative"}}>
-                                                        <Image
-                                                            src={images[index]}
-                                                            alt={`Фото ${index + 1}`}
-                                                            fluid
-                                                            rounded
-                                                            style={{
-                                                                width: "150px",
-                                                                height: "150px",
-                                                                objectFit: "cover",
-                                                                cursor: "pointer",
-                                                            }}
-                                                            onClick={() => handleImageClick(images[index])}
-                                                        />
-                                                        {isEditable && (
-                                                            <Button
-                                                                variant="danger"
-                                                                style={{
-                                                                    position: "absolute",
-                                                                    top: "5px",
-                                                                    right: "5px",
-                                                                    borderRadius: "50%",
-                                                                    width: "20px",
-                                                                    height: "20px",
-                                                                    padding: "0",
-                                                                    display: "flex",
-                                                                    alignItems: "center",
-                                                                    justifyContent: "center",
-                                                                }}
-                                                                onClick={() => handleDeleteImage(imagePath)}
-                                                            >
-                                                                ×
-                                                            </Button>
-                                                        )}
-                                                    </Col>
-                                                ))}
-                                            </Row>
-                                        ) : (
-                                            <p className='text-center'>Фотографии отсутствуют</p>
-                                        )}
+                                                    // Стили для disabled состояния
+                                                    '& .MuiInputBase-root.Mui-disabled': {
+                                                        '& .MuiInputBase-input': {
+                                                            color: 'black', // Черный цвет текста, даже если disabled
+                                                            WebkitTextFillColor: 'black', // Для Safari и других браузеров на WebKit
+                                                        },
+                                                        '& .MuiOutlinedInput-notchedOutline': {
+                                                            borderColor: 'black', // Черный цвет рамки
+                                                        },
+                                                        '& .MuiInputLabel-root': {
+                                                            color: 'black', // Черный цвет placeholder
+                                                        },
+                                                    },
+                                                }}
+                                                type="date"
+                                                name="finishDate"
+                                                value={announcement.finishDate}
+                                                onChange={handleInputChange}
+                                                disabled={!isEditable}
+                                                className="form-control-placeholder w-100"
+                                            />
+                                        </Form.Group>
                                     </Col>
                                 </Row>
 
-                                {isEditable && (
-                                    <Row className="mt-4">
-                                        <Col>
-                                            <h6>Добавить новые фотографии:</h6>
-                                            <Form.Control
-                                                type="file"
-                                                accept=".jpeg,.png,.jpg,.svg,"
-                                                multiple
-                                                onChange={handleAddImages}
-                                                // hidden={uploading}
-                                                style={{
-                                                    // backgroundColor: "#333",
-                                                    // color: "white",
-                                                    border: "1px solid #555",
-                                                }}
-                                            />
+                                {/* Комментарий */}
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Комментарий</Form.Label>
+                                    <TextField
+                                        type="text"
+                                        name="comments"
+                                        placeholder="Добавьте комментарий"
+                                        value={announcement.comments}
+                                        onChange={handleInputChange}
+                                        disabled={!isEditable}
+                                        // className="form-control-placeholder"
+                                        multiline
+                                        minRows={1}
+                                        maxRows={10}
+                                        fullWidth
+                                        sx={{
+                                            // Стили для обычного состояния
+                                            '& .MuiInputBase-input': {
+                                                color: 'black', // Черный цвет текста
+                                            },
+                                            '& .MuiOutlinedInput-notchedOutline': {
+                                                borderColor: 'black', // Черный цвет рамки
+                                            },
+                                            '& .MuiInputLabel-root': {
+                                                color: 'black', // Черный цвет placeholder
+                                            },
+                                            '& .MuiInputLabel-root.Mui-focused': {
+                                                color: 'black', // Черный цвет placeholder при фокусе
+                                            },
 
-                                            {newImages.length > 0 && (
-                                                <div className="mt-3">
-                                                    <h6>Выбранные фотографии:</h6>
-                                                    <ul>
-                                                        {newImages.map((file, index) => (
-                                                            <li key={index}>{file.name}</li>
-                                                        ))}
-                                                    </ul>
-                                                    <div className="d-flex gap-2">
+                                            // Стили для disabled состояния
+                                            '& .MuiInputBase-root.Mui-disabled': {
+                                                '& .MuiInputBase-input': {
+                                                    color: 'black', // Черный цвет текста, даже если disabled
+                                                    WebkitTextFillColor: 'black', // Для Safari и других браузеров на WebKit
+                                                },
+                                                '& .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: 'black', // Черный цвет рамки
+                                                },
+                                                '& .MuiInputLabel-root': {
+                                                    color: 'black', // Черный цвет placeholder
+                                                },
+                                            },
+                                        }}
+                                    />
+                                </Form.Group>
+                            </Form>
 
-                                                        <Button
-                                                            variant="success"
-                                                            onClick={handleUploadImages}
-                                                            className="w-50"
-                                                            // className="me-2 "
-                                                        >
-                                                            Сохранить
-                                                        </Button>
-                                                        <Button variant="danger" onClick={handleCancelUpload}
-                                                                className="w-50">
 
-                                                            Отменить
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </Col>
-                                    </Row>
-                                )}
-
-                                {selectedImage && (
-                                    <Modal
-                                        show={!!selectedImage}
-                                        onHide={handleCloseImageModal}
-                                        centered
-                                        size="lg"
-                                    >
-                                        <Modal.Body className="p-0">
-                                            <Image
-                                                src={selectedImage}
-                                                alt="Просмотр изображения"
-                                                fluid
-                                                rounded
-                                            />
-                                        </Modal.Body>
-                                    </Modal>
-                                )}
-
-                                <div className="mt-4">
-                                    <h5 className="text-center" style={{color: "#ff7f00"}}>
-                                        Прикрепленные файлы
+                            <Row>
+                                <Col>
+                                    <h5 className="mt-2 mb-4 text-center" style={{color: "#ff7f00"}}>
+                                        Прикрепленные фотографии
                                     </h5>
-
-                                    {files.length > 0 ? (
-                                        <ul style={{paddingLeft: "1px", listStyleType: "none"}}>
-                                            {files.map((file, index) => (
-                                                <li
-                                                    key={index}
-                                                    style={{
-                                                        display: "flex",
-                                                        alignItems: "center",
-                                                        gap: "5px",
-                                                        marginBottom: "5px",
-                                                    }}
-                                                >
-                                                    <span>📄</span>
-                                                    <span
+                                    <ErrorMessage
+                                        message={imagesError?.message}
+                                        statusCode={imagesError?.status}
+                                    />
+                                    {images.length > 0 ? (
+                                        <Row className="g-3">
+                                            {announcement.announcementImages.map((imagePath, index) => (
+                                                <Col key={index} xs={6} md={4} lg={3}
+                                                     style={{position: "relative"}}>
+                                                    <Image
+                                                        src={images[index]}
+                                                        alt={`Фото ${index + 1}`}
+                                                        fluid
+                                                        rounded
                                                         style={{
+                                                            width: "150px",
+                                                            height: "150px",
+                                                            objectFit: "cover",
                                                             cursor: "pointer",
-                                                            color: "grey",
-                                                            textDecoration: "underline",
-                                                            whiteSpace: "nowrap", // Запрет переноса текста
-                                                            overflow: "hidden", // Скрытие текста, выходящего за пределы
-                                                            textOverflow: "ellipsis", // Добавление троеточия
-                                                            maxWidth: "200px", // Максимальная ширина текста
-                                                            flex: 1, // Занимает всё доступное пространство
                                                         }}
-                                                        onClick={() =>
-                                                            handleDownloadFile(file.storedFileName, file.originalFileName)
-                                                        }
-                                                    >
-                                                        {file.originalFileName}
-                                                    </span>
+                                                        onClick={() => handleImageClick(images[index])}
+                                                    />
                                                     {isEditable && (
                                                         <Button
-                                                            onClick={() => handleDeleteFile(file.storedFileName)}
                                                             variant="danger"
                                                             style={{
-                                                                padding: "5px",
-                                                                marginLeft: "auto"
-                                                            }} // Прижимаем кнопку к правому краю
+                                                                position: "absolute",
+                                                                top: "5px",
+                                                                right: "5px",
+                                                                borderRadius: "50%",
+                                                                width: "20px",
+                                                                height: "20px",
+                                                                padding: "0",
+                                                                display: "flex",
+                                                                alignItems: "center",
+                                                                justifyContent: "center",
+                                                            }}
+                                                            onClick={() => handleDeleteImage(imagePath)}
                                                         >
-                                                            <Delete
-                                                                sx={{fontSize: "20px"}}/> {/* Уменьшаем размер иконки */}
+                                                            ×
                                                         </Button>
                                                     )}
-                                                </li>
+                                                </Col>
                                             ))}
-                                        </ul>
+                                        </Row>
                                     ) : (
-                                        <p className="text-center mb-4">Файлы отсутствуют</p>
+                                        <p className='text-center'>Фотографии отсутствуют</p>
                                     )}
-                                </div>
+                                </Col>
+                            </Row>
 
-                                {isEditable && (
-                                    <div style={{marginTop: "20px"}}>
-                                        <h6>Добавить новые файлы:</h6>
+                            {isEditable && (
+                                <Row className="mt-4">
+                                    <Col>
+                                        <h6>Добавить новые фотографии:</h6>
                                         <Form.Control
                                             type="file"
-                                            accept=".doc,.docx,.xls,.xlsx,.pdf"
+                                            accept=".jpeg,.png,.jpg,.svg,"
                                             multiple
-                                            onChange={handleAddFiles}
+                                            onChange={handleAddImages}
+                                            // hidden={uploading}
                                             style={{
                                                 // backgroundColor: "#333",
                                                 // color: "white",
                                                 border: "1px solid #555",
                                             }}
                                         />
-                                        {newFiles.length > 0 && (
+
+                                        {newImages.length > 0 && (
                                             <div className="mt-3">
-                                                <h6>Выбранные файлы:</h6>
-                                                <ul style={{paddingLeft: "20px", listStyleType: "none"}}>
-                                                    {newFiles.map((file, index) => (
-                                                        <li
-                                                            key={index}
-                                                            style={{
-                                                                display: "flex",
-                                                                alignItems: "center",
-                                                                gap: "10px",
-                                                                marginBottom: "10px",
-                                                            }}
-                                                        >
-                                                            <span>📄</span>
-                                                            <span
-                                                                style={{
-                                                                    whiteSpace: "nowrap", // Запрет переноса текста
-                                                                    overflow: "hidden", // Скрытие текста, выходящего за пределы
-                                                                    textOverflow: "ellipsis", // Добавление троеточия
-                                                                    maxWidth: "200px", // Максимальная ширина текста
-                                                                }}
-                                                            >
-                                                                {file.name}
-                                                            </span>
-                                                            <Button
-                                                                onClick={() => handleRemoveNewFile(index)}
-                                                                variant='danger'
-                                                                style={{
-                                                                    padding: "5px",
-                                                                    marginLeft: "auto"
-                                                                }} // Прижимаем кнопку к правому краю
-
-                                                            >
-                                                                <Delete
-                                                                    sx={{fontSize: "20px"}}/> {/* Уменьшаем размер иконки */}
-
-                                                            </Button>
-                                                        </li>
+                                                <h6>Выбранные фотографии:</h6>
+                                                <ul>
+                                                    {newImages.map((file, index) => (
+                                                        <li key={index}>{file.name}</li>
                                                     ))}
                                                 </ul>
                                                 <div className="d-flex gap-2">
-                                                    <Button variant="danger"
-                                                            className="w-100"
-                                                            onClick={() => setNewFiles([])}>
-                                                        Отменить
-                                                    </Button>
+
                                                     <Button
                                                         variant="success"
-                                                        onClick={handleUploadFiles}
-                                                        className="w-100"
+                                                        onClick={handleUploadImages}
+                                                        className="w-50"
+                                                        // className="me-2 "
                                                     >
                                                         Сохранить
                                                     </Button>
+                                                    <Button variant="danger" onClick={handleCancelUpload}
+                                                            className="w-50">
 
+                                                        Отменить
+                                                    </Button>
                                                 </div>
-
-
                                             </div>
                                         )}
-                                    </div>
-                                )}
+                                    </Col>
+                                </Row>
+                            )}
 
-                                <div className='mt-3'>
-                                    {location.state?.fromLk === null ? null : (
-                                        <div>
-                                            {!isEditable && canEditOrDelete ? (
-                                                <>
-                                                    <h5 className="text-center mb-2" style={{color: "#ff7f00"}}>Данные
-                                                        по лицу</h5>
+                            {selectedImage && (
+                                <Modal
+                                    show={!!selectedImage}
+                                    onHide={handleCloseImageModal}
+                                    centered
+                                    size="lg"
+                                >
+                                    <Modal.Body className="p-0">
+                                        <Image
+                                            src={selectedImage}
+                                            alt="Просмотр изображения"
+                                            fluid
+                                            rounded
+                                        />
+                                    </Modal.Body>
+                                </Modal>
+                            )}
 
-                                                    {/* <h3>Данные по лицу</h3> */}
-                                                    {!entityId ?
-                                                        (
-                                                            <div>
-                                                                <div className="mb-4">Выберите лицо, которое хотите
-                                                                    привязать
-                                                                </div>
-                                                                <EntityCard onSelectEntity={handleSelectEntity}/>
-                                                                <Button
-                                                                    className='mt-2 w-100'
-                                                                    variant='success'
-                                                                    onClick={() => handleEventEntity("link")}>Привязать
-                                                                    лицо</Button>
-                                                            </div>
-                                                        ) : (
-                                                            <>
-                                                                {entityData ? (
-                                                                    isLegalEntity ? (
-                                                                        <div>
-                                                                            <h5 style={{textAlign: 'center'}}>Ваше
-                                                                                юридическое лицо</h5>
-                                                                            <div
-                                                                                style={{
-                                                                                    padding: '10px',
-                                                                                    margin: '5px 0',
-                                                                                    // backgroundColor: 'grey',
-                                                                                    border: '1px solid green',
-                                                                                    borderRadius: '5px',
-                                                                                    cursor: 'pointer',
-                                                                                }}
-                                                                            >
-                                                                                <strong>{entityData.firm}</strong>
-                                                                                <p>ИНН: {entityData.inn}</p>
-                                                                            </div>
-                                                                        </div>
-                                                                    ) : (
-                                                                        <div>
-                                                                            <h5 style={{textAlign: 'center'}}>Ваше
-                                                                                физическое лицо</h5>
-                                                                            <div
-                                                                                style={{
-                                                                                    padding: '10px',
-                                                                                    margin: '5px 0',
-                                                                                    // backgroundColor: 'grey',
-                                                                                    border: '1px solid green',
-                                                                                    borderRadius: '5px',
-                                                                                    cursor: 'pointer',
-                                                                                }}
-                                                                            >
-                                                                                <strong>{entityData.fullName}</strong>
-                                                                                <p>ИНН: {entityData.inn}</p>
-                                                                            </div>
-                                                                        </div>
-                                                                    )
-                                                                ) : (
-                                                                    <div>Загрузка данных лица...</div>
-                                                                )}
+                            <div className="mt-4">
+                                <h5 className="text-center" style={{color: "#ff7f00"}}>
+                                    Прикрепленные файлы
+                                </h5>
 
-                                                                {/* Контейнер для кнопок */}
-                                                                <div style={{
-                                                                    width: "100%",
-                                                                    boxSizing: "border-box",
-                                                                    marginTop: "3px"
-                                                                }}>
-                                                                    {/* Кнопка "Отвязать лицо" */}
-                                                                    <Button
-                                                                        variant='danger'
-
-                                                                        className='mt-2 w-100'
-                                                                        onClick={() => handleEventEntity("unlink")}
-                                                                    >
-                                                                        Отвязать лицо
-                                                                    </Button>
-
-                                                                    {/* Кнопка "Привязать лицо" */}
-
-                                                                </div>
-                                                            </>
-                                                        )
+                                {files.length > 0 ? (
+                                    <ul style={{paddingLeft: "1px", listStyleType: "none"}}>
+                                        {files.map((file, index) => (
+                                            <li
+                                                key={index}
+                                                style={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    gap: "5px",
+                                                    marginBottom: "5px",
+                                                }}
+                                            >
+                                                <span>📄</span>
+                                                <span
+                                                    style={{
+                                                        cursor: "pointer",
+                                                        color: "grey",
+                                                        textDecoration: "underline",
+                                                        whiteSpace: "nowrap", // Запрет переноса текста
+                                                        overflow: "hidden", // Скрытие текста, выходящего за пределы
+                                                        textOverflow: "ellipsis", // Добавление троеточия
+                                                        maxWidth: "200px", // Максимальная ширина текста
+                                                        flex: 1, // Занимает всё доступное пространство
+                                                    }}
+                                                    onClick={() =>
+                                                        handleDownloadFile(file.storedFileName, file.originalFileName)
                                                     }
-                                                    <ButtonGroup style={styles.buttonContainer}>
-                                                        <Button
-                                                            onClick={handleDeleteClick}
-                                                            // style={styles.deleteButton}
-                                                            variant='danger'
-                                                        >
-                                                            <Delete/>
-                                                        </Button>
-                                                        <Button
-                                                            onClick={handleEditClick}
-                                                            // style={styles.editButton}
-                                                            variant='success'
-                                                        >
-                                                            Редактировать
-                                                        </Button>
-
-
-                                                    </ButtonGroup>
-                                                </>
-
-
-                                            ) : isEditable ? (
-                                                <ButtonGroup style={styles.buttonContainer}>
+                                                >
+                                                        {file.originalFileName}
+                                                    </span>
+                                                {isEditable && (
                                                     <Button
-                                                        onClick={handleSaveClick}
-                                                        // style={styles.editButton}
-                                                        variant='success'
+                                                        onClick={() => handleDeleteFile(file.storedFileName)}
+                                                        variant="danger"
+                                                        style={{
+                                                            padding: "5px",
+                                                            marginLeft: "auto"
+                                                        }} // Прижимаем кнопку к правому краю
                                                     >
-                                                        Сохранить
+                                                        <Delete
+                                                            sx={{fontSize: "20px"}}/> {/* Уменьшаем размер иконки */}
                                                     </Button>
-                                                </ButtonGroup>
-                                            ) : (
-                                                <Button onClick={handleOpenReaction} style={styles.editButton}>
-                                                    Откликнуться
+                                                )}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p className="text-center mb-4">Файлы отсутствуют</p>
+                                )}
+                            </div>
+
+                            {isEditable && (
+                                <div style={{marginTop: "20px"}}>
+                                    <h6>Добавить новые файлы:</h6>
+                                    <Form.Control
+                                        type="file"
+                                        accept=".doc,.docx,.xls,.xlsx,.pdf"
+                                        multiple
+                                        onChange={handleAddFiles}
+                                        style={{
+                                            // backgroundColor: "#333",
+                                            // color: "white",
+                                            border: "1px solid #555",
+                                        }}
+                                    />
+                                    {newFiles.length > 0 && (
+                                        <div className="mt-3">
+                                            <h6>Выбранные файлы:</h6>
+                                            <ul style={{paddingLeft: "20px", listStyleType: "none"}}>
+                                                {newFiles.map((file, index) => (
+                                                    <li
+                                                        key={index}
+                                                        style={{
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                            gap: "10px",
+                                                            marginBottom: "10px",
+                                                        }}
+                                                    >
+                                                        <span>📄</span>
+                                                        <span
+                                                            style={{
+                                                                whiteSpace: "nowrap", // Запрет переноса текста
+                                                                overflow: "hidden", // Скрытие текста, выходящего за пределы
+                                                                textOverflow: "ellipsis", // Добавление троеточия
+                                                                maxWidth: "200px", // Максимальная ширина текста
+                                                            }}
+                                                        >
+                                                                {file.name}
+                                                            </span>
+                                                        <Button
+                                                            onClick={() => handleRemoveNewFile(index)}
+                                                            variant='danger'
+                                                            style={{
+                                                                padding: "5px",
+                                                                marginLeft: "auto"
+                                                            }} // Прижимаем кнопку к правому краю
+
+                                                        >
+                                                            <Delete
+                                                                sx={{fontSize: "20px"}}/> {/* Уменьшаем размер иконки */}
+
+                                                        </Button>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                            <div className="d-flex gap-2">
+                                                <Button variant="danger"
+                                                        className="w-100"
+                                                        onClick={() => setNewFiles([])}>
+                                                    Отменить
                                                 </Button>
-                                            )}
+                                                <Button
+                                                    variant="success"
+                                                    onClick={handleUploadFiles}
+                                                    className="w-100"
+                                                >
+                                                    Сохранить
+                                                </Button>
+
+                                            </div>
+
+
                                         </div>
                                     )}
                                 </div>
+                            )}
 
-                                <ReactionWindow
-                                    isOpen={isModalOpen} onClose={closeModal}
-                                    userId={announcement.userId}
-                                    id={announcement.id}
-                                    mode={0}
-                                    receiverItemName={announcement.workCategories}
-                                />
+                            <div className='mt-3'>
+                                {location.state?.fromLk === null ? null : (
+                                    <div>
+                                        {!isEditable && canEditOrDelete ? (
+                                            <>
+                                                <h5 className="text-center mb-2" style={{color: "#ff7f00"}}>Данные
+                                                    по лицу</h5>
+
+                                                {/* <h3>Данные по лицу</h3> */}
+                                                {!entityId ?
+                                                    (
+                                                        <div>
+                                                            <div className="mb-4">Выберите лицо, которое хотите
+                                                                привязать
+                                                            </div>
+                                                            <EntityCard onSelectEntity={handleSelectEntity}/>
+                                                            <Button
+                                                                className='mt-2 w-100'
+                                                                variant='success'
+                                                                onClick={() => handleEventEntity("link")}>Привязать
+                                                                лицо</Button>
+                                                        </div>
+                                                    ) : (
+                                                        <>
+                                                            {entityData ? (
+                                                                isLegalEntity ? (
+                                                                    <div>
+                                                                        <h5 style={{textAlign: 'center'}}>Ваше
+                                                                            юридическое лицо</h5>
+                                                                        <div
+                                                                            style={{
+                                                                                padding: '10px',
+                                                                                margin: '5px 0',
+                                                                                // backgroundColor: 'grey',
+                                                                                border: '1px solid green',
+                                                                                borderRadius: '5px',
+                                                                                cursor: 'pointer',
+                                                                            }}
+                                                                        >
+                                                                            <strong>{entityData.firm}</strong>
+                                                                            <p>ИНН: {entityData.inn}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                ) : (
+                                                                    <div>
+                                                                        <h5 style={{textAlign: 'center'}}>Ваше
+                                                                            физическое лицо</h5>
+                                                                        <div
+                                                                            style={{
+                                                                                padding: '10px',
+                                                                                margin: '5px 0',
+                                                                                // backgroundColor: 'grey',
+                                                                                border: '1px solid green',
+                                                                                borderRadius: '5px',
+                                                                                cursor: 'pointer',
+                                                                            }}
+                                                                        >
+                                                                            <strong>{entityData.fullName}</strong>
+                                                                            <p>ИНН: {entityData.inn}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                )
+                                                            ) : (
+                                                                <div>Загрузка данных лица...</div>
+                                                            )}
+
+                                                            {/* Контейнер для кнопок */}
+                                                            <div style={{
+                                                                width: "100%",
+                                                                boxSizing: "border-box",
+                                                                marginTop: "3px"
+                                                            }}>
+                                                                {/* Кнопка "Отвязать лицо" */}
+                                                                <Button
+                                                                    variant='danger'
+
+                                                                    className='mt-2 w-100'
+                                                                    onClick={() => handleEventEntity("unlink")}
+                                                                >
+                                                                    Отвязать лицо
+                                                                </Button>
+
+                                                                {/* Кнопка "Привязать лицо" */}
+
+                                                            </div>
+                                                        </>
+                                                    )
+                                                }
+                                                <ButtonGroup style={styles.buttonContainer}>
+                                                    <Button
+                                                        onClick={handleDeleteClick}
+                                                        // style={styles.deleteButton}
+                                                        variant='danger'
+                                                    >
+                                                        <Delete/>
+                                                    </Button>
+                                                    <Button
+                                                        onClick={handleEditClick}
+                                                        // style={styles.editButton}
+                                                        variant='success'
+                                                    >
+                                                        Редактировать
+                                                    </Button>
 
 
-                            </Card.Body>
-                        </Card>
+                                                </ButtonGroup>
+                                            </>
+
+
+                                        ) : isEditable ? (
+                                            <ButtonGroup style={styles.buttonContainer}>
+                                                <Button
+                                                    onClick={handleSaveClick}
+                                                    // style={styles.editButton}
+                                                    variant='success'
+                                                >
+                                                    Сохранить
+                                                </Button>
+                                            </ButtonGroup>
+                                        ) : (
+                                            <Button onClick={handleOpenReaction} style={styles.editButton}>
+                                                Откликнуться
+                                            </Button>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            <ReactionWindow
+                                isOpen={isModalOpen} onClose={closeModal}
+                                userId={announcement.userId}
+                                id={announcement.id}
+                                mode={0}
+                                receiverItemName={announcement.workCategories}
+                            />
+
+
+                        </Card.Body>
+                    </Card>}
 
                         {/* Стили для серого плейсхолдера */}
                         <style>

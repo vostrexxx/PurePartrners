@@ -70,10 +70,10 @@ const NewMain = () => {
                 const data = await response.json();
                 if (type === 'questionnaire') {
                     // setQuestionnaireData(data);
-                    console.log('анкета', data)
+                    // console.log('анкета', data)
                 } else {
                     // setAnnouncementData(data);
-                    console.log('объява', data)
+                    // console.log('объява', data)
 
                 }
             } else {

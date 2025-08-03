@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button, Image, Spinner, Alert } from "react-bootstrap";
 
 const AvatarUploader = ({ imagePath, onUpload }) => {
-    console.log(imagePath)
+    // console.log(imagePath)
     const [imageSrc, setImageSrc] = useState(imagePath || null); // Состояние для хранения изображения
     const [isLoading, setIsLoading] = useState(false); // Состояние для отображения загрузки
     const [error, setError] = useState(null); // Состояние для отображения ошибок

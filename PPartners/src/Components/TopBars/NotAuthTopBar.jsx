@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Switch } from "@mui/material";
 import { useProfile } from "../Context/ProfileContext"; // Импортируем хук профиля
 import { useNavigate } from "react-router-dom";
@@ -6,7 +6,6 @@ import { Navbar, Dropdown, Container, Button } from "react-bootstrap";
 import { MdPerson, MdLogin } from "react-icons/md"; // Импортируем нужные иконки
 import { MdBusinessCenter } from "react-icons/md"; // Импортируем нужные иконки
 import { FaHardHat } from "react-icons/fa"; // Импортируем нужные иконки
-import { BiLogIn } from "react-icons/bi";
 
 import logo from "../../Images/logo.png";
 import smallLogo from "../../Images/small-logo.png";

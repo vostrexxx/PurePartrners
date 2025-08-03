@@ -1,12 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Form } from "react-bootstrap";
 import TextField from "@mui/material/TextField";
+
 const AutoCompleteInput = ({ name, placeholder, onCategorySelect }) => {
     const [inputValue, setInputValue] = useState("");
     const [searchSuggestions, setSearchSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const url = localStorage.getItem("url");
     const authToken = localStorage.getItem("authToken");
+
+    // Создаем ref для контейнера
+    const containerRef = useRef(null);
 
     const fetchSearchSuggestions = async (query) => {
         try {
@@ -38,6 +42,23 @@ const AutoCompleteInput = ({ name, placeholder, onCategorySelect }) => {
         }
     }, [inputValue]);
 
+    // Эффект для обработки кликов вне компонента
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (containerRef.current && !containerRef.current.contains(event.target)) {
+                setShowSuggestions(false);
+            }
+        };
+
+        // Добавляем обработчик клика на документ
+        document.addEventListener("mousedown", handleClickOutside);
+
+        // Убираем обработчик при размонтировании
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
     const handleInputChange = (e) => {
         const value = e.target.value;
         setInputValue(value);
@@ -60,33 +81,35 @@ const AutoCompleteInput = ({ name, placeholder, onCategorySelect }) => {
     };
 
     return (
-        <div style={{ position: "relative" }}>
-            <Form.Label style={{ color: "white" }}>Ваша категория работ</Form.Label>
+        <div ref={containerRef} style={{ position: "relative" }}>
+            <Form.Label style={{ color: "black" }}>Ваша категория работ</Form.Label>
             <TextField
                 type="text"
                 name={name}
                 placeholder={placeholder}
                 value={inputValue}
+                multiline
+                minRows={2}
+                maxRows={5}
                 onChange={handleInputChange}
-                onFocus={() => setShowSuggestions(true)}
-                // style={{
-                //     backgroundColor: "#333",
-                //     color: "white",
-                //     border: "1px solid #555",
-                // }}
+                onFocus={() => {
+                    if (inputValue.trim() !== "") {
+                        setShowSuggestions(true);
+                    }
+                }}
                 className="autocomplete-input w-100"
                 sx={{
                     "& .MuiInputBase-input": {
-                        color: "white", // Белый цвет текста
+                        color: "black",
                     },
                     "& .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "white", // Белый цвет обводки (опционально)
+                        borderColor: "black",
                     },
                     "& .MuiInputLabel-root": {
-                        color: "white", // Белый цвет placeholder
+                        color: "black",
                     },
                     "& .MuiInputLabel-root.Mui-focused": {
-                        color: "white", // Белый цвет placeholder при фокусе
+                        color: "black",
                     },
                 }}
             />
