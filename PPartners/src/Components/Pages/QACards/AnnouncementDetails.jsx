@@ -493,7 +493,7 @@ const AnnouncementDetails = () => {
                     <Col md={8}
                          style={{padding: "20px"}}
                     >
-                        if announcement && {<Card
+                        {announcement && <Card
                         style={{
                             borderRadius: "12px",
                             boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.5)",

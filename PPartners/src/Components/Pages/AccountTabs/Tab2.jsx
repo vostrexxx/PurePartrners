@@ -41,7 +41,7 @@ const Entities = ({onSelectEntity}) => {
                 setLegalEntities(data);
             } catch (error) {
                 // console.error("Ошибка при загрузке юрлиц:", error.message);
-                showToast("Ошибка при загрузке юрлиц", "danger")
+                showToast("Ошибка при загрузке юр. лиц", "danger")
             }
         };
 
@@ -75,8 +75,9 @@ const Entities = ({onSelectEntity}) => {
     }, [isSpecialist, url, authToken]);
 
     const handleSelectEntity = (id) => {
-        setSelectedEntity(id);
-        onSelectEntity(id);
+        const newSelectedEntity = selectedEntity === id ? null : id;
+        setSelectedEntity(newSelectedEntity);
+        onSelectEntity(newSelectedEntity);
     };
 
     return (
@@ -98,7 +99,7 @@ const Entities = ({onSelectEntity}) => {
                         }}
                     >
                         <Card.Body>
-                            <h4 className="text-center" style={{color: "white"}}>
+                            <h4 className="text-center" >
                                 Юридические лица
                             </h4>
                             <ListGroup variant="flush">
@@ -157,7 +158,7 @@ const Entities = ({onSelectEntity}) => {
                         }}
                     >
                         <Card.Body>
-                            <h4 className="text-center" style={{color: "white"}}>
+                            <h4 className="text-center" >
                                 Физические лица
                             </h4>
                             <ListGroup variant="flush">
@@ -335,11 +336,9 @@ const QuestionnaireForm = ({onSubmit, onCancel}) => {
     return (
         <Container className="mt-4 px-0">
             <Row className="justify-content-center">
-                <Col className="px-0" >
+                <Col className="px-0">
                     <Card
                         style={{
-                            // backgroundColor: "#222",
-                            // color: "white",
                             borderRadius: "12px",
                             padding: "20px",
                             boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.5)",
@@ -643,12 +642,51 @@ const QuestionnaireForm = ({onSubmit, onCancel}) => {
                                             border: "1px solid #555",
                                         }}
                                     />
+
+                                    <ListGroup className="mt-2">
+                                        {photos.map((photo, index) => (
+                                            <ListGroup.Item
+                                                key={index}
+                                                className="d-flex justify-content-between align-items-center"
+                                                style={{
+                                                    backgroundColor: "whitesmoke",
+                                                    border: "1px solid #555"
+                                                }}
+                                            >
+                                                <span style={{
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap',
+                                                    maxWidth: 'calc(100% - 30px)'
+                                                }}>
+                                                    {photo.name}
+                                                </span>
+                                                <Button variant="danger" size="sm"
+                                                        style={{
+                                                            borderRadius: '50%',
+                                                            width: '24px',
+                                                            height: '24px',
+                                                            padding: '0',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            flex: '0 0 24px',
+                                                            minWidth: '24px',
+                                                            minHeight: '24px',
+                                                            fontSize: '12px',
+                                                            lineHeight: '1',
+                                                            marginLeft: '6px'
+                                                        }}
+                                                        onClick={() => handleRemovePhoto(index)}>
+                                                    &#x2715;
+                                                </Button>
+                                            </ListGroup.Item>
+                                        ))}
+                                    </ListGroup>
                                 </Form.Group>
 
-                                {/* Выбор лица */}
                                 <Entities onSelectEntity={handleSelectEntity}/>
 
-                                {/* Кнопки */}
                                 <div className="d-flex justify-content-between mt-4">
 
                                     <Button
@@ -656,7 +694,7 @@ const QuestionnaireForm = ({onSubmit, onCancel}) => {
                                             width: "48%",
                                             backgroundColor: "#ffb300",
                                             border: "none",
-                                            color: "black",
+                                            // color: "black",
                                             fontWeight: "bold",
                                             padding: "10px",
                                             borderRadius: "8px",
@@ -671,7 +709,7 @@ const QuestionnaireForm = ({onSubmit, onCancel}) => {
                                             width: "48%",
                                             backgroundColor: "#ff7f00",
                                             border: "none",
-                                            color: "black",
+                                            // color: "black",
                                             fontWeight: "bold",
                                             padding: "10px",
                                             borderRadius: "8px",
@@ -813,9 +851,8 @@ const AnnouncementForm = ({onSubmit, onCancel}) => {
                 setFiles([]);
                 onSubmit();
             } else {
-                const errorMsg = await response.text();
-                // alert(`Ошибка при добавлении объявления: ${errorMsg}`);
-                showToast("Ошибка создания объявления", "danger")
+                const data = await response.json();
+                showToast(data.userFriendlyMessage, "danger")
             }
         } catch (error) {
             console.error("Ошибка при отправке данных:", error);
@@ -830,22 +867,27 @@ const AnnouncementForm = ({onSubmit, onCancel}) => {
     return (
         <Container className="mt-4 px-0">
             <Row className="justify-content-center">
-                <Col className='px-0' md={8}>
+                <Col className='px-0'>
                     <Card
                         style={{
-                            backgroundColor: "#222",
-                            color: "white",
                             borderRadius: "12px",
                             padding: "20px",
                             boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.5)",
                         }}
-                        с
+                        className="px-0"
                     >
-                        <Card.Body className='px-0'>
-                            <h2 className="text-center mb-4" style={{color: "#ff7f00", fontWeight: "bold"}}>
+                        <Card.Body>
+                            <h2
+                                className="text-center mb-4"
+                                style={{color: "#ff7f00", fontWeight: "bold"}}>
                                 Создание объявления
                             </h2>
-
+                            <hr
+                                style={{
+                                    height: '2px',
+                                    background: "white",
+                                }}
+                            />
                             <Form onSubmit={handleSubmit}>
                                 {/* Категории */}
                                 <Form.Group className="mb-3">
@@ -858,42 +900,34 @@ const AnnouncementForm = ({onSubmit, onCancel}) => {
 
                                 {/* Стоимость */}
                                 <Form.Group className="mb-3">
-                                    <Form.Label style={{color: "white"}}>Общая стоимость</Form.Label>
+                                    <Form.Label>Общая стоимость</Form.Label>
                                     <TextField
                                         type="number"
                                         name="totalCost"
                                         placeholder="10000"
                                         value={formData.totalCost}
-                                        className='w-100'
+                                        className='form-control-placeholder w-100'
                                         onChange={handleInputChange}
                                         sx={{
                                             "& .MuiInputBase-input": {
-                                                color: "white", // Белый цвет текста
+                                                color: "black", // Белый цвет текста
                                             },
                                             "& .MuiOutlinedInput-notchedOutline": {
-                                                borderColor: "white", // Белый цвет обводки (опционально)
+                                                borderColor: "black", // Белый цвет обводки (опционально)
                                             },
                                             "& .MuiInputLabel-root": {
-                                                color: "white", // Белый цвет placeholder
+                                                color: "black", // Белый цвет placeholder
                                             },
                                             "& .MuiInputLabel-root.Mui-focused": {
-                                                color: "white", // Белый цвет placeholder при фокусе
+                                                color: "black", // Белый цвет placeholder при фокусе
                                             },
                                         }}
 
-                                        // className="form-control-placeholder"
+                                        // className=""
                                     />
-                                    <style>
-                                        {`
-      .form-control-placeholder::placeholder {
-        color: #bbb; /* Серый цвет для плейсхолдера */
-      }
-    `}
-                                    </style>
+
                                 </Form.Group>
 
-
-                                {/* Метро */}
                                 <Form.Group className="mb-3">
                                     <MetroAutocomplete
                                         onSelect={(value) =>
@@ -903,15 +937,13 @@ const AnnouncementForm = ({onSubmit, onCancel}) => {
                                     />
                                 </Form.Group>
 
-                                {/* Адрес */}
                                 <Form.Group className="mb-3">
-                                    <Form.Label style={{color: "white"}}>Адрес</Form.Label>
-
+                                    <Form.Label>Адрес</Form.Label>
                                     <TextField
                                         type="text"
                                         name="address"
                                         placeholder="Адрес будущих работ"
-                                        size="small"
+                                        // size="small"
                                         value={formData.address}
                                         onChange={handleInputChange}
                                         className="w-100"
@@ -920,37 +952,24 @@ const AnnouncementForm = ({onSubmit, onCancel}) => {
                                         maxRows={4}
                                         sx={{
                                             "& .MuiInputBase-input": {
-                                                color: "white", // Белый цвет текста
+                                                color: "black", // Белый цвет текста
                                             },
                                             "& .MuiOutlinedInput-notchedOutline": {
-                                                borderColor: "white", // Белый цвет обводки (опционально)
+                                                borderColor: "black", // Белый цвет обводки (опционально)
                                             },
                                             "& .MuiInputLabel-root": {
-                                                color: "white", // Белый цвет placeholder
+                                                color: "black", // Белый цвет placeholder
                                             },
                                             "& .MuiInputLabel-root.Mui-focused": {
-                                                color: "white", // Белый цвет placeholder при фокусе
+                                                color: "black", // Белый цвет placeholder при фокусе
                                             },
                                         }}
                                     />
-                                    {/* <Form.Control
-                    type="text"
-                    name="address"
-                    placeholder="Адрес будущих работ"
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    style={{
-                      backgroundColor: "#333",
-                      color: "white",
-                      border: "1px solid #555",
-                    }}
-                    className="form-control-placeholder"
-                  /> */}
                                 </Form.Group>
                                 <Row className="g-3 mb-3">
                                     <Col xs={12} md={6}>
                                         <Form.Group>
-                                            <Form.Label style={{color: "white"}}>Дата начала</Form.Label>
+                                            <Form.Label>Дата начала</Form.Label>
                                             <TextField
                                                 type="date"
                                                 name="startDate"
@@ -958,16 +977,16 @@ const AnnouncementForm = ({onSubmit, onCancel}) => {
                                                 onChange={handleInputChange}
                                                 sx={{
                                                     "& .MuiInputBase-input": {
-                                                        color: "white", // Белый цвет текста
+                                                        color: "black", // Белый цвет текста
                                                     },
                                                     "& .MuiOutlinedInput-notchedOutline": {
-                                                        borderColor: "white", // Белый цвет обводки (опционально)
+                                                        borderColor: "black", // Белый цвет обводки (опционально)
                                                     },
                                                     "& .MuiInputLabel-root": {
-                                                        color: "white", // Белый цвет placeholder
+                                                        color: "black", // Белый цвет placeholder
                                                     },
                                                     "& .MuiInputLabel-root.Mui-focused": {
-                                                        color: "white", // Белый цвет placeholder при фокусе
+                                                        color: "black", // Белый цвет placeholder при фокусе
                                                     },
                                                 }}
                                                 className="form-control-placeholder w-100"
@@ -976,7 +995,7 @@ const AnnouncementForm = ({onSubmit, onCancel}) => {
                                     </Col>
                                     <Col xs={12} md={6}>
                                         <Form.Group>
-                                            <Form.Label style={{color: "white"}}>Дата окончания</Form.Label>
+                                            <Form.Label>Дата окончания</Form.Label>
                                             <TextField
                                                 type="date"
                                                 name="finishDate"
@@ -984,16 +1003,16 @@ const AnnouncementForm = ({onSubmit, onCancel}) => {
                                                 onChange={handleInputChange}
                                                 sx={{
                                                     "& .MuiInputBase-input": {
-                                                        color: "white", // Белый цвет текста
+                                                        color: "black", // Белый цвет текста
                                                     },
                                                     "& .MuiOutlinedInput-notchedOutline": {
-                                                        borderColor: "white", // Белый цвет обводки (опционально)
+                                                        borderColor: "black", // Белый цвет обводки (опционально)
                                                     },
                                                     "& .MuiInputLabel-root": {
-                                                        color: "white", // Белый цвет placeholder
+                                                        color: "black", // Белый цвет placeholder
                                                     },
                                                     "& .MuiInputLabel-root.Mui-focused": {
-                                                        color: "white", // Белый цвет placeholder при фокусе
+                                                        color: "black", // Белый цвет placeholder при фокусе
                                                     },
                                                 }}
 
@@ -1006,28 +1025,28 @@ const AnnouncementForm = ({onSubmit, onCancel}) => {
 
                                 {/* Комментарии */}
                                 <Form.Group className="mb-3">
-                                    <Form.Label style={{color: "white"}}>Комментарии</Form.Label>
+                                    <Form.Label>Комментарии</Form.Label>
                                     <TextField
                                         type="text"
                                         name="comments"
                                         placeholder="Комментарии"
                                         multiline
-                                        minRows={1}
+                                        minRows={2}
                                         maxRows={10}
                                         value={formData.comments}
                                         onChange={handleInputChange}
                                         sx={{
                                             "& .MuiInputBase-input": {
-                                                color: "white", // Белый цвет текста
+                                                color: "black", // Белый цвет текста
                                             },
                                             "& .MuiOutlinedInput-notchedOutline": {
-                                                borderColor: "white", // Белый цвет обводки (опционально)
+                                                borderColor: "black", // Белый цвет обводки (опционально)
                                             },
                                             "& .MuiInputLabel-root": {
-                                                color: "white", // Белый цвет placeholder
+                                                color: "black", // Белый цвет placeholder
                                             },
                                             "& .MuiInputLabel-root.Mui-focused": {
-                                                color: "white", // Белый цвет placeholder при фокусе
+                                                color: "black", // Белый цвет placeholder при фокусе
                                             },
                                         }}
                                         className="form-control-placeholder w-100"
@@ -1053,11 +1072,9 @@ const AnnouncementForm = ({onSubmit, onCancel}) => {
                                         type="file"
                                         accept="image/*"
                                         multiple
-                                        onChange={handlePhotoChange}
                                         disabled={uploading}
+                                        onChange={handlePhotoChange}
                                         style={{
-                                            backgroundColor: "#333",
-                                            color: "white",
                                             border: "1px solid #555",
                                         }}
                                     />
@@ -1067,15 +1084,36 @@ const AnnouncementForm = ({onSubmit, onCancel}) => {
                                                 key={index}
                                                 className="d-flex justify-content-between align-items-center"
                                                 style={{
-                                                    backgroundColor: "#333",
-                                                    color: "black",
+                                                    backgroundColor: "whitesmoke",
                                                     border: "1px solid #555"
                                                 }}
                                             >
-                                                {photo.name}
+                                                <span style={{
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap',
+                                                    maxWidth: 'calc(100% - 30px)'
+                                                }}>
+                                                    {photo.name}
+                                                </span>
                                                 <Button variant="danger" size="sm"
+                                                        style={{
+                                                            borderRadius: '50%',
+                                                            width: '24px',
+                                                            height: '24px',
+                                                            padding: '0',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            flex: '0 0 24px',
+                                                            minWidth: '24px',
+                                                            minHeight: '24px',
+                                                            fontSize: '12px',
+                                                            lineHeight: '1',
+                                                            marginLeft: '6px' // Небольшой отступ между текстом и кнопкой
+                                                        }}
                                                         onClick={() => handleRemovePhoto(index)}>
-                                                    Удалить
+                                                    &#x2715;
                                                 </Button>
                                             </ListGroup.Item>
                                         ))}
@@ -1086,6 +1124,7 @@ const AnnouncementForm = ({onSubmit, onCancel}) => {
                                 <h5 className="mt-4 mb-2" style={{color: "#ff7f00"}}>
                                     Добавить документы
                                 </h5>
+
                                 <Form.Group className="mb-3">
                                     <Form.Control
                                         type="file"
@@ -1094,8 +1133,6 @@ const AnnouncementForm = ({onSubmit, onCancel}) => {
                                         onChange={handleFileChange}
                                         disabled={uploading}
                                         style={{
-                                            backgroundColor: "#333",
-                                            color: "white",
                                             border: "1px solid #555",
                                         }}
                                     />
@@ -1105,15 +1142,36 @@ const AnnouncementForm = ({onSubmit, onCancel}) => {
                                                 key={index}
                                                 className="d-flex justify-content-between align-items-center"
                                                 style={{
-                                                    backgroundColor: "#333",
-                                                    color: "white",
+                                                    backgroundColor: "whitesmoke",
                                                     border: "1px solid #555"
                                                 }}
                                             >
+                                                <span style={{
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap',
+                                                    maxWidth: 'calc(100% - 30px)'
+                                                }}>
                                                 {file.name}
+                                                    </span>
                                                 <Button variant="danger" size="sm"
+                                                        style={{
+                                                            borderRadius: '50%',
+                                                            width: '24px',
+                                                            height: '24px',
+                                                            padding: '0',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            flex: '0 0 24px',
+                                                            minWidth: '24px',
+                                                            minHeight: '24px',
+                                                            fontSize: '12px',
+                                                            lineHeight: '1',
+                                                            marginLeft: '6px' // Небольшой отступ между текстом и кнопкой
+                                                        }}
                                                         onClick={() => handleRemoveFile(index)}>
-                                                    Удалить
+                                                    &#x2715;
                                                 </Button>
                                             </ListGroup.Item>
                                         ))}
@@ -1131,9 +1189,8 @@ const AnnouncementForm = ({onSubmit, onCancel}) => {
                                     <Button
                                         style={{
                                             width: "48%",
-                                            backgroundColor: "#ffb300",
                                             border: "none",
-                                            color: "black",
+                                            color: "white",
                                             fontWeight: "bold",
                                             padding: "10px",
                                             borderRadius: "8px",
@@ -1147,7 +1204,6 @@ const AnnouncementForm = ({onSubmit, onCancel}) => {
                                     <Button
                                         style={{
                                             width: "48%",
-                                            backgroundColor: "#ff7f00",
                                             border: "none",
                                             color: "white",
                                             fontWeight: "bold",
