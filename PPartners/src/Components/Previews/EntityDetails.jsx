@@ -240,10 +240,10 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
                 <Modal.Title>Детали лица</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <div style={{ display: "flex", flexDirection: "column" }}>
+                {/*<div style={{ display: "flex", flexDirection: "column" }}>*/}
 
-                    <Row>
-                        <Col xs={12} md={8} lg={6} className="mx-auto">
+                    {/*<Row>*/}
+                        <Col xs={11} md={11} lg={11} className="mx-auto">
 
                             <h3 className="text-center mb-4">
                                 {isLegalEntity && isLegalEntity ? "Юридическое лицо" : "Физическое лицо"}
@@ -252,8 +252,9 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
                                 {/* Общие поля */}
                                 <Form.Group className="mb-3">
                                     <Form.Label>ФИО</Form.Label>
-                                    <Form.Control
-                                        type="text"
+                                    <textarea
+                                        className='form-control'
+                                        rows={2}
                                         name="fullName"
                                         value={entityData.fullName || ""}
                                         onChange={handleInputChange}
@@ -261,7 +262,6 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
                                     />
                                 </Form.Group>
 
-                                {/* Поля для юридического лица */}
                                 {isLegalEntity && (
                                     <>
                                         <Form.Group className="mb-3">
@@ -269,6 +269,8 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
                                             <Form.Control
                                                 type="text"
                                                 name="firm"
+                                                multiple
+
                                                 value={entityData.firm || ""}
                                                 onChange={handleInputChange}
                                                 disabled={!isEditable}
@@ -301,8 +303,9 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
 
                                 <Form.Group className="mb-3">
                                     <Form.Label>Адрес</Form.Label>
-                                    <Form.Control
-                                        type="text"
+                                    <textarea
+                                        className='form-control'
+                                        // type="text"
                                         name="address"
                                         value={entityData.address || ""}
                                         onChange={handleInputChange}
@@ -369,8 +372,8 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
                             </Form>
 
                         </Col>
-                    </Row>
-                </div >
+                    {/*</Row>*/}
+                {/*</div >*/}
             </Modal.Body>
             <Modal.Footer>
                 {/* <Button variant="secondary" onClick={onClose}>

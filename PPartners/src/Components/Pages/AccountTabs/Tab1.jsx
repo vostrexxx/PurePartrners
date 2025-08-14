@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import ImageLoader from './ImageLoader'
 import EntityModal from './AddEntityWindow'
-import { useProfile } from '../../Context/ProfileContext';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Container, Row, Col, Form, Button, Card, ListGroup } from "react-bootstrap";
+import {useProfile} from '../../Context/ProfileContext';
+import {useNavigate, useLocation} from 'react-router-dom';
+import {Container, Row, Col, Form, Button, Card, ListGroup} from "react-bootstrap";
 import EntityDetailsModal from '../../Previews/EntityDetails';
 import ToastNotification from '../../Notification/ToastNotification';
-import { useToast } from '../../Notification/ToastContext';
+import {useToast} from '../../Notification/ToastContext';
 import AvatarUploader from '../../Previews/AvatarUploader'
-const ImageUploader = ({ label, onUpload, imagePath, onTrigger }) => {
+
+const ImageUploader = ({label, onUpload, imagePath, onTrigger}) => {
 
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
@@ -20,12 +21,12 @@ const ImageUploader = ({ label, onUpload, imagePath, onTrigger }) => {
     return (
         <div>
             <label>{label}</label>
-            <input type="file" accept="image/*" onChange={handleFileChange} />
+            <input type="file" accept="image/*" onChange={handleFileChange}/>
         </div>
     );
 };
 
-const FormField = ({ type, label, name, placeholder, value, onChange, disabled }) => {
+const FormField = ({type, label, name, placeholder, value, onChange, disabled}) => {
     return (
         <div>
             <label>{label}</label>
@@ -41,10 +42,10 @@ const FormField = ({ type, label, name, placeholder, value, onChange, disabled }
     );
 };
 
-const Entities = ({ onSelectEntity, triggerGet, onTrigger, onGotPerson }) => {
+const Entities = ({onSelectEntity, triggerGet, onTrigger, onGotPerson}) => {
     const url = localStorage.getItem("url");
     const authToken = localStorage.getItem("authToken");
-    const { isSpecialist } = useProfile();
+    const {isSpecialist} = useProfile();
 
     const [isEntityDetailsModalOpen, setIsEntityDetailsModalOpen] = useState(false);
     const openEntityDetailsModal = () => setIsEntityDetailsModalOpen(true);
@@ -136,28 +137,34 @@ const Entities = ({ onSelectEntity, triggerGet, onTrigger, onGotPerson }) => {
                                         <ListGroup.Item
                                             key={entity.id}
                                             onClick={() => handleSelectEntity(entity.id)}
-                                            className={`d-flex flex-column 
-                                                ${selectedEntity === entity.id ? "bg-success text-white" : "bg-light"}`}
+                                            className={`d-flex flex-column `}
                                             style={{
                                                 cursor: "pointer",
                                                 borderRadius: "8px",
                                                 padding: "12px",
                                                 marginBottom: "10px",
+                                                backgroundColor: `${selectedEntity === entity.id ? "#ff7101" : "#f8f9fa"}`
                                             }}
                                         >
-                                            <div className="fw-bold">{entity.firm}</div>
-                                            <div className="text-muted fw-bold">ИНН: {entity.inn}</div>
+                                            <div className="fw-bold"
+                                                 style={{color: `${selectedEntity === entity.id ? "white" : "black"}`}}
+                                            >{entity.firm}</div>
+
+                                            <div className="fw-bold"
+                                                 style={{color: `${selectedEntity === entity.id ? "white" : "#6c757d"}`}}
+
+                                            >ИНН: {entity.inn}</div>
                                         </ListGroup.Item>
                                     ))
                                 ) : (
-                                    <p className="text-center text-muted mt-3">Нет зарегистрированных юридических лиц</p>
+                                    <p className="text-center text-muted mt-3">Нет зарегистрированных юридических
+                                        лиц</p>
                                 )}
                             </ListGroup>
                         </Card.Body>
                     </Card>
                 </Col>
 
-                {/* Правый столбец - Физические лица */}
                 <Col md={6}>
                     <Card className="shadow-lg">
                         <Card.Body>
@@ -168,17 +175,24 @@ const Entities = ({ onSelectEntity, triggerGet, onTrigger, onGotPerson }) => {
                                         <ListGroup.Item
                                             key={person.id}
                                             onClick={() => handleSelectEntity(person.id)}
-                                            className={`d-flex flex-column 
-                                                ${selectedEntity === person.id ? "bg-success text-white" : "bg-light"}`}
+                                            className={`d-flex flex-column`}
                                             style={{
                                                 cursor: "pointer",
                                                 borderRadius: "8px",
                                                 padding: "12px",
                                                 marginBottom: "10px",
+                                                backgroundColor: `${selectedEntity === person.id ? "#ff7101" : "#f8f9fa"}`
+
                                             }}
                                         >
-                                            <div className="fw-bold">{person.fullName}</div>
-                                            <div className="text-muted fw-bold">ИНН: {person.inn}</div>
+                                            <div className="fw-bold"
+                                                 style={{color: `${selectedEntity === person.id ? "white" : "black"}`}}
+
+                                            >{person.fullName}</div>
+                                            <div className="fw-bold"
+                                                 style={{color: `${selectedEntity === person.id ? "white" : "#6c757d"}`}}
+
+                                            >ИНН: {person.inn}</div>
                                         </ListGroup.Item>
                                     ))
                                 ) : (
@@ -204,7 +218,6 @@ const Entities = ({ onSelectEntity, triggerGet, onTrigger, onGotPerson }) => {
 const ProfilePage = () => {
 
     const showToast = useToast();
-
     const [profileData, setProfileData] = useState({
         surname: '',
         patronymic: '',
@@ -221,18 +234,18 @@ const ProfilePage = () => {
     const [error, setError] = useState(null);
     const url = localStorage.getItem('url');
     const authToken = localStorage.getItem('authToken');
-    const { isSpecialist } = useProfile();
+    const {isSpecialist} = useProfile();
 
     const [fullName, setFullName] = useState("");
     // Работа с модальным окном
     const [isModalOpen, setIsModalOpen] = useState(false);
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
+
     const [legal, setLegal] = useState({});
     const [person, setPerson] = useState({});
 
     const [triggerGet, setTriggerGet] = useState(false);
-
 
 
     const toggleTriggerGet = () => {
@@ -257,13 +270,14 @@ const ProfilePage = () => {
                 const data = await response.json();
                 if (data.profile) {
                     setProfileData(data.profile);
-                    setFullName(data.profile.surname + ' ' + data.profile.name[0] + '.' + data.profile.patronymic[0] + '.')
+                    // setFullName(data.profile.surname + ' ' + data.profile.name[0] + '.' + data.profile.patronymic[0] + '.')
+                    setFullName(data.profile.surname + ' ' + data.profile.name + ' ' + data.profile.patronymic)
                     // console.log(fullName)
-                    setAvatarPath(data.profile.avatar || null);
-                    const passportPath = data.profile.passport || [];
-                    setPassportPhoto1(passportPath[0] || null);
-                    setPassportPhoto2(passportPath[1] || null);
-                    setPassportPhoto3(passportPath[2] || null);
+                    // setAvatarPath(data.profile.avatar || null);
+                    // const passportPath = data.profile.passport || [];
+                    // setPassportPhoto1(passportPath[0] || null);
+                    // setPassportPhoto2(passportPath[1] || null);
+                    // setPassportPhoto3(passportPath[2] || null);
                     setIsEditable(false);
                 } else {
                     setIsEditable(true); // Если данных нет, сразу включаем режим редактирования
@@ -326,7 +340,7 @@ const ProfilePage = () => {
     }, [triggerGet]);
 
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         setProfileData((prevData) => ({
             ...prevData,
             [name]: value,
@@ -338,6 +352,7 @@ const ProfilePage = () => {
     };
 
     const handleSave = async () => {
+        console.log(profileData)
         try {
             const response = await fetch(`${url}/profile`, {
                 method: 'POST',
@@ -386,35 +401,35 @@ const ProfilePage = () => {
         }
     };
 
-    const handlePassportUpload = async (file, index) => {
-        const formData = new FormData();
-        formData.append('image', file);
-        formData.append('page', index + 1);
-        try {
-            const response = await fetch(`${url}/profile/passport`, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${authToken}`,
-                },
-                body: formData,
-            });
-
-            if (!response.ok) {
-                throw new Error(`Ошибка загрузки паспорта ${index + 1}: ${response.status}`);
-            }
-
-            const data = await response.json();
-            // alert(`Фото паспорта ${index + 1} успешно загружено!`);
-            showToast(`Фото паспорта ${index + 1} успешно загружено!`, 'success')
-
-            // Обновляем соответствующую фотографию
-            if (index === 0) setPassportPhoto1(data.passport);
-            if (index === 1) setPassportPhoto2(data.passport);
-            if (index === 2) setPassportPhoto3(data.passport);
-        } catch (error) {
-            setError(`Ошибка загрузки паспорта ${index + 1}: ${error.message}`);
-        }
-    };
+    // const handlePassportUpload = async (file, index) => {
+    //     const formData = new FormData();
+    //     formData.append('image', file);
+    //     formData.append('page', index + 1);
+    //     try {
+    //         const response = await fetch(`${url}/profile/passport`, {
+    //             method: 'POST',
+    //             headers: {
+    //                 Authorization: `Bearer ${authToken}`,
+    //             },
+    //             body: formData,
+    //         });
+    //
+    //         if (!response.ok) {
+    //             throw new Error(`Ошибка загрузки паспорта ${index + 1}: ${response.status}`);
+    //         }
+    //
+    //         const data = await response.json();
+    //         // alert(`Фото паспорта ${index + 1} успешно загружено!`);
+    //         showToast(`Фото паспорта ${index + 1} успешно загружено!`, 'success')
+    //
+    //         // Обновляем соответствующую фотографию
+    //         if (index === 0) setPassportPhoto1(data.passport);
+    //         if (index === 1) setPassportPhoto2(data.passport);
+    //         if (index === 2) setPassportPhoto3(data.passport);
+    //     } catch (error) {
+    //         setError(`Ошибка загрузки паспорта ${index + 1}: ${error.message}`);
+    //     }
+    // };
 
     const [gotPerson, setGotPerson] = useState()
 
@@ -424,7 +439,7 @@ const ProfilePage = () => {
     };
 
     return (
-        <Container fluid className="py-4" style={{ minHeight: "100vh" }}>
+        <Container fluid className="py-4" style={{minHeight: "100vh"}}>
             <Row className="justify-content-center">
 
                 {/* Личные данные */}
@@ -436,8 +451,7 @@ const ProfilePage = () => {
                                 style={{
                                     height: '2px',
                                     background: "white",
-                                    // margin: margin,
-                                }} />
+                                }}/>
                             {error && <p className="text-danger text-center">{error}</p>}
                             <Form>
                                 {/* Номер телефона */}
@@ -445,11 +459,16 @@ const ProfilePage = () => {
                                     <Form.Label className="fw-bold ms-4 ">Номер телефона</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        value={localStorage.getItem("phoneNumber")}
+                                        value={profileData.phoneNumber || (localStorage.getItem("phoneNumber"))}
                                         disabled
                                         className="rounded-pill p-3 text-center"
-                                        style={{ backgroundColor: "#e9ecef", border: "none" }}
+                                        style={{backgroundColor: "#e9ecef", border: "none"}}
                                     />
+                                    {/*<button onClick={(e) => {*/}
+                                    {/*    e.preventDefault()*/}
+                                    {/*    console.log(localStorage.getItem("phoneNumber"))*/}
+                                    {/*}}>IIIIIIIIIIIIIIIIi*/}
+                                    {/*</button>*/}
                                 </Form.Group>
 
                                 <Form.Group controlId="formSurname" className="mb-3">
@@ -461,7 +480,7 @@ const ProfilePage = () => {
                                         value={profileData.surname || ""}
                                         onChange={(e) => {
                                             const onlyLetters = e.target.value.replace(/[^a-zA-Zа-яА-ЯёЁ\s-]/g, "");
-                                            handleInputChange({ target: { name: e.target.name, value: onlyLetters } });
+                                            handleInputChange({target: {name: e.target.name, value: onlyLetters}});
                                         }}
                                         disabled={!isEditable}
                                         className="rounded-pill p-3"
@@ -478,14 +497,12 @@ const ProfilePage = () => {
                                         value={profileData.name || ""}
                                         onChange={(e) => {
                                             const onlyLetters = e.target.value.replace(/[^a-zA-Zа-яА-ЯёЁ\s-]/g, "");
-                                            handleInputChange({ target: { name: e.target.name, value: onlyLetters } });
+                                            handleInputChange({target: {name: e.target.name, value: onlyLetters}});
                                         }}
                                         disabled={!isEditable}
                                         className="rounded-pill p-3"
                                     />
                                 </Form.Group>
-
-
 
 
                                 {/* Отчество */}
@@ -498,7 +515,7 @@ const ProfilePage = () => {
                                         value={profileData.patronymic || ""}
                                         onChange={(e) => {
                                             const onlyLetters = e.target.value.replace(/[^a-zA-Zа-яА-ЯёЁ\s-]/g, "");
-                                            handleInputChange({ target: { name: e.target.name, value: onlyLetters } });
+                                            handleInputChange({target: {name: e.target.name, value: onlyLetters}});
                                         }}
                                         disabled={!isEditable}
                                         className="rounded-pill p-3"
@@ -542,7 +559,7 @@ const ProfilePage = () => {
                                             <Button
                                                 variant="danger"
                                                 className="w-50"
-                                                style={{ fontSize: "18px" }}
+                                                style={{fontSize: "18px"}}
                                                 onClick={() => setIsEditable(false)}
                                             >
                                                 Отмена
@@ -550,7 +567,7 @@ const ProfilePage = () => {
                                             <Button
                                                 variant="success"
                                                 className="w-50"
-                                                style={{ fontSize: "18px" }}
+                                                style={{fontSize: "18px"}}
                                                 onClick={handleSave}
                                             >
                                                 Сохранить
@@ -560,7 +577,7 @@ const ProfilePage = () => {
                                         <Button
                                             variant="primary"
                                             className=" w-100"
-                                            style={{ fontSize: "18px" }}
+                                            style={{fontSize: "18px"}}
                                             onClick={() => setIsEditable(true)}
                                         >
                                             Редактировать
@@ -581,16 +598,18 @@ const ProfilePage = () => {
                                 style={{
                                     height: '2px',
                                     background: "white",
-                                }} />
+                                }}/>
                             {/* handleShowToast('Данные профиля не сохранены!', 'error') */}
-                            <Entities onSelectEntity={handleSelectEntity} triggerGet={triggerGet} onTrigger={() => toggleTriggerGet()} onGotPerson={handleGotPerson} />
+                            <Entities onSelectEntity={handleSelectEntity} triggerGet={triggerGet}
+                                      onTrigger={() => toggleTriggerGet()} onGotPerson={handleGotPerson}/>
 
                             <div className="d-grid mt-3">
                                 <Button variant="primary" onClick={openModal} className="w-100">
                                     Добавить новое лицо
                                 </Button>
                             </div>
-                            <EntityModal isOpen={isModalOpen} onClose={closeModal} fullName={fullName} onTrigger={() => toggleTriggerGet()} gotPerson={gotPerson} />
+                            <EntityModal isOpen={isModalOpen} onClose={closeModal} fullName={fullName}
+                                         onTrigger={() => toggleTriggerGet()} gotPerson={gotPerson}/>
                         </Card.Body>
                     </Card>
                 </Col>
@@ -606,7 +625,8 @@ const ProfilePage = () => {
                                     onTrigger={triggerGet} // Передаем triggerGet
                                 />
                                 <div className="mt-3">
-                                    <Button variant="primary" onClick={() => document.getElementById("avatarUpload").click()}>
+                                    <Button variant="primary"
+                                            onClick={() => document.getElementById("avatarUpload").click()}>
                                         Загрузить аватар
                                     </Button>
                                 </div>

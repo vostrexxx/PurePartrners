@@ -393,20 +393,21 @@ const QuestionnaireForm = ({onSubmit, onCancel}) => {
                                                 placeholder="Введите образовательное учреждение"
                                                 value={formData.eduEst}
                                                 onChange={handleInputChange}
-                                                sx={{
-                                                    "& .MuiInputBase-input": {
-                                                        color: "black", // Белый цвет текста
-                                                    },
-                                                    "& .MuiOutlinedInput-notchedOutline": {
-                                                        borderColor: "black", // Белый цвет обводки (опционально)
-                                                    },
-                                                    "& .MuiInputLabel-root": {
-                                                        color: "black", // Белый цвет placeholder
-                                                    },
-                                                    "& .MuiInputLabel-root.Mui-focused": {
-                                                        color: "black", // Белый цвет placeholder при фокусе
-                                                    },
-                                                }} className="form-control-placeholder w-100"
+                                                // sx={{
+                                                //     "& .MuiInputBase-input": {
+                                                //         color: "black", // Белый цвет текста
+                                                //     },
+                                                //     "& .MuiOutlinedInput-notchedOutline": {
+                                                //         borderColor: "black", // Белый цвет обводки (опционально)
+                                                //     },
+                                                //     "& .MuiInputLabel-root": {
+                                                //         color: "black", // Белый цвет placeholder
+                                                //     },
+                                                //     "& .MuiInputLabel-root.Mui-focused": {
+                                                //         color: "black", // Белый цвет placeholder при фокусе
+                                                //     },
+                                                // }}
+                                                className="form-control-placeholder w-100"
                                             />
                                         </Form.Group>
 
@@ -428,20 +429,20 @@ const QuestionnaireForm = ({onSubmit, onCancel}) => {
                                                         name="eduDateStart"
                                                         value={formData.eduDateStart}
                                                         onChange={handleInputChange}
-                                                        sx={{
-                                                            "& .MuiInputBase-input": {
-                                                                color: "black", // Белый цвет текста
-                                                            },
-                                                            "& .MuiOutlinedInput-notchedOutline": {
-                                                                borderColor: "black", // Белый цвет обводки (опционально)
-                                                            },
-                                                            "& .MuiInputLabel-root": {
-                                                                color: "black", // Белый цвет placeholder
-                                                            },
-                                                            "& .MuiInputLabel-root.Mui-focused": {
-                                                                color: "black", // Белый цвет placeholder при фокусе
-                                                            },
-                                                        }}
+                                                        // sx={{
+                                                        //     "& .MuiInputBase-input": {
+                                                        //         color: "black", // Белый цвет текста
+                                                        //     },
+                                                        //     "& .MuiOutlinedInput-notchedOutline": {
+                                                        //         borderColor: "black", // Белый цвет обводки (опционально)
+                                                        //     },
+                                                        //     "& .MuiInputLabel-root": {
+                                                        //         color: "black", // Белый цвет placeholder
+                                                        //     },
+                                                        //     "& .MuiInputLabel-root.Mui-focused": {
+                                                        //         color: "black", // Белый цвет placeholder при фокусе
+                                                        //     },
+                                                        // }}
                                                         className="form-control-placeholder w-100"
                                                     />
                                                 </Form.Group>
@@ -465,20 +466,20 @@ const QuestionnaireForm = ({onSubmit, onCancel}) => {
                                                         name="eduDateEnd"
                                                         value={formData.eduDateEnd}
                                                         onChange={handleInputChange}
-                                                        sx={{
-                                                            "& .MuiInputBase-input": {
-                                                                color: "black", // Белый цвет текста
-                                                            },
-                                                            "& .MuiOutlinedInput-notchedOutline": {
-                                                                borderColor: "black", // Белый цвет обводки (опционально)
-                                                            },
-                                                            "& .MuiInputLabel-root": {
-                                                                color: "black", // Белый цвет placeholder
-                                                            },
-                                                            "& .MuiInputLabel-root.Mui-focused": {
-                                                                color: "black", // Белый цвет placeholder при фокусе
-                                                            },
-                                                        }}
+                                                        // sx={{
+                                                        //     "& .MuiInputBase-input": {
+                                                        //         color: "black", // Белый цвет текста
+                                                        //     },
+                                                        //     "& .MuiOutlinedInput-notchedOutline": {
+                                                        //         borderColor: "black", // Белый цвет обводки (опционально)
+                                                        //     },
+                                                        //     "& .MuiInputLabel-root": {
+                                                        //         color: "black", // Белый цвет placeholder
+                                                        //     },
+                                                        //     "& .MuiInputLabel-root.Mui-focused": {
+                                                        //         color: "black", // Белый цвет placeholder при фокусе
+                                                        //     },
+                                                        // }}
                                                         className="form-control-placeholder w-100"
                                                     />
                                                 </Form.Group>
@@ -514,20 +515,20 @@ const QuestionnaireForm = ({onSubmit, onCancel}) => {
                                             minRows={2}
                                             maxRows={4}
                                             className="form-control-placeholder w-100"
-                                            sx={{
-                                                "& .MuiInputBase-input": {
-                                                    color: "black", // Белый цвет текста
-                                                },
-                                                "& .MuiOutlinedInput-notchedOutline": {
-                                                    borderColor: "black", // Белый цвет обводки (опционально)
-                                                },
-                                                "& .MuiInputLabel-root": {
-                                                    color: "black", // Белый цвет placeholder
-                                                },
-                                                "& .MuiInputLabel-root.Mui-focused": {
-                                                    color: "black", // Белый цвет placeholder при фокусе
-                                                },
-                                            }}
+                                            // sx={{
+                                            //     "& .MuiInputBase-input": {
+                                            //         color: "black", // Белый цвет текста
+                                            //     },
+                                            //     "& .MuiOutlinedInput-notchedOutline": {
+                                            //         borderColor: "black", // Белый цвет обводки (опционально)
+                                            //     },
+                                            //     "& .MuiInputLabel-root": {
+                                            //         color: "black", // Белый цвет placeholder
+                                            //     },
+                                            //     "& .MuiInputLabel-root.Mui-focused": {
+                                            //         color: "black", // Белый цвет placeholder при фокусе
+                                            //     },
+                                            // }}
                                         />
                                     </Form.Group>
                                 )}
@@ -543,20 +544,20 @@ const QuestionnaireForm = ({onSubmit, onCancel}) => {
                                                 value={formData.prices}
                                                 onChange={handleInputChange}
                                                 className="form-control-placeholder w-100"
-                                                sx={{
-                                                    "& .MuiInputBase-input": {
-                                                        color: "black", // Белый цвет текста
-                                                    },
-                                                    "& .MuiOutlinedInput-notchedOutline": {
-                                                        borderColor: "black", // Белый цвет обводки (опционально)
-                                                    },
-                                                    "& .MuiInputLabel-root": {
-                                                        color: "black", // Белый цвет placeholder
-                                                    },
-                                                    "& .MuiInputLabel-root.Mui-focused": {
-                                                        color: "black", // Белый цвет placeholder при фокусе
-                                                    },
-                                                }}
+                                                // sx={{
+                                                //     "& .MuiInputBase-input": {
+                                                //         color: "black", // Белый цвет текста
+                                                //     },
+                                                //     "& .MuiOutlinedInput-notchedOutline": {
+                                                //         borderColor: "black", // Белый цвет обводки (опционально)
+                                                //     },
+                                                //     "& .MuiInputLabel-root": {
+                                                //         color: "black", // Белый цвет placeholder
+                                                //     },
+                                                //     "& .MuiInputLabel-root.Mui-focused": {
+                                                //         color: "black", // Белый цвет placeholder при фокусе
+                                                //     },
+                                                // }}
                                                 multiline
                                                 minRows={2}
                                                 maxRows={10}
@@ -574,20 +575,20 @@ const QuestionnaireForm = ({onSubmit, onCancel}) => {
                                                 placeholder="Введите опыт работы"
                                                 value={formData.workExp}
                                                 onChange={handleInputChange}
-                                                sx={{
-                                                    "& .MuiInputBase-input": {
-                                                        color: "black", // Белый цвет текста
-                                                    },
-                                                    "& .MuiOutlinedInput-notchedOutline": {
-                                                        borderColor: "black", // Белый цвет обводки (опционально)
-                                                    },
-                                                    "& .MuiInputLabel-root": {
-                                                        color: "black", // Белый цвет placeholder
-                                                    },
-                                                    "& .MuiInputLabel-root.Mui-focused": {
-                                                        color: "black", // Белый цвет placeholder при фокусе
-                                                    },
-                                                }}
+                                                // sx={{
+                                                //     "& .MuiInputBase-input": {
+                                                //         color: "black", // Белый цвет текста
+                                                //     },
+                                                //     "& .MuiOutlinedInput-notchedOutline": {
+                                                //         borderColor: "black", // Белый цвет обводки (опционально)
+                                                //     },
+                                                //     "& .MuiInputLabel-root": {
+                                                //         color: "black", // Белый цвет placeholder
+                                                //     },
+                                                //     "& .MuiInputLabel-root.Mui-focused": {
+                                                //         color: "black", // Белый цвет placeholder при фокусе
+                                                //     },
+                                                // }}
                                                 className="form-control-placeholder w-100"
                                             />
                                         </Form.Group>
@@ -605,20 +606,20 @@ const QuestionnaireForm = ({onSubmit, onCancel}) => {
                                         multiline
                                         minRows={2}
                                         maxRows={10}
-                                        sx={{
-                                            "& .MuiInputBase-input": {
-                                                color: "black", // Белый цвет текста
-                                            },
-                                            "& .MuiOutlinedInput-notchedOutline": {
-                                                borderColor: "black", // Белый цвет обводки (опционально)
-                                            },
-                                            "& .MuiInputLabel-root": {
-                                                color: "black", // Белый цвет placeholder
-                                            },
-                                            "& .MuiInputLabel-root.Mui-focused": {
-                                                color: "black", // Белый цвет placeholder при фокусе
-                                            },
-                                        }}
+                                        // sx={{
+                                        //     "& .MuiInputBase-input": {
+                                        //         color: "black", // Белый цвет текста
+                                        //     },
+                                        //     "& .MuiOutlinedInput-notchedOutline": {
+                                        //         borderColor: "black", // Белый цвет обводки (опционально)
+                                        //     },
+                                        //     "& .MuiInputLabel-root": {
+                                        //         color: "black", // Белый цвет placeholder
+                                        //     },
+                                        //     "& .MuiInputLabel-root.Mui-focused": {
+                                        //         color: "black", // Белый цвет placeholder при фокусе
+                                        //     },
+                                        // }}
                                         placeholder="Опишите свои навыки и достижения"
                                         value={formData.selfInfo}
                                         onChange={handleInputChange}
@@ -639,7 +640,7 @@ const QuestionnaireForm = ({onSubmit, onCancel}) => {
                                         style={{
                                             // backgroundColor: "#333",
                                             // color: "white",
-                                            border: "1px solid #555",
+                                            // border: "1px solid #555",
                                         }}
                                     />
 
@@ -689,21 +690,21 @@ const QuestionnaireForm = ({onSubmit, onCancel}) => {
 
                                 <div className="d-flex justify-content-between mt-4">
 
-                                    <Button
+                                    <button
                                         style={{
                                             width: "48%",
-                                            backgroundColor: "#ffb300",
-                                            border: "none",
-                                            // color: "black",
+                                            border: "2px solid #ff7101",
+                                            backgroundColor: "white",
+                                            color: "#ff7101",
                                             fontWeight: "bold",
                                             padding: "10px",
                                             borderRadius: "8px",
-                                            transition: "background-color 0.3s",
+                                            transition: "all 0.3s",
                                         }}
                                         onClick={onCancel}
                                     >
                                         Отмена
-                                    </Button>
+                                    </button>
                                     <Button
                                         style={{
                                             width: "48%",
@@ -908,20 +909,20 @@ const AnnouncementForm = ({onSubmit, onCancel}) => {
                                         value={formData.totalCost}
                                         className='form-control-placeholder w-100'
                                         onChange={handleInputChange}
-                                        sx={{
-                                            "& .MuiInputBase-input": {
-                                                color: "black", // Белый цвет текста
-                                            },
-                                            "& .MuiOutlinedInput-notchedOutline": {
-                                                borderColor: "black", // Белый цвет обводки (опционально)
-                                            },
-                                            "& .MuiInputLabel-root": {
-                                                color: "black", // Белый цвет placeholder
-                                            },
-                                            "& .MuiInputLabel-root.Mui-focused": {
-                                                color: "black", // Белый цвет placeholder при фокусе
-                                            },
-                                        }}
+                                        // sx={{
+                                        //     "& .MuiInputBase-input": {
+                                        //         color: "black", // Белый цвет текста
+                                        //     },
+                                        //     "& .MuiOutlinedInput-notchedOutline": {
+                                        //         borderColor: "black", // Белый цвет обводки (опционально)
+                                        //     },
+                                        //     "& .MuiInputLabel-root": {
+                                        //         color: "black", // Белый цвет placeholder
+                                        //     },
+                                        //     "& .MuiInputLabel-root.Mui-focused": {
+                                        //         color: "black", // Белый цвет placeholder при фокусе
+                                        //     },
+                                        // }}
 
                                         // className=""
                                     />
@@ -950,20 +951,20 @@ const AnnouncementForm = ({onSubmit, onCancel}) => {
                                         multiline
                                         minRows={1}
                                         maxRows={4}
-                                        sx={{
-                                            "& .MuiInputBase-input": {
-                                                color: "black", // Белый цвет текста
-                                            },
-                                            "& .MuiOutlinedInput-notchedOutline": {
-                                                borderColor: "black", // Белый цвет обводки (опционально)
-                                            },
-                                            "& .MuiInputLabel-root": {
-                                                color: "black", // Белый цвет placeholder
-                                            },
-                                            "& .MuiInputLabel-root.Mui-focused": {
-                                                color: "black", // Белый цвет placeholder при фокусе
-                                            },
-                                        }}
+                                        // sx={{
+                                        //     "& .MuiInputBase-input": {
+                                        //         color: "black", // Белый цвет текста
+                                        //     },
+                                        //     "& .MuiOutlinedInput-notchedOutline": {
+                                        //         borderColor: "black", // Белый цвет обводки (опционально)
+                                        //     },
+                                        //     "& .MuiInputLabel-root": {
+                                        //         color: "black", // Белый цвет placeholder
+                                        //     },
+                                        //     "& .MuiInputLabel-root.Mui-focused": {
+                                        //         color: "black", // Белый цвет placeholder при фокусе
+                                        //     },
+                                        // }}
                                     />
                                 </Form.Group>
                                 <Row className="g-3 mb-3">
@@ -975,20 +976,20 @@ const AnnouncementForm = ({onSubmit, onCancel}) => {
                                                 name="startDate"
                                                 value={formData.startDate}
                                                 onChange={handleInputChange}
-                                                sx={{
-                                                    "& .MuiInputBase-input": {
-                                                        color: "black", // Белый цвет текста
-                                                    },
-                                                    "& .MuiOutlinedInput-notchedOutline": {
-                                                        borderColor: "black", // Белый цвет обводки (опционально)
-                                                    },
-                                                    "& .MuiInputLabel-root": {
-                                                        color: "black", // Белый цвет placeholder
-                                                    },
-                                                    "& .MuiInputLabel-root.Mui-focused": {
-                                                        color: "black", // Белый цвет placeholder при фокусе
-                                                    },
-                                                }}
+                                                // sx={{
+                                                //     "& .MuiInputBase-input": {
+                                                //         color: "black", // Белый цвет текста
+                                                //     },
+                                                //     "& .MuiOutlinedInput-notchedOutline": {
+                                                //         borderColor: "black", // Белый цвет обводки (опционально)
+                                                //     },
+                                                //     "& .MuiInputLabel-root": {
+                                                //         color: "black", // Белый цвет placeholder
+                                                //     },
+                                                //     "& .MuiInputLabel-root.Mui-focused": {
+                                                //         color: "black", // Белый цвет placeholder при фокусе
+                                                //     },
+                                                // }}
                                                 className="form-control-placeholder w-100"
                                             />
                                         </Form.Group>
@@ -1001,20 +1002,20 @@ const AnnouncementForm = ({onSubmit, onCancel}) => {
                                                 name="finishDate"
                                                 value={formData.finishDate}
                                                 onChange={handleInputChange}
-                                                sx={{
-                                                    "& .MuiInputBase-input": {
-                                                        color: "black", // Белый цвет текста
-                                                    },
-                                                    "& .MuiOutlinedInput-notchedOutline": {
-                                                        borderColor: "black", // Белый цвет обводки (опционально)
-                                                    },
-                                                    "& .MuiInputLabel-root": {
-                                                        color: "black", // Белый цвет placeholder
-                                                    },
-                                                    "& .MuiInputLabel-root.Mui-focused": {
-                                                        color: "black", // Белый цвет placeholder при фокусе
-                                                    },
-                                                }}
+                                                // sx={{
+                                                //     "& .MuiInputBase-input": {
+                                                //         color: "black", // Белый цвет текста
+                                                //     },
+                                                //     "& .MuiOutlinedInput-notchedOutline": {
+                                                //         borderColor: "black", // Белый цвет обводки (опционально)
+                                                //     },
+                                                //     "& .MuiInputLabel-root": {
+                                                //         color: "black", // Белый цвет placeholder
+                                                //     },
+                                                //     "& .MuiInputLabel-root.Mui-focused": {
+                                                //         color: "black", // Белый цвет placeholder при фокусе
+                                                //     },
+                                                // }}
 
                                                 className="form-control-placeholder w-100"
                                             />
@@ -1035,33 +1036,27 @@ const AnnouncementForm = ({onSubmit, onCancel}) => {
                                         maxRows={10}
                                         value={formData.comments}
                                         onChange={handleInputChange}
-                                        sx={{
-                                            "& .MuiInputBase-input": {
-                                                color: "black", // Белый цвет текста
-                                            },
-                                            "& .MuiOutlinedInput-notchedOutline": {
-                                                borderColor: "black", // Белый цвет обводки (опционально)
-                                            },
-                                            "& .MuiInputLabel-root": {
-                                                color: "black", // Белый цвет placeholder
-                                            },
-                                            "& .MuiInputLabel-root.Mui-focused": {
-                                                color: "black", // Белый цвет placeholder при фокусе
-                                            },
-                                        }}
+                                        // sx={{
+                                        //     "& .MuiInputBase-input": {
+                                        //         color: "black", // Белый цвет текста
+                                        //     },
+                                        //     "& .MuiOutlinedInput-notchedOutline": {
+                                        //         borderColor: "black", // Белый цвет обводки (опционально)
+                                        //     },
+                                        //     "& .MuiInputLabel-root": {
+                                        //         color: "black", // Белый цвет placeholder
+                                        //     },
+                                        //     "& .MuiInputLabel-root.Mui-focused": {
+                                        //         color: "black", // Белый цвет placeholder при фокусе
+                                        //     },
+                                        // }}
                                         className="form-control-placeholder w-100"
                                     />
                                 </Form.Group>
 
 
                                 {/* Стили для серого плейсхолдера */}
-                                <style>
-                                    {`
-    .form-control-placeholder::placeholder {
-      color: #bbb; /* Серый цвет для плейсхолдера */
-    }
-  `}
-                                </style>
+
 
                                 {/* Фотографии */}
                                 <h5 className="mt-4 mb-2" style={{color: "#ff7f00"}}>
@@ -1074,9 +1069,9 @@ const AnnouncementForm = ({onSubmit, onCancel}) => {
                                         multiple
                                         disabled={uploading}
                                         onChange={handlePhotoChange}
-                                        style={{
-                                            border: "1px solid #555",
-                                        }}
+                                        // style={{
+                                        //     border: "1px solid #555",
+                                        // }}
                                     />
                                     <ListGroup className="mt-2">
                                         {images.map((photo, index) => (
@@ -1132,9 +1127,9 @@ const AnnouncementForm = ({onSubmit, onCancel}) => {
                                         multiple
                                         onChange={handleFileChange}
                                         disabled={uploading}
-                                        style={{
-                                            border: "1px solid #555",
-                                        }}
+                                        // style={{
+                                        //     border: "1px solid #555",
+                                        // }}
                                     />
                                     <ListGroup className="mt-2">
                                         {files.map((file, index) => (
@@ -1186,21 +1181,22 @@ const AnnouncementForm = ({onSubmit, onCancel}) => {
                                 {/* Кнопки */}
                                 <div className="d-flex justify-content-between mt-4">
 
-                                    <Button
+                                    <button
                                         style={{
                                             width: "48%",
-                                            border: "none",
-                                            color: "white",
+                                            border: "2px solid #ff7101",
+                                            backgroundColor: "white",
+                                            color: "#ff7101",
                                             fontWeight: "bold",
                                             padding: "10px",
                                             borderRadius: "8px",
-                                            transition: "background-color 0.3s",
+                                            transition: "all 0.3s",
                                         }}
                                         onClick={onCancel}
                                         disabled={uploading}
                                     >
                                         Отмена
-                                    </Button>
+                                    </button>
                                     <Button
                                         style={{
                                             width: "48%",

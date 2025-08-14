@@ -160,7 +160,7 @@ const EntityModal = ({isOpen, onClose, fullName, onTrigger, gotPerson}) => {
     return (
         <Modal show={isOpen} onHide={onClose} centered>
             <Modal.Header closeButton>
-                <Modal.Title>Добавить новое лицо</Modal.Title>
+                <Modal.Title>Добавление лица</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 {/* Выпадающий список показываем только если есть выбор */}
@@ -190,9 +190,11 @@ const EntityModal = ({isOpen, onClose, fullName, onTrigger, gotPerson}) => {
                                 {/* ФИО */}
                                 <Form.Group className="mb-3">
                                     <Form.Label>ФИО</Form.Label>
-                                    <Form.Control
-                                        type="text"
+                                    <textarea
+                                        className="form-control"
+                                        rows="2"
                                         name="fullName"
+
                                         value={formData.fullName}
                                         onChange={handleInputChange}
                                     />
@@ -201,8 +203,9 @@ const EntityModal = ({isOpen, onClose, fullName, onTrigger, gotPerson}) => {
                                 {/* Адрес */}
                                 <Form.Group className="mb-3">
                                     <Form.Label>Адрес</Form.Label>
-                                    <Form.Control
-                                        type="text"
+                                    <textarea
+                                        className="form-control"
+                                        rows="3"
                                         name="address"
                                         value={formData.address}
                                         onChange={handleInputChange}
@@ -312,9 +315,9 @@ const EntityModal = ({isOpen, onClose, fullName, onTrigger, gotPerson}) => {
                 )}
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="success" onClick={handleSave} className="w-100">
+                {isLegalEntity !== null && <Button variant="success" onClick={handleSave} className="w-100">
                     Сохранить
-                </Button>
+                </Button>}
             </Modal.Footer>
         </Modal>
     );

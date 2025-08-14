@@ -108,20 +108,20 @@ const MetroAutocomplete = ({ onSelect, value }) => {
                 }}
                 placeholder="Введите станцию метро"
                 className="metro-input w-100"
-                sx={{
-                    "& .MuiInputBase-input": {
-                        color: "black",
-                    },
-                    "& .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "black",
-                    },
-                    "& .MuiInputLabel-root": {
-                        color: "black",
-                    },
-                    "& .MuiInputLabel-root.Mui-focused": {
-                        color: "black",
-                    },
-                }}
+                // sx={{
+                //     "& .MuiInputBase-input": {
+                //         color: "black",
+                //     },
+                //     "& .MuiOutlinedInput-notchedOutline": {
+                //         borderColor: "black",
+                //     },
+                //     "& .MuiInputLabel-root": {
+                //         color: "black",
+                //     },
+                //     "& .MuiInputLabel-root.Mui-focused": {
+                //         color: "black",
+                //     },
+                // }}
             />
 
             {showSuggestions && results.length > 0 && (

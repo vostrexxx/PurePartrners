@@ -98,20 +98,20 @@ const AutoCompleteInput = ({ name, placeholder, onCategorySelect }) => {
                     }
                 }}
                 className="autocomplete-input w-100"
-                sx={{
-                    "& .MuiInputBase-input": {
-                        color: "black",
-                    },
-                    "& .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "black",
-                    },
-                    "& .MuiInputLabel-root": {
-                        color: "black",
-                    },
-                    "& .MuiInputLabel-root.Mui-focused": {
-                        color: "black",
-                    },
-                }}
+                // sx={{
+                //     "& .MuiInputBase-input": {
+                //         color: "black",
+                //     },
+                //     "& .MuiOutlinedInput-notchedOutline": {
+                //         borderColor: "black",
+                //     },
+                //     "& .MuiInputLabel-root": {
+                //         color: "black",
+                //     },
+                //     "& .MuiInputLabel-root.Mui-focused": {
+                //         color: "black",
+                //     },
+                // }}
             />
             <style>
                 {`
