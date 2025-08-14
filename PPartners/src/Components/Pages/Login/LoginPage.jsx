@@ -143,7 +143,7 @@ const LoginPage = () => {
                                         <Button
                                             variant="link"
                                             className="text-decoration-underline text-center mt-2"
-                                            style={{color: "#0E3055"}}
+                                            style={{color: "#ff7101"}}
                                             onClick={handleEnterPhoneNumber}
                                         >
                                             Забыли пароль?
@@ -151,7 +151,7 @@ const LoginPage = () => {
                                         <Button
                                             variant="link"
                                             className="text-decoration-underline text-center"
-                                            style={{color: "#0E3055"}}
+                                            style={{color: "#ff7101"}}
                                             onClick={ChangePhoneNumber}
                                         >
                                             Изменить номер телефона
