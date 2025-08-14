@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { Modal, Form, Button, Card, Container, Row, Col } from "react-bootstrap";
-import { useProfile } from "../../Components/Context/ProfileContext";
-import { useToast } from '../../Components/Notification/ToastContext';
+import React, {useEffect, useState} from "react";
+import {Modal, Form, Button, Card, Container, Row, Col} from "react-bootstrap";
+import {useProfile} from "../../Components/Context/ProfileContext";
+import {useToast} from '../../Components/Notification/ToastContext';
 
-const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
+const EntityDetailsModal = ({isOpen, onClose, id, onTrigger}) => {
 
     const showToast = useToast();
 
@@ -17,7 +17,7 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
 
     const url = localStorage.getItem("url");
     const getAuthToken = () => localStorage.getItem("authToken");
-    const { isSpecialist } = useProfile();
+    const {isSpecialist} = useProfile();
     // const navigate = useNavigate();
 
     useEffect(() => {
@@ -66,15 +66,32 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
     }, [isOpen, id]);
 
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         setEntityData((prevData) => ({
             ...prevData,
             [name]: value,
         }));
     };
 
-    const handleEditClick = () => {
-        setIsEditable(true);
+    const handleEditClick = async () => {
+        // agreement/entity/{id}/permission
+
+        const response = await fetch(`${url}/agreement/entity/${id.toString()}/permission`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${getAuthToken()}`,
+            },
+        });
+        const data = await response.json();
+
+        if (data.permission) {
+            setIsEditable(true);
+        } else {
+            showToast('Вы не можете редактировать лицо, пока оно находится в работе', 'warning')
+        }
+
+
     };
 
     const handleCancelClick = () => {
@@ -83,57 +100,71 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
     };
 
     const handleDeleteClick = async () => {
-        try {
-            const who = isSpecialist ? "contractor" : "customer";
 
-            if (isLegalEntity) {
-                const entityParams = new URLSearchParams();
-                isSpecialist
-                    ? entityParams.append("contractorId", id)
-                    : entityParams.append("customerId", id);
-                const response = await fetch(`${url}/${who}?${entityParams.toString()}`, {
-                    method: "DELETE",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${getAuthToken()}`,
-                    },
-                });
+        const response = await fetch(`${url}/agreement/entity/${id.toString()}/permission`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${getAuthToken()}`,
+            },
+        });
+        const data = await response.json();
 
-                if (!response.ok) {
-                    throw new Error(`Ошибка при удалении данных: ${response.status}`);
+        if (data.permission) {
+            try {
+                const who = isSpecialist ? "contractor" : "customer";
+
+                if (isLegalEntity) {
+                    const entityParams = new URLSearchParams();
+                    isSpecialist
+                        ? entityParams.append("contractorId", id)
+                        : entityParams.append("customerId", id);
+                    const response = await fetch(`${url}/${who}?${entityParams.toString()}`, {
+                        method: "DELETE",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${getAuthToken()}`,
+                        },
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Ошибка при удалении данных: ${response.status}`);
+                    }
+                } else {
+                    const response1 = await fetch(`${url}/customer/person`, {
+                        method: "DELETE",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${getAuthToken()}`,
+                        },
+                    });
+                    if (!response1.ok) {
+                        throw new Error(`Ошибка при удалении данных: ${response1.status}`);
+                    }
+                    const response2 = await fetch(`${url}/contractor/person`, {
+                        method: "DELETE",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${getAuthToken()}`,
+                        },
+                    });
+                    if (!response2.ok) {
+                        throw new Error(`Ошибка при удалении данных: ${response2.status}`);
+                    }
                 }
+
+                showToast('Данные лица успешно удалены', 'success')
+
+            } catch (error) {
+                console.error(`Ошибка при удалении данных: ${error.message}`);
+                showToast('Ошибка при удалении лица', 'danger')
             }
-            else {
-                const response1 = await fetch(`${url}/customer/person`, {
-                    method: "DELETE",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${getAuthToken()}`,
-                    },
-                });
-                if (!response1.ok) {
-                    throw new Error(`Ошибка при удалении данных: ${response1.status}`);
-                }
-                const response2 = await fetch(`${url}/contractor/person`, {
-                    method: "DELETE",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${getAuthToken()}`,
-                    },
-                });
-                if (!response2.ok) {
-                    throw new Error(`Ошибка при удалении данных: ${response2.status}`);
-                }
-            }
-
-            showToast('Данные лица успешно удалены', 'success')
-
-        } catch (error) {
-            console.error(`Ошибка при удалении данных: ${error.message}`);
-            showToast('Ошибка при удалении лица', 'danger')
+            onClose();
+            onTrigger()
+        } else {
+            showToast('Вы не можете удалить лицо, пока оно находится в работе', 'warning')
         }
-        onClose();
-        onTrigger()
+
     };
 
     const handleSaveClick = async () => {
@@ -235,144 +266,151 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
     }
 
     return (
-        <Modal show={isOpen} onHide={onClose} centered>
+        <Modal
+            show={isOpen}
+            onHide={() => {
+                onClose();
+                setIsEditable(false);
+            }}
+            centered
+        >
             <Modal.Header closeButton>
                 <Modal.Title>Детали лица</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 {/*<div style={{ display: "flex", flexDirection: "column" }}>*/}
 
-                    {/*<Row>*/}
-                        <Col xs={11} md={11} lg={11} className="mx-auto">
+                {/*<Row>*/}
+                <Col xs={11} md={11} lg={11} className="mx-auto">
 
-                            <h3 className="text-center mb-4">
-                                {isLegalEntity && isLegalEntity ? "Юридическое лицо" : "Физическое лицо"}
-                            </h3>
-                            <Form>
-                                {/* Общие поля */}
+                    <h3 className="text-center mb-4">
+                        {isLegalEntity && isLegalEntity ? "Юридическое лицо" : "Физическое лицо"}
+                    </h3>
+                    <Form>
+                        {/* Общие поля */}
+                        <Form.Group className="mb-3">
+                            <Form.Label>ФИО</Form.Label>
+                            <textarea
+                                className='form-control'
+                                rows={2}
+                                name="fullName"
+                                value={entityData.fullName || ""}
+                                onChange={handleInputChange}
+                                disabled={!isEditable}
+                            />
+                        </Form.Group>
+
+                        {isLegalEntity && (
+                            <>
                                 <Form.Group className="mb-3">
-                                    <Form.Label>ФИО</Form.Label>
-                                    <textarea
-                                        className='form-control'
-                                        rows={2}
-                                        name="fullName"
-                                        value={entityData.fullName || ""}
-                                        onChange={handleInputChange}
-                                        disabled={!isEditable}
-                                    />
-                                </Form.Group>
-
-                                {isLegalEntity && (
-                                    <>
-                                        <Form.Group className="mb-3">
-                                            <Form.Label>Наименование фирмы</Form.Label>
-                                            <Form.Control
-                                                type="text"
-                                                name="firm"
-                                                multiple
-
-                                                value={entityData.firm || ""}
-                                                onChange={handleInputChange}
-                                                disabled={!isEditable}
-                                            />
-                                        </Form.Group>
-
-                                        <Form.Group className="mb-3">
-                                            <Form.Label>Должность</Form.Label>
-                                            <Form.Control
-                                                type="text"
-                                                name="position"
-                                                value={entityData.position || ""}
-                                                onChange={handleInputChange}
-                                                disabled={!isEditable}
-                                            />
-                                        </Form.Group>
-                                    </>
-                                )}
-
-                                <Form.Group className="mb-3">
-                                    <Form.Label>ИНН</Form.Label>
-                                    <Form.Control
-                                        type="number"
-                                        name="inn"
-                                        value={entityData.inn || ""}
-                                        onChange={handleInputChange}
-                                        disabled={!isEditable}
-                                    />
-                                </Form.Group>
-
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Адрес</Form.Label>
-                                    <textarea
-                                        className='form-control'
-                                        // type="text"
-                                        name="address"
-                                        value={entityData.address || ""}
-                                        onChange={handleInputChange}
-                                        disabled={!isEditable}
-                                    />
-                                </Form.Group>
-
-                                <Form.Group className="mb-3">
-                                    <Form.Label>КПП</Form.Label>
-                                    <Form.Control
-                                        type="number"
-                                        name="kpp"
-                                        value={entityData.kpp || ""}
-                                        onChange={handleInputChange}
-                                        disabled={!isEditable}
-                                    />
-                                </Form.Group>
-
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Банк</Form.Label>
+                                    <Form.Label>Наименование фирмы</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="bank"
-                                        value={entityData.bank || ""}
+                                        name="firm"
+                                        multiple
+
+                                        value={entityData.firm || ""}
                                         onChange={handleInputChange}
                                         disabled={!isEditable}
                                     />
                                 </Form.Group>
 
                                 <Form.Group className="mb-3">
-                                    <Form.Label>Корреспондентский счет</Form.Label>
+                                    <Form.Label>Должность</Form.Label>
                                     <Form.Control
-                                        type="number"
-                                        name="corrAcc"
-                                        value={entityData.corrAcc || ""}
+                                        type="text"
+                                        name="position"
+                                        value={entityData.position || ""}
                                         onChange={handleInputChange}
                                         disabled={!isEditable}
                                     />
                                 </Form.Group>
+                            </>
+                        )}
 
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Расчетный счет</Form.Label>
-                                    <Form.Control
-                                        type="number"
-                                        name="currAcc"
-                                        value={entityData.currAcc || ""}
-                                        onChange={handleInputChange}
-                                        disabled={!isEditable}
-                                    />
-                                </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label>ИНН</Form.Label>
+                            <Form.Control
+                                type="number"
+                                name="inn"
+                                value={entityData.inn || ""}
+                                onChange={handleInputChange}
+                                disabled={!isEditable}
+                            />
+                        </Form.Group>
 
-                                <Form.Group className="mb-3">
-                                    <Form.Label>БИК</Form.Label>
-                                    <Form.Control
-                                        type="number"
-                                        name="bik"
-                                        value={entityData.bik || ""}
-                                        onChange={handleInputChange}
-                                        disabled={!isEditable}
-                                    />
-                                </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Адрес</Form.Label>
+                            <textarea
+                                className='form-control'
+                                // type="text"
+                                name="address"
+                                value={entityData.address || ""}
+                                onChange={handleInputChange}
+                                disabled={!isEditable}
+                            />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3">
+                            <Form.Label>КПП</Form.Label>
+                            <Form.Control
+                                type="number"
+                                name="kpp"
+                                value={entityData.kpp || ""}
+                                onChange={handleInputChange}
+                                disabled={!isEditable}
+                            />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3">
+                            <Form.Label>Банк</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="bank"
+                                value={entityData.bank || ""}
+                                onChange={handleInputChange}
+                                disabled={!isEditable}
+                            />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3">
+                            <Form.Label>Корреспондентский счет</Form.Label>
+                            <Form.Control
+                                type="number"
+                                name="corrAcc"
+                                value={entityData.corrAcc || ""}
+                                onChange={handleInputChange}
+                                disabled={!isEditable}
+                            />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3">
+                            <Form.Label>Расчетный счет</Form.Label>
+                            <Form.Control
+                                type="number"
+                                name="currAcc"
+                                value={entityData.currAcc || ""}
+                                onChange={handleInputChange}
+                                disabled={!isEditable}
+                            />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3">
+                            <Form.Label>БИК</Form.Label>
+                            <Form.Control
+                                type="number"
+                                name="bik"
+                                value={entityData.bik || ""}
+                                onChange={handleInputChange}
+                                disabled={!isEditable}
+                            />
+                        </Form.Group>
 
 
-                            </Form>
+                    </Form>
 
-                        </Col>
-                    {/*</Row>*/}
+                </Col>
+                {/*</Row>*/}
                 {/*</div >*/}
             </Modal.Body>
             <Modal.Footer>
@@ -386,19 +424,37 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
                             <Button
                                 variant="danger"
                                 className="flex-grow-1"
-                                style={{ fontSize: "15px" }}
+                                style={{
+                                    width: "48%",
+                                    border: "2px solid #ff7101",
+                                    backgroundColor: "white",
+                                    color: "#ff7101",
+                                    fontWeight: "bold",
+                                    padding: "10px",
+                                    borderRadius: "8px",
+                                    transition: "all 0.3s",
+                                }}
                                 onClick={handleDeleteClick}
                             >
                                 Удалить
                             </Button>
-                            {/*<Button*/}
-                            {/*    variant="success"*/}
-                            {/*    className="flex-grow-1"*/}
-                            {/*    style={{ fontSize: "15px" }}*/}
-                            {/*    onClick={handleEditClick}*/}
-                            {/*>*/}
-                            {/*    Редактировать*/}
-                            {/*</Button>*/}
+                            <Button
+                                variant="success"
+                                className="flex-grow-1"
+                                style={{
+                                    width: "48%",
+                                    backgroundColor: "#ff7f00",
+                                    border: "none",
+                                    // color: "black",
+                                    fontWeight: "bold",
+                                    padding: "10px",
+                                    borderRadius: "8px",
+                                    transition: "background-color 0.3s",
+                                }}
+                                onClick={handleEditClick}
+                            >
+                                Редактировать
+                            </Button>
 
                         </>
 
@@ -408,11 +464,16 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
                             <Button
                                 variant="danger"
                                 className="flex-grow-1"
-                                // style={{
-                                //     fontSize: "15px",
-                                //     backgroundColor: "#ff7101",
-                                //     border: "none",
-                                // }}
+                                style={{
+                                    // width: "48%",
+                                    border: "2px solid #ff7101",
+                                    backgroundColor: "white",
+                                    color: "#ff7101",
+                                    fontWeight: "bold",
+                                    padding: "10px",
+                                    borderRadius: "8px",
+                                    transition: "all 0.3s",
+                                }}
                                 onClick={handleCancelClick}
                             >
                                 Отмена
@@ -421,7 +482,16 @@ const EntityDetailsModal = ({ isOpen, onClose, id, onTrigger }) => {
                             <Button
                                 variant="success"
                                 className="flex-grow-1"
-                                style={{ fontSize: "15px" }}
+                                style={{
+                                    // width: "48%",
+                                    backgroundColor: "#ff7f00",
+                                    border: "none",
+                                    // color: "black",
+                                    fontWeight: "bold",
+                                    padding: "10px",
+                                    borderRadius: "8px",
+                                    transition: "background-color 0.3s",
+                                }}
                                 onClick={handleSaveClick}
                             >
                                 Сохранить

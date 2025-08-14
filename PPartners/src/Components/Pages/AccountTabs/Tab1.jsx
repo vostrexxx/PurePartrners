@@ -216,6 +216,7 @@ const Entities = ({onSelectEntity, triggerGet, onTrigger, onGotPerson}) => {
 };
 
 const ProfilePage = () => {
+    let phoneNumber = localStorage.getItem('phoneNumber')
 
     const showToast = useToast();
     const [profileData, setProfileData] = useState({
@@ -227,9 +228,6 @@ const ProfilePage = () => {
         phoneNumber: '',
     });
     const [avatarPath, setAvatarPath] = useState(null);
-    const [passportPhoto1, setPassportPhoto1] = useState(null);
-    const [passportPhoto2, setPassportPhoto2] = useState(null);
-    const [passportPhoto3, setPassportPhoto3] = useState(null);
     const [isEditable, setIsEditable] = useState(false);
     const [error, setError] = useState(null);
     const url = localStorage.getItem('url');
@@ -352,7 +350,6 @@ const ProfilePage = () => {
     };
 
     const handleSave = async () => {
-        console.log(profileData)
         try {
             const response = await fetch(`${url}/profile`, {
                 method: 'POST',
@@ -362,7 +359,6 @@ const ProfilePage = () => {
                 },
                 body: JSON.stringify(profileData),
             });
-            // console.log(response)
             if (!response.ok) {
                 throw new Error(`Ошибка сети: ${response.status}`);
             } else {
@@ -556,18 +552,36 @@ const ProfilePage = () => {
                                 <div className="d-grid gap-2">
                                     {isEditable ? (
                                         <div className="d-flex gap-2">
-                                            <Button
-                                                variant="danger"
+                                            <button
+                                                // variant="danger"
                                                 className="w-50"
-                                                style={{fontSize: "18px"}}
+                                                style={{
+                                                    // width: "48%",
+                                                    border: "2px solid #ff7101",
+                                                    backgroundColor: "white",
+                                                    color: "#ff7101",
+                                                    fontWeight: "bold",
+                                                    padding: "10px",
+                                                    borderRadius: "8px",
+                                                    transition: "all 0.3s",
+                                                }}
                                                 onClick={() => setIsEditable(false)}
                                             >
                                                 Отмена
-                                            </Button>
+                                            </button>
                                             <Button
                                                 variant="success"
                                                 className="w-50"
-                                                style={{fontSize: "18px"}}
+                                                style={{
+                                                    width: "48%",
+                                                    backgroundColor: "#ff7f00",
+                                                    border: "none",
+                                                    // color: "black",
+                                                    fontWeight: "bold",
+                                                    padding: "10px",
+                                                    borderRadius: "8px",
+                                                    transition: "background-color 0.3s",
+                                                }}
                                                 onClick={handleSave}
                                             >
                                                 Сохранить
@@ -577,8 +591,12 @@ const ProfilePage = () => {
                                         <Button
                                             variant="primary"
                                             className=" w-100"
-                                            style={{fontSize: "18px"}}
-                                            onClick={() => setIsEditable(true)}
+                                            style={{
+                                                // fontSize: "18px",
+                                            fontWeight:'bold'
+                                            }}
+                                            onClick={() => {
+                                                setIsEditable(true)}}
                                         >
                                             Редактировать
                                         </Button>
@@ -604,7 +622,17 @@ const ProfilePage = () => {
                                       onTrigger={() => toggleTriggerGet()} onGotPerson={handleGotPerson}/>
 
                             <div className="d-grid mt-3">
-                                <Button variant="primary" onClick={openModal} className="w-100">
+                                <Button variant="primary" onClick={openModal} className="w-100"
+                                        style={{
+                                            // width: "48%",
+                                            // border: "2px solid #ff7101",
+                                            // backgroundColor: "white",
+                                            // color: "#ff7101",
+                                            fontWeight: "bold",
+                                            // padding: "10px",
+                                            // borderRadius: "8px",
+                                            // transition: "all 0.3s",
+                                        }}>
                                     Добавить новое лицо
                                 </Button>
                             </div>
@@ -622,7 +650,7 @@ const ProfilePage = () => {
                                 <ImageLoader
                                     imagePath={avatarPath}
                                     place={"profile"}
-                                    onTrigger={triggerGet} // Передаем triggerGet
+                                    onTrigger={triggerGet}
                                 />
                                 <div className="mt-3">
                                     <Button variant="primary"

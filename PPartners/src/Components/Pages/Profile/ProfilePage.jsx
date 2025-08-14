@@ -1,6 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useToast } from '../../Notification/ToastContext'
+import React, {useState, useEffect} from 'react';
+import {useToast} from '../../Notification/ToastContext'
+import {BurstModeTwoTone} from "@mui/icons-material";
+
 let url = localStorage.getItem('url')
+let phoneNumber = localStorage.getItem('phoneNumber')
 
 // Функция для получения токена
 const getAuthToken = () => localStorage.getItem('authToken');
@@ -12,7 +15,7 @@ const ProfilePage = () => {
         surname: '',
         patronymic: '',
         email: '',
-        phoneNumber: '',
+        phoneNumber: phoneNumber,
         birthday: '',
         isPassportConfirmed: false,
     });
@@ -54,7 +57,7 @@ const ProfilePage = () => {
     }, []); // Пустой массив зависимостей, чтобы запрос выполнялся один раз при монтировании компонента
 
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         setProfileData(prevData => ({
             ...prevData,
             [name]: value
@@ -62,7 +65,7 @@ const ProfilePage = () => {
     };
 
     const handleCheckboxChange = (e) => {
-        const { name, checked } = e.target;
+        const {name, checked} = e.target;
         setProfileData(prevData => ({
             ...prevData,
             [name]: checked
@@ -100,11 +103,14 @@ const ProfilePage = () => {
     };
 
     if (!isDataLoaded) {
-        return <div>Ждём-ссс...</div>; // Пока данные загружаются, показываем загрузку
+        return <div>Ждём-ссс...</div>;
     }
 
     return (
         <div>
+            <Button onClick={() => {
+
+            }}></Button>
             <h1>Личные данные</h1>
             <div>
                 <label>Имя:</label>
@@ -112,7 +118,7 @@ const ProfilePage = () => {
                     type="text"
                     name="name"
                     placeholder="Введите имя"
-                    value={profileData.name} // Значение поля заполняется данными из состояния
+                    value={profileData.name}
                     onChange={handleInputChange}
                     disabled={!isEditable}
                 />
@@ -123,7 +129,7 @@ const ProfilePage = () => {
                     type="text"
                     name="surname"
                     placeholder="Введите фамилию"
-                    value={profileData.surname} // Значение поля заполняется данными из состояния
+                    value={profileData.surname}
                     onChange={handleInputChange}
                     disabled={!isEditable}
                 />
@@ -134,7 +140,7 @@ const ProfilePage = () => {
                     type="text"
                     name="patronymic"
                     placeholder="Введите отчество"
-                    value={profileData.patronymic} // Значение поля заполняется данными из состояния
+                    value={profileData.patronymic}
                     onChange={handleInputChange}
                     disabled={!isEditable}
                 />
@@ -145,7 +151,7 @@ const ProfilePage = () => {
                     type="email"
                     name="email"
                     placeholder="Введите почту"
-                    value={profileData.email} // Значение поля заполняется данными из состояния
+                    value={profileData.email}
                     onChange={handleInputChange}
                     disabled={!isEditable}
                 />
@@ -156,7 +162,7 @@ const ProfilePage = () => {
                     type="text"
                     name="phoneNumber"
                     placeholder="Введите номер телефона"
-                    value={profileData.phoneNumber} // Значение поля заполняется данными из состояния
+                    value={profileData.phoneNumber}
                     onChange={handleInputChange}
                     disabled={!isEditable}
                 />
@@ -166,7 +172,7 @@ const ProfilePage = () => {
                 <input
                     type="date"
                     name="birthday"
-                    value={profileData.birthday} // Значение поля заполняется данными из состояния
+                    value={profileData.birthday}
                     onChange={handleInputChange}
                     disabled={!isEditable}
                 />

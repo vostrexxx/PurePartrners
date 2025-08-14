@@ -4,7 +4,7 @@ import { useProfile } from '../../Context/ProfileContext';
 import Card from '../../Previews/Card';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useToast } from '../../Notification/ToastContext'
-const ReactionWindow = ({ isOpen, onClose, userId, id, mode, receiverItemName }) => {
+const ReactionWindow = ({ isOpen, onClose, userId, id, mode, receiverItemName, receiverEntityId }) => {
     const showToast = useToast();
     const [selectedPreviewId, setSelectedPreviewId] = useState(null); // Выбранное превью
     const [announcements, setAnnouncements] = useState([]);
@@ -21,8 +21,12 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode, receiverItemName })
         initiatorItemId: null,
         comment: "",
         receiverItemName: receiverItemName,
-
+        receiverEntityId: receiverEntityId
     });
+
+    useEffect(() => {
+        console.log("receiverEntityId",receiverEntityId)
+    }, [receiverEntityId]);
 
     useEffect(() => {
 
@@ -83,7 +87,7 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode, receiverItemName })
 
             if (response.ok) {
                 navigate(`/agreement`)
-                showToast("Отлик успешно отправлен", "success");
+                showToast("Отклик успешно отправлен", "success");
                 // onClose(); // Закрываем окно
             } else {
                 throw new Error(`Ошибка сети: ${contractorResponse.status}`);
@@ -100,6 +104,13 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode, receiverItemName })
                 <div style={styles.modal}>
                     <h5 className='text-black text-center'>Выберите {isSpecialist ? "вашу анкету" : "ваше объявление"} и оставьте комментарий</h5>
 
+                    <button onClick={
+                        (e)=>{
+                            e.preventDefault();
+                            console.log(agreementData.receiverEntityId)
+                        }
+                    }>TST</button>
+
                     <div style={styles.previewList}>
                         {previews.length > 0 ? (
                             previews.map((preview) => (
@@ -111,6 +122,7 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode, receiverItemName })
                                             ...prevData,
                                             initiatorItemId: preview.id,
                                             initiatorItemName: preview.workCategories,
+                                            initiatorEntityId: preview.entityId,
                                         }));
                                     }}
                                     isSelected={selectedPreviewId === preview.id} // Передаём флаг выбора

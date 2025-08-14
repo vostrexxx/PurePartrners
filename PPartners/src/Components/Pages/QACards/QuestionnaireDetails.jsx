@@ -1137,14 +1137,16 @@ const QuestionnaireDetails = () => {
                                             </div>
                                         )}
 
-                                        <ReactionWindow
+                                        {isModalOpen && <ReactionWindow
                                             isOpen={isModalOpen}
                                             onClose={closeModal}
                                             userId={questionnaire.userId}
                                             id={questionnaire.id}
+                                            receiverEntityId={questionnaire.entityId}
                                             mode={1}
                                             receiverItemName={questionnaire.workCategories}
-                                        />
+                                        />}
+
                                         <style>
                                             {`
                 .form-control-placeholder::placeholder {

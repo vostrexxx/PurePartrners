@@ -275,7 +275,7 @@ const Agreement = ({
                             {isSpecialist ? <h4>Ваша анкета:</h4> : <h4>Анкета:</h4>}
                             {renderCard(questionnaireData, 'questionnaire')}
 
-                            {!isSpecialist ? <h4>Ваше объявление:</h4> : <h4>Объяовление:</h4>}
+                            {!isSpecialist ? <h4>Ваше объявление:</h4> : <h4>Объявление:</h4>}
                             {renderCard(announcementData, 'announcement')}
 
 
@@ -292,8 +292,8 @@ const Agreement = ({
                             {isSpecialist ? <h4>Ваша анкета:</h4> : <h4>Анкета:</h4>}
                             {renderCard(questionnaireData, 'questionnaire')}
 
-                            <h4>Комментарий откликнувшегося:</h4>
-                            <p>{comment}</p>
+                            {comment.length > 0 ? (<><h4>Комментарий откликнувшегося:</h4>
+                                <p>{comment}</p></>) : null}
 
                             <h2>{localizedStatus}</h2>
                         </div>

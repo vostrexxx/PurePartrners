@@ -315,7 +315,18 @@ const EntityModal = ({isOpen, onClose, fullName, onTrigger, gotPerson}) => {
                 )}
             </Modal.Body>
             <Modal.Footer>
-                {isLegalEntity !== null && <Button variant="success" onClick={handleSave} className="w-100">
+                {isLegalEntity !== null && <Button variant="success" onClick={handleSave} className="w-100"
+                                                   style={{
+                                                       width: "48%",
+                                                       border: "2px solid #ff7101",
+                                                       backgroundColor: "white",
+                                                       color: "#ff7101",
+                                                       fontWeight: "bold",
+                                                       padding: "10px",
+                                                       borderRadius: "8px",
+                                                       transition: "all 0.3s",
+                                                   }}
+                >
                     Сохранить
                 </Button>}
             </Modal.Footer>
