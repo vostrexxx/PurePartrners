@@ -10,9 +10,11 @@ import {FaArrowLeft} from 'react-icons/fa';
 import {Delete} from '@mui/icons-material';
 import ErrorMessage from "../../ErrorHandling/ErrorMessage.jsx";
 import LoadingPlug from "../../LoadingPlug/LoadingPlug.jsx";
+import {useProfile} from "../../Context/ProfileContext.jsx";
 
 const AnnouncementDetails = () => {
     const showToast = useToast();
+    const {isSpecialist} = useProfile();
 
     const {id} = useParams();
     const [announcement, setAnnouncement] = useState({});
@@ -80,7 +82,8 @@ const AnnouncementDetails = () => {
                             });
 
                             if (!entityResponse.ok) {
-                                throw new Error(`Ошибка при получении данных лица: ${entityResponse.status}`);
+                                1
+                                // throw new Error(`Ошибка при получении данных лица: ${entityResponse.status}`);
                             }
 
                             const entityData = await entityResponse.json();
@@ -138,6 +141,54 @@ const AnnouncementDetails = () => {
         }
     }, [announcement]);
 
+    const [legalEntities, setLegalEntities] = useState([]);
+    const [persons, setPersons] = useState([]);
+    useEffect(() => {
+        const fetchDataLegal = async () => {
+            try {
+                const response = await fetch(`${url}/${isSpecialist ? 'contractor' : 'customer'}/legal-entity`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${getAuthToken()}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка сети: ${response.status}`);
+                }
+
+                const data = await response.json();
+                setLegalEntities(data);
+            } catch (error) {
+                console.error('Ошибка при загрузке юрлиц:', error.message);
+            }
+        };
+
+        const fetchDataPerson = async () => {
+            try {
+                const response = await fetch(`${url}/${isSpecialist ? 'contractor' : 'customer'}/person`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${getAuthToken()}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка сети: ${response.status}`);
+                }
+
+                const data = await response.json();
+                setPersons(data);
+            } catch (error) {
+                console.error('Ошибка при загрузке физлиц:', error.message);
+            }
+        };
+
+        fetchDataLegal();
+        fetchDataPerson();
+    }, [isSpecialist, url, getAuthToken()]);
 
     const handleImageClick = (image) => {
         setSelectedImage(image); // Устанавливаем выбранное изображение
@@ -236,7 +287,6 @@ const AnnouncementDetails = () => {
         }
     };
 
-
     const handleCloseImageModal = () => {
         setSelectedImage(null); // Закрываем модальное окно
     };
@@ -246,19 +296,15 @@ const AnnouncementDetails = () => {
         setNewImages((prev) => [...prev, ...files]);
     };
 
-
     const handleEditClick = () => {
         setIsEditable(true);
     };
 
     const handleOpenReaction = () => {
-        // тут открываем модульное окно
-
         setIsModalOpen(true); // Открыть модальное окно
     };
 
     const closeModal = () => {
-        // тут открываем модульное окно
         setIsModalOpen(false); // Открыть модальное окно
     };
 
@@ -273,7 +319,6 @@ const AnnouncementDetails = () => {
     const handleCancelUpload = () => {
         setNewImages([]); // Очищаем список новых фотографий
     };
-
 
     const handleUploadImages = async () => {
         if (newImages.length === 0) {
@@ -411,10 +456,14 @@ const AnnouncementDetails = () => {
     };
 
     const handleEventEntity = async (mode) => {
+        if (!selectedEntityId) {
+            showToast("Вы не выбрали лицо, которое необходимо привязать", "info")
+            return
+        }
         if (mode === "link") {
             try {
                 const response = await fetch(`${url}/announcement/entity`, {
-                    method: 'PUT',
+                    method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${getAuthToken()}`,
@@ -440,7 +489,7 @@ const AnnouncementDetails = () => {
         } else if (mode === "unlink") {//
             try {
                 const response = await fetch(`${url}/announcement/entity`, {
-                    method: 'PUT',
+                    method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${getAuthToken()}`,
@@ -474,8 +523,6 @@ const AnnouncementDetails = () => {
         // console.log(id)
     };
 
-    // if (loading) return (<LoadingPlug/>);
-
     return (
         <div style={{display: "flex", flexDirection: "column", height: "100vh"}}>
             <TopBar/>
@@ -488,7 +535,6 @@ const AnnouncementDetails = () => {
                 }}
                 className="BG"
             >
-
                 <Row className="justify-content-center">
                     <Col md={8}
                          style={{padding: "20px"}}
@@ -1119,133 +1165,144 @@ const AnnouncementDetails = () => {
                                     </div>
                                 )}
 
-                                <div className='mt-3'>
-                                    {location.state?.fromLk === null ? null : (
-                                        <div>
-                                            {!isEditable && canEditOrDelete ? (
-                                                <>
-                                                    <h5 className="text-center mb-2" style={{color: "#ff7f00"}}>Данные
-                                                        по лицу</h5>
-
-                                                    {/* <h3>Данные по лицу</h3> */}
-                                                    {!entityId ?
-                                                        (
-                                                            <div>
-                                                                <div className="mb-4">Выберите лицо, которое хотите
-                                                                    привязать
-                                                                </div>
-                                                                <EntityCard onSelectEntity={handleSelectEntity}/>
-                                                                <Button
-                                                                    className='mt-2 w-100'
-                                                                    variant='success'
-                                                                    onClick={() => handleEventEntity("link")}>Привязать
-                                                                    лицо</Button>
-                                                            </div>
-                                                        ) : (
-                                                            <>
-                                                                {entityData ? (
-                                                                    isLegalEntity ? (
-                                                                        <div>
-                                                                            <h5 style={{textAlign: 'center'}}>Ваше
-                                                                                юридическое лицо</h5>
-                                                                            <div
-                                                                                style={{
-                                                                                    padding: '10px',
-                                                                                    margin: '5px 0',
-                                                                                    // backgroundColor: 'grey',
-                                                                                    border: '1px solid green',
-                                                                                    borderRadius: '5px',
-                                                                                    cursor: 'pointer',
-                                                                                }}
-                                                                            >
-                                                                                <strong>{entityData.firm}</strong>
-                                                                                <p>ИНН: {entityData.inn}</p>
-                                                                            </div>
-                                                                        </div>
-                                                                    ) : (
-                                                                        <div>
-                                                                            <h5 style={{textAlign: 'center'}}>Ваше
-                                                                                физическое лицо</h5>
-                                                                            <div
-                                                                                style={{
-                                                                                    padding: '10px',
-                                                                                    margin: '5px 0',
-                                                                                    // backgroundColor: 'grey',
-                                                                                    border: '1px solid green',
-                                                                                    borderRadius: '5px',
-                                                                                    cursor: 'pointer',
-                                                                                }}
-                                                                            >
-                                                                                <strong>{entityData.fullName}</strong>
-                                                                                <p>ИНН: {entityData.inn}</p>
-                                                                            </div>
-                                                                        </div>
-                                                                    )
-                                                                ) : (
-                                                                    <div>Загрузка данных лица...</div>
-                                                                )}
-
-                                                                {/* Контейнер для кнопок */}
-                                                                <div style={{
-                                                                    width: "100%",
-                                                                    boxSizing: "border-box",
-                                                                    marginTop: "3px"
-                                                                }}>
-                                                                    {/* Кнопка "Отвязать лицо" */}
+                                {/*<div className='mt-3'>*/}
+                                {location.state?.fromLk === null ? null : (
+                                    <div className='mt-4'>
+                                        {!isEditable && canEditOrDelete ? (
+                                            <>
+                                                {!entityId ?
+                                                    (<>
+                                                            {!(persons.length === 0 && legalEntities.length === 0) && (
+                                                                <div>
+                                                                    {/*Тут*/}
+                                                                    <h5 className="text-center mb-2"
+                                                                        style={{color: "#ff7f00"}}>
+                                                                        Выберите лицо, которое хотите привязать
+                                                                    </h5>
+                                                                    <EntityCard
+                                                                        onSelectEntity={handleSelectEntity}
+                                                                        persons={persons}
+                                                                        legalEntities={legalEntities}
+                                                                    />
                                                                     <Button
-                                                                        variant='danger'
-
                                                                         className='mt-2 w-100'
-                                                                        onClick={() => handleEventEntity("unlink")}
-                                                                    >
-                                                                        Отвязать лицо
-                                                                    </Button>
-
-                                                                    {/* Кнопка "Привязать лицо" */}
-
+                                                                        variant='success'
+                                                                        onClick={() => handleEventEntity("link")}>Привязать
+                                                                        лицо</Button>
                                                                 </div>
-                                                            </>
-                                                        )
-                                                    }
-                                                    <ButtonGroup style={styles.buttonContainer}>
-                                                        <Button
-                                                            onClick={handleDeleteClick}
-                                                            // style={styles.deleteButton}
-                                                            variant='danger'
-                                                        >
-                                                            <Delete/>
-                                                        </Button>
-                                                        <Button
-                                                            onClick={handleEditClick}
-                                                            // style={styles.editButton}
-                                                            variant='success'
-                                                        >
-                                                            Редактировать
-                                                        </Button>
+                                                            )}
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <h5 className="text-center mb-2"
+                                                                style={{color: "#ff7f00"}}>
+                                                                Данные по лицу
+                                                            </h5>
+                                                            {entityData ? (
+                                                                isLegalEntity ? (
+                                                                    <div>
+                                                                        <h5 style={{textAlign: 'center'}}>Ваше
+                                                                            юридическое лицо</h5>
+                                                                        <div
+                                                                            style={{
+                                                                                padding: '10px',
+                                                                                margin: '5px 0',
+                                                                                // backgroundColor: 'grey',
+                                                                                border: '1px solid green',
+                                                                                borderRadius: '5px',
+                                                                                cursor: 'pointer',
+                                                                            }}
+                                                                        >
+                                                                            <strong>{entityData.firm}</strong>
+                                                                            <p>ИНН: {entityData.inn}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                ) : (
+                                                                    <div>
+                                                                        <h5 style={{textAlign: 'center'}}>Ваше
+                                                                            физическое лицо</h5>
+                                                                        <div
+                                                                            style={{
+                                                                                padding: '10px',
+                                                                                margin: '5px 0',
+                                                                                // backgroundColor: 'grey',
+                                                                                border: '1px solid green',
+                                                                                borderRadius: '5px',
+                                                                                cursor: 'pointer',
+                                                                            }}
+                                                                        >
+                                                                            <strong>{entityData.fullName}</strong>
+                                                                            <p>ИНН: {entityData.inn}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                )
+                                                            ) : (
+                                                                <div>Загрузка данных лица...</div>
+                                                            )}
 
+                                                            {/* Контейнер для кнопок */}
+                                                            <div style={{
+                                                                width: "100%",
+                                                                boxSizing: "border-box",
+                                                                marginTop: "3px"
+                                                            }}>
+                                                                {/* Кнопка "Отвязать лицо" */}
+                                                                <Button
+                                                                    variant='danger'
+                                                                    style={{width:'100%'}}
+                                                                    className='mt-2 w-100 filled-button'
+                                                                    onClick={() => handleEventEntity("unlink")}
+                                                                >
+                                                                    Отвязать лицо
+                                                                </Button>
 
-                                                    </ButtonGroup>
-                                                </>
+                                                                {/* Кнопка "Привязать лицо" */}
 
-
-                                            ) : isEditable ? (
+                                                            </div>
+                                                        </>
+                                                    )
+                                                }
                                                 <ButtonGroup style={styles.buttonContainer}>
                                                     <Button
-                                                        onClick={handleSaveClick}
-                                                        // style={styles.editButton}
-                                                        variant='success'
+                                                        onClick={handleDeleteClick}
+                                                        className='filled-button'
+                                                        style={{width:'5%'}}
+                                                        // variant='danger'
                                                     >
-                                                        Сохранить
+                                                        <Delete/>
                                                     </Button>
+                                                    <Button
+                                                        onClick={handleEditClick}
+                                                        className='unfilled-button'
+                                                        // variant='success'
+                                                    >
+                                                        Редактировать
+                                                    </Button>
+
+
                                                 </ButtonGroup>
-                                            ) : (
-                                                <Button onClick={handleOpenReaction} style={styles.editButton}>
-                                                    Откликнуться
+                                            </>
+
+
+                                        ) : isEditable ? (
+                                            <ButtonGroup style={styles.buttonContainer}>
+                                                <Button
+                                                    onClick={handleSaveClick}
+                                                    // style={styles.editButton}
+                                                    variant='success'
+                                                    className=' w-100 unfilled-button'
+                                                >
+                                                    Сохранить
                                                 </Button>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
+                                            </ButtonGroup>
+                                        ) : (
+                                            <Button onClick={handleOpenReaction} style={styles.editButton}>
+                                                Откликнуться
+                                            </Button>
+                                        )}
+                                    </div>
+                                )}
+                                {/*</div>*/}
                                 {/*<Button onClick={() => console.log(announcement)}></Button>*/}
 
                                 {isModalOpen && <ReactionWindow
@@ -1256,18 +1313,19 @@ const AnnouncementDetails = () => {
                                     receiverEntityId={announcement.entityId}
                                     mode={0}
                                     receiverItemName={announcement.workCategories}
+                                    // entityId={announcement.entityId}
+
                                 />}
 
-                                <button onClick={
-                                    (e) => {
-                                        e.preventDefault();
-                                        console.log(
-                                            "recieverEntityId={announcement.entityId}"
-                                            , announcement.entityId)
-                                    }
-
-                                }>TEST
-                                </button>
+                                {/*<button onClick={*/}
+                                {/*    (e) => {*/}
+                                {/*        e.preventDefault();*/}
+                                {/*        console.log(*/}
+                                {/*            "recieverEntityId={announcement.entityId}"*/}
+                                {/*            , announcement.entityId)*/}
+                                {/*    }*/}
+                                {/*}>TEST*/}
+                                {/*</button>*/}
 
 
                             </Card.Body>

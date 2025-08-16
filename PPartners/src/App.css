@@ -51,6 +51,23 @@ input[type="number"] {
     background-color: white;
 }
 
-/* h1 h2 h3 h4 h5 {
-    color: #091E34
-} */
+.filled-button {
+    width: 48% ;
+    border: 2px solid #ff7101 !important;
+    background-color: white !important;
+    color: #ff7101 !important;
+    font-weight: bold !important;
+    padding: 10px !important;
+    border-radius: 8px !important;
+    transition: all 0.3s !important;
+}
+.unfilled-button
+{
+    width: 48% ;
+    background-color: #ff7f00 !important;
+    border: none !important;
+    font-weight: bold !important;
+    padding: 10px !important;
+    border-radius: 8px !important;
+    transition: background-color 0.3s !important;
+}

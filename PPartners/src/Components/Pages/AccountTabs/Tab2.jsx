@@ -99,7 +99,7 @@ const Entities = ({onSelectEntity}) => {
                         }}
                     >
                         <Card.Body>
-                            <h4 className="text-center" >
+                            <h4 className="text-center">
                                 Юридические лица
                             </h4>
                             <ListGroup variant="flush">
@@ -158,7 +158,7 @@ const Entities = ({onSelectEntity}) => {
                         }}
                     >
                         <Card.Body>
-                            <h4 className="text-center" >
+                            <h4 className="text-center">
                                 Физические лица
                             </h4>
                             <ListGroup variant="flush">
@@ -1376,7 +1376,8 @@ const MainPage = () => {
                             ))
                         ) : (
                             <Col>
-                                <p className="text-center text-white">Нет объявлений</p>
+                                <p className="text-center text-white">У вас пока нет объявлений
+                                </p>
                             </Col>
                         )}
                     </Row>

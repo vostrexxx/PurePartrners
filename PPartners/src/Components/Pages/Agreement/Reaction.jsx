@@ -1,19 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { Button, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel } from '@mui/material';
-import { useProfile } from '../../Context/ProfileContext';
+import React, {useEffect, useState} from 'react';
+import {Button, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel} from '@mui/material';
+import {useProfile} from '../../Context/ProfileContext';
 import Card from '../../Previews/Card';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useToast } from '../../Notification/ToastContext'
-const ReactionWindow = ({ isOpen, onClose, userId, id, mode, receiverItemName, receiverEntityId }) => {
+import {useNavigate, useLocation} from 'react-router-dom';
+import {useToast} from '../../Notification/ToastContext'
+import entity from "../../Previews/Entity.jsx";
+
+const ReactionWindow = ({isOpen, onClose, userId, id, mode, receiverItemName, receiverEntityId}) => {
     const showToast = useToast();
     const [selectedPreviewId, setSelectedPreviewId] = useState(null); // Выбранное превью
     const [announcements, setAnnouncements] = useState([]);
     const [questionnaires, setQuestionnaires] = useState([]);
     const [previews, setPreviews] = useState([]);
-    const { isSpecialist } = useProfile();
+    const {isSpecialist} = useProfile();
     const getAuthToken = () => localStorage.getItem('authToken');
     const url = localStorage.getItem('url');
     const navigate = useNavigate();
+    // const [initItemId, setInitItemId] = useState(null);
+    const [initItemId, setInitItemId] = useState(null); // <-- Сделайте это состоянием
+
     const [agreementData, setAgreementData] = useState({
         receiverId: userId,
         receiverItemId: id,
@@ -24,9 +29,9 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode, receiverItemName, r
         receiverEntityId: receiverEntityId
     });
 
-    useEffect(() => {
-        console.log("receiverEntityId",receiverEntityId)
-    }, [receiverEntityId]);
+    // useEffect(() => {
+    //     console.log("receiverEntityId", receiverEntityId)
+    // }, [receiverEntityId]);
 
     useEffect(() => {
 
@@ -48,7 +53,7 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode, receiverItemName, r
                     // console.log("Анкеты:", data.previews);
                     setPreviews(data.previews || []);
                 } else {
-                    const params = new URLSearchParams({ isInWork: true });
+                    const params = new URLSearchParams({isInWork: true});
                     response = await fetch(url + `/announcement/previews?${params.toString()}`, {
                         method: 'GET',
                         headers: {
@@ -72,9 +77,17 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode, receiverItemName, r
     }, [isSpecialist]);
 
 
-
     const handleSubmit = async () => {
-        // console.log(agreementData)
+        if (!selectedPreviewId) {
+            let word = mode === 0 ? 'вашу анкету, с которой' : 'ваше объявление, с которым';
+            showToast(`Вы не выбрали ${word} хотите откликнуться`, 'danger')
+            return
+        }
+        if (!initItemId) {
+            let word = mode === 0 ? 'вашей анкете' : 'вашему объявлению';
+            showToast(`Для отклика необходимо привязать лицо к ${word}`, 'danger')
+            return
+        }
         try {
             const response = await fetch(`${url}/agreement`, {
                 method: 'POST',
@@ -102,14 +115,15 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode, receiverItemName, r
         isOpen && (
             <div style={styles.overlay}>
                 <div style={styles.modal}>
-                    <h5 className='text-black text-center'>Выберите {isSpecialist ? "вашу анкету" : "ваше объявление"} и оставьте комментарий</h5>
+                    <h5 className='text-black text-center'>Выберите {isSpecialist ? "вашу анкету" : "ваше объявление"} и
+                        оставьте комментарий</h5>
 
-                    <button onClick={
-                        (e)=>{
-                            e.preventDefault();
-                            console.log(agreementData.receiverEntityId)
-                        }
-                    }>TST</button>
+                    {/*<button onClick={*/}
+                    {/*    (e)=>{*/}
+                    {/*        e.preventDefault();*/}
+                    {/*        console.log(agreementData.receiverEntityId)*/}
+                    {/*    }*/}
+                    {/*}>TST</button>*/}
 
                     <div style={styles.previewList}>
                         {previews.length > 0 ? (
@@ -117,13 +131,15 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode, receiverItemName, r
                                 <Card
                                     title={preview.workCategories}
                                     onClick={() => {
-                                        setSelectedPreviewId(preview.id); // Устанавливаем выбранную карточку
+                                        setSelectedPreviewId(preview.id);
+                                        setInitItemId(preview.entityId)
                                         setAgreementData((prevData) => ({
                                             ...prevData,
                                             initiatorItemId: preview.id,
                                             initiatorItemName: preview.workCategories,
                                             initiatorEntityId: preview.entityId,
                                         }));
+                                        console.log(preview.entityId)
                                     }}
                                     isSelected={selectedPreviewId === preview.id} // Передаём флаг выбора
                                     key={preview.id}
@@ -155,7 +171,7 @@ const ReactionWindow = ({ isOpen, onClose, userId, id, mode, receiverItemName, r
                                 comment: e.target.value, // Обновляем поле comment
                             }))
                         }
-                        style={{ marginTop: '20px' }}
+                        style={{marginTop: '20px'}}
                     />
 
 

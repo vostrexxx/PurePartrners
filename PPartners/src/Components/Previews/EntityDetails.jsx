@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {Modal, Form, Button, Card, Container, Row, Col} from "react-bootstrap";
-import {useProfile} from "../../Components/Context/ProfileContext";
-import {useToast} from '../../Components/Notification/ToastContext';
+import {useProfile} from "../Context/ProfileContext.jsx";
+import {useToast} from '../Notification/ToastContext.jsx';
 
 const EntityDetailsModal = ({isOpen, onClose, id, onTrigger}) => {
 
@@ -111,6 +111,21 @@ const EntityDetailsModal = ({isOpen, onClose, id, onTrigger}) => {
         const data = await response.json();
 
         if (data.permission) {
+            await fetch(`${url}/announcement/entity/${id.toString()}/unlink`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${getAuthToken()}`,
+                },
+            });
+            await fetch(`${url}/questionnaire/entity/${id.toString()}/unlink`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${getAuthToken()}`,
+                },
+            });
+
             try {
                 const who = isSpecialist ? "contractor" : "customer";
 
@@ -275,19 +290,13 @@ const EntityDetailsModal = ({isOpen, onClose, id, onTrigger}) => {
             centered
         >
             <Modal.Header closeButton>
-                <Modal.Title>Детали лица</Modal.Title>
+                <Modal.Title className="text-center">
+                    Ваше {isLegalEntity ? "юридическое лицо" : "физическое лицо"}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                {/*<div style={{ display: "flex", flexDirection: "column" }}>*/}
-
-                {/*<Row>*/}
                 <Col xs={11} md={11} lg={11} className="mx-auto">
 
-                    <h3 className="text-center mb-4">
-                        {isLegalEntity && isLegalEntity ? "Юридическое лицо" : "Физическое лицо"}
-                    </h3>
                     <Form>
-                        {/* Общие поля */}
                         <Form.Group className="mb-3">
                             <Form.Label>ФИО</Form.Label>
                             <textarea

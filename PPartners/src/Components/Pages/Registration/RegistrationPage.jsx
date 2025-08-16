@@ -6,11 +6,10 @@ import ErrorMessage from "../../ErrorHandling/ErrorMessage";
 import {faEye, faEyeSlash} from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {useToast} from '../../Notification/ToastContext'
+import './Registration.css'
 
 const RegistrationPage = () => {
     const showToast = useToast();
-    // const [errorMessage, setErrorMessage] = useState(null);
-    // const [errorCode, setErrorCode] = useState(null);
     const [phoneNumber, setPhoneNumber] = useState(localStorage.getItem("phoneNumber"));
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -18,6 +17,8 @@ const RegistrationPage = () => {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const [error, setError] = useState(null);
+    const [passwordValid, setPasswordValid] = useState(true);
+    const [passwordError, setPasswordError] = useState("");
 
     const navigate = useNavigate();
 
@@ -27,7 +28,35 @@ const RegistrationPage = () => {
         navigate("/identification");
     };
 
-    const handleRegister = async () => {
+    const validatePassword = (value) => {
+        if (value.length < 8) {
+            return {isValid: false, error: "Пароль должен содержать минимум 8 символов"};
+        }
+        if (!/(?=.*[a-zа-яё])/.test(value)) {
+            return {isValid: false, error: "Пароль должен содержать хотя бы одну строчную букву"};
+        }
+        if (!/(?=.*[A-ZА-ЯЁ])/.test(value)) {
+            return {isValid: false, error: "Пароль должен содержать хотя бы одну заглавную букву"};
+        }
+        if (!/(?=.*\d)/.test(value)) {
+            return {isValid: false, error: "Пароль должен содержать хотя бы одну цифру"};
+        }
+        return {isValid: true, error: ""};
+    };
+
+    const handleRegister = async (e) => {
+        // Предотвращаем стандартное поведение формы
+        if (e && e.preventDefault) {
+            e.preventDefault();
+        }
+
+        const passwordValidation = validatePassword(password);
+        if (!passwordValidation.isValid) {
+            setPasswordValid(false);
+            setPasswordError(passwordValidation.error);
+            return;
+        }
+
         if (password !== confirmPassword) {
             setError({message: "Пароли не совпадают"});
             return;
@@ -44,11 +73,24 @@ const RegistrationPage = () => {
         const data = await response.json();
         if (response.ok) {
             navigate("/login", {state: {phoneNumber}});
-
         } else {
             setError({message: data.userFriendlyMessage, status: data.status});
         }
+    };
 
+    const handlePasswordChange = (e) => {
+        const value = e.target.value;
+        setPassword(value);
+
+        const validation = validatePassword(value);
+        setPasswordValid(validation.isValid);
+        setPasswordError(validation.error);
+    };
+
+    // Обработчик отправки формы (срабатывает при Enter)
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        handleRegister(e);
     };
 
     return (
@@ -58,7 +100,6 @@ const RegistrationPage = () => {
                 fluid
                 className="BG d-flex align-items-center justify-content-center"
                 style={{
-                    // backgroundColor: "#BG",
                     flex: 1,
                 }}
             >
@@ -67,9 +108,9 @@ const RegistrationPage = () => {
                         <Card className="p-4 shadow-lg">
                             <Card.Body>
                                 <h2 className="HLD text-center mb-4">Регистрация</h2>
-                                <Form>
+                                {/* Добавляем onSubmit к форме */}
+                                <Form onSubmit={handleSubmit}>
                                     <Form.Group controlId="formPhoneNumber" className="mb-3">
-                                        {/* <Form.Label>Ваш номер телефона</Form.Label> */}
                                         <Form.Control
                                             type="text"
                                             value={phoneNumber}
@@ -87,8 +128,9 @@ const RegistrationPage = () => {
                                         <Form.Control
                                             type={showPassword ? "text" : "password"}
                                             value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
+                                            onChange={handlePasswordChange}
                                             placeholder="Введите пароль"
+                                            isInvalid={!passwordValid}
                                             className="rounded-pill p-3"
                                             style={{
                                                 backgroundColor: "#ffffff",
@@ -108,7 +150,8 @@ const RegistrationPage = () => {
                                             type={showConfirmPassword ? "text" : "password"}
                                             value={confirmPassword}
                                             onChange={(e) => setConfirmPassword(e.target.value)}
-                                            placeholder="Введите пароль"
+                                            placeholder="Подтвердите пароль"
+                                            isInvalid={password !== "" && confirmPassword !== "" && password !== confirmPassword}
                                             className="rounded-pill p-3"
                                             style={{
                                                 backgroundColor: "#ffffff",
@@ -124,19 +167,20 @@ const RegistrationPage = () => {
                                         />
                                     </Form.Group>
                                     <ErrorMessage
-                                        message={error?.message}
+                                        message={error?.message || passwordError || ((password !== "" && confirmPassword !== "" && password !== confirmPassword) && 'Пароли не совпадают')}
                                         statusCode={error?.status}
                                     />
-                                    <div className="d-grid gap-2 mt-4">
+                                    <div className="d-grid gap-2">
+                                        {/* Кнопка теперь type="submit" */}
                                         <Button
                                             variant="primary"
+                                            type="submit"
                                             className="rounded-pill"
                                             style={{
                                                 backgroundColor: "#ff7101",
                                                 border: "none",
                                                 fontSize: "18px",
                                             }}
-                                            onClick={handleRegister}
                                         >
                                             Зарегистрироваться
                                         </Button>

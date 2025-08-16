@@ -1,4 +1,4 @@
-import  {useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useParams, useLocation, useNavigate} from 'react-router-dom';
 import ReactionWindow from '../Agreement/Reaction';
 import TopBar from '../../TopBars/TopBar';
@@ -7,15 +7,17 @@ import {useToast} from '../../Notification/ToastContext'
 import {Button, Card, Container, Form, Row, Col, Image, Modal, ButtonGroup} from "react-bootstrap";
 import TextField from "@mui/material/TextField";
 import {FaArrowLeft} from 'react-icons/fa';
+
 import {
     Select,
     MenuItem,
 } from "@mui/material";
 import {Delete} from '@mui/icons-material';
+import {useProfile} from "../../Context/ProfileContext.jsx";
 
 const QuestionnaireDetails = () => {
     const showToast = useToast();
-
+    const authToken = localStorage.getItem('authToken');
     const {id} = useParams();
     const location = useLocation();
     const navigate = useNavigate();
@@ -29,6 +31,7 @@ const QuestionnaireDetails = () => {
     const url = localStorage.getItem('url');
     const getAuthToken = () => localStorage.getItem('authToken');
     const canEditOrDelete = location.state?.fromLk || false;
+    const {isSpecialist} = useProfile();
 
     const [entityId, setEntityId] = useState(null);
     const [isLegalEntity, setIsLegalEntity] = useState(null);
@@ -78,7 +81,7 @@ const QuestionnaireDetails = () => {
                             });
 
                             if (!entityResponse.ok) {
-                                throw new Error(`Ошибка при получении данных лица: ${entityResponse.status}`);
+                                // throw new Error(`Ошибка при получении данных лица: ${entityResponse.status}`);
                             }
 
                             const entityData = await entityResponse.json();
@@ -135,6 +138,55 @@ const QuestionnaireDetails = () => {
             fetchImages();
         }
     }, [questionnaire, url]);
+
+    const [legalEntities, setLegalEntities] = useState([]);
+    const [persons, setPersons] = useState([]);
+    useEffect(() => {
+        const fetchDataLegal = async () => {
+            try {
+                const response = await fetch(`${url}/${isSpecialist ? 'contractor' : 'customer'}/legal-entity`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка сети: ${response.status}`);
+                }
+
+                const data = await response.json();
+                setLegalEntities(data);
+            } catch (error) {
+                console.error('Ошибка при загрузке юрлиц:', error.message);
+            }
+        };
+
+        const fetchDataPerson = async () => {
+            try {
+                const response = await fetch(`${url}/${isSpecialist ? 'contractor' : 'customer'}/person`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка сети: ${response.status}`);
+                }
+
+                const data = await response.json();
+                setPersons(data);
+            } catch (error) {
+                console.error('Ошибка при загрузке физлиц:', error.message);
+            }
+        };
+
+        fetchDataLegal();
+        fetchDataPerson();
+    }, [isSpecialist, url, authToken]);
 
     const handleEditClick = () => setIsEditable(true);
     const handleOpenReaction = () => setIsModalOpen(true);
@@ -298,10 +350,14 @@ const QuestionnaireDetails = () => {
     };
 
     const handleEventEntity = async (mode) => {
-        if (mode === "link") {//annId, mode, enityId
+        if (!selectedEntityId && mode === 'link') {
+            showToast("Вы не выбрали лицо, которое необходимо привязать", "info")
+            return
+        }
+        if (mode === "link") {
             try {
                 const response = await fetch(`${url}/questionnaire/entity`, {
-                    method: 'PUT',
+                    method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${getAuthToken()}`,
@@ -322,7 +378,7 @@ const QuestionnaireDetails = () => {
         } else if (mode === "unlink") {//
             try {
                 const response = await fetch(`${url}/questionnaire/entity`, {
-                    method: 'PUT',
+                    method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${getAuthToken()}`,
@@ -353,8 +409,8 @@ const QuestionnaireDetails = () => {
     };
 
 
-    if (loading) return <div>Загрузка данных анкеты...</div>;
-    if (error) return <div>Ошибка: {error}</div>;
+    // if (loading) return <div>Загрузка данных анкеты...</div>;
+    // if (error) return <div>Ошибка: {error}</div>;
 
     return (
         <div style={{display: "flex", flexDirection: "column", height: "100vh"}}>
@@ -364,23 +420,22 @@ const QuestionnaireDetails = () => {
                 style={{
                     // backgroundColor: "#242582",
                     flex: 1,
-                    padding: "20px",
+                    // padding: "20px",
                 }}
-
                 className="BG"
             >
                 <Row className="justify-content-center">
-                    <Col md={8} style={{padding: "20px"}}>
-                        <Card
+                    <Col md={8}
+                         style={{padding: "20px"}}
+                    >
+                        {questionnaire && <Card
                             style={{
-                                // backgroundColor: "#091E34",
-                                // color: "white",
+
                                 borderRadius: "12px",
-                                padding: "10px",
                                 boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.5)",
                             }}
                         >
-                            <Card.Text>
+                            <Card.Text className='p-0 m-0'>
                                 <Button
                                     onClick={handleGoBack}
                                     variant="secondary"
@@ -1003,40 +1058,37 @@ const QuestionnaireDetails = () => {
                                             <div className='mt-4'>
                                                 {!isEditable && canEditOrDelete ? (
                                                     <>
-                                                        <h5 className="text-center mb-2"
-                                                            style={{color: "#ff7f00"}}>Данные по лицу</h5>
-
-                                                        {/* <h3>Данные по лицу</h3> */}
                                                         {!entityId ?
-                                                            (
-                                                                <div>
-                                                                    <div className="mb-4">Выберите лицо, которое хотите
-                                                                        привязать
-                                                                    </div>
-                                                                    <EntityCard onSelectEntity={handleSelectEntity}/>
-                                                                    <Button
+                                                            (<>
+                                                                    {!(persons.length === 0 && legalEntities.length === 0) && (
+
+                                                                        <div>
+                                                                            <h5 className="text-center mb-4"
+                                                                                style={{color: "#ff7f00"}}>Выберите
+                                                                                лицо, которое хотите привязать
+                                                                            </h5>
+                                                                            <EntityCard
+                                                                                onSelectEntity={handleSelectEntity}
+                                                                                persons={persons}
+                                                                                legalEntities={legalEntities}
+
+                                                                            />
+                                                                            <Button
+                                                                                className='mt-2 w-100 unfilled-button'
+                                                                                variant='success'
+                                                                                onClick={() => handleEventEntity("link")}>
+                                                                                Привязать лицо
+                                                                            </Button>
+                                                                        </div>
 
 
-                                                                        className='mt-2 w-100'
-                                                                        // style={{
-                                                                        //     width: '100%',
-                                                                        //     backgroundColor: "#ffb300",
-                                                                        //     border: "none",
-                                                                        //     color: "black",
-                                                                        //     fontWeight: "bold",
-                                                                        //     padding: "10px",
-                                                                        //     borderRadius: "8px",
-                                                                        //     transition: "background-color 0.3s",
-                                                                        // }}
-                                                                        variant='success'
-                                                                        // className=''
-                                                                        onClick={() => handleEventEntity("link")}>Привязать
-                                                                        лицо</Button>
+                                                                    )}
+                                                                </>
 
-
-                                                                </div>
                                                             ) : (
                                                                 <>
+                                                                    <h5 className="text-center mb-2"
+                                                                        style={{color: "#ff7f00"}}>Данные по лицу</h5>
                                                                     {entityData ? (
                                                                         isLegalEntity ? (
                                                                             <div>
@@ -1058,7 +1110,7 @@ const QuestionnaireDetails = () => {
                                                                             </div>
                                                                         ) : (
                                                                             <div>
-                                                                                <h5 style={{textAlign: 'center',}}>Ваше
+                                                                                <h5 style={{textAlign: 'center'}}>Ваше
                                                                                     физическое лицо</h5>
                                                                                 <div
                                                                                     style={{
@@ -1078,7 +1130,7 @@ const QuestionnaireDetails = () => {
                                                                     ) : (
                                                                         <div>Загрузка данных лица...</div>
                                                                     )}
-
+                                                                    {/*<Button onClick={console.log()}>ZZZ</Button>*/}
                                                                     {/* Контейнер для кнопок */}
                                                                     <div style={{
                                                                         width: "100%",
@@ -1088,7 +1140,8 @@ const QuestionnaireDetails = () => {
                                                                         {/* Кнопка "Отвязать лицо" */}
                                                                         <Button
                                                                             variant='danger'
-                                                                            className='w-100 mt-2'
+                                                                            style={{width: '100%'}}
+                                                                            className='mt-2 w-100 filled-button'
                                                                             onClick={() => handleEventEntity("unlink")}
                                                                         >
                                                                             Отвязать лицо
@@ -1103,15 +1156,16 @@ const QuestionnaireDetails = () => {
                                                         <ButtonGroup style={styles.buttonContainer}>
                                                             <Button
                                                                 onClick={handleDeleteClick}
-                                                                // style={styles.deleteButton}
-                                                                variant='danger'
+                                                                className='filled-button'
+                                                                style={{width: '5%'}}
+                                                                // variant='danger'
                                                             >
                                                                 <Delete/>
                                                             </Button>
                                                             <Button
                                                                 onClick={handleEditClick}
-                                                                // style={styles.editButton}
-                                                                variant='success'
+                                                                className='unfilled-button'
+                                                                // variant='success'
                                                             >
                                                                 Редактировать
                                                             </Button>
@@ -1123,6 +1177,7 @@ const QuestionnaireDetails = () => {
                                                     <ButtonGroup style={styles.buttonContainer}>
                                                         <Button
                                                             onClick={handleSaveClick}
+                                                            className='w-100 unfilled-button'
                                                             // style={styles.editButton}
                                                             variant='success'
                                                         >
@@ -1145,6 +1200,7 @@ const QuestionnaireDetails = () => {
                                             receiverEntityId={questionnaire.entityId}
                                             mode={1}
                                             receiverItemName={questionnaire.workCategories}
+                                            // entityId={questionnaire.entityId}
                                         />}
 
                                         <style>
@@ -1159,7 +1215,7 @@ const QuestionnaireDetails = () => {
                                     </Col>
                                 </Row>
                             </Card.Body>
-                        </Card>
+                        </Card>}
                     </Col>
                 </Row>
             </Container>

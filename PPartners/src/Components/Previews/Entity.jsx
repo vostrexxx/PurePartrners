@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useProfile } from '../../Context/ProfileContext';
+import { useProfile } from '../Context/ProfileContext.jsx';
 
 const Entity = ({ onSelectEntity }) => {
     const url = localStorage.getItem('url');
