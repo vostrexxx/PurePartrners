@@ -20,58 +20,94 @@ const Entities = ({onSelectEntity}) => {
     const [selectedEntity, setSelectedEntity] = useState(null);
 
     useEffect(() => {
-        const fetchDataLegal = async () => {
+        const fetchGetEntitiesData = async () => {
             try {
-                const response = await fetch(
-                    `${url}/${isSpecialist ? "contractor" : "customer"}/legal-entity`,
-                    {
-                        method: "GET",
-                        headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${authToken}`,
-                        },
-                    }
-                );
+                const params = new URLSearchParams({isSpecialist});
+                const response = await fetch(`${url}/entity/all?${params.toString()}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                });
 
                 if (!response.ok) {
                     throw new Error(`Ошибка сети: ${response.status}`);
                 }
 
                 const data = await response.json();
-                setLegalEntities(data);
-            } catch (error) {
-                // console.error("Ошибка при загрузке юрлиц:", error.message);
-                showToast("Ошибка при загрузке юр. лиц", "danger")
-            }
-        };
+                // data.length === 0 ? onGotPerson(false) : onGotPerson(true)
 
-        const fetchDataPerson = async () => {
-            try {
-                const response = await fetch(
-                    `${url}/${isSpecialist ? "contractor" : "customer"}/person`,
-                    {
-                        method: "GET",
-                        headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${authToken}`,
-                        },
+                const legalEntitiesData = [];
+                const personsData = [];
+
+                data.forEach(entity => {
+                    if (entity.isLegalEntity) {
+                        legalEntitiesData.push(entity);
+                    } else {
+                        personsData.push(entity);
                     }
-                );
+                });
 
-                if (!response.ok) {
-                    throw new Error(`Ошибка сети: ${response.status}`);
-                }
-
-                const data = await response.json();
-                setPersons(data);
+                setLegalEntities(legalEntitiesData);
+                setPersons(personsData);
             } catch (error) {
-                // console.error("Ошибка при загрузке физлиц:", error.message);
-                showToast("Ошибка при загрузке физлиц", "danger")
+                showToast("Ошибка при загрузке физических и юридических лиц", "danger")
             }
         };
-
-        fetchDataLegal();
-        fetchDataPerson();
+        fetchGetEntitiesData();
+        // const fetchDataLegal = async () => {
+        //     try {
+        //         const response = await fetch(
+        //             `${url}/${isSpecialist ? "contractor" : "customer"}/legal-entity`,
+        //             {
+        //                 method: "GET",
+        //                 headers: {
+        //                     "Content-Type": "application/json",
+        //                     Authorization: `Bearer ${authToken}`,
+        //                 },
+        //             }
+        //         );
+        //
+        //         if (!response.ok) {
+        //             throw new Error(`Ошибка сети: ${response.status}`);
+        //         }
+        //
+        //         const data = await response.json();
+        //         setLegalEntities(data);
+        //     } catch (error) {
+        //         // console.error("Ошибка при загрузке юрлиц:", error.message);
+        //         showToast("Ошибка при загрузке юр. лиц", "danger")
+        //     }
+        // };
+        //
+        // const fetchDataPerson = async () => {
+        //     try {
+        //         const response = await fetch(
+        //             `${url}/${isSpecialist ? "contractor" : "customer"}/person`,
+        //             {
+        //                 method: "GET",
+        //                 headers: {
+        //                     "Content-Type": "application/json",
+        //                     Authorization: `Bearer ${authToken}`,
+        //                 },
+        //             }
+        //         );
+        //
+        //         if (!response.ok) {
+        //             throw new Error(`Ошибка сети: ${response.status}`);
+        //         }
+        //
+        //         const data = await response.json();
+        //         setPersons(data);
+        //     } catch (error) {
+        //         // console.error("Ошибка при загрузке физлиц:", error.message);
+        //         showToast("Ошибка при загрузке физлиц", "danger")
+        //     }
+        // };
+        //
+        // fetchDataLegal();
+        // fetchDataPerson();
     }, [isSpecialist, url, authToken]);
 
     const handleSelectEntity = (id) => {
@@ -83,8 +119,12 @@ const Entities = ({onSelectEntity}) => {
     return (
         <Container fluid>
             <h3 className="text-center mb-4" style={{color: "#ff7f00"}}>
-                Выберите лицо
+                Выберите лицо, которое хотите привязать
             </h3>
+            {/*<Button onClick={() => {*/}
+            {/*    console.log('persons',persons);*/}
+            {/*    console.log('legalEntities', legalEntities);*/}
+            {/*}}>asdasdasdasd</Button>*/}
 
             <Row className="g-4">
                 {/* Юридические лица */}
@@ -132,7 +172,7 @@ const Entities = ({onSelectEntity}) => {
                                                     color: selectedEntity === entity.id ? "white" : "#bbb",
                                                 }}
                                             >
-                        ИНН: {entity.inn}
+                        ИНН: {entity.INN}
                       </span>
                                         </ListGroup.Item>
                                     ))
@@ -191,7 +231,7 @@ const Entities = ({onSelectEntity}) => {
                                                     color: selectedEntity === person.id ? "white" : "#bbb",
                                                 }}
                                             >
-                        ИНН: {person.inn}
+                        ИНН: {person.INN}
                       </span>
                                         </ListGroup.Item>
                                     ))

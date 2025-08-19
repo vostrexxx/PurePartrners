@@ -2,15 +2,8 @@ import React, { useState, useEffect } from 'react';
 // import { useProfile } from '../../Components/Context/ProfileContext';
 import { Row, Col, Card, Button } from 'react-bootstrap';
 const EntityCard = ({ onSelectEntity, legalEntities, persons }) => {
-    // const url = localStorage.getItem('url');
-    // const authToken = localStorage.getItem('authToken');
-    // const { isSpecialist } = useProfile();
 
-    // const [legalEntities, setLegalEntities] = useState([]);
-    // const [persons, setPersons] = useState([]);
     const [selectedEntity, setSelectedEntity] = useState(null);
-
-
 
     const handleSelectEntity = (id) => {
         const newSelectedEntity = selectedEntity === id ? null : id;
@@ -37,7 +30,7 @@ const EntityCard = ({ onSelectEntity, legalEntities, persons }) => {
                     >
                         <Card.Body>
                             <Card.Title as="strong">{entity.firm}</Card.Title>
-                            <Card.Text>ИНН: {entity.inn}</Card.Text>
+                            <Card.Text>ИНН: {entity.INN}</Card.Text>
                         </Card.Body>
                     </Card>
                 ))) : <div className="text-center">Нет юридических лиц</div>}
@@ -60,7 +53,7 @@ const EntityCard = ({ onSelectEntity, legalEntities, persons }) => {
                     >
                         <Card.Body>
                             <Card.Title as="strong">{person.fullName}</Card.Title>
-                            <Card.Text>ИНН: {person.inn}</Card.Text>
+                            <Card.Text>ИНН: {person.INN}</Card.Text>
                         </Card.Body>
                     </Card>
                 ))) : (<div className="text-center">Нет физических лиц</div>)}

@@ -48,7 +48,7 @@ input[type="number"] {
 }
 
 .card {
-    background-color: white;
+    /*background-color: white;*/
 }
 
 .filled-button {
@@ -70,4 +70,8 @@ input[type="number"] {
     padding: 10px !important;
     border-radius: 8px !important;
     transition: background-color 0.3s !important;
+}
+
+.spinner-border.text-primary {
+    color: #ff7101 !important;
 }

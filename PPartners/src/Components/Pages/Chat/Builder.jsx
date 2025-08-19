@@ -217,7 +217,7 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                 const data = await response.json();
                 setIsEditing(data.isEditing);
 
-                if (data.isEditing === false) {
+                if (data.isEditing === true) {
                     // alert("Смета редактируется другим пользователем.");
                     showToast("Смета редактируется другим пользователем", "warning")
                 }
@@ -689,7 +689,7 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
         <Container fluid className="p-3 bg-light" style={{
             height: '80vh',
             overflowY: 'auto',
-            borderRadius: '5px', // Скругление краёв
+            borderRadius: '5px',
         }}>
             <Row className="align-items-center">
                 <Col className="text-center">
@@ -930,7 +930,7 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                 )
             }
 
-            {estimate.length === 0 ? (
+            { !isEditing && estimate.length === 0 ? (
                 <div className='text-center'>Вы пока не добавили смету,
                     вы можете её загрузить согласно шаблону
                     или создать вручную, перейдя в режим редактирования

@@ -3,55 +3,21 @@ import ImageLoader from './ImageLoader'
 import EntityModal from './AddEntityWindow'
 import {useProfile} from '../../Context/ProfileContext';
 import {useNavigate, useLocation} from 'react-router-dom';
-import {Container, Row, Col, Form, Button, Card, ListGroup} from "react-bootstrap";
+import {Container, Row, Col, Form, Button, Card, ListGroup, Spinner} from "react-bootstrap";
 import EntityDetailsModal from '../../Previews/EntityDetails';
 import ToastNotification from '../../Notification/ToastNotification';
 import {useToast} from '../../Notification/ToastContext';
-import AvatarUploader from '../../Previews/AvatarUploader'
-
-const ImageUploader = ({label, onUpload, imagePath, onTrigger}) => {
-
-    const handleFileChange = async (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            await onUpload(file);
-        }
-    };
-
-    return (
-        <div>
-            <label>{label}</label>
-            <input type="file" accept="image/*" onChange={handleFileChange}/>
-        </div>
-    );
-};
-
-const FormField = ({type, label, name, placeholder, value, onChange, disabled}) => {
-    return (
-        <div>
-            <label>{label}</label>
-            <input
-                type={type}
-                name={name}
-                placeholder={placeholder}
-                value={value}
-                onChange={onChange}
-                disabled={disabled}
-            />
-        </div>
-    );
-};
 
 const Entities = ({onSelectEntity, triggerGet, onTrigger, onGotPerson}) => {
     const url = localStorage.getItem("url");
     const authToken = localStorage.getItem("authToken");
     const {isSpecialist} = useProfile();
-
+const showToast = useToast();
     const [isEntityDetailsModalOpen, setIsEntityDetailsModalOpen] = useState(false);
     const openEntityDetailsModal = () => setIsEntityDetailsModalOpen(true);
     const closeEntityDetailsModal = () => {
-        setIsEntityDetailsModalOpen(false); // Закрываем модальное окно
-        setSelectedEntity(null); // Сбрасываем выбранный ID
+        setIsEntityDetailsModalOpen(false);
+        setSelectedEntity(null);
     };
     const [legalEntities, setLegalEntities] = useState([]);
     const [persons, setPersons] = useState([]);
@@ -60,16 +26,11 @@ const Entities = ({onSelectEntity, triggerGet, onTrigger, onGotPerson}) => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (selectedEntity) {
-            // navigate(`/entity/${selectedEntity}`);
 
-        }
-    }, [selectedEntity, navigate]);
-
-    useEffect(() => {
-        const fetchDataLegal = async () => {
+        const fetchGetEntitiesData = async () => {
             try {
-                const response = await fetch(`${url}/${isSpecialist ? "contractor" : "customer"}/legal-entity`, {
+                const params = new URLSearchParams({isSpecialist});
+                const response = await fetch(`${url}/entity/all?${params.toString()}`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
@@ -82,45 +43,31 @@ const Entities = ({onSelectEntity, triggerGet, onTrigger, onGotPerson}) => {
                 }
 
                 const data = await response.json();
-                setLegalEntities(data);
-            } catch (error) {
-                // console.error("Ошибка при загрузке юрлиц:", error.message);
-                showToast("Ошибка при загрузке юрлиц", "danger")
-            }
-        };
-
-        const fetchDataPerson = async () => {
-            try {
-                const response = await fetch(`${url}/${isSpecialist ? "contractor" : "customer"}/person`, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${authToken}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Ошибка сети: ${response.status}`);
-                }
-
-                const data = await response.json();
-                setPersons(data);
-
                 data.length === 0 ? onGotPerson(false) : onGotPerson(true)
 
+                const legalEntitiesData = [];
+                const personsData = [];
+
+                data.forEach(entity => {
+                    if (entity.isLegalEntity) {
+                        legalEntitiesData.push(entity);
+                    } else {
+                        personsData.push(entity);
+                    }
+                });
+
+                setLegalEntities(legalEntitiesData);
+                setPersons(personsData);
             } catch (error) {
-                // console.error("Ошибка при загрузке физлиц:", error.message);
-                showToast("Ошибка при загрузке физлиц", "danger")
+                showToast("Ошибка при загрузке физических и юридических лиц", "danger")
             }
         };
-
-        fetchDataLegal();
-        fetchDataPerson();
+        fetchGetEntitiesData();
     }, [isSpecialist, url, authToken, triggerGet]);
 
     const handleSelectEntity = (id) => {
-        setSelectedEntity(id); // Установка выбранного ID
-        openEntityDetailsModal(); // Открытие модального окна
+        setSelectedEntity(id);
+        openEntityDetailsModal();
     };
 
     return (
@@ -153,7 +100,7 @@ const Entities = ({onSelectEntity, triggerGet, onTrigger, onGotPerson}) => {
                                             <div className="fw-bold"
                                                  style={{color: `${selectedEntity === entity.id ? "white" : "#6c757d"}`}}
 
-                                            >ИНН: {entity.inn}</div>
+                                            >ИНН: {entity.INN}</div>
                                         </ListGroup.Item>
                                     ))
                                 ) : (
@@ -192,7 +139,8 @@ const Entities = ({onSelectEntity, triggerGet, onTrigger, onGotPerson}) => {
                                             <div className="fw-bold"
                                                  style={{color: `${selectedEntity === person.id ? "white" : "#6c757d"}`}}
 
-                                            >ИНН: {person.inn}</div>
+                                            >ИНН: {person.INN}</div>
+
                                         </ListGroup.Item>
                                     ))
                                 ) : (
@@ -288,54 +236,54 @@ const ProfilePage = () => {
         fetchData();
     }, []);
 
-    useEffect(() => {
-        const fetchDataLegal = async () => {
-            try {
-                const response = await fetch(`${url}/${isSpecialist ? 'contractor' : 'customer'}/legal-entity`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${authToken}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Ошибка сети: ${response.status}`);
-                }
-
-                const data = await response.json();
-                // console.log('Ю', data)
-                setLegal(data);
-            } catch (error) {
-                setError(`Ошибка при загрузке данных профиля: ${error.message}`);
-            }
-        };
-
-        const fetchDataPerson = async () => {
-            try {
-                const response = await fetch(`${url}/${isSpecialist ? 'contractor' : 'customer'}/person`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${authToken}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Ошибка сети: ${response.status}`);
-                }
-
-                const data = await response.json();
-                // console.log('Ф', data)
-                setPerson(data)
-            } catch (error) {
-                setError(`Ошибка при загрузке данных профиля: ${error.message}`);
-            }
-        };
-
-        fetchDataLegal();
-        fetchDataPerson();
-    }, [triggerGet]);
+    // useEffect(() => {
+    //     const fetchDataLegal = async () => {
+    //         try {
+    //             const response = await fetch(`${url}/${isSpecialist ? 'contractor' : 'customer'}/legal-entity`, {
+    //                 method: 'GET',
+    //                 headers: {
+    //                     'Content-Type': 'application/json',
+    //                     Authorization: `Bearer ${authToken}`,
+    //                 },
+    //             });
+    //
+    //             if (!response.ok) {
+    //                 throw new Error(`Ошибка сети: ${response.status}`);
+    //             }
+    //
+    //             const data = await response.json();
+    //             // console.log('Ю', data)
+    //             setLegal(data);
+    //         } catch (error) {
+    //             setError(`Ошибка при загрузке данных профиля: ${error.message}`);
+    //         }
+    //     };
+    //
+    //     const fetchDataPerson = async () => {
+    //         try {
+    //             const response = await fetch(`${url}/${isSpecialist ? 'contractor' : 'customer'}/person`, {
+    //                 method: 'GET',
+    //                 headers: {
+    //                     'Content-Type': 'application/json',
+    //                     Authorization: `Bearer ${authToken}`,
+    //                 },
+    //             });
+    //
+    //             if (!response.ok) {
+    //                 throw new Error(`Ошибка сети: ${response.status}`);
+    //             }
+    //
+    //             const data = await response.json();
+    //             // console.log('Ф', data)
+    //             setPerson(data)
+    //         } catch (error) {
+    //             setError(`Ошибка при загрузке данных профиля: ${error.message}`);
+    //         }
+    //     };
+    //
+    //     fetchDataLegal();
+    //     fetchDataPerson();
+    // }, [triggerGet]);
 
     const handleInputChange = (e) => {
         const {name, value} = e.target;
@@ -449,7 +397,12 @@ const ProfilePage = () => {
                                     background: "white",
                                 }}/>
                             {error && <p className="text-danger text-center">{error}</p>}
-                            <Form>
+
+
+                            {/*<Button onClick={()=>{*/}
+                            {/*    console.log(Object.values(profileData).every(value => value === ''))*/}
+                            {/*}}></Button>*/}
+                            {!Object.values(profileData).every(value => value === '') ? <Form>
                                 {/* Номер телефона */}
                                 <Form.Group controlId="formPhoneNumber" className="mb-3">
                                     <Form.Label className="fw-bold ms-4 ">Номер телефона</Form.Label>
@@ -593,16 +546,19 @@ const ProfilePage = () => {
                                             className=" w-100"
                                             style={{
                                                 // fontSize: "18px",
-                                            fontWeight:'bold'
+                                                fontWeight: 'bold'
                                             }}
                                             onClick={() => {
-                                                setIsEditable(true)}}
+                                                setIsEditable(true)
+                                            }}
                                         >
                                             Редактировать
                                         </Button>
                                     )}
                                 </div>
-                            </Form>
+                            </Form> : <Container className="text-center my-5">
+                                <Spinner animation="border" variant="primary"/>
+                            </Container>}
                         </Card.Body>
                     </Card>
                 </Col>

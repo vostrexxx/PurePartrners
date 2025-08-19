@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Modal, Form, Button, Card, Container, Row, Col} from "react-bootstrap";
+import {Modal, Form, Button, Card, Container, Row, Col, Spinner} from "react-bootstrap";
 import {useProfile} from "../Context/ProfileContext.jsx";
 import {useToast} from '../Notification/ToastContext.jsx';
 
@@ -27,15 +27,8 @@ const EntityDetailsModal = ({isOpen, onClose, id, onTrigger}) => {
                 try {
                     const url = localStorage.getItem("url");
                     const getAuthToken = () => localStorage.getItem("authToken");
-
-                    const entityParams = new URLSearchParams();
-                    const who = isSpecialist ? "contractor" : "customer";
-                    isSpecialist
-                        ? entityParams.append("contractorId", id)
-                        : entityParams.append("customerId", id);
-
                     const response = await fetch(
-                        `${url}/${who}?${entityParams.toString()}`,
+                        `${url}/entity/${id}`,
                         {
                             method: "GET",
                             headers: {
@@ -74,7 +67,6 @@ const EntityDetailsModal = ({isOpen, onClose, id, onTrigger}) => {
     };
 
     const handleEditClick = async () => {
-        // agreement/entity/{id}/permission
 
         const response = await fetch(`${url}/agreement/entity/${id.toString()}/permission`, {
             method: "GET",
@@ -101,168 +93,139 @@ const EntityDetailsModal = ({isOpen, onClose, id, onTrigger}) => {
 
     const handleDeleteClick = async () => {
 
-        const response = await fetch(`${url}/agreement/entity/${id.toString()}/permission`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${getAuthToken()}`,
-            },
-        });
-        const data = await response.json();
-
-        if (data.permission) {
-            await fetch(`${url}/announcement/entity/${id.toString()}/unlink`, {
-                method: "PATCH",
+        // const response = await fetch(`${url}/agreement/entity/${id.toString()}/permission`, {
+        //     method: "GET",
+        //     headers: {
+        //         "Content-Type": "application/json",
+        //         Authorization: `Bearer ${getAuthToken()}`,
+        //     },
+        // });
+        // const data = await response.json();
+        //
+        // if (data.permission) {
+        //     await fetch(`${url}/announcement/entity/${id.toString()}/unlink`, {
+        //         method: "PATCH",
+        //         headers: {
+        //             "Content-Type": "application/json",
+        //             Authorization: `Bearer ${getAuthToken()}`,
+        //         },
+        //     });
+        //     await fetch(`${url}/questionnaire/entity/${id.toString()}/unlink`, {
+        //         method: "PATCH",
+        //         headers: {
+        //             "Content-Type": "application/json",
+        //             Authorization: `Bearer ${getAuthToken()}`,
+        //         },
+        //     });
+        //
+        try {
+            const entityParams = new URLSearchParams({entityId: id.toString()});
+            const response = await fetch(`${url}/entity?${entityParams.toString()}`, {
+                method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${getAuthToken()}`,
                 },
             });
-            await fetch(`${url}/questionnaire/entity/${id.toString()}/unlink`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${getAuthToken()}`,
-                },
-            });
 
-            try {
-                const who = isSpecialist ? "contractor" : "customer";
-
-                if (isLegalEntity) {
-                    const entityParams = new URLSearchParams();
-                    isSpecialist
-                        ? entityParams.append("contractorId", id)
-                        : entityParams.append("customerId", id);
-                    const response = await fetch(`${url}/${who}?${entityParams.toString()}`, {
-                        method: "DELETE",
-                        headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${getAuthToken()}`,
-                        },
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`Ошибка при удалении данных: ${response.status}`);
-                    }
-                } else {
-                    const response1 = await fetch(`${url}/customer/person`, {
-                        method: "DELETE",
-                        headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${getAuthToken()}`,
-                        },
-                    });
-                    if (!response1.ok) {
-                        throw new Error(`Ошибка при удалении данных: ${response1.status}`);
-                    }
-                    const response2 = await fetch(`${url}/contractor/person`, {
-                        method: "DELETE",
-                        headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${getAuthToken()}`,
-                        },
-                    });
-                    if (!response2.ok) {
-                        throw new Error(`Ошибка при удалении данных: ${response2.status}`);
-                    }
-                }
-
-                showToast('Данные лица успешно удалены', 'success')
-
-            } catch (error) {
-                console.error(`Ошибка при удалении данных: ${error.message}`);
-                showToast('Ошибка при удалении лица', 'danger')
+            if (!response.ok) {
+                throw new Error(`Ошибка при удалении данных: ${response.status}`);
             }
-            onClose();
-            onTrigger()
-        } else {
-            showToast('Вы не можете удалить лицо, пока оно находится в работе', 'warning')
+
+            showToast('Данные лица успешно удалены', 'success')
+
+        } catch (error) {
+            console.error(`Ошибка при удалении данных: ${error.message}`);
+            showToast('Ошибка при удалении лица', 'danger')
         }
+        onClose();
+        onTrigger()
+        // } else {
+        //     showToast('Вы не можете удалить лицо, пока оно находится в работе', 'warning')
+        // }
 
     };
 
     const handleSaveClick = async () => {
         try {
-            if (!entityData.isLegalEntity) {
-                let id = entityData.id
-                entityData.id = null
+            // if (!entityData.isLegalEntity) {
+            //     let id = entityData.id
+            //     entityData.id = null
+            // const who = isSpecialist ? "contractor" : "customer";
+            // if (who === "customer") {
+            // const responseContractor = await fetch(`${url}/${"contractor"}`, {
+            //     method: "PUT",
+            //     headers: {
+            //         "Content-Type": "application/json",
+            //         Authorization: `Bearer ${getAuthToken()}`,
+            //     },
+            //     body: JSON.stringify(entityData),
+            // });
+            // entityData.id = id
 
-                const who = isSpecialist ? "contractor" : "customer";
+            const response = await fetch(`${url}/entity`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${getAuthToken()}`,
+                },
+                body: JSON.stringify(entityData),
+            });
 
-                if (who === "customer") {
-                    const responseContractor = await fetch(`${url}/${"contractor"}`, {
-                        method: "PUT",
-                        headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${getAuthToken()}`,
-                        },
-                        body: JSON.stringify(entityData),
-                    });
-                    entityData.id = id
-                    const responseCustomer = await fetch(`${url}/${"customer"}`, {
-                        method: "PUT",
-                        headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${getAuthToken()}`,
-                        },
-                        body: JSON.stringify(entityData),
-                    });
-
-                    if (!responseCustomer.ok) {
-                        throw new Error(`Ошибка при сохранении данных: ${responseCustomer.status}`);
-                    }
-
-                    if (!responseContractor.ok) {
-                        throw new Error(`Ошибка при сохранении данных: ${responseContractor.status}`);
-                    }
-                } else {
-                    const responseContractor = await fetch(`${url}/${"customer"}`, {
-                        method: "PUT",
-                        headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${getAuthToken()}`,
-                        },
-                        body: JSON.stringify(entityData),
-                    });
-                    entityData.id = id
-                    const responseCustomer = await fetch(`${url}/${"contractor"}`, {
-                        method: "PUT",
-                        headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${getAuthToken()}`,
-                        },
-                        body: JSON.stringify(entityData),
-                    });
-
-                    if (!responseCustomer.ok) {
-                        throw new Error(`Ошибка при сохранении данных: ${responseCustomer.status}`);
-                    }
-
-                    if (!responseContractor.ok) {
-                        throw new Error(`Ошибка при сохранении данных: ${responseContractor.status}`);
-                    }
-
-                }
-            } else {
-                const who = isSpecialist ? "contractor" : "customer";
-                const response = await fetch(`${url}/${who}`, {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${getAuthToken()}`,
-                    },
-                    body: JSON.stringify(entityData),
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Ошибка при сохранении данных: ${response.status}`);
-                }
+            if (!response.ok) {
+                throw new Error(`Ошибка при сохранении данных: ${response.status}`);
             }
 
+            // if (!responseContractor.ok) {
+            //     throw new Error(`Ошибка при сохранении данных: ${responseContractor.status}`);
+            // }
+            // } else {
+            //     const responseContractor = await fetch(`${url}/${"customer"}`, {
+            //         method: "PUT",
+            //         headers: {
+            //             "Content-Type": "application/json",
+            //             Authorization: `Bearer ${getAuthToken()}`,
+            //         },
+            //         body: JSON.stringify(entityData),
+            //     });
+            //     entityData.id = id
+            //     const responseCustomer = await fetch(`${url}/${"contractor"}`, {
+            //         method: "PUT",
+            //         headers: {
+            //             "Content-Type": "application/json",
+            //             Authorization: `Bearer ${getAuthToken()}`,
+            //         },
+            //         body: JSON.stringify(entityData),
+            //     });
+            //
+            //     if (!responseCustomer.ok) {
+            //         throw new Error(`Ошибка при сохранении данных: ${responseCustomer.status}`);
+            //     }
+            //
+            //     if (!responseContractor.ok) {
+            //         throw new Error(`Ошибка при сохранении данных: ${responseContractor.status}`);
+            //     }
+            //
+            // }
+            // } else {
+            //     const who = isSpecialist ? "contractor" : "customer";
+            //     const response = await fetch(`${url}/${who}`, {
+            //         method: "PUT",
+            //         headers: {
+            //             "Content-Type": "application/json",
+            //             Authorization: `Bearer ${getAuthToken()}`,
+            //         },
+            //         body: JSON.stringify(entityData),
+            //     });
+            //
+            //     if (!response.ok) {
+            //         throw new Error(`Ошибка при сохранении данных: ${response.status}`);
+            //     }
+            // }
+
             onTrigger()
-            setOriginalData(entityData); // Обновляем исходные данные
-            setIsEditable(false); // Отключаем режим редактирования
+            setOriginalData(entityData);
+            setIsEditable(false);
             showToast('Данные лица успешно сохранены', 'success')
 
         } catch (error) {
@@ -272,13 +235,13 @@ const EntityDetailsModal = ({isOpen, onClose, id, onTrigger}) => {
         }
     };
 
-    if (!entityData) {
-        return (
-            <Container className="text-center mt-5">
-                <p>Загрузка данных лица...</p>
-            </Container>
-        );
-    }
+    // if (!entityData) {
+    //     return (
+    //         <Container className="text-center mt-5">
+    //             <p>Загрузка данных лица...</p>
+    //         </Container>
+    //     );
+    // }
 
     return (
         <Modal
@@ -293,7 +256,7 @@ const EntityDetailsModal = ({isOpen, onClose, id, onTrigger}) => {
                 <Modal.Title className="text-center">
                     Ваше {isLegalEntity ? "юридическое лицо" : "физическое лицо"}</Modal.Title>
             </Modal.Header>
-            <Modal.Body>
+            {!(Object.keys(entityData).length === 0) ? <Modal.Body>
                 <Col xs={11} md={11} lg={11} className="mx-auto">
 
                     <Form>
@@ -341,8 +304,8 @@ const EntityDetailsModal = ({isOpen, onClose, id, onTrigger}) => {
                             <Form.Label>ИНН</Form.Label>
                             <Form.Control
                                 type="number"
-                                name="inn"
-                                value={entityData.inn || ""}
+                                name="INN"
+                                value={entityData.INN || ""}
                                 onChange={handleInputChange}
                                 disabled={!isEditable}
                             />
@@ -364,8 +327,8 @@ const EntityDetailsModal = ({isOpen, onClose, id, onTrigger}) => {
                             <Form.Label>КПП</Form.Label>
                             <Form.Control
                                 type="number"
-                                name="kpp"
-                                value={entityData.kpp || ""}
+                                name="KPP"
+                                value={entityData.KPP || ""}
                                 onChange={handleInputChange}
                                 disabled={!isEditable}
                             />
@@ -408,8 +371,8 @@ const EntityDetailsModal = ({isOpen, onClose, id, onTrigger}) => {
                             <Form.Label>БИК</Form.Label>
                             <Form.Control
                                 type="number"
-                                name="bik"
-                                value={entityData.bik || ""}
+                                name="BIK"
+                                value={entityData.BIK || ""}
                                 onChange={handleInputChange}
                                 disabled={!isEditable}
                             />
@@ -421,8 +384,10 @@ const EntityDetailsModal = ({isOpen, onClose, id, onTrigger}) => {
                 </Col>
                 {/*</Row>*/}
                 {/*</div >*/}
-            </Modal.Body>
-            <Modal.Footer>
+            </Modal.Body> : (<Container className="text-center my-5">
+                <Spinner animation="border" variant="primary"/>
+            </Container>)}
+            {!(Object.keys(entityData).length === 0) && <Modal.Footer>
                 {/* <Button variant="secondary" onClick={onClose}>
                     Закрыть
                 </Button> */}
@@ -509,7 +474,7 @@ const EntityDetailsModal = ({isOpen, onClose, id, onTrigger}) => {
                     )}
 
                 </div>
-            </Modal.Footer>
+            </Modal.Footer>}
         </Modal>
     );
 };

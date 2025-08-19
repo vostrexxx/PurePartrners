@@ -8,17 +8,17 @@ const EntityModal = ({isOpen, onClose, fullName, onTrigger, gotPerson}) => {
     const showToast = useToast();
     const url = localStorage.getItem("url");
     const {isSpecialist} = useProfile();
-
+    const [opt, setOpt] = useState(null);
     const [isLegalEntity, setIsLegalEntity] = useState(null);
     const [entity, setEntity] = useState(null);
     const [formData, setFormData] = useState({
-        bik: "",
+        BIK: "",
         corrAcc: "",
         currAcc: "",
         bank: "",
         fullName: fullName,
-        kpp: "",
-        inn: "",
+        KPP: "",
+        INN: "",
         address: "",
         position: "",
         firm: "",
@@ -45,13 +45,13 @@ const EntityModal = ({isOpen, onClose, fullName, onTrigger, gotPerson}) => {
 
         // Сброс формы при выборе нового типа
         setFormData({
-            bik: "",
+            BIK: "",
             corrAcc: "",
             currAcc: "",
             bank: "",
             fullName: fullName,
-            kpp: "",
-            inn: "",
+            KPP: "",
+            INN: "",
             address: "",
             position: "",
             firm: "",
@@ -71,84 +71,82 @@ const EntityModal = ({isOpen, onClose, fullName, onTrigger, gotPerson}) => {
             setEntity(null);
             setIsLegalEntity(null);
             setFormData({
-                bik: "",
+                BIK: "",
                 corrAcc: "",
                 currAcc: "",
                 bank: "",
                 fullName: fullName,
-                kpp: "",
-                inn: "",
+                KPP: "",
+                INN: "",
                 address: "",
                 position: "",
                 firm: "",
             }); // Сброс формы
         }
-    }, [isOpen]); // Зависимость от isOpen и fullName
+    }, [isOpen]);
 
     const handleSave = async () => {
         try {
-            if (entity === "Физическое лицо") {
-                // URL для подрядчика и заказчика
-                const contractorUrl = `${url}/contractor`;
-                const customerUrl = `${url}/customer`;
+            // if (entity === "Физическое лицо") {
+            // URL для подрядчика и заказчика
+            // const contractorUrl = `${url}/contractor`;
+            // const customerUrl = `${url}/customer`;
+            // Данные для отправки
+            const data = {...formData, isLegalEntity: isLegalEntity, isSpecialist: isLegalEntity ? isSpecialist : null};
 
-                // Данные для отправки
-                const data = {...formData, isLegalEntity: isLegalEntity};
+            const response = await fetch(`${url}/entity`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${authToken}`,
+                },
+                body: JSON.stringify(data),
+            });
 
-                // Отправляем данные для подрядчика
-                const contractorResponse = await fetch(contractorUrl, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${authToken}`,
-                    },
-                    body: JSON.stringify(data),
-                });
-
-                if (!contractorResponse.ok) {
-                    throw new Error(`Ошибка сети: ${contractorResponse.status}`);
-                }
-
-                // Отправляем данные для заказчика
-                const customerResponse = await fetch(customerUrl, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${authToken}`,
-                    },
-                    body: JSON.stringify(data),
-                });
-
-                if (!customerResponse.ok) {
-                    throw new Error(`Ошибка сети: ${customerResponse.status}`);
-                }
-
-                // Если оба запроса успешны
-                onClose();
-                onTrigger();
-                showToast('Физическое лицо успешно сохранено для обоих профилей', 'success');
-            } else {
-                // Если создаётся юридическое лицо, отправляем данные только для текущего профиля
-                const fullUrl = `${url}/${isSpecialist ? "contractor" : "customer"}`;
-                formData.isLegalEntity = isLegalEntity;
-
-                const response = await fetch(fullUrl, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${authToken}`,
-                    },
-                    body: JSON.stringify(formData),
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Ошибка сети: ${response.status}`);
-                }
-
-                onClose();
-                onTrigger();
-                showToast('Юридическое лицо успешно сохранено', 'success');
+            if (!response.ok) {
+                throw new Error(`Ошибка сети: ${response.status}`);
             }
+
+            // Отправляем данные для заказчика
+            // const customerResponse = await fetch(customerUrl, {
+            //     method: "POST",
+            //     headers: {
+            //         "Content-Type": "application/json",
+            //         Authorization: `Bearer ${authToken}`,
+            //     },
+            //     body: JSON.stringify(data),
+            // });
+            //
+            // if (!customerResponse.ok) {
+            //     throw new Error(`Ошибка сети: ${customerResponse.status}`);
+            // }
+
+            // Если оба запроса успешны
+            onClose();
+            onTrigger();
+            showToast('Физическое лицо успешно сохранено для обоих профилей', 'success');
+            // } else {
+            //     // Если создаётся юридическое лицо, отправляем данные только для текущего профиля
+            //     const fullUrl = `${url}/${isSpecialist ? "contractor" : "customer"}`;
+            //     formData.isLegalEntity = isLegalEntity;
+            //
+            //     const response = await fetch(fullUrl, {
+            //         method: "POST",
+            //         headers: {
+            //             "Content-Type": "application/json",
+            //             Authorization: `Bearer ${authToken}`,
+            //         },
+            //         body: JSON.stringify(formData),
+            //     });
+            //
+            //     if (!response.ok) {
+            //         throw new Error(`Ошибка сети: ${response.status}`);
+            //     }
+            //
+            //     onClose();
+            //     onTrigger();
+            //     showToast('Юридическое лицо успешно сохранено', 'success');
+            // }
         } catch (error) {
             console.error(`Ошибка при сохранении данных: ${error.message}`);
             showToast('Ошибка сохранения лица', 'danger');
@@ -160,7 +158,7 @@ const EntityModal = ({isOpen, onClose, fullName, onTrigger, gotPerson}) => {
     return (
         <Modal show={isOpen} onHide={onClose} centered>
             <Modal.Header closeButton>
-                <Modal.Title>Добавление лица</Modal.Title>
+                <Modal.Title>Добавление {isLegalEntity !== null ? (isLegalEntity ? 'юридического' : 'физического') : ''} лица</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 {/* Выпадающий список показываем только если есть выбор */}
@@ -185,7 +183,6 @@ const EntityModal = ({isOpen, onClose, fullName, onTrigger, gotPerson}) => {
                         {/* <h5 className="text-center">Создание юридического лица</h5> */}
 
                         <Card className="mt-3 p-3">
-                            {/* <Card.Title>фывфывфыв</Card.Title> */}
                             <Form>
                                 {/* ФИО */}
                                 <Form.Group className="mb-3">
@@ -217,8 +214,8 @@ const EntityModal = ({isOpen, onClose, fullName, onTrigger, gotPerson}) => {
                                     <Form.Label>ИНН</Form.Label>
                                     <Form.Control
                                         type="number"
-                                        name="inn"
-                                        value={formData.inn}
+                                        name="INN"
+                                        value={formData.INN}
                                         onChange={handleInputChange}
                                         className="no-spinner"
                                     />
@@ -258,8 +255,8 @@ const EntityModal = ({isOpen, onClose, fullName, onTrigger, gotPerson}) => {
                                             <Form.Label>КПП</Form.Label>
                                             <Form.Control
                                                 type="number"
-                                                name="kpp"
-                                                value={formData.kpp}
+                                                name="KPP"
+                                                value={formData.KPP}
                                                 onChange={handleInputChange}
                                                 className="no-spinner"
                                             />
@@ -301,8 +298,8 @@ const EntityModal = ({isOpen, onClose, fullName, onTrigger, gotPerson}) => {
                                             <Form.Label>БИК</Form.Label>
                                             <Form.Control
                                                 type="number"
-                                                name="bik"
-                                                value={formData.bik}
+                                                name="BIK"
+                                                value={formData.BIK}
                                                 onChange={handleInputChange}
                                                 className="no-spinner"
                                             />
