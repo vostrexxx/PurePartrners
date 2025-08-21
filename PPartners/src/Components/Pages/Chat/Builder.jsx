@@ -737,8 +737,9 @@ const Builder = ({agreementId, initiatorId, receiverId}) => {
 
             <BuilderModalWnd isOpen={modalOpen} onClose={closeModal} agreementId={agreementId}/>
             <Button onClick={() => {
-                console.log(changes)
-            }}> </Button>
+                console.log('estimate' ,estimate)
+                console.log('changes',changes)
+            }}>Вывод</Button>
             {/* Смета */}
             <div className="mb-4">
                 {estimate.map((orange) => (
@@ -863,9 +864,9 @@ const Builder = ({agreementId, initiatorId, receiverId}) => {
                                 <div className="mt-2">
                                     {changes
                                         .filter(
-                                            (change) => (change.updatedFields?.nodeId === subItem.nodeId || change.parentId === subItem.elementId)
-                                                &&
-                                                change.operation !== 'add'
+                                            (change) =>
+                                                // (change.updatedFields?.nodeId === subItem.nodeId || change.parentId === subItem.elementId) &&
+                                                change.operation === 'add'
                                         )
                                         .map((change, index) => (
                                             <div key={`${subItem.nodeId}-sub-change-${index}`}
