@@ -940,56 +940,67 @@ const QuestionnaireDetails = () => {
                                 <Row>
                                     <Col>
                                         <Row>
-                                            <Col>
-                                                <h5 className="mt-2 mb-4 text-center" style={{color: "#ff7f00"}}>
+                                            {/*<Col>*/}
+                                                <h5 className="mt-2 mb-4 text-center" style={{ color: "#ff7f00" }}>
                                                     Прикрепленные фотографии
                                                 </h5>
 
                                                 {images.length > 0 ? (
-                                                    <Row className="g-3">
-                                                        {questionnaire.questionnaireImages.map((imagePath, index) => (
-                                                            <Col key={index} xs={6} md={4} lg={3}
-                                                                 style={{position: "relative"}}>
-                                                                <Image
-                                                                    src={images[index]}
-                                                                    alt={`Фото ${index + 1}`}
-                                                                    fluid
-                                                                    rounded
-                                                                    style={{
-                                                                        width: "150px",
-                                                                        height: "150px",
-                                                                        objectFit: "cover",
-                                                                        cursor: "pointer",
-                                                                    }}
-                                                                    onClick={() => handleImageClick(images[index])}
-                                                                />
-                                                                {isEditable && (
-                                                                    <Button
-                                                                        variant="danger"
-                                                                        style={{
-                                                                            position: "absolute",
-                                                                            top: "5px",
-                                                                            right: "5px",
-                                                                            borderRadius: "50%",
-                                                                            width: "20px",
-                                                                            height: "20px",
-                                                                            padding: "0",
-                                                                            display: "flex",
-                                                                            alignItems: "center",
-                                                                            justifyContent: "center",
-                                                                        }}
-                                                                        onClick={() => handleDeleteImage(imagePath)}
-                                                                    >
-                                                                        ×
-                                                                    </Button>
-                                                                )}
-                                                            </Col>
-                                                        ))}
+                                                    <Row>
+                                                        <Col>
+                                                            {images.length > 0 ? (
+                                                                <Row className="g-3">
+                                                                    {questionnaire.questionnaireImages.map((imagePath, index) => (
+                                                                        <Col key={index} xs={6} md={4} lg={3}>
+                                                                            <div style={{ position: "relative" }}>
+                                                                                <Image
+                                                                                    src={images[index]}
+                                                                                    alt={`Фото ${index + 1}`}
+                                                                                    rounded
+                                                                                    style={{
+                                                                                        width: "100%",
+                                                                                        height: "150px",
+                                                                                        objectFit: "cover",
+                                                                                        cursor: "pointer",
+                                                                                        display: "block"
+                                                                                    }}
+                                                                                    onClick={() => handleImageClick(images[index])}
+                                                                                />
+                                                                                {isEditable && (
+                                                                                    <Button
+                                                                                        variant="danger"
+                                                                                        style={{
+                                                                                            position: "absolute",
+                                                                                            top: "5px",
+                                                                                            right: "5px",
+                                                                                            borderRadius: "50%",
+                                                                                            width: "20px",
+                                                                                            height: "20px",
+                                                                                            padding: "0",
+                                                                                            display: "flex",
+                                                                                            alignItems: "center",
+                                                                                            justifyContent: "center",
+                                                                                            zIndex: 1
+                                                                                        }}
+                                                                                        onClick={() => handleDeleteImage(imagePath)}
+                                                                                    >
+                                                                                        ×
+                                                                                    </Button>
+                                                                                )}
+                                                                            </div>
+                                                                            {/*Прикрепленные фотографии*/}
+                                                                        </Col>
+                                                                    ))}
+                                                                </Row>
+                                                            ) : (
+                                                                <div className="text-center">Фотографии отсутствуют</div>
+                                                            )}
+                                                        </Col>
                                                     </Row>
                                                 ) : (
-                                                    <div className='text-center'>Фотографии отсутствуют</div>
+                                                    <div className="text-center">Фотографии отсутствуют</div>
                                                 )}
-                                            </Col>
+                                            {/*</Col>*/}
                                         </Row>
 
                                         {isEditable && (

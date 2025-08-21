@@ -1,18 +1,18 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { TextField, Select, MenuItem, IconButton, Drawer } from '@mui/material';
-import { Add, Remove, Menu } from '@mui/icons-material';
+import React, {useState, useEffect, useRef} from 'react';
+import {TextField, Select, MenuItem, IconButton, Drawer} from '@mui/material';
+import {Add, Remove, Menu} from '@mui/icons-material';
 import ChangeCard from './ChangeCard';
 import BuilderModalWnd from './BuilderModalWnd';
 import DocumentManager from './DocumentManager';
-import { EventSourcePolyfill } from 'event-source-polyfill';
+import {EventSourcePolyfill} from 'event-source-polyfill';
 import MeasureUnitAutocomplete from '../SearchComponent/MeasureUnitAutocomplete';
-import { Container, Form, InputGroup, Button, Image, Row, Col } from 'react-bootstrap';
-import { Delete } from '@mui/icons-material'; // Импортируем иконку корзины
-import { FaFileWord, FaFileExcel, FaFilePdf, FaFileAlt, FaEdit, FaSave, FaMinus } from 'react-icons/fa';
-import { FaPlus } from "react-icons/fa";
-import { useToast } from '../../Notification/ToastContext'
+import {Container, Form, InputGroup, Button, Image, Row, Col} from 'react-bootstrap';
+import {Delete} from '@mui/icons-material'; // Импортируем иконку корзины
+import {FaFileWord, FaFileExcel, FaFilePdf, FaFileAlt, FaEdit, FaSave, FaMinus} from 'react-icons/fa';
+import {FaPlus} from "react-icons/fa";
+import {useToast} from '../../Notification/ToastContext'
 
-const Builder = ({ agreementId, initiatorId, receiverId }) => {
+const Builder = ({agreementId, initiatorId, receiverId}) => {
     const showToast = useToast();
     const [estimate, setEstimate] = useState([]);
     const [originalEstimate, setOriginalEstimate] = useState([]);
@@ -246,7 +246,7 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
 
             const data = await response.json();
 
-            if (data.isEditing === false) {
+            if (data.isEditing === true) {
                 showToast("Смета редактируется другим пользователем.", "warning")
                 // alert("Смета редактируется другим пользователем.");
                 return;
@@ -281,7 +281,7 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
     useEffect(() => {
         const fetchEstimate = async () => {
             try {
-                const params = new URLSearchParams({ agreementId });
+                const params = new URLSearchParams({agreementId});
                 const response = await fetch(`${url}/categories/estimate?${params.toString()}`, {
                     method: 'GET',
                     headers: {
@@ -388,11 +388,11 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                 if (orange.elementId === orangeId) {
                     const updatedSubCategories = orange.subSubWorkCategories.map((subItem) =>
                         subItem.elementId === subItemId
-                            ? { ...subItem, [field]: value }
+                            ? {...subItem, [field]: value}
                             : subItem
                     );
 
-                    return { ...orange, subSubWorkCategories: updatedSubCategories };
+                    return {...orange, subSubWorkCategories: updatedSubCategories};
                 }
                 return orange;
             });
@@ -401,7 +401,7 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
 
     const handleOrangeTextChange = (orangeId, value) => {
         setEstimate((prev) =>
-            prev.map((orange) => (orange.elementId === orangeId ? { ...orange, subWorkCategoryName: value } : orange))
+            prev.map((orange) => (orange.elementId === orangeId ? {...orange, subWorkCategoryName: value} : orange))
         );
     };
 
@@ -567,7 +567,7 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
 
     const handleFormated = async () => {
 
-        const params = new URLSearchParams({ agreementId });
+        const params = new URLSearchParams({agreementId});
         fetch(`${url}/document/presence?${params.toString()}`, {
             method: 'GET',
             headers: {
@@ -598,7 +598,7 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${authToken}`,
                     },
-                    body: JSON.stringify({ estimate, agreementId, firstId: initiatorId, secondId: receiverId }),
+                    body: JSON.stringify({estimate, agreementId, firstId: initiatorId, secondId: receiverId}),
                 });
 
                 if (!response.ok) {
@@ -642,7 +642,13 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                             'Content-Type': 'application/json',
                             Authorization: `Bearer ${authToken}`,
                         },
-                        body: JSON.stringify({ changes, agreementId, initiatorId: userId, firstId: initiatorId, secondId: receiverId }),
+                        body: JSON.stringify({
+                            changes,
+                            agreementId,
+                            initiatorId: userId,
+                            firstId: initiatorId,
+                            secondId: receiverId
+                        }),
                     });
 
                     if (!response.ok) {
@@ -697,7 +703,7 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                 </Col>
                 <Col xs="auto">
                     <Button variant="success" onClick={handleOpenModal}>
-                        <FaFileExcel /> {/* Иконка файла */}
+                        <FaFileExcel/> {/* Иконка файла */}
                     </Button>
                 </Col>
             </Row>
@@ -712,7 +718,7 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                     style={styles.fixedButton}
                 >
                     {/* Редактировать */}
-                    <FaEdit />
+                    <FaEdit/>
                 </Button>
 
                 <Button
@@ -723,15 +729,16 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                     style={styles.fixedButton}
                 >
                     {/* Сохранить */}
-                    <FaSave />
+                    <FaSave/>
                 </Button>
-
 
 
             </div>
 
-            <BuilderModalWnd isOpen={modalOpen} onClose={closeModal} agreementId={agreementId} />
-
+            <BuilderModalWnd isOpen={modalOpen} onClose={closeModal} agreementId={agreementId}/>
+            <Button onClick={() => {
+                console.log(changes)
+            }}> </Button>
             {/* Смета */}
             <div className="mb-4">
                 {estimate.map((orange) => (
@@ -747,7 +754,7 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                                 disabled={!isEditing}
                                 className="flex-fill"
                                 multiline
-                                minRowsrows={1}
+                                minRows={1}
                                 maxRows={6}
                             />
                             <IconButton
@@ -755,9 +762,9 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                                 onClick={() => handleRemoveOrangeItem(orange.elementId)}
                                 hidden={!isEditing}
                                 color="error" // Цвет для кнопки удаления (красный)
-                            // style={{ backgroundColor: "black" }}
+                                // style={{ backgroundColor: "black" }}
                             >
-                                <Delete /> {/* Иконка минуса */}
+                                <Delete/> {/* Иконка минуса */}
                             </IconButton>
 
                         </div>
@@ -856,12 +863,13 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                                 <div className="mt-2">
                                     {changes
                                         .filter(
-                                            (change) =>
-                                                (change.updatedFields?.nodeId === subItem.nodeId || change.parentId === subItem.elementId) &&
+                                            (change) => (change.updatedFields?.nodeId === subItem.nodeId || change.parentId === subItem.elementId)
+                                                &&
                                                 change.operation !== 'add'
                                         )
                                         .map((change, index) => (
-                                            <div key={`${subItem.nodeId}-sub-change-${index}`} className="change-card-desktop">
+                                            <div key={`${subItem.nodeId}-sub-change-${index}`}
+                                                 className="change-card-desktop">
                                                 <ChangeCard
                                                     operation={change.operation}
                                                     data={change}
@@ -916,7 +924,7 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
 
             <Button
                 variant="warning"
-                style={{ width: "100%" }}
+                style={{width: "100%"}}
                 onClick={handleAddOrangeItem}
                 hidden={!isEditing}>
                 Добавить категорию
@@ -926,11 +934,12 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
             {/* Документ менеджер */}
             {
                 Array.isArray(estimate) && estimate.length > 0 && (
-                    <DocumentManager agreementId={agreementId} firstId={initiatorId} secondId={receiverId} triggerDoc={triggerDoc} />
+                    <DocumentManager agreementId={agreementId} firstId={initiatorId} secondId={receiverId}
+                                     triggerDoc={triggerDoc}/>
                 )
             }
 
-            { !isEditing && estimate.length === 0 ? (
+            {!isEditing && estimate.length === 0 ? (
                 <div className='text-center'>Вы пока не добавили смету,
                     вы можете её загрузить согласно шаблону
                     или создать вручную, перейдя в режим редактирования
@@ -963,10 +972,9 @@ const Builder = ({ agreementId, initiatorId, receiverId }) => {
                 }
                 `}
             </style>
-        </Container >
+        </Container>
     );
 };
-
 
 
 export default Builder;

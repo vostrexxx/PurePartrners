@@ -1065,7 +1065,7 @@ const AnnouncementDetails = () => {
                                                             whiteSpace: "nowrap", // Запрет переноса текста
                                                             overflow: "hidden", // Скрытие текста, выходящего за пределы
                                                             textOverflow: "ellipsis", // Добавление троеточия
-                                                            maxWidth: "200px", // Максимальная ширина текста
+                                                            // maxWidth: "200px", // Максимальная ширина текста
                                                             flex: 1, // Занимает всё доступное пространство
                                                         }}
                                                         onClick={() =>
@@ -1129,7 +1129,7 @@ const AnnouncementDetails = () => {
                                                                     whiteSpace: "nowrap", // Запрет переноса текста
                                                                     overflow: "hidden", // Скрытие текста, выходящего за пределы
                                                                     textOverflow: "ellipsis", // Добавление троеточия
-                                                                    maxWidth: "200px", // Максимальная ширина текста
+                                                                    // maxWidth: "200px", // Максимальная ширина текста
                                                                 }}
                                                             >
                                                                 {file.name}
