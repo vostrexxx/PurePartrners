@@ -309,6 +309,10 @@ const AnnouncementDetails = () => {
     };
 
     const handleEditClick = () => {
+        if (announcement.isInWork) {
+            showToast('Невозможно редактировать объявление которое находится в работе','danger')
+            return
+        }
         setIsEditable(true);
     };
 

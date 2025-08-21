@@ -737,8 +737,8 @@ const Builder = ({agreementId, initiatorId, receiverId}) => {
 
             <BuilderModalWnd isOpen={modalOpen} onClose={closeModal} agreementId={agreementId}/>
             <Button onClick={() => {
-                console.log('estimate' ,estimate)
-                console.log('changes',changes)
+                console.log('estimate', estimate)
+                console.log('changes', changes)
             }}>Вывод</Button>
             {/* Смета */}
             <div className="mb-4">
@@ -789,7 +789,8 @@ const Builder = ({agreementId, initiatorId, receiverId}) => {
                                     firstId={initiatorId}
                                     secondId={receiverId}
                                 />
-                            ))}
+                            ))
+                        }
 
                         {/* Подкатегории */}
                         {orange.subSubWorkCategories.map((subItem) => (
@@ -865,8 +866,8 @@ const Builder = ({agreementId, initiatorId, receiverId}) => {
                                     {changes
                                         .filter(
                                             (change) =>
-                                                // (change.updatedFields?.nodeId === subItem.nodeId || change.parentId === subItem.elementId) &&
-                                                change.operation === 'add'
+                                                (change.updatedFields?.nodeId === subItem.nodeId || change.parentId === subItem.elementId)
+                                                && change.operation !== 'add'
                                         )
                                         .map((change, index) => (
                                             <div key={`${subItem.nodeId}-sub-change-${index}`}
@@ -887,7 +888,35 @@ const Builder = ({agreementId, initiatorId, receiverId}) => {
                             </div>
 
 
+
                         ))}
+
+                        <div className="mt-2">
+
+                            {changes
+                                .filter(
+                                    (change) =>
+                                        (change.updatedFields?.nodeId === orange.nodeId || change.parentId === orange.elementId)
+                                        && change.operation === 'add'
+                                )
+                                .map((change, index) => (
+                                    <div key={`${orange.nodeId}-sub-change-${index}`}
+                                         className="change-card-desktop">
+                                        <ChangeCard
+                                            operation={change.operation}
+                                            data={change}
+                                            url={url}
+                                            authToken={authToken}
+                                            agreementId={agreementId}
+                                            userId={userId}
+                                            firstId={initiatorId}
+                                            secondId={receiverId}
+                                        />
+                                    </div>
+                                ))}
+
+                        </div>
+
                         <Button
                             variant="success"
                             className='w-100 mt-2'
@@ -904,9 +933,12 @@ const Builder = ({agreementId, initiatorId, receiverId}) => {
                 {/* Карточки для новых элементов (без категории) */}
                 {changes
                     .filter(
-                        (change) =>
-                            change.operation === 'add' &&
-                            change.parentNodeId === null
+                        (change) => {
+                            // console.log('orange', estimate)
+                            // console.log('change', change)
+                            return change.operation === 'add' &&
+                                change.parentNodeId === null
+                        }
                     )
                     .map((change, index) => (
                         <ChangeCard
