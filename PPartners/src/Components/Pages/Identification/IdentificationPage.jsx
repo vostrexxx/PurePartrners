@@ -12,8 +12,8 @@ const IdentificationPage = () => {
     const navigate = useNavigate();
 
     localStorage.setItem("phoneNumber", phoneNumber);
-    // localStorage.setItem("url", "http://192.168.1.12:8887");
-    localStorage.setItem("url", "https://api.партнеры.online");
+    localStorage.setItem("url", "http://192.168.1.12:8887");
+    // localStorage.setItem("url", "https://api.партнеры.online");
 
     localStorage.setItem("authToken", null);
     const url = localStorage.getItem("url");

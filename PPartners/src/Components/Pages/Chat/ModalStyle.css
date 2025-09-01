@@ -1,0 +1,78 @@
+.custom-modal-dialog {
+    max-width: 90vw !important;
+    height: 90vh !important;
+    margin: 5vh auto !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.custom-modal-content {
+    width: 100% !important;
+    height: 90vh !important;
+    border-radius: 12px !important;
+    border: none !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.custom-modal-content .modal-header {
+    border-top-left-radius: 12px !important;
+    border-top-right-radius: 12px !important;
+    border-bottom: 1px solid #e9ecef !important;
+    padding: 1.5rem !important;
+    flex-shrink: 0 !important;
+}
+
+.custom-modal-content .modal-body {
+    flex: 1 !important;
+    overflow-y: auto !important;
+    padding: 1.5rem !important;
+}
+
+.custom-modal-content .modal-footer {
+    border-top: 1px solid #e9ecef !important;
+    border-bottom-left-radius: 12px !important;
+    border-bottom-right-radius: 12px !important;
+    padding: 1.5rem !important;
+    flex-shrink: 0 !important;
+}
+
+.custom-modal-content .btn-close {
+    box-shadow: none !important;
+}
+
+/* Только для очень маленьких экранов (меньше 576px) */
+@media (max-width: 575px) {
+    .custom-modal-dialog {
+        max-width: 95vw !important;
+        height: 95vh !important;
+        margin: 2.5vh auto !important;
+    }
+
+    .custom-modal-content {
+        height: 95vh !important;
+        border-radius: 8px !important;
+    }
+
+    .custom-modal-content .modal-header,
+    .custom-modal-content .modal-body,
+    .custom-modal-content .modal-footer {
+        padding: 1rem !important;
+    }
+}
+
+/* Для совсем маленьких экранов */
+@media (max-width: 400px) {
+    .custom-modal-dialog {
+        max-width: 100vw !important;
+        height: 100vh !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+    }
+
+    .custom-modal-content {
+        height: 100vh !important;
+        border-radius: 0 !important;
+    }
+}

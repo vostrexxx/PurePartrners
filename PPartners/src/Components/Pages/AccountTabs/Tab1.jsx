@@ -43,7 +43,9 @@ const showToast = useToast();
                 }
 
                 const data = await response.json();
-                data.length === 0 ? onGotPerson(false) : onGotPerson(true)
+
+                const hasPhysicalEntity = data.some(person => person.isLegalEntity === false);
+                onGotPerson(hasPhysicalEntity);
 
                 const legalEntitiesData = [];
                 const personsData = [];
@@ -402,7 +404,8 @@ const ProfilePage = () => {
                             {/*<Button onClick={()=>{*/}
                             {/*    console.log(Object.values(profileData).every(value => value === ''))*/}
                             {/*}}></Button>*/}
-                            {!Object.values(profileData).every(value => value === '') ? <Form>
+                            {/*{!Object.values(profileData).every(value => value === '') ?*/}
+                                <Form>
                                 {/* Номер телефона */}
                                 <Form.Group controlId="formPhoneNumber" className="mb-3">
                                     <Form.Label className="fw-bold ms-4 ">Номер телефона</Form.Label>
@@ -556,9 +559,10 @@ const ProfilePage = () => {
                                         </Button>
                                     )}
                                 </div>
-                            </Form> : <Container className="text-center my-5">
-                                <Spinner animation="border" variant="primary"/>
-                            </Container>}
+                            </Form>
+                            {/*: <Container className="text-center my-5">*/}
+                            {/*    <Spinner animation="border" variant="primary"/>*/}
+                            {/*</Container>}*/}
                         </Card.Body>
                     </Card>
                 </Col>

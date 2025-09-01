@@ -215,9 +215,9 @@ const Builder = ({agreementId, initiatorId, receiverId}) => {
                 }
 
                 const data = await response.json();
-                setIsEditing(data.isEditing);
+                await setIsEditing(data.isEditing);
 
-                if (data.isEditing === true) {
+                if (data.isEditing === false) {
                     // alert("Смета редактируется другим пользователем.");
                     showToast("Смета редактируется другим пользователем", "warning")
                 }
@@ -228,7 +228,9 @@ const Builder = ({agreementId, initiatorId, receiverId}) => {
 
         fetchIsEditing();
     }, [agreementId, authToken, url]);
-
+    useEffect(() => {
+        console.log('isEditing',isEditing)
+    }, []);
     // Функция для обработки кнопки "Редактировать"
     const handleEdit = async () => {
         try {
@@ -246,7 +248,7 @@ const Builder = ({agreementId, initiatorId, receiverId}) => {
 
             const data = await response.json();
 
-            if (data.isEditing === true) {
+            if (data.isEditing === false) {
                 showToast("Смета редактируется другим пользователем.", "warning")
                 // alert("Смета редактируется другим пользователем.");
                 return;
@@ -736,10 +738,10 @@ const Builder = ({agreementId, initiatorId, receiverId}) => {
             </div>
 
             <BuilderModalWnd isOpen={modalOpen} onClose={closeModal} agreementId={agreementId}/>
-            <Button onClick={() => {
-                console.log('estimate', estimate)
-                console.log('changes', changes)
-            }}>Вывод</Button>
+            {/*<Button onClick={() => {*/}
+            {/*    console.log('estimate', estimate)*/}
+            {/*    console.log('changes', changes)*/}
+            {/*}}>Вывод</Button>*/}
             {/* Смета */}
             <div className="mb-4">
                 {estimate.map((orange) => (
