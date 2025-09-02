@@ -16,13 +16,13 @@ import MultipleAutocomplete from "./StagePage/MultipleAutocomplete.jsx";
 
 const WorkStagesBuilder = ({agreementId, initiatorId, receiverId}) => {
     const showToast = useToast();
-    const [stages, setStages] = useState([]); // Список этапов работ
-    const [rawStages, setRawStages] = useState([]); // Исходный список
-    const [newStageName, setNewStageName] = useState(''); // Название нового этапа
-    const [newStartDate, setNewStartDate] = useState(''); // Название нового этапа
-    const [newEndDate, setNewEndDate] = useState(''); // Название нового этапа
-    const [notUsedRawStages, setNotUsedRawStages] = useState([]); // Название нового этапа
-    const [subStages, setSubStages] = useState([]); // Название нового этапа
+    const [stages, setStages] = useState([]);
+    const [rawStages, setRawStages] = useState([]);
+    const [newStageName, setNewStageName] = useState('');
+    const [newStartDate, setNewStartDate] = useState('');
+    const [newEndDate, setNewEndDate] = useState('');
+    const [notUsedRawStages, setNotUsedRawStages] = useState([]);
+    const [newSubStages, setNewSubStages] = useState([]);
 
 
     const url = localStorage.getItem('url');
@@ -33,11 +33,11 @@ const WorkStagesBuilder = ({agreementId, initiatorId, receiverId}) => {
 
     const {isSpecialist} = useProfile();
 
-    const [modalOpen, setModalOpen] = useState(false); // Состояние открытия модального окна
-    const [modalData, setModalData] = useState({mode: '', stage: null}); // Хранение mode и stage
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalData, setModalData] = useState({mode: '', stage: null});
 
 
-    const [showModalAddStage, setShowModalAddStage] = useState(false); // Хранение mode и stage
+    const [showModalAddStage, setShowModalAddStage] = useState(false);
     const handleCloseModalAddStage = () => setShowModalAddStage(false);
     const handleShowModalAddStage = () => setShowModalAddStage(true)
 
@@ -57,7 +57,6 @@ const WorkStagesBuilder = ({agreementId, initiatorId, receiverId}) => {
             alignItems: 'center',
             justifyContent: 'center',
         },
-
         fixedButton2: {
             position: 'fixed',
             bottom: '85px',
@@ -73,10 +72,9 @@ const WorkStagesBuilder = ({agreementId, initiatorId, receiverId}) => {
     };
 
 
-    // Получение списка "rawStages" с сервера
     useEffect(() => {
         const fetchStages = async () => {
-            try {
+            // try {
                 const response = await fetch(`${url}/stages?agreementId=${agreementId}`, {
                     method: 'GET',
                     headers: {
@@ -90,78 +88,78 @@ const WorkStagesBuilder = ({agreementId, initiatorId, receiverId}) => {
                 }
 
                 const data = await response.json();
-                // console.log('data',data.notUsedRawStages)
+                console.log('data',data)
                 setNotUsedRawStages(data.notUsedRawStages)
                 // Проверяем содержимое списков
-                const {stages: fetchedStages, notUsedRawStages} = data;
-
-                if ((fetchedStages && fetchedStages.length > 0) || (notUsedRawStages && notUsedRawStages.length > 0)) {
-
-                    // setIsAvailable(false)
-                    // Парсим данные из ответа и записываем в соответствующие состояния
-                    setStages(
-                        data.stages.map((stage) => ({
-                            totalPrice: stage.totalPrice,
-                            isCustomerApproved: stage.isCustomerApproved,
-                            isContractorApproved: stage.isContractorApproved,
-                            elementId: stage.id,
-                            name: stage.stageTitle,
-                            order: stage.stageOrder,
-                            stageStatus: stage.stageStatus,
-
-                            stageBalance: stage.stageBalance,
-
-                            startDate: stage.startDate || null,
-                            finishDate: stage.finishDate || null,
-                            children: stage.subStages.map((subStage) => ({
-                                elementId: subStage.elementId,
-                                subWorkCategoryName: subStage.subStageTitle,
-                                totalPrice: subStage.subStagePrice,
-                            })),
-                        }))
-                    );
-
-                    setRawStages(
-                        data.notUsedRawStages.map((rawStage) => ({
-                            elementId: rawStage.elementId || rawStage.id, // Постоянный ID с бэка
-                            subWorkCategoryName: rawStage.subStageTitle,
-                            totalPrice: rawStage.subStagePrice,
-                        }))
-                    );
-                } else {
-                    // Если списки пусты, выполняем уже существующий запрос к /categories/raw-stages
-                    const params = new URLSearchParams({agreementId});
-                    const rawStagesResponse = await fetch(`${url}/categories/raw-stages?${params.toString()}`, {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${authToken}`,
-                        },
-                    });
-
-                    if (!rawStagesResponse.ok) {
-                        throw new Error(`Ошибка сети: ${rawStagesResponse.status}`);
-                    }
-
-                    const rawStagesData = await rawStagesResponse.json();
-                    if (rawStagesData.rawStages) {
-                        // setIsAvailable(false)
-                        setRawStages(
-                            rawStagesData.rawStages.map((rawStage) => ({
-                                elementId: rawStage.elementId, // Используем elementId как id
-                                subWorkCategoryName: rawStage.subWorkCategoryName,
-                                totalPrice: rawStage.totalPrice,
-                            }))
-                        );
-
-                    } else {
-                        console.error('Ошибка: поле "rawStages" отсутствует в ответе сервера.');
-                    }
-
-                }
-            } catch (error) {
-                console.error('Ошибка при загрузке этапов работ:', error.message);
-            }
+                // const {stages: fetchedStages, notUsedRawStages} = data;
+                //
+                // if ((fetchedStages && fetchedStages.length > 0) || (notUsedRawStages && notUsedRawStages.length > 0)) {
+                //
+                //     // setIsAvailable(false)
+                //     // Парсим данные из ответа и записываем в соответствующие состояния
+                //     setStages(
+                //         data.stages.map((stage) => ({
+                //             totalPrice: stage.totalPrice,
+                //             isCustomerApproved: stage.isCustomerApproved,
+                //             isContractorApproved: stage.isContractorApproved,
+                //             elementId: stage.id,
+                //             name: stage.stageTitle,
+                //             order: stage.stageOrder,
+                //             stageStatus: stage.stageStatus,
+                //
+                //             stageBalance: stage.stageBalance,
+                //
+                //             startDate: stage.startDate || null,
+                //             finishDate: stage.finishDate || null,
+                //             children: stage.subStages.map((subStage) => ({
+                //                 elementId: subStage.elementId,
+                //                 subWorkCategoryName: subStage.subStageTitle,
+                //                 totalPrice: subStage.subStagePrice,
+                //             })),
+                //         }))
+                //     );
+                //
+                //     setRawStages(
+                //         data.notUsedRawStages.map((rawStage) => ({
+                //             elementId: rawStage.elementId || rawStage.id, // Постоянный ID с бэка
+                //             subWorkCategoryName: rawStage.subStageTitle,
+                //             totalPrice: rawStage.subStagePrice,
+                //         }))
+                //     );
+            //     } else {
+            //         // Если списки пусты, выполняем уже существующий запрос к /categories/raw-stages
+            //         const params = new URLSearchParams({agreementId});
+            //         const rawStagesResponse = await fetch(`${url}/categories/raw-stages?${params.toString()}`, {
+            //             method: 'GET',
+            //             headers: {
+            //                 'Content-Type': 'application/json',
+            //                 'Authorization': `Bearer ${authToken}`,
+            //             },
+            //         });
+            //
+            //         if (!rawStagesResponse.ok) {
+            //             throw new Error(`Ошибка сети: ${rawStagesResponse.status}`);
+            //         }
+            //
+            //         const rawStagesData = await rawStagesResponse.json();
+            //         if (rawStagesData.rawStages) {
+            //             // setIsAvailable(false)
+            //             setRawStages(
+            //                 rawStagesData.rawStages.map((rawStage) => ({
+            //                     elementId: rawStage.elementId, // Используем elementId как id
+            //                     subWorkCategoryName: rawStage.subWorkCategoryName,
+            //                     totalPrice: rawStage.totalPrice,
+            //                 }))
+            //             );
+            //
+            //         } else {
+            //             console.error('Ошибка: поле "rawStages" отсутствует в ответе сервера.');
+            //         }
+            //
+            //     }
+            // } catch (error) {
+            //     console.error('Ошибка при загрузке этапов работ:', error.message);
+            // }
         };
 
         fetchStages();
@@ -302,36 +300,35 @@ const WorkStagesBuilder = ({agreementId, initiatorId, receiverId}) => {
         }
     };
 
-    const handleResetStages = async () => {
-        try {
-            const params = new URLSearchParams({agreementId, firstId: initiatorId, secondId: receiverId});
-            const response = await fetch(`${url}/stages?${params.toString()}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`,
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error(`Ошибка сброса: ${response.status}`);
-            }
-
-            const data = await response.json();
-            if (data.success) {
-                setStages([])
-                showToast('Этапы работ успешно сброшены', 'success')
-            } else {
-                showToast('Не удалось сбросить этапы, так как по некоторым из них уже ведутся работы', 'warning')
-            }
-        } catch (error) {
-            console.error('Ошибка обработки редактирования:', error);
-        }
-    };
+    // const handleResetStages = async () => {
+    //     try {
+    //         const params = new URLSearchParams({agreementId, firstId: initiatorId, secondId: receiverId});
+    //         const response = await fetch(`${url}/stages?${params.toString()}`, {
+    //             method: 'DELETE',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'Authorization': `Bearer ${authToken}`,
+    //             },
+    //         });
+    //
+    //         if (!response.ok) {
+    //             throw new Error(`Ошибка сброса: ${response.status}`);
+    //         }
+    //
+    //         const data = await response.json();
+    //         if (data.success) {
+    //             setStages([])
+    //             showToast('Этапы работ успешно сброшены', 'success')
+    //         } else {
+    //             showToast('Не удалось сбросить этапы, так как по некоторым из них уже ведутся работы', 'warning')
+    //         }
+    //     } catch (error) {
+    //         console.error('Ошибка обработки редактирования:', error);
+    //     }
+    // };
 
     // Добавление нового этапа в список
     const handleAddStage = () => {
-
         handleShowModalAddStage()
         // if (!newStageName.trim()) {
         //     showToast('Введите название этапа', 'info');
@@ -348,75 +345,75 @@ const WorkStagesBuilder = ({agreementId, initiatorId, receiverId}) => {
     };
 
     // Обработка перетаскивания
-    const onDragEnd = (result) => {
-        const {source, destination} = result;
-        if (isEditing !== true) {
-            return;
-        }
-        if (!destination) return;
+    // const onDragEnd = (result) => {
+    //     const {source, destination} = result;
+    //     if (isEditing !== true) {
+    //         return;
+    //     }
+    //     if (!destination) return;
+    //
+    //     // Находим этап, куда происходит перетаскивание
+    //     const destinationStage = stages.find((stage) => stage.elementId === destination.droppableId);
+    //
+    //     // Если этап утвержден обоими сторонами, запретить любые изменения
+    //     if (destinationStage && destinationStage.isCustomerApproved && destinationStage.isContractorApproved) {
+    //         return;
+    //     }
+    //
+    //     // Перемещение внутри rawStages
+    //     if (source.droppableId === 'rawStagesList' && destination.droppableId === 'rawStagesList') {
+    //         const updatedRawStages = Array.from(rawStages);
+    //         const [movedItem] = updatedRawStages.splice(source.index, 1);
+    //         updatedRawStages.splice(destination.index, 0, movedItem);
+    //         setRawStages(updatedRawStages);
+    //     } else if (source.droppableId === 'rawStagesList' && destination.droppableId !== 'rawStagesList') {
+    //         // Перемещение из rawStages в Stage
+    //         const movedRawStage = rawStages[source.index];
+    //         setRawStages((prev) => prev.filter((_, index) => index !== source.index));
+    //         setStages((prev) =>
+    //             prev.map((stage) =>
+    //                 stage.elementId === destination.droppableId
+    //                     ? {...stage, children: [...stage.children, movedRawStage]}
+    //                     : stage
+    //             )
+    //         );
+    //     } else if (source.droppableId !== 'rawStagesList' && destination.droppableId !== 'rawStagesList') {
+    //         // Перемещение внутри или между этапами
+    //         const sourceStage = stages.find((stage) => stage.elementId === source.droppableId);
+    //         const destinationStage = stages.find((stage) => stage.elementId === destination.droppableId);
+    //         const [movedRawStage] = sourceStage.children.splice(source.index, 1);
+    //         if (sourceStage.elementId === destinationStage.elementId) {
+    //             sourceStage.children.splice(destination.index, 0, movedRawStage);
+    //         } else {
+    //             destinationStage.children.splice(destination.index, 0, movedRawStage);
+    //         }
+    //         setStages([...stages]);
+    //     } else if (source.droppableId !== 'rawStagesList' && destination.droppableId === 'rawStagesList') {
+    //         // Перемещение из Stage обратно в rawStages
+    //         const sourceStage = stages.find((stage) => stage.elementId === source.droppableId);
+    //         const [movedRawStage] = sourceStage.children.splice(source.index, 1);
+    //         setRawStages((prev) => [...prev, movedRawStage]);
+    //         setStages([...stages]);
+    //     }
+    // };
 
-        // Находим этап, куда происходит перетаскивание
-        const destinationStage = stages.find((stage) => stage.elementId === destination.droppableId);
-
-        // Если этап утвержден обоими сторонами, запретить любые изменения
-        if (destinationStage && destinationStage.isCustomerApproved && destinationStage.isContractorApproved) {
-            return;
-        }
-
-        // Перемещение внутри rawStages
-        if (source.droppableId === 'rawStagesList' && destination.droppableId === 'rawStagesList') {
-            const updatedRawStages = Array.from(rawStages);
-            const [movedItem] = updatedRawStages.splice(source.index, 1);
-            updatedRawStages.splice(destination.index, 0, movedItem);
-            setRawStages(updatedRawStages);
-        } else if (source.droppableId === 'rawStagesList' && destination.droppableId !== 'rawStagesList') {
-            // Перемещение из rawStages в Stage
-            const movedRawStage = rawStages[source.index];
-            setRawStages((prev) => prev.filter((_, index) => index !== source.index));
-            setStages((prev) =>
-                prev.map((stage) =>
-                    stage.elementId === destination.droppableId
-                        ? {...stage, children: [...stage.children, movedRawStage]}
-                        : stage
-                )
-            );
-        } else if (source.droppableId !== 'rawStagesList' && destination.droppableId !== 'rawStagesList') {
-            // Перемещение внутри или между этапами
-            const sourceStage = stages.find((stage) => stage.elementId === source.droppableId);
-            const destinationStage = stages.find((stage) => stage.elementId === destination.droppableId);
-            const [movedRawStage] = sourceStage.children.splice(source.index, 1);
-            if (sourceStage.elementId === destinationStage.elementId) {
-                sourceStage.children.splice(destination.index, 0, movedRawStage);
-            } else {
-                destinationStage.children.splice(destination.index, 0, movedRawStage);
-            }
-            setStages([...stages]);
-        } else if (source.droppableId !== 'rawStagesList' && destination.droppableId === 'rawStagesList') {
-            // Перемещение из Stage обратно в rawStages
-            const sourceStage = stages.find((stage) => stage.elementId === source.droppableId);
-            const [movedRawStage] = sourceStage.children.splice(source.index, 1);
-            setRawStages((prev) => [...prev, movedRawStage]);
-            setStages([...stages]);
-        }
-    };
-
-    const handleDeleteStage = (stageId) => {
-        const stageToDelete = stages.find((stage) => stage.elementId === stageId);
-        if (!stageToDelete) return;
-
-        // Перемещаем все дочерние RawStages в левую часть
-        setRawStages([...rawStages, ...stageToDelete.children]);
-
-        // Удаляем Stage и пересчитываем порядковые номера
-        const updatedStages = stages
-            .filter((stage) => stage.elementId !== stageId)
-            .map((stage, index) => ({
-                ...stage,
-                order: index + 1, // Порядковый номер — новый индекс + 1
-            }));
-
-        setStages(updatedStages);
-    };
+    // const handleDeleteStage = (stageId) => {
+    //     const stageToDelete = stages.find((stage) => stage.elementId === stageId);
+    //     if (!stageToDelete) return;
+    //
+    //     // Перемещаем все дочерние RawStages в левую часть
+    //     setRawStages([...rawStages, ...stageToDelete.children]);
+    //
+    //     // Удаляем Stage и пересчитываем порядковые номера
+    //     const updatedStages = stages
+    //         .filter((stage) => stage.elementId !== stageId)
+    //         .map((stage, index) => ({
+    //             ...stage,
+    //             order: index + 1, // Порядковый номер — новый индекс + 1
+    //         }));
+    //
+    //     setStages(updatedStages);
+    // };
 
     const handleSaveNewStage = async () => {
         const data = {
@@ -426,8 +423,8 @@ const WorkStagesBuilder = ({agreementId, initiatorId, receiverId}) => {
                 totalPrice: 0,
                 stageOrder: 0,
                 startDate: newStartDate,
-                endDate: newEndDate,
-                subStages: subStages.map((subStage, index) => {
+                finishDate: newEndDate,
+                subStages: newSubStages.map((subStage, index) => {
                     return {
                         subStageTitle: subStage.subWorkCategoryName,
                         subStagePrice: subStage.totalPrice,
@@ -448,6 +445,13 @@ const WorkStagesBuilder = ({agreementId, initiatorId, receiverId}) => {
             body: JSON.stringify(data),
         });
 
+        if (response.ok) {
+            setNewStageName('')
+            setNewStartDate('')
+            setNewEndDate('')
+            setNewSubStages([])
+            handleCloseModalAddStage()
+        }
 
     };
 
@@ -534,49 +538,49 @@ const WorkStagesBuilder = ({agreementId, initiatorId, receiverId}) => {
         }
     };
 
-    const handleApprove = async (elementId, children, stage) => {
-        if (children.length === 0) {
-            showToast('Нельзя утвердить этап без видов работ', 'danger')
-        } else {
+    // const handleApprove = async (elementId, children, stage) => {
+    //     if (children.length === 0) {
+    //         showToast('Нельзя утвердить этап без видов работ', 'danger')
+    //     } else {
+    //
+    //         if (!(stage.startDate && stage.finishDate)) {
+    //             showToast('Нельзя утвердить этап без установленных дат', 'warning')
+    //         } else {
+    //             try {
+    //                 const response = await fetch(`${url}/stages/approval`, {
+    //                     method: 'POST',
+    //                     headers: {
+    //                         'Content-Type': 'application/json',
+    //                         'Authorization': `Bearer ${authToken}`,
+    //                     },
+    //                     body: JSON.stringify({
+    //                         elementId,
+    //                         agreementId,
+    //                         mode,
+    //                         firstId: initiatorId,
+    //                         secondId: receiverId
+    //                     }),
+    //                 });
+    //
+    //                 if (!response.ok) {
+    //                     throw new Error(`Ошибка сети: ${response.status}`);
+    //                 }
+    //
+    //                 // setTrigger(!trigger)
+    //
+    //             } catch (error) {
+    //                 // console.error('Ошибка при сохранении этапов:', error.message);
+    //                 showToast('Ошибка при утверждении', 'danger');
+    //             }
+    //         }
+    //     }
+    // }
 
-            if (!(stage.startDate && stage.finishDate)) {
-                showToast('Нельзя утвердить этап без установленных дат', 'warning')
-            } else {
-                try {
-                    const response = await fetch(`${url}/stages/approval`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${authToken}`,
-                        },
-                        body: JSON.stringify({
-                            elementId,
-                            agreementId,
-                            mode,
-                            firstId: initiatorId,
-                            secondId: receiverId
-                        }),
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`Ошибка сети: ${response.status}`);
-                    }
-
-                    // setTrigger(!trigger)
-
-                } catch (error) {
-                    // console.error('Ошибка при сохранении этапов:', error.message);
-                    showToast('Ошибка при утверждении', 'danger');
-                }
-            }
-        }
-    }
-
-    const handleStageStatusModalWnd = (mode, stage) => {
-        // console.log(mode, stage); // Логируем для проверки
-        setModalData({mode, stage}); // Сохраняем mode и stage
-        setModalOpen(true);
-    };
+    // const handleStageStatusModalWnd = (mode, stage) => {
+    //     // console.log(mode, stage); // Логируем для проверки
+    //     setModalData({mode, stage}); // Сохраняем mode и stage
+    //     setModalOpen(true);
+    // };
 
     const closeModal = () => {
         setModalOpen(false);
@@ -939,7 +943,7 @@ const WorkStagesBuilder = ({agreementId, initiatorId, receiverId}) => {
 
                         <MultipleAutocomplete
                             notUsedRawStages={notUsedRawStages}
-                            setSubStages={setSubStages}
+                            setSubStages={setNewSubStages}
                         />
                     </Form.Group>
 
